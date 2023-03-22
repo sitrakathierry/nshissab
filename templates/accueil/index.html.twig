@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SHISSAB{% endblock %}
+
+{% block body %}
+<nav class="py-2 container-fluid">
+    <div class="row mt-2">
+        <div class="col-6 pl-5">
+            <button class="btn btn-perso-one ml-5 px-3 py-3 logo_accueil">SHISSAB</button>
+        </div>
+        <div class="col-6 d-flex align-center pr-5" style="justify-content: right;">
+            <ul class="list-unstyled menu_accueil list-inline text-uppercase h6">
+                <li class="list-inline-item mx-3"><a href="#" class="menu_accueil_item">Accueil</a></li>
+                <li class="list-inline-item mx-3"><a href="#" class="menu_accueil_item">Contact</a></li>
+                <li class="list-inline-item mx-3"><a href="#" class="menu_accueil_item">Se Connecter</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<header class="">
+    <img src="{{asset('data/images/shissab-header.png')}}" class="img img-fluid header-image" alt="">
+</header>
+<footer class="footer_accueil pt-5 container-fluid" style="background:url(/data/images/word_map.png),linear-gradient(0deg, rgba(20, 20, 20, 0.55), rgba(20, 20, 20, 0.55));">
+<div class="brand-color">
+</div>
+<h3 class="text-center ls text-white font-weight-bold mt-3">CONTACT</h3>
+<div class="w-75 mx-auto" >
+    <div class="row mt-5" >
+        <div class="col-6">
+                <ul class="list-unstyled list_footer text-white contact_footer">
+                    <li class="societe_footer" >HIKAM SOCIETE MULTIPLE</li>
+                    <li>Moroni Philips Grande Comores </li>
+                    <li>Tel : +(269) 359 2414 </li>
+                    <li>Email : hikamsocietemultipl­e@gmail.com </li>
+                </ul>    
+        </div>
+        <div class="col-6 text-justify text-white ">
+                <p class="contact_footer text_footer">
+                    Ce logiciel est conçu par HIKAM SOCIETE MULTPLE, Spécialisé dans la prestation et l’expertise informatique, nous travaillons dans la maintenance, l’étude, l’analyse, la conception et programmation de vos outils informatiques, nous assurons la maintenance et le suivi de vos équipements et logiciels informatiques 
+                </p>
+        </div>
+    </div>
+</div>
+<div class="w-100 text-center">
+    <h6 class="copyright">Hikamsocietemultiple &copy; {{"now"|date('Y')}} </h6>
+</div>
+</footer>
+{% endblock %}

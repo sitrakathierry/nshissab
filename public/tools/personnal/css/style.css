@@ -1,0 +1,109 @@
+/* APPLIQUEE A TOUS */
+*
+{
+    font-family: "Poppins", Arial, sans-serif;
+}
+
+/* ENTETE */
+.header-image
+{
+    height: 500px;
+    object-fit: cover;
+}
+
+/*  MENU ACCUEIL  */
+.menu_accueil
+{
+    font-size : 0.8em !important ;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+.menu_accueil_item
+{
+    color: #005602;
+    transition: .2s;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.menu_accueil_item:hover
+{
+    color: #fd9597;
+    text-decoration: none;
+}
+
+
+/* LOGO ACCUEIL */
+.logo_accueil
+{
+    font-size : 1.1em !important ;
+    font-weight: bold ;
+    letter-spacing: 1px;
+    color: white ;
+}
+
+
+/* BOUTON PERSONNALISEE */
+.btn-perso-one {
+    color: white;
+    background-color: #ecb534;
+    border-color: #ecb534;
+  }
+  
+  .btn-perso-one:hover {
+    color: white;
+    background-color: #179d82;
+    border-color: #179d82;
+  }
+
+/* FOOTER ACCUEIL */
+.footer_accueil
+{
+    height: 400px;
+    background-repeat: no-repeat !important;
+    /* background-size: contain !important; */
+    background-position: top center !important;
+}
+
+.brand-color
+{
+    background-color: #ecb534;
+    width: 500px;
+    height: 3px;
+    margin: 0 auto;
+}
+
+.ls
+{
+    letter-spacing: 1px !important;
+}
+
+.list_footer
+{
+    margin-left: 180px !important;
+}
+
+.text_footer
+{
+    width: 350px !important;
+}
+.contact_footer
+{
+    font-size: 0.8em !important;
+}
+
+.copyright
+{
+    color: white;
+    font-weight: bold;
+    margin-top: 50px !important;
+}
+
+.societe_footer
+{
+    color: #ecb534;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
