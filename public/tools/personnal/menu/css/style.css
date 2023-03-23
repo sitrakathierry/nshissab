@@ -1,0 +1,19 @@
+.profil_image
+{
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+#sidebarCollapse
+{
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.logo_header
+{
+    width: 90px;
+    height: auto;
+    object-fit: cover;
+}

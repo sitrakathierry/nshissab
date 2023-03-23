@@ -1,0 +1,19 @@
+/* APPLIQUEE A TOUS */
+*
+{
+    font-family: "Poppins", Arial, sans-serif;
+}
+
+
+/* BOUTON PERSONNALISEE */
+.btn-perso-one {
+    color: white!important;
+    background-color: #ecb534!important;
+    border-color: #ecb534!important;
+  }
+  
+  .btn-perso-one:hover,.btn-perso-one.active {
+    color: white!important;
+    background-color: #179d82!important;
+    border-color: #179d82!important;
+  }
