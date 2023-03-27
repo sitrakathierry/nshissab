@@ -14,7 +14,7 @@
 /*  MENU ACCUEIL  */
 .menu_accueil
 {
-    font-size : 0.8em !important ;
+    font-size : 0.7em !important ;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -38,7 +38,7 @@
 /* LOGO ACCUEIL */
 .logo_accueil
 {
-    font-size : 1.1em !important ;
+    font-size : 0.8em !important ;
     font-weight: bold ;
     letter-spacing: 1px;
     color: white ;
