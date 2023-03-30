@@ -5,6 +5,18 @@
     object-fit: cover;
 }
 
+.profil
+{
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-position: top center !important;
+}
+
+.dropdown-toggle::after
+{
+    display:none !important ;
+}
+
 #sidebarCollapse
 {
     padding-left: 10px !important;

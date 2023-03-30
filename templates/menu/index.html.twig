@@ -14,33 +14,19 @@
 {% block menu %}
     <div class="wrapper d-flex align-items-stretch">
 		<nav id="sidebar">
-            <div class="profil w-100 text-center pt-5">
-                <img src="{{asset('data/images/profile.png')}}" alt="" class="bg-white profil_image img rounded-circle img-fluid">
-                <h1 class="text-uppercase"><a href="#" class="logo">Test</a></h1>
+            <div class="profil w-100 text-center pt-4 pb-4" style="background:linear-gradient(0deg, #212121d0, #212121d0),url({{asset('data/images/header_image.png')}})">
+                <img src="{{asset('data/images/profile.png')}}" alt="" class="profil_image img rounded-circle img-fluid">
+                <h1 class="text-uppercase"><a href="#" class="logo">{{app.session.get('user').username}}</a></h1>
+                <div class="dropdown">
+                    <a  class="dropdown-toggle text-white" type="button" data-toggle="dropdown" aria-expanded="false">shissab@admin.sm</a>
+                    <div class="dropdown-menu" id="myprofile">
+                        <a class="dropdown-item" href="#">Profil</a>
+                        <a class="dropdown-item" href="#">Deconnexion</a>
+                    </div>
+                </div>
             </div>
-				
 			<ul class="list-unstyled components mb-5" id="accordion">
-			<li class="active">
-				<a href="#collapseOne" data-toggle="collapse" aria-expanded="true" aria-controls="collapseOne"><span class="fa fa-building mr-2"></span>SOCIETE</a>
-			</li>
-            <ul class="list-unstyled collapse ml-3" id="collapseOne" aria-labelledby="headingOne" data-parent="#accordion">
-                {# <li>
-				    <a href="#"><span class="fa fa-user mr-2"></span>Dashboard</a>
-                </li> #}
-                <li>
-                    <a href="#"><span class="fa fa-sticky-note mr-2"></span>Détails</a>
-                </li>
-            </ul>
-			<li>
-				<a href="#"><span class="fa fa-sticky-note mr-2"></span>Gestion Client</a>
-			</li>
-			<li>
-				<a href="#"><span class="fa fa-paper-plane mr-2"></span>Facture</a>
-			</li>
-			<li>
-				<a href="#"><span class="fa fa-paper-plane mr-2"></span>Gestion de stock</a>
-			</li>
-			</ul>
+		    </ul>
 		</nav>
 
 			<!-- Page Content  -->

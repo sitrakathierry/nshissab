@@ -28,9 +28,21 @@
 		{{ encore_entry_script_tags('app') }}
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.js"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/popper.js')}}"></script>
+			<script src="{{asset('tools/bootstrap/js/bootstrap.js')}}"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/bootstrap.min.js')}}"></script>
 			<script src="{{asset('tools/confirm/js/jquery-confirm.js')}}"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/main.js')}}"></script>
+			<script>
+				const routes = {
+						jsonPath : "{{ asset('files/json/menu/' ~ app.session.get('user').username ~ '.json')}}",
+						app_login : "{{path('app_login')}}",
+						app_admin : "{{path('app_admin')}}",
+					};
+				const files = {
+						loading : "{{asset('data/images/loading.svg')}}"
+				}	
+			</script>
+			<script src="{{asset('tools/personnal/js/main.js')}}"></script>
 		{% endblock %}
 	</body>
 </html>

@@ -3,27 +3,27 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @Route("/login", name="app_login")
-     */
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    private $session ;
+
+    public function __construct(SessionInterface $session)
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
-
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+        $this->session = $session ;
+    }
+    /**
+     * @Route("/login/{error}", name="app_login", defaults = {"error" : null})
+     */
+    public function login($error): Response
+    {
+        return $this->render('security/login.html.twig', ['error' => $error]);
     }
 
     /**
@@ -32,5 +32,31 @@ class SecurityController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    /**
+     * @Route("/auth/login", name="auth_login")
+     */
+    public function authentificationLogin(Request $request)
+    {
+        $error = null ;
+        $csrfToken = $request->request->get('_csrf_token');
+        if (!$this->isCsrfTokenValid('authenticate', $csrfToken)) {
+            $error = 'CSRF token invalide';
+        }
+        // $url = $this->generateUrl('app_login',["error" => $error ]);
+
+        $data = [
+            "username" => "shissab",
+            "email" => "shissab@admin.sm",
+            "csrf_token" => $csrfToken
+        ] ;
+
+        $this->session->set("user", $data) ;
+
+        // return $this->redirectToRoute('app_login',["error" => $error]);
+
+        return $this->redirectToRoute('app_admin');
+        
     }
 }

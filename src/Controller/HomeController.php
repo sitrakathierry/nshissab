@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Service\AppService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -21,7 +22,6 @@ class HomeController extends AbstractController
      */
     public function index(): Response
     {
-
         $allowUrl = $this->appService->checkUrl() ;
         if(!$allowUrl)
         {
@@ -29,7 +29,6 @@ class HomeController extends AbstractController
             return new RedirectResponse($url);
         }
 
-        
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
         ]);
