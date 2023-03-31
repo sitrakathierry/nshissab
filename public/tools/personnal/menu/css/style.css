@@ -67,3 +67,8 @@
 {
     border-top : 2px dashed grey ; 
 }
+
+.content_list
+{
+    max-height: 300px !important;
+}

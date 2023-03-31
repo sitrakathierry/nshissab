@@ -51,7 +51,8 @@ class AppService extends AbstractController
             $currentRoute = $this->router->match($this->requestStack->getCurrentRequest()->getPathInfo())['_route'];
             // dd($currentRoute) ;
         }
-
+        
+        $allowUrl = true ;
         return $allowUrl; 
     }
 

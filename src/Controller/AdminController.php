@@ -9,6 +9,7 @@ use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -31,6 +32,13 @@ class AdminController extends AbstractController
     #[Route('/admin', name: 'app_admin')]
     public function index(): Response
     {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
         $user = $this->session->get("user")  ; 
         $filename = "files/json/menu/".$user['username'].".json" ;
         if(!file_exists($filename))
@@ -56,6 +64,13 @@ class AdminController extends AbstractController
     #[Route('/admin/societe/add', name: 'admin_add_societe')]
     public function addSociete()
     {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
         $password = $this->appService->generatePassword() ;
         return $this->render('admin/societe/add.html.twig',[
             'password' => $password
@@ -65,6 +80,13 @@ class AdminController extends AbstractController
     #[Route('/admin/societe/save', name:'admin_saveSociete')]
     public function saveSociete(Request $request)
     {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
         $nom = $request->request->get('nom') ;
         $region = $request->request->get('region') ;
         $capacite = $request->request->get('capacite') ;
@@ -134,6 +156,12 @@ class AdminController extends AbstractController
             $message = "Votre adresse email est invalide" ;
         }
         
+        if(strlen($password) < 8)
+        {
+            $allow = False ;
+            $type="orange" ;
+            $message = "Votre mot de passe doit contenir au moins 8 caractère" ;
+        }
 
         if(!$allow)
             return new JsonResponse(["message"=>$message, "type"=>$type]) ;
@@ -174,8 +202,32 @@ class AdminController extends AbstractController
     #[Route('/admin/password/get', name:"getRandomPass")]
     public function getRandomPass()
     {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
         $randomPass = $this->appService->generatePassword() ;
 
         return new JsonResponse(["randomPass" => $randomPass]) ;
+    }
+
+    #[Route('/admin/societe/list',name:'admin_listSociete')]
+    public function listSociete()
+    {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
+        $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
+
+        return $this->render('admin/societe/list.html.twig',[
+            "agences" => $agences
+        ]);
     }
 }
