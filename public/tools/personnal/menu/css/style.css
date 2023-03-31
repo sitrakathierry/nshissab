@@ -29,3 +29,41 @@
     height: auto;
     object-fit: cover;
 }
+
+.barre_top
+{
+    border-top : 5px solid grey ;                                                                           
+}
+
+.text-black
+{
+    color: #3d3c3c  !important;
+}
+
+.entete_page
+{
+    font-size: 1.1em;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.title_form
+{
+    font-size: 1em;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.badge_pass
+{
+    font-size : 0.9em !important; 
+    border-radius: 20px ;
+}
+.alert_pass
+{
+    font-size : 1em !important; 
+}
+.barre_dashed
+{
+    border-top : 2px dashed grey ; 
+}

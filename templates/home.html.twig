@@ -2,6 +2,9 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+		<meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
     	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>
 			{% block title %}Welcome!
@@ -20,7 +23,7 @@
 			<link rel="stylesheet" href="{{asset('tools/confirm/css/jquery-confirm.css')}}">
 		{% endblock %}
 	</head>
-	<body>
+	<body version="1.0">
 		{% block menu %}
 			{# Voir dans le fichier templates/menu/index.html.twig #}
 		{% endblock %}
@@ -34,12 +37,15 @@
 			<script src="{{asset('tools/personnal/sidebar/js/main.js')}}"></script>
 			<script>
 				const routes = {
-						jsonPath : "{{ asset('files/json/menu/' ~ app.session.get('user').username ~ '.json')}}",
-						app_login : "{{path('app_login')}}",
-						app_admin : "{{path('app_admin')}}",
-					};
+					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username ~ '.json')}}",
+					app_login : "{{path('app_login')}}",
+					app_admin : "{{path('app_admin')}}",
+					admin_add_societe: "{{path('admin_add_societe')}}",
+					admin_saveSociete : "{{path('admin_saveSociete')}}",
+					getRandomPass : "{{path('getRandomPass')}}"
+				};
 				const files = {
-						loading : "{{asset('data/images/loading.svg')}}"
+					loading : "{{asset('data/images/loading.svg')}}"
 				}	
 			</script>
 			<script src="{{asset('tools/personnal/js/main.js')}}"></script>

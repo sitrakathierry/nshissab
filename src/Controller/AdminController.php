@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Agence;
 use App\Entity\MenuUser;
 use App\Entity\User;
 use App\Service\AppService;
@@ -50,5 +51,131 @@ class AdminController extends AbstractController
         }
         
         return $this->render('admin/index.html.twig');
+    }
+
+    #[Route('/admin/societe/add', name: 'admin_add_societe')]
+    public function addSociete()
+    {
+        $password = $this->appService->generatePassword() ;
+        return $this->render('admin/societe/add.html.twig',[
+            'password' => $password
+        ]);
+    }
+
+    #[Route('/admin/societe/save', name:'admin_saveSociete')]
+    public function saveSociete(Request $request)
+    {
+        $nom = $request->request->get('nom') ;
+        $region = $request->request->get('region') ;
+        $capacite = $request->request->get('capacite') ;
+        $adresse = $request->request->get('adresse') ;
+        $telephone = $request->request->get('telephone') ;
+
+        $username = $request->request->get('username') ;
+        $password = $request->request->get('password') ;
+        $email = $request->request->get('email') ;
+        $poste = $request->request->get('poste') ;
+
+        $data = [$nom, $region, $capacite, $adresse, $telephone,$username ,$password ,$email ,$poste ] ;
+        $dataMessage = ["nom", "region", "nombre de compte", "adresse", "telephone","nom d'utilisateur" ,"mot de passe" ,"email" ,"responsabilite" ] ;
+        $allow = True ;
+        $message = "Information enregistré avec succès" ;
+        $type = "green" ;
+        for ($i=0; $i < count($data); $i++) { 
+            if($i != 2)
+            {
+                if(empty($data[$i]))
+                {
+                    $allow = False ;
+                    $type="orange" ;
+                    $message = $dataMessage[$i]." vide" ;
+                    break;
+                }
+            }
+            else
+            {
+                if(empty($data[$i]))
+                {
+                    $allow = False ;
+                    $type="orange" ;
+                    $message = $dataMessage[$i]." vide" ;
+                    break;
+                }
+                else if(intval($data[$i]) <= 0)
+                {
+                    $allow = False ;
+                    $type="red" ;
+                    $message = $dataMessage[$i]." doit être supérieur à 0" ;
+                    break;
+                }
+            }
+        } 
+
+        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy(["username" => strtoupper($username)]) ;
+
+        if(!is_null($chk_uname))
+        {
+            $allow = False ;
+            $type="orange" ;
+            $message = "Votre nom d'utilisateur existe déjà, veuillez entrer un autre" ;
+        }
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $chk_email = $this->entityManager->getRepository(User::class)->findOneBy(["email" => $email]) ;
+            if(!is_null($chk_email))
+            {
+                $allow = False ;
+                $type="orange" ;
+                $message = "Votre adresse email existe déjà, veuillez entrer un autre" ;
+            }
+        } else {
+            $allow = False ;
+            $type="red" ;
+            $message = "Votre adresse email est invalide" ;
+        }
+        
+
+        if(!$allow)
+            return new JsonResponse(["message"=>$message, "type"=>$type]) ;
+
+        $agence = new Agence() ;
+        $agence->setNom(strtoupper($nom));
+        $agence->setRegion($region);
+        $agence->setCapacite($capacite);
+        $agence->setAdresse($adresse) ;
+        $agence->setTelephone($telephone) ;
+        $agence->setStatut(True) ;
+        $agence->setCreatedAt(new \DateTimeImmutable) ;
+        $agence->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($agence);
+        $this->entityManager->flush();
+
+        $user = new User() ;
+        
+        $encodedPass = $this->appService->hashPassword($user,$password) ;
+
+        $user->setUsername(strtoupper($username)) ;
+        $user->setEmail($email);
+        $user->setPassword($encodedPass) ;
+        $user->setPoste($poste) ;
+        $user->setAgence($agence) ;
+        $user->setStatut(True) ; 
+        $user->setRoles(["MANAGER"]) ;
+        $user->setCreatedAt(new \DateTimeImmutable) ;
+        $user->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return new JsonResponse(["message"=>$message, "type"=>$type]) ;
+    }
+
+    #[Route('/admin/password/get', name:"getRandomPass")]
+    public function getRandomPass()
+    {
+        $randomPass = $this->appService->generatePassword() ;
+
+        return new JsonResponse(["randomPass" => $randomPass]) ;
     }
 }

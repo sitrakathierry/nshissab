@@ -1,4 +1,21 @@
 $(document).ready(function(){
+    $.ajaxSetup({
+        cache: false
+      });
+
+      function generatePassword() {
+        var length = 8,
+            charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+<>?",
+            password = "";
+        while(password.length < length) {
+          var randomChar = charset.charAt(Math.floor(Math.random() * charset.length));
+          if(/[a-z]/.test(randomChar) && /[A-Z]/.test(randomChar) && /[0-9]/.test(randomChar) && /[!@#$%^&*()_+<>?]/.test(randomChar)) {
+            password += randomChar;
+          }
+        }
+        return password;
+      }
+
     $.getJSON(routes.jsonPath, function(json) {
         // console.log(json); // this will show the info it in firebug console
         var menu = ''
@@ -104,4 +121,63 @@ $(document).ready(function(){
             $("#accordion").html(menu) ;
 
         });
+    
+        function loading()
+        {
+            var loading = `
+            <div class="text-center">
+                <img src="`+files.loading+`" class="img img-fluid" alt="">
+            </div>
+            `
+            alertInstance = $.alert({
+                title:false,
+                content:loading,
+                closeIcon: false,
+                buttons: false
+              });
+            
+            return alertInstance ; 
+        }
+
+        $("#formSociete").submit(function(event){
+            event.preventDefault()
+            var instance = loading()
+            var data = $(this).serialize();
+            $.ajax({
+                url: routes.admin_saveSociete,
+                type:"post",
+                data:data,
+                dataType:"json",
+                success : function(json){
+                    instance.close()
+                    $.alert({
+                        title: 'Message',
+                        content: json.message,
+                        type: json.type,
+                    });
+                    if(json.type == "green")
+                    {
+                        var dataForm = []
+                        var elements = data.split("&")
+                        for (let index = 0; index < elements.length; index++) {
+                            const element = elements[index];
+                            dataForm.push(element.split("=")[0]) ;
+                        }
+                        // const jsonData = JSON.stringify(dataForm);
+                        dataForm.forEach(elem => {
+                            $("#"+elem).val("")
+                        })
+                        $.ajax({
+                            url : routes.getRandomPass ,
+                            type:'post',
+                            data:{},
+                            dataType: 'json',
+                            success : function(resp){
+                                $("#password").val(resp.randomPass)
+                            }
+                        })
+                    }
+                }
+            })
+        })
     });
