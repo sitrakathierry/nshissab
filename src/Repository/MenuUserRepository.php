@@ -7,7 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<MenuUser>
+ * @extends ServiceEntityRepository<MenuUser>  
  *
  * @method MenuUser|null find($id, $lockMode = null, $lockVersion = null)
  * @method MenuUser|null findOneBy(array $criteria, array $orderBy = null)
@@ -52,7 +52,7 @@ class MenuUserRepository extends ServiceEntityRepository
                 SELECT
                 m.menu_parent_id as parent, 
                 m.id,
-                IF(m.route IS NULL,'none',m.route) as route, 
+                IF(m.route IS NULL,'app_admin',m.route) as route, 
                 m.nom, m.icone, m.rang
                 FROM `menu_user` mu 
                 JOIN menu_agence ma ON mu.menu_agence_id = ma.id 
@@ -67,11 +67,24 @@ class MenuUserRepository extends ServiceEntityRepository
             $resultSet = $stmt->executeQuery([$user]);
         else
             $resultSet = $stmt->executeQuery([$parent,$user]);
-        
         return $resultSet->fetchAllAssociative();
     }
 
+    public function allMenuUser($parent = null)
+    {
+        $sql = " SELECT `id`,IF(`route` IS NULL,'app_admin',`route`) as route,`nom`,`icone` FROM `menu` WHERE `menu_parent_id` IS NULL AND `statut` = 1 ORDER BY `rang` ASC" ;
+        if(!is_null($parent))  
+            $sql = " SELECT `id`,IF(`route` IS NULL,'app_admin',`route`) as route,`nom`,`icone` FROM `menu` WHERE `statut` = 1 AND `menu_parent_id` = ? ORDER BY `rang` ASC " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        
+        if(!is_null($parent))  
+            $resultSet = $stmt->executeQuery([$parent]);
+        else
+            $resultSet = $stmt->executeQuery([]);
 
+        return $resultSet->fetchAllAssociative();
+    }
 //    /**
 //     * @return MenuUser[] Returns an array of MenuUser objects
 //     */

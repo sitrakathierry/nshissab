@@ -2,112 +2,37 @@ $(document).ready(function(){
     $.ajaxSetup({
         cache: false
       });
-
-    $.getJSON(routes.jsonPath, function(json) {
-    // console.log(json); // this will show the info it in firebug console
-    var menu = ''
-    var i = 1
-    var contentCollapse = ''
-    json.forEach(element => {
-            var route = element.route
-            if(route == "none")
-                route = "app_admin"
-            var nom = element.nom
-            var icone = element.icone
-            var attribute = 'href="'+routes[route]+'"'
-            var is_submenu = false
-            if(element.submenu !== undefined)
-            {
-                if(element.submenu.length > 0)
-                {
-                    attribute = 'href="#collapse'+i+'" data-toggle="collapse" aria-expanded="true" aria-controls="collapse'+i+'"'
-                    is_submenu = true ;
-                }
-            }
+    
+      function generateAccordionMenu(menuData, parentElement) 
+      {
+          var menuList = $('<ul>').addClass('accordion-menu list-unstyled components');
+          $.each(menuData, function(index, item) {
+            var menuItem = $('<li>');
+            var menuItemLink = $('<a>').attr('href',routes[item.route]).html('<i class="fa ' + item.icone + '"></i>&nbsp;' + item.nom);
             
-            menu += `
-                    <li>
-                        <a `+attribute+`><span class="fa `+icone+` mr-2"></span>`+nom+`</a>
-                    </li>
-            `
-            if(is_submenu)
-            {
-                
-                var submenu = element.submenu
-                var collapse = `
-                <ul class="list-unstyled collapse ml-3" id="collapse`+i+`" aria-labelledby="heading" data-parent="#accordion">
-                `
-                var j = 1
-                submenu.forEach(elem => {
-                    var s_route = elem.route
-                    if(s_route == "none")
-                        s_route = "app_admin"
-                    var s_nom = elem.nom
-                    var s_icone = elem.icone
-                    var s_attribute = 'href = "'+routes[s_route]+'"'
-                    var s_is_submenu = false
-                    var contentParent = ''
-                    if(elem.submenu !== undefined)
-                    {
-                        if(elem.submenu.length > 0)
-                        {
-                            s_attribute = 'href="#subcollapse'+j+'" data-toggle="collapse" aria-expanded="true" aria-controls="subcollapse'+j+'"'
-                            s_is_submenu = true ;
-                        }
-                    }
-                    contentParent = `
-                        <li>
-                            <a `+s_attribute+`><span class="fa `+s_icone+` mr-2"></span>`+s_nom+`</a>
-                        </li>
-                    `
-                    if(s_is_submenu)
-                    {
-                        var su_collapse = `
-                            <ul class="list-unstyled collapse ml-3" id="subcollapse`+j+`" aria-labelledby="subheading`+j+`" data-parent="#collapse`+i+`">
-                        `
-                        elem.submenu.forEach(elems => {
-                            var su_route = elems.route
-                            if(su_route == "none")
-                                su_route = "app_admin"
-                            var su_nom = elems.nom
-                            var su_icone = elems.icone
-                            var su_attribute = 'href = "'+routes[su_route]+'"'
-                            su_collapse += `
-                                <li>
-                                    <a `+su_attribute+`><span class="fa `+su_icone+` mr-2"></span>`+su_nom+`</a>
-                                </li>
-                            `
-                        })
-                        if(j == 1)
-                        {
-                            menu +=collapse+contentParent+ su_collapse +"</ul>"
-                        }
-                        else
-                        {
-                            menu += contentParent+ su_collapse +"</ul>"
-                        }
-                    }
-                    else
-                    {
-                        if(j == 1)
-                        {
-                            menu +=collapse+contentParent 
-                        }
-                        else
-                        {
-                            menu += contentParent
-                        }
-                        
-                    }
-                    j++
-                })
-                menu += "</ul>"
-            }
-            i++ ;
-        })
-        $("#accordion").html(menu) ;
-
-    });
+          if (item.submenu && item.submenu.length > 0) {
+                  menuItemLink.addClass('accordion-toggle collapsed');
+                  menuItemLink.attr('data-toggle', 'collapse');
+                  menuItemLink.attr('data-parent','#submenu-' + item.id);
+                  menuItemLink.attr('data-target', '#submenu-' + item.id);
+                  
+                  var submenu = $('<ul>').addClass('sub-menu list-unstyled collapse').attr('id', 'submenu-' + item.id);
+                  generateAccordionMenu(item.submenu, submenu);
+                  menuItem.append(menuItemLink).append(submenu);
+              } else {
+                  menuItem.append(menuItemLink);
+              }
+              menuList.append(menuItem);
+          });
+          
+          parentElement.append(menuList);
+      }
+  
+      $.getJSON(routes.jsonPath, function(json) {
+          generateAccordionMenu(json,$('.menu_accr'))
+          // $("#menu_accordion").html(menuList) ;
+  
+      });
 
     function loading()
     {
@@ -247,5 +172,129 @@ $(document).ready(function(){
         })
     })
 
+    $(".menuPlus").click(function(){
+        $(this).toggleClass("text-info")
+        if($(this).hasClass("fa-plus"))
+        {
+            $(this).removeClass("fa-plus")
+            $(this).addClass("fa-minus")
+        }
+        else
+        {
+            $(this).removeClass("fa-minus")
+            $(this).addClass("fa-plus")
+        }
+        $(this).toggleClass("active")
+    })
 
+    function checkMenu(self,is_active)
+    {
+        if(is_active)
+        {
+            self.removeClass("far")
+            self.addClass("fa text-info")
+        }
+        else
+        {
+            self.removeClass("fa text-info")
+            self.addClass("far")
+        }
+    }
+
+    $(".menuCheck").click(function(){
+        var menuPlus = $(this).closest("li").find(".menuPlus")
+        // console.log(menuPlus) ;
+        if(menuPlus.length > 0)
+        {
+            if($(this).hasClass("fa text-info"))
+            {
+                checkMenu($(this),false)     
+                if(menuPlus.hasClass("active"))
+                {
+                    menuPlus.click()
+                }
+                var child = menuPlus.data("target")
+                $(child).find(".menuCheck").each(function(){
+                    checkMenu($(this),false)
+                })
+            }
+            else
+            {
+                checkMenu($(this),true)
+                if(!menuPlus.hasClass("active"))
+                {
+                    menuPlus.click()
+                }  
+                var child = menuPlus.data("target")
+                $(child).find(".menuCheck").each(function(){
+                    checkMenu($(this),true)
+                })
+            }
+        }
+        else
+        {
+            var collapse = $(this).closest("ul").attr("id")
+            var parent = $(this).closest("#accordion").find("i[data-target='#"+collapse+"']").closest("li").find(".menuCheck")
+
+            if(!parent.hasClass("fa text-info"))
+            {
+                checkMenu(parent,true)
+            }
+            if($(this).hasClass("fa text-info"))
+            {
+                checkMenu($(this),false)
+            }
+            else
+            {
+                checkMenu($(this),true)
+            }
+        }
+
+        
+        
+    })
+
+    function checkSociety(agence)
+    {
+        $.alert({
+            title: false,
+            content: agence,
+            buttons : false,
+            closeIcon: true
+        })
+    }
+
+    $(".oneSociety").click(function(){
+        var self = $(this)
+        $(".oneSociety").each(function(){
+            if($(this).hasClass("active"))
+            {
+                $(this).removeClass("active")
+            }
+        }) 
+
+        self.toggleClass("active")
+        // checkSociety(self.attr("value"))
+    })
+
+    function uncheckedSociety()
+    {
+        $(".oneSociety").each(function(){
+            if($(this).hasClass("active"))
+            {
+                $(this).removeClass("active")
+            }
+        }) 
+    }
+
+    $(".effacerTout").click(function(){
+        uncheckedSociety()
+        $(".menuCheck").each(function(){
+            checkMenu($(this),false)
+        })
+    })
+
+    $(".enregistre").click(function(){
+        
+    })
 });

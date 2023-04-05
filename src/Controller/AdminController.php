@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\User;
 use App\Service\AppService;
@@ -228,6 +229,38 @@ class AdminController extends AbstractController
 
         return $this->render('admin/societe/list.html.twig',[
             "agences" => $agences
+        ]);
+    }
+
+    #[Route('/admin/menu/attribution',name:'menu_attribution')]
+    public function menuAttribution()
+    {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
+        $menus = [] ;
+        $filename = "files/json/menuUser.json" ;
+        if(!file_exists($filename))
+            $this->appService->generateUserMenu($menus,$filename) ;
+        
+        $ma_menu = '' ;
+        $menu_array = json_decode(file_get_contents($filename)) ;
+
+        // var_dump($menu_array) ;
+        // die() ;
+        // $this->appService->afficher_menu($menu_array,$ma_menu) ;
+
+
+        
+        $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
+        $menus = $this->entityManager->getRepository(Menu::class)->findAll() ;
+        return $this->render('admin/menu/attribution.html.twig',[
+            "agences" => $agences,
+            "menus" => $menu_array
         ]);
     }
 }

@@ -70,5 +70,64 @@
 
 .content_list
 {
-    max-height: 300px !important;
+    max-height: 500px !important;
+}
+
+/* .list_menu
+{
+    line-height: 20px;
+} */
+
+.list_menu li
+{
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: .3s;
+}
+
+.list_item_menu li
+{
+    letter-spacing: 1px;
+    font-size: 0.85em;
+    transition: .3s;
+}
+
+.list_item_menu li i:hover
+{
+    color : #ecb534 ;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+/* .list_item_menu li:hover
+{
+    color : #fff ;
+    background-color : grey ;
+    border: none;
+} */
+.list_menu li:hover
+{
+    color : #fff ;
+    background-color : grey ;
+    border: none;
+}
+
+.oneSociety.active,.oneSociety.active:hover
+{
+    color : #fff!important;
+    background-color : #17a2b8 !important;
+    /* border: #17a2b8!important; */
+}
+
+/* .menu_item.active
+{
+    color : #fff ;
+    background-color : grey ;
+    border: none ;
+} */
+
+.accordion-menu a 
+{
+    font-size: 9.5px !important;
 }
