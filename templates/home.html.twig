@@ -41,7 +41,7 @@
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
-					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username ~ '.json')}}",
+					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username|lower ~ '.json')}}",
 					app_login : "{{path('app_login')}}",
 					app_admin : "{{path('app_admin')}}",
 					admin_add_societe: "{{path('admin_add_societe')}}",
