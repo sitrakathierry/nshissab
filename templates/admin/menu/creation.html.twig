@@ -30,7 +30,7 @@
                 <select name="menu_parent_id" class="custom-select" id="menu_parent_id">
                     <option value="0" selected>AUCUN</option>
                     {% for liste in listes %}
-                        <option value="{{liste.id}}">{{liste.nom|upper}}</option>
+                        <option value="{{liste.id}}">{{liste.nom|upper}} ({{liste.parent|upper}})</option>
                     {% endfor %}
                 </select>
 

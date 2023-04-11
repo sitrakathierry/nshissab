@@ -45,6 +45,13 @@ class AppService extends AbstractController
         return $messages[$index];
     }
 
+    public function currentRoute()
+    {
+        $currentRoute = $this->router->match($this->requestStack->getCurrentRequest()->getPathInfo())['_route'];
+
+        return $currentRoute ;
+    }
+
     public function checkUrl()
     {
         $allowUrl = true ;
@@ -55,11 +62,27 @@ class AppService extends AbstractController
         else
         {
             $currentRoute = $this->router->match($this->requestStack->getCurrentRequest()->getPathInfo())['_route'];
-            // dd($currentRoute) ;
         }
-        
         $allowUrl = true ;
+
         return $allowUrl; 
+    }
+
+    public function requestMenu($role,User $user,$parent)
+    {
+        if($role == "MANAGER")
+        {
+            $infoMenu = $this->entityManager
+                        ->getRepository(MenuUser::class)
+                        ->allMenuAgence($parent, $user->getAgence()->getId()) ;
+        }
+        else
+        {
+            $infoMenu = $this->entityManager
+                    ->getRepository(MenuUser::class)
+                    ->allMenu($parent,$user->getId()) ;
+        }
+        return $infoMenu ;
     }
 
     public function getMenu(&$menuUsers,&$id,&$menus)
@@ -70,9 +93,9 @@ class AppService extends AbstractController
                             ->getRepository(User::class)
                             ->findOneBy(array("email" => $user['email'])) ;
 
-        $subMenus = $this->entityManager
-                        ->getRepository(MenuUser::class)
-                        ->allMenu($menuUsers[$id]['id'],$userClass->getId()) ;
+        $roleUser = $userClass->getRoles()[0] ;
+
+        $subMenus = $this->requestMenu($roleUser,$userClass,$menuUsers[$id]['id']) ;
         
         if(!empty($subMenus))
         {
@@ -81,9 +104,7 @@ class AppService extends AbstractController
             $menus[$id] = $endItem ;
             $childMenus = $menus[$id]["submenu"] ; 
             for ($i=0; $i < count($childMenus); $i++) { 
-                $childMenu = $this->entityManager
-                        ->getRepository(MenuUser::class)
-                        ->allMenu($childMenus[$i]["id"],$userClass->getId()) ;
+                $childMenu = $this->requestMenu($roleUser,$userClass,$childMenus[$i]["id"]) ;
                     
                 if(!empty($childMenu))
                 {
@@ -91,10 +112,8 @@ class AppService extends AbstractController
 
                     for($j = 0; $j < count($childMenu) ; $j++)
                     {
-                        $subMenuChild = $this->entityManager
-                            ->getRepository(MenuUser::class)
-                            ->allMenu($childMenu[$j]['id'],$userClass->getId()) ;
-                        
+                        $subMenuChild = $this->requestMenu($roleUser,$userClass,$childMenu[$j]['id']) ;
+
                         if(!empty($subMenuChild))
                         {
                             $menus[$id]["submenu"][$i]["submenu"][$j]["submenu"] = $subMenuChild ; 
@@ -239,9 +258,11 @@ class AppService extends AbstractController
         $listeMenu = [] ;
         $pathListeMenu = "files/json/listeMenu.json" ;
         foreach ($listes as $liste) {
+            $parent = !is_null( $liste->getMenuParent()) ? $liste->getMenuParent()->getNom() : "NULL" ;
             array_push($listeMenu,[
                 "id" => $liste->getId(),
-                "nom" => $liste->getNom()
+                "nom" => $liste->getNom(),
+                "parent" => $parent
             ]) ;
         }
 

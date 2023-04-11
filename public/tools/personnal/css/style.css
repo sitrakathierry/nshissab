@@ -107,3 +107,18 @@
     font-weight: bold;
     letter-spacing: 1px;
 }
+.parent_base
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100vh !important;
+    background-color: #f3f3f4;;
+}
+
+.form-control
+{
+    height: 35px !important;
+    font-size: 0.85rem !important;
+}

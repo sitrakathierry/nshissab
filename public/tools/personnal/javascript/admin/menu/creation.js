@@ -49,7 +49,7 @@ $(document).ready(function(){
             $(".idMenu").val("") ;
             $(".type").val("enregistrer") ;
             $(".foot_action").html(normal)
-            effacerTout()
+            location.reload()
         })
    }
    effacerTout()
@@ -171,5 +171,43 @@ $(document).ready(function(){
         return false ;
    }) 
 
-   
+   $(".restore_menu").click(function(){
+        var self = $(this)
+        $.confirm({
+            title:"Confirmation",
+            content: "Etes-vous sûre de vouloir restaurer cet élément ?",
+            theme:"modern",
+            type: "blue",
+            buttons : {
+                OUI : function()
+                {
+                    var instance = loading()
+                    $.ajax({
+                        url:routes.restore_menu_corbeille,
+                        type:'post',
+                        data:{idMenu:self.attr("value")},
+                        dataType:'json',
+                        success: function(json){
+                            instance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons:{
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        }
+            
+                    })
+                },
+                NON : function(){}
+            }
+        })
+   }) 
 })

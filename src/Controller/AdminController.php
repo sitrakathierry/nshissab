@@ -55,11 +55,14 @@ class AdminController extends AbstractController
                             ->findOneBy(array("email" => $user['email'])) ;
             
             $menus = [] ;
-            $menuUsers = $this->entityManager
-                            ->getRepository(MenuUser::class)
-                            ->allMenu(null, $userClass->getId()) ;
-            $id = 0;
-            $this->appService->getMenu($menuUsers,$id,$menus) ;
+            
+            $menuUsers = $this->appService->requestMenu($userClass->getRoles()[0],$userClass,null) ;
+
+            if(!empty($menuUsers))
+            {
+                $id = 0;
+                $this->appService->getMenu($menuUsers,$id,$menus) ;
+            } 
             
             $json = json_encode($menus) ;
             file_put_contents($filename, $json); 
@@ -293,7 +296,6 @@ class AdminController extends AbstractController
         $pathListeMenu = "files/json/listeMenu.json" ;
         if(!file_exists($pathListeMenu))
             $this->appService->generateListeMenu() ;
-
         $listes = json_decode(file_get_contents($pathListeMenu)) ;
         $menu_array = json_decode(file_get_contents($pathMenuUser)) ;
         return $this->render('admin/menu/creation.html.twig',[
@@ -390,8 +392,8 @@ class AdminController extends AbstractController
             {
                 $menu = $this->entityManager->getRepository(Menu::class)->find($idMenu) ;  
             } 
-            if($menu_parent_id == 0)
-                $menu_parent_id = null;
+            if(intval($menu_parent_id) == 0)
+                $menuParent = null;
             else
                 $menuParent = $this->entityManager->getRepository(Menu::class)->find($menu_parent_id) ; 
 
@@ -445,4 +447,54 @@ class AdminController extends AbstractController
             "menus" => $menus
         ]);
     }
+
+    #[Route('admin/menu/restore/corbeille',name:'restore_menu_corbeille')]
+    public function restoreMenuCorbeille(Request $request)
+    {
+        $idMenu = $request->request->get("idMenu") ;
+        $menu = $this->entityManager->getRepository(Menu::class)->find($idMenu);
+        $menu->setStatut(True) ;
+        $this->entityManager->flush() ;
+        $this->refreshAll() ;
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Elément restauré avec succès"
+            ]) ;
+    }
+
+    #[Route('refresh/all/', name:'refresh_all')]
+    public function refreshAll()
+    {
+        $user = $this->session->get("user")  ; 
+        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        if(file_exists($filename))
+            unlink($filename) ;
+        $this->regenerateUserMenu() ;
+        if($user['role'] == "ADMIN")
+        {
+            $menus = [] ;
+            $pathMenuUser = "files/json/menuUser.json" ;
+            unlink($pathMenuUser) ;
+            if(!file_exists($pathMenuUser))
+                $this->appService->generateUserMenu($menus,$pathMenuUser) ;
+
+            $pathListeMenu = "files/json/listeMenu.json" ;
+            if(file_exists($pathListeMenu))
+                unlink($pathListeMenu) ;
+            if(!file_exists($pathListeMenu))
+                $this->appService->generateListeMenu() ;
+        }
+        if($user["role"] == "ADMIN")
+        {
+            $url = $this->generateUrl('app_admin');
+        }
+        else
+        {
+            $url = $this->generateUrl('app_home');
+        }
+        
+        return new RedirectResponse($url);
+    }
+
+
 }

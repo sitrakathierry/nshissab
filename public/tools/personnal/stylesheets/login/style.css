@@ -1,0 +1,46 @@
+.main_login
+{
+    width: 320px;
+    height: auto;
+    margin-top: -100px;
+    animation: ouvreLogin .9s;
+}
+
+.main_login h1
+{
+    letter-spacing: 1px ;
+    font-size: 0.87em;
+}
+
+@keyframes ouvreLogin {
+    0%
+    {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    100%
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.barre_top
+{
+    border-top : 5px solid grey ;                                                                           
+}
+
+.logo_login
+{
+    width: 140px;
+}
+
+.copyright_login
+{
+    font-size: 0.8em !important;
+}
+
+.alert
+{
+    padding: 0.5em 0.5em !important;
+}

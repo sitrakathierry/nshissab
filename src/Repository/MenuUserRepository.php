@@ -48,8 +48,7 @@ class MenuUserRepository extends ServiceEntityRepository
         else
             $menuParent = "m.menu_parent_id = ? " ;
 
-        $sql = "
-                SELECT
+        $sql = "SELECT
                 m.menu_parent_id as parent, 
                 m.id,
                 IF(m.route IS NULL,'app_admin',m.route) as route, 
@@ -67,6 +66,36 @@ class MenuUserRepository extends ServiceEntityRepository
             $resultSet = $stmt->executeQuery([$user]);
         else
             $resultSet = $stmt->executeQuery([$parent,$user]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function allMenuAgence($parent, $user)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        if(is_null($parent))
+            $menuParent = " m.menu_parent_id IS NULL" ;
+        else
+            $menuParent = "m.menu_parent_id = ? " ;
+
+        $sql = "SELECT
+                m.menu_parent_id as parent, 
+                m.id,
+                IF(m.route IS NULL,'app_admin',m.route) as route, 
+                m.nom, m.icone, m.rang
+                FROM menu_agence ma
+                JOIN menu m ON ma.menu_id = m.id 
+                WHERE $menuParent
+                AND ma.agence_id = ? 
+                AND m.statut = 1 
+                AND ma.statut = 1
+                ORDER BY m.rang ASC";
+        $stmt = $conn->prepare($sql);
+        if(is_null($parent))
+            $resultSet = $stmt->executeQuery([$user]);
+        else
+            $resultSet = $stmt->executeQuery([$parent,$user]);
+        
         return $resultSet->fetchAllAssociative();
     }
 

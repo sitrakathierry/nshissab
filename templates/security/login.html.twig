@@ -1,23 +1,38 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Connexion{% endblock %}
-
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/stylesheets/login/style.css')}}">
+{% endblock %}
 {% block body %}
-<form method="post" action="{{path('auth_login')}}">
-    {% if error is not null %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Nom d'utilisateur</label>
-    <input type="text" name="username" id="inputEmail" class="form-control" autocomplete="Nom d'utilisateur" required autofocus>
-    <label for="inputPassword">Mot de passe</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="Mot de passe" required>
+<div class="parent_base w-100">
+    <div class="main_login p-4 rounded">
+        <form method="post" action="{{path('auth_login')}}" autocomplete="off">
+            <div class="w-100 text-center mb-4">
+                <img src="{{asset('data/images/logo_header.png')}}" class="img logo_login" alt="">
+            </div>
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
-    <button class="btn btn-lg btn-primary" type="submit">
-       Se connecter
-    </button>
-</form>
+            <h1 class="h3 mb-4 font-weight-bold text-uppercase text-secondary text-center l-1">bienvenue sur shissab systeme</h1>
+            
+            {% if error is not null %}
+                <div class="alert btn-sm mb-2 alert-{{type}}">{{ error }}</div>
+            {% endif %}
+
+            <input type="text" name="username" id="username" class="form-control" autocomplete="" required placeholder="Nom d'utilisateur" >
+            
+            <input type="password" name="password" id="password" class="form-control mt-3" autocomplete="" required placeholder="Mot de passe">
+            
+            <input type="hidden" name="_csrf_token"
+                value="{{ csrf_token('authenticate') }}"
+            >
+            <button class="btn btn-sm btn-perso-one btn-block mt-4" type="submit">
+            Se connecter
+            </button>
+            <div class="w-100 text-center mt-3">
+                <label for="" class="copyright_login text-secondary" >Hikamsocietemultiple &copy; {{"now"|date('Y')}}</label>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
