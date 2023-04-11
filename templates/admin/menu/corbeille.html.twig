@@ -1,0 +1,40 @@
+{% extends 'menu/index.html.twig' %}
+
+{% block title %}Attribution menu{% endblock %}
+
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom py-2 px-3">
+        <button type="button" class="btn btn-primary btn-sm float-right" onclick="history.back()"><i class="fa fa-arrow-left"></i>&nbsp;Retour</button>
+        <h4 class="text-uppercase entete_page text-black">Liste des menus supprimées(Corbeille)</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Parent</th>
+                        <th class="text-center">Icone</th>
+                        <th>Nom</th>
+                        <th>Route</th>
+                        <th>Rang</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for menu in menus %}
+                        <tr>
+                            <td> {{menu.menuParent.nom |upper}} </td>
+                            <td class="text-center"> <i class="fa {{menu.icone}}"></i></td>
+                            <td> {{menu.nom|upper}} </td>
+                            <td> {{menu.route}} </td>
+                            <td> {{menu.rang}} </td>
+                            <td class="text-right"> <button class="btn btn-perso-one text-dark btn-sm restore_menu"><i class="fa fa-recycle"></i>&nbsp;Restaurer</button> </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

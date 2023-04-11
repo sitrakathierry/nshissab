@@ -47,7 +47,7 @@ class SecurityController extends AbstractController
         // $url = $this->generateUrl('app_login',["error" => $error ]);
 
         $data = [
-            "username" => "shissab",
+            "username" => "SHISSAB",
             "email" => "shissab@admin.sm",
             "csrf_token" => $csrfToken
         ] ;

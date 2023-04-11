@@ -131,3 +131,25 @@
 {
     font-size: 9.5px !important;
 }
+
+.icone_menu
+{
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8em;
+    padding-top: 30px;
+}
+
+.chosen-container-single .chosen-single
+{
+    padding: 5px 0px 0px 14px !important;
+    height: 37px !important;
+    background: white !important;
+    font-size: 1.1em !important;
+}
+
+.chosen-container-single .chosen-single div b
+{
+    margin-top: 6px !important ;
+}

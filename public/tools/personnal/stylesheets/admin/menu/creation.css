@@ -1,0 +1,6 @@
+.menu_item:hover, .menu_item.ctive
+{
+    color: #999 !important;
+    background-color: antiquewhite !important;
+    cursor: pointer;
+}

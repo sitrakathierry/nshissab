@@ -1,9 +1,11 @@
 $(document).ready(function(){
+    // bloquer la cache 
     $.ajaxSetup({
         cache: false
       });
-    
-      function generateAccordionMenu(menuData, parentElement) 
+      
+    // fonction  générer un menu de type accordion
+    function generateAccordionMenu(menuData, parentElement) 
       {
           var menuList = $('<ul>').addClass('accordion-menu list-unstyled components');
           $.each(menuData, function(index, item) {
@@ -26,14 +28,14 @@ $(document).ready(function(){
           });
           
           parentElement.append(menuList);
-      }
-  
-      $.getJSON(routes.jsonPath, function(json) {
+    } 
+    
+    // appliquer la génération du menu de type accordion
+    $.getJSON(routes.jsonPath, function(json) {
           generateAccordionMenu(json,$('.menu_accr'))
-          // $("#menu_accordion").html(menuList) ;
-  
-      });
+    });
 
+    // indication de chargement
     function loading()
     {
         var loading = `
@@ -51,6 +53,7 @@ $(document).ready(function(){
         return alertInstance ; 
     }
 
+    // verification de la qualité du mot passe
     function checkPasswordStrength(password) {
         var passwordStrength = 0;
         var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -248,10 +251,7 @@ $(document).ready(function(){
             {
                 checkMenu($(this),true)
             }
-        }
-
-        
-        
+        }   
     })
 
     function checkSociety(agence)
@@ -294,7 +294,54 @@ $(document).ready(function(){
         })
     })
 
-    $(".enregistre").click(function(){
-        
+    $(".enregistre_attr_menu").click(function(){
+        $.confirm({
+            title: 'Confirmation',
+            content:"Voulez-vous vraiment enregistrer ?",
+            type:"blue",
+            theme:"modern",
+            buttons : {
+                OUI: function(){
+                    var idS = $(".oneSociety.active").attr("value")
+                    var menus = []
+                    $(".menuCheck.text-info").each(function(){
+                        menus.push($(this).attr("value"))
+                    })
+                    var instance = loading()
+                    $.ajax({
+                        url: routes.admin_save_attribution,
+                        type: 'post',
+                        data:{agence:idS,menus:menus},
+                        dataType:'json',
+                        success:function(res){
+                            instance.close()
+                            $.alert({
+                                title: false,
+                                type:res.type,
+                                content:res.message
+                            })
+                            if(res.type == "green")
+                            {
+                                uncheckedSociety()
+                                $(".menuCheck").each(function(){
+                                    checkMenu($(this),false)
+                                })
+                            }
+                        }
+                    })
+                },
+                NON: function(){
+                    uncheckedSociety()
+                    $(".menuCheck").each(function(){
+                        checkMenu($(this),false)
+                    })
+                }
+            }
+        }) 
+    })
+
+    $("#icone").keyup(function(){
+        $(".icone_menu i").removeClass()
+        $(".icone_menu i").addClass("fa fa-"+$(this).val())
     })
 });

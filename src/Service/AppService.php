@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,6 +12,11 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Nexmo\Client\Exception\Exception;
+use Symfony\Component\HttpFoundation\Response;
+use Vonage\Client\Credentials\Basic;
+use Vonage\Client;
+use Vonage\SMS\Message\SMS ;
 class AppService extends AbstractController
 {
     private $router ;
@@ -226,4 +232,83 @@ class AppService extends AbstractController
         $menu .= "</ul>";
     }
 
+    public function generateListeMenu()
+    {
+        $listes = $this->entityManager->getRepository(Menu::class)->findBy(["statut" => True]) ;
+
+        $listeMenu = [] ;
+        $pathListeMenu = "files/json/listeMenu.json" ;
+        foreach ($listes as $liste) {
+            array_push($listeMenu,[
+                "id" => $liste->getId(),
+                "nom" => $liste->getNom()
+            ]) ;
+        }
+
+        file_put_contents($pathListeMenu, json_encode($listeMenu)) ;
+    }
+
+    public function sendSms()
+    {
+        $basic  = new Basic("4c66ffd6", "XCiCWpI9qBqffTNA");
+        $client = new Client($basic);
+
+        $response = $client->sms()->send(
+            new SMS("261343641200", "HIKAM", 'Bonjour Cher ami, bienvenue sur shissab (Hahah)')
+        );
+        
+        $message = $response->current();
+        
+        if ($message->getStatus() == 0)
+        {
+            return "The message was sent successfully";
+        } 
+        else 
+        {
+            return "The message failed with status: " . $message->getStatus() ;
+        }
+    }
+
+    public function verificationElement($data= [], $dataMessage = [])
+    {
+        $allow = True ;
+        $type = "green" ;
+        $message = "Information enregistré avec succès" ;
+        for ($i=0; $i < count($data); $i++) { 
+            if(!is_numeric($data[$i]))
+            {
+                if(empty($data[$i]))
+                {
+                    $allow = False ;
+                    $type="orange" ;
+                    $message = $dataMessage[$i]." vide" ;
+                    break;
+                }
+            }
+            else
+            {
+                if(empty($data[$i]))
+                {
+                    $allow = False ;
+                    $type="orange" ;
+                    $message = $dataMessage[$i]." vide" ;
+                    break;
+                }
+                else if(intval($data[$i]) <= 0)
+                {
+                    $allow = False ;
+                    $type="red" ;
+                    $message = $dataMessage[$i]." doit être supérieur à 0" ;
+                    break;
+                }
+            }
+        } 
+
+        $result = [] ;
+        $result["allow"] = $allow ;
+        $result["type"] = $type ;
+        $result["message"] = $message ;
+
+        return $result ;
+    }
 }

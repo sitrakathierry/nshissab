@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\Menu;
+use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
 use App\Entity\User;
 use App\Service\AppService;
@@ -39,9 +40,14 @@ class AdminController extends AbstractController
             $url = $this->generateUrl('app_login');
             return new RedirectResponse($url);
         }
+        $this->regenerateUserMenu() ;
+        return $this->render('admin/index.html.twig');
+    }
 
+    public function regenerateUserMenu()
+    {
         $user = $this->session->get("user")  ; 
-        $filename = "files/json/menu/".$user['username'].".json" ;
+        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
         if(!file_exists($filename))
         {
             $userClass = $this->entityManager
@@ -58,8 +64,6 @@ class AdminController extends AbstractController
             $json = json_encode($menus) ;
             file_put_contents($filename, $json); 
         }
-        
-        return $this->render('admin/index.html.twig');
     }
 
     #[Route('/admin/societe/add', name: 'admin_add_societe')]
@@ -101,38 +105,12 @@ class AdminController extends AbstractController
 
         $data = [$nom, $region, $capacite, $adresse, $telephone,$username ,$password ,$email ,$poste ] ;
         $dataMessage = ["nom", "region", "nombre de compte", "adresse", "telephone","nom d'utilisateur" ,"mot de passe" ,"email" ,"responsabilite" ] ;
-        $allow = True ;
-        $message = "Information enregistré avec succès" ;
-        $type = "green" ;
-        for ($i=0; $i < count($data); $i++) { 
-            if($i != 2)
-            {
-                if(empty($data[$i]))
-                {
-                    $allow = False ;
-                    $type="orange" ;
-                    $message = $dataMessage[$i]." vide" ;
-                    break;
-                }
-            }
-            else
-            {
-                if(empty($data[$i]))
-                {
-                    $allow = False ;
-                    $type="orange" ;
-                    $message = $dataMessage[$i]." vide" ;
-                    break;
-                }
-                else if(intval($data[$i]) <= 0)
-                {
-                    $allow = False ;
-                    $type="red" ;
-                    $message = $dataMessage[$i]." doit être supérieur à 0" ;
-                    break;
-                }
-            }
-        } 
+        
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        $allow = $result["allow"] ;
+        $type = $result["type"] ;
+        $message = $result["message"] ;
 
         $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy(["username" => strtoupper($username)]) ;
 
@@ -247,20 +225,224 @@ class AdminController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateUserMenu($menus,$filename) ;
         
-        $ma_menu = '' ;
         $menu_array = json_decode(file_get_contents($filename)) ;
-
-        // var_dump($menu_array) ;
-        // die() ;
-        // $this->appService->afficher_menu($menu_array,$ma_menu) ;
-
-
-        
         $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
-        $menus = $this->entityManager->getRepository(Menu::class)->findAll() ;
+
         return $this->render('admin/menu/attribution.html.twig',[
             "agences" => $agences,
             "menus" => $menu_array
+        ]);
+    }
+
+    #[Route('/admin/menu/attribution/save',name:'admin_save_attribution')]
+    public function saveAttributionMenu(Request $request){
+        try
+        {
+            $agence = $request->request->get('agence') ;
+            $menus = [] ;
+            $menus = $request->request->get('menus') ;
+            $agence = $this->entityManager->getRepository(Agence::class)->find($agence) ;
+
+            if(!is_null($menus))
+            {
+                for ($i=0; $i < count($menus); $i++) { 
+                    $menuAgence = new MenuAgence($agence) ;
+                    $menuAgence->setAgence($agence) ;
+                    $menu = $this->entityManager->getRepository(Menu::class)->find($menus[$i]) ;
+                    $menuAgence->setMenu($menu) ;
+                    $menuAgence->setCreatedAt(new \DateTimeImmutable) ;
+                    $menuAgence->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                    $this->entityManager->persist($menuAgence);
+                    $this->entityManager->flush();
+                }
+                $type = 'green' ;
+                $message = "Information enregistré avec succès" ;
+            }
+            else
+            {
+                $type = 'orange' ;
+                $message = "Veuiller sélectionner un menu" ;
+            }
+            
+        }
+        catch(\Exception $e)
+        {
+            $type = 'red' ;
+            $message = $e->getMessage() ;
+        }
+        
+        return new JsonResponse(["type" => $type, "message" => $message]) ;
+    }
+
+    #[Route('/admin/menu/creation',name:'admin_menu_creation')]
+    public function menuCreation()
+    {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
+        $menus = [] ;
+        $pathMenuUser = "files/json/menuUser.json" ;
+        if(!file_exists($pathMenuUser))
+            $this->appService->generateUserMenu($menus,$pathMenuUser) ;
+
+        $pathListeMenu = "files/json/listeMenu.json" ;
+        if(!file_exists($pathListeMenu))
+            $this->appService->generateListeMenu() ;
+
+        $listes = json_decode(file_get_contents($pathListeMenu)) ;
+        $menu_array = json_decode(file_get_contents($pathMenuUser)) ;
+        return $this->render('admin/menu/creation.html.twig',[
+            "menus" => $menu_array,
+            "listes" => $listes
+        ]);
+            
+    }
+
+    #[Route('admin/menu/disp/one', name:'disp_edit_menu')]
+    public function menuDisplayOne(Request $request)
+    {
+        $liste = [] ;
+        try {
+            $id = $request->request->get('value') ;
+            $menu = $this->entityManager->getRepository(Menu::class)->find($id) ;
+
+            $parent = 0 ;
+            if(!is_null($menu->getMenuParent()))
+                $parent = $menu->getMenuParent()->getId() ;
+            $liste["parent"] = $parent;
+            $liste["nom"] = $menu->getNom() ;
+            $liste["icone"] = $menu->getIcone();
+            $liste["route"] = $menu->getRoute();
+            $liste["rang"] = $menu->getRang();
+
+            $title = "Succès" ;
+            $type = "green" ;
+            $message = "Vous pouvez editer votre menu maintenant" ;
+        } catch (\Exception $e) {
+            $title = "Erreur" ;
+            $type = "red" ;
+            $message = $e->getMessage() ;      
+        }
+        return new JsonResponse([
+            "title" => $title,
+            "type" => $type,
+            "message" => $message,
+            "liste" => $liste
+        ]);
+    }
+
+    #[Route('admin/menu/valid/creation', name:'admin_validCreation')]
+    public function validCreation(Request $request)
+    {
+        $type = $request->request->get("type") ;
+        $idMenu = $request->request->get("idMenu") ;
+        $username = $this->session->get("user")["username"] ;
+        if($type == "supprimer")
+        {
+            $menu = $this->entityManager->getRepository(Menu::class)->find($idMenu) ;
+            $menu->setStatut(False) ;
+            $this->entityManager->flush() ;
+
+            $menus = [] ;
+            $pathMenuUser = "files/json/menuUser.json" ;
+            unlink($pathMenuUser) ;
+            if(!file_exists($pathMenuUser))
+                $this->appService->generateUserMenu($menus,$pathMenuUser) ;
+
+            $pathListeMenu = "files/json/listeMenu.json" ;
+            unlink($pathListeMenu) ;
+            if(!file_exists($pathListeMenu))
+                $this->appService->generateListeMenu() ;
+            
+            if($username == "SHISSAB")
+            {
+                $path = "files/json/menu/".strtolower($username).".json" ;
+                unlink($path) ;
+                $this->regenerateUserMenu() ;
+            }
+                
+
+            return new JsonResponse(["type" => "green", "message" => "Suppression effectué"]) ;
+        }
+        
+        $menu_parent_id = $request->request->get("menu_parent_id") ;
+        $nom = $request->request->get("nom") ;
+        $icone = $request->request->get("icone") ;
+        $route = $request->request->get("route") ;
+        $rang = $request->request->get("rang") ;
+        $data = [$nom,$icone,$rang] ;
+        $dataMessage = ["Nom","Icone","Rang"] ;
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+        if($result["allow"])
+        {
+            if(empty($route))
+                $route = null ;
+            if($type == "enregistrer")
+            {
+                $menu = new Menu() ; 
+            }
+            else
+            {
+                $menu = $this->entityManager->getRepository(Menu::class)->find($idMenu) ;  
+            } 
+            if($menu_parent_id == 0)
+                $menu_parent_id = null;
+            else
+                $menuParent = $this->entityManager->getRepository(Menu::class)->find($menu_parent_id) ; 
+
+            $menu->setMenuParent($menuParent);
+            $menu->setNom($nom);
+            $menu->setIcone("fa-".$icone);
+            $menu->setRoute($route);
+            $menu->setRang($rang);
+            $menu->setCreatedAt(new \DateTimeImmutable);
+            $menu->setUpdatedAt(new \DateTimeImmutable);
+            $menu->setStatut(True);
+
+            $this->entityManager->persist($menu) ;
+            $this->entityManager->flush() ;
+
+            $menus = [] ;
+            $pathMenuUser = "files/json/menuUser.json" ;
+            unlink($pathMenuUser) ;
+            if(!file_exists($pathMenuUser))
+                $this->appService->generateUserMenu($menus,$pathMenuUser) ;
+
+            $pathListeMenu = "files/json/listeMenu.json" ;
+            unlink($pathListeMenu) ;
+            if(!file_exists($pathListeMenu))
+                $this->appService->generateListeMenu() ;
+            
+            if($username == "SHISSAB")
+            {
+                $path = "files/json/menu/".strtolower($username).".json" ;
+                unlink($path) ;
+                $this->regenerateUserMenu() ;
+            }
+        }
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('admin/menu/affiche/corbeille',name:'menu_corbeille')]
+    public function menuCorbeille()
+    {
+        $allowUrl = $this->appService->checkUrl() ;
+        if(!$allowUrl)
+        {
+            $url = $this->generateUrl('app_login');
+            return new RedirectResponse($url);
+        }
+
+        $menus = $this->entityManager->getRepository(Menu::class)->findBy(["statut" => False]) ;
+
+        return $this->render('admin/menu/corbeille.html.twig',[
+            "menus" => $menus
         ]);
     }
 }

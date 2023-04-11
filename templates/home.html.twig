@@ -21,6 +21,8 @@
             <link rel="stylesheet" href="{{asset('tools/personnal/home/css/style.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/personnal/sidebar/css/style.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/confirm/css/jquery-confirm.css')}}">
+			<link rel="stylesheet" href="{{asset('tools/chosen/chosen.css')}}">
+			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
 	</head>
 	<body version="1.0">
@@ -35,6 +37,8 @@
 			<script src="{{asset('tools/personnal/sidebar/js/bootstrap.min.js')}}"></script>
 			<script src="{{asset('tools/confirm/js/jquery-confirm.js')}}"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/main.js')}}"></script>
+			<script src="{{asset('tools/chosen/chosen.jquery.js')}}"></script>
+			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
 					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username ~ '.json')}}",
@@ -44,7 +48,11 @@
 					admin_saveSociete : "{{path('admin_saveSociete')}}",
 					getRandomPass : "{{path('getRandomPass')}}",
 					admin_listSociete:"{{path('admin_listSociete')}}",
-					menu_attribution: "{{path('menu_attribution')}}"
+					menu_attribution: "{{path('menu_attribution')}}",
+					admin_save_attribution: "{{path('admin_save_attribution')}}",
+					admin_menu_creation: "{{path('admin_menu_creation')}}",
+					disp_edit_menu: "{{path('disp_edit_menu')}}",
+					admin_validCreation: "{{path('admin_validCreation')}}"
 				};
 				const files = {
 					loading : "{{asset('data/images/loading.svg')}}"
