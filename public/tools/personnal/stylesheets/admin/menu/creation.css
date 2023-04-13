@@ -4,3 +4,8 @@
     background-color: antiquewhite !important;
     cursor: pointer;
 }
+
+.content_list
+{
+    max-height: 400px !important;
+}

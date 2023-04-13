@@ -56,6 +56,23 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->add($user, true);
     }
 
+    public function findManager($agence)
+    {
+        $sql = "SELECT * FROM `user` WHERE `agence_id` = ? AND ? MEMBER OF(`roles`); " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$agence,"MANAGER"]);
+        return $resultSet->fetchAssociative();
+    }
+
+    public function countUser($agence)
+    {
+        $sql = "SELECT COUNT(*) as countUser FROM `user` WHERE `agence_id` = ? AND statut = ? " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$agence,True]);
+        return $resultSet->fetchAssociative();
+    }
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

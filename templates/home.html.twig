@@ -16,8 +16,8 @@
 		{% block stylesheets %}
 			{{ encore_entry_link_tags('app') }}
 			<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
-		    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-            <link rel="stylesheet" href="{{asset('tools/bootstrap/css/bootstrap.css')}}">
+			<link rel="stylesheet" href="{{asset('tools/cdn/fontawesome/css/all.min.css')}}"/>
+			<link rel="stylesheet" href="{{asset('tools/bootstrap/css/bootstrap.css')}}">
             <link rel="stylesheet" href="{{asset('tools/personnal/home/css/style.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/personnal/sidebar/css/style.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/confirm/css/jquery-confirm.css')}}">
@@ -31,10 +31,11 @@
 		{% endblock %}
 		{% block javascripts %}
 		{{ encore_entry_script_tags('app') }}
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.js"></script>
+			<script src="{{asset('tools/cdn/js/jquery.js')}}"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/popper.js')}}"></script>
 			<script src="{{asset('tools/bootstrap/js/bootstrap.js')}}"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/bootstrap.min.js')}}"></script>
+			{# <script src="{{asset('tools/cdn/fontawesome/js/all.min.js')}}"></script> #}
 			<script src="{{asset('tools/confirm/js/jquery-confirm.js')}}"></script>
 			<script src="{{asset('tools/personnal/sidebar/js/main.js')}}"></script>
 			<script src="{{asset('tools/chosen/chosen.jquery.js')}}"></script>
@@ -53,7 +54,8 @@
 					admin_menu_creation: "{{path('admin_menu_creation')}}",
 					disp_edit_menu: "{{path('disp_edit_menu')}}",
 					admin_validCreation: "{{path('admin_validCreation')}}",
-					restore_menu_corbeille:"{{path('restore_menu_corbeille')}}"
+					restore_menu_corbeille:"{{path('restore_menu_corbeille')}}",
+					manager_agence:"{{path('manager_agence')}}"
 				};
 				const files = {
 					loading : "{{asset('data/images/loading.svg')}}"

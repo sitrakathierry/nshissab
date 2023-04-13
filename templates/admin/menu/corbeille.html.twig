@@ -27,7 +27,7 @@
                 <tbody>
                     {% for menu in menus %}
                         <tr>
-                            <td> {{menu.menuParent.nom |upper}} </td>
+                            <td> {{ (menu.menuParent is not null) ? menu.menuParent.nom |upper : "NULL"}} </td>
                             <td class="text-center"> <i class="fa {{menu.icone}}"></i></td>
                             <td> {{menu.nom|upper}} </td>
                             <td> {{menu.route}} </td>

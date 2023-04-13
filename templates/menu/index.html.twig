@@ -17,12 +17,14 @@
             <div class="profil w-100 text-center pt-4 pb-4" style="background:linear-gradient(0deg, #212121d0, #212121d0),url({{asset('data/images/header_image.png')}})">
                 <img src="{{asset('data/images/profile.png')}}" alt="" class="profil_image img rounded-circle img-fluid">
                 <h1 class="text-uppercase"><a href="{{path('refresh_all')}}" class="logo">{{app.session.get('user').username}}</a></h1>
-                <div class="dropdown">
-                    <a  class="dropdown-toggle email_user text-white" type="button" data-toggle="dropdown" aria-expanded="false">{{app.session.get('user').email}}</a>
-                    <div class="dropdown-menu" id="myprofile">
-                        <a class="dropdown-item" href="#">Profil</a>
-                        <a class="dropdown-item" href="#">Deconnexion</a>
-                    </div>
+                <a class="btn email_user text-white btn-link" data-toggle="collapse" href="#myprofile" role="button" aria-expanded="false" aria-controls="myprofile">
+                    {{app.session.get('user').email}}
+                </a>
+                <div class="w-100 collapse" id="myprofile">
+                     <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none"><i class="fa fa-user"></i>&nbsp;Profil</a></li>
+                        <li><a href="{{path('app_logout')}}" class="text-white text-decoration-none"><i class="fa fa-sign-out"></i>&nbsp;Deconnexion</a></li>
+                    </ul>
                 </div>
             </div>
             <div id="menu_accordion">

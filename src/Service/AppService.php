@@ -85,10 +85,14 @@ class AppService extends AbstractController
         return $infoMenu ;
     }
 
-    public function getMenu(&$menuUsers,&$id,&$menus)
+    public function getMenu(&$menuUsers,&$id,&$menus,$inUser = null)
     {
         array_push($menus,$menuUsers[$id]) ;
-        $user = $this->session->get("user")  ; 
+        if(!is_null($inUser))
+            $user = $inUser ;
+        else
+            $user = $this->session->get("user")  ; 
+
         $userClass = $this->entityManager
                             ->getRepository(User::class)
                             ->findOneBy(array("email" => $user['email'])) ;
@@ -125,7 +129,7 @@ class AppService extends AbstractController
 
         $id++ ;
         if(isset($menuUsers[$id]) && !empty($menuUsers[$id]))
-            $this->getMenu($menuUsers, $id,$menus) ;
+            $this->getMenu($menuUsers, $id,$menus,$user) ;
     }
 
     public function getMenuUser(&$menuUsers,&$id,&$menus)
@@ -253,7 +257,10 @@ class AppService extends AbstractController
 
     public function generateListeMenu()
     {
-        $listes = $this->entityManager->getRepository(Menu::class)->findBy(["statut" => True]) ;
+        $listes = $this->entityManager->getRepository(Menu::class)->findBy([
+            "statut" => True,
+            "is_admin" => NULL
+        ]) ;
 
         $listeMenu = [] ;
         $pathListeMenu = "files/json/listeMenu.json" ;

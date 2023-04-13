@@ -12,11 +12,6 @@
     background-position: top center !important;
 }
 
-.dropdown-toggle::after
-{
-    display:none !important ;
-}
-
 #sidebarCollapse
 {
     padding-left: 10px !important;
@@ -70,7 +65,7 @@
 
 .content_list
 {
-    max-height: 500px !important;
+    max-height: 300px !important;
 }
 
 /* .list_menu
@@ -157,4 +152,9 @@
 .email_user
 {
     font-size: 13px !important;
+}
+
+.email_user:hover
+{
+    color : #ecb534 !important;
 }

@@ -1,7 +1,11 @@
 {% extends 'menu/index.html.twig' %}
 
 {% block title %}Attribution menu{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/javascript/admin/menu/attribution.js')}}" ></script>
 
+{% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
@@ -12,13 +16,15 @@
             <div class="col-md-6">
             <h5 class="title_form text-black text-uppercase">Liste des sociétés</h5>
                 <ul class="list-unstyled content_list overflow-auto px-3 pb-3 list_menu">  
+                    {% set i = 0 %}
                     {% for agence in agences %}
                         {% if agence.id != 5 %}
                             <li class="py-1 px-3 w-100 rounded oneSociety border font-weight-bold my-2" value="{{agence.id}}">
-                            <span>{{agence.nom}}</span>
-                            <span class="badge badge-warning text-white float-right mt-1 ">&nbsp;3</span>
+                                <span>{{agence.nom}}</span>
+                                <span class="bg-warning rounded text-white float-right text-center px-1 ">{{ countArray[i] }}</span>
                             </li>
                         {% endif %}
+                        {% set i = i + 1 %}
                     {% endfor %}
                 </ul>
             </div>

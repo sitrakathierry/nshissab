@@ -18,24 +18,24 @@
                         <i class="fa {{item.icone}}"></i>&nbsp;
                         <span class="text-uppercase">{{item.nom}}</span>
                         {% if item.submenu is defined and item.submenu|length > 0 %} 
-                            <i class="fa fa-plus float-right ml-2 mt-1 menuPlus" data-toggle="collapse" data-target="#menuCollapseA{{j}}" aria-expanded="true" aria-controls="menuCollapseA{{j}}"></i>
+                            <i class="fa fa-plus float-right ml-2 mt-1 menuPlus" data-toggle="collapse" data-target="#menuCollapseA{{i}}{{j}}" aria-expanded="true" aria-controls="menuCollapseA{{i}}{{j}}"></i>
                         {% endif %}
                         <i class="far fa-check-circle float-right ml-2 mt-1 menuCheck" value="{{item.id}}"></i>
                     </li>
                     {% if item.submenu is defined and item.submenu|length > 0 %} 
-                        <ul class="list-unstyled ml-3 collapse" id="menuCollapseA{{j}}">
+                        <ul class="list-unstyled ml-3 collapse" id="menuCollapseA{{i}}{{j}}">
                             {% set k = 0 %}
                             {% for itemA in item.submenu %}
                                 <li class="py-1 menu_item px-3 w-100 rounded border font-weight-bold mt-2" value="{{itemA.id}}">
                                     <i class="fa {{itemA.icone}}"></i>&nbsp;
                                     <span class="text-uppercase">{{itemA.nom}}</span>
                                     {% if itemA.submenu is defined and itemA.submenu|length > 0 %} 
-                                        <i class="fa fa-plus float-right ml-2 mt-1 menuPlus" data-toggle="collapse" data-target="#menuCollapseB{{k}}" aria-expanded="true" aria-controls="menuCollapseA{{k}}"></i>
+                                        <i class="fa fa-plus float-right ml-2 mt-1 menuPlus" data-toggle="collapse" data-target="#menuCollapseB{{i}}{{k}}" aria-expanded="true" aria-controls="menuCollapseB{{i}}{{k}}"></i>
                                     {% endif %}
                                     <i class="far fa-check-circle float-right ml-2 mt-1 menuCheck" value="{{itemA.id}}"></i>
                                 </li>
                                 {% if itemA.submenu is defined and itemA.submenu|length > 0 %} 
-                                    <ul class="list-unstyled ml-3 collapse" id="menuCollapseB{{k}}">
+                                    <ul class="list-unstyled ml-3 collapse" id="menuCollapseB{{i}}{{k}}">
                                         {% for itemB in itemA.submenu %}
                                             <li class="py-1 menu_item px-3 w-100 rounded border font-weight-bold mt-2" value="{{itemB.id}}">
                                                 <i class="fa {{itemB.icone}}"></i>&nbsp;

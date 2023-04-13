@@ -44,9 +44,12 @@ class AdminController extends AbstractController
         return $this->render('admin/index.html.twig');
     }
 
-    public function regenerateUserMenu()
+    public function regenerateUserMenu($is_user = null)
     {
-        $user = $this->session->get("user")  ; 
+        if(!is_null($is_user))
+            $user = $is_user ;
+        else
+            $user = $this->session->get("user")  ; 
         $filename = "files/json/menu/".strtolower($user['username']).".json" ;
         if(!file_exists($filename))
         {
@@ -61,7 +64,7 @@ class AdminController extends AbstractController
             if(!empty($menuUsers))
             {
                 $id = 0;
-                $this->appService->getMenu($menuUsers,$id,$menus) ;
+                $this->appService->getMenu($menuUsers,$id,$menus,$user) ;
             } 
             
             $json = json_encode($menus) ;
@@ -231,34 +234,84 @@ class AdminController extends AbstractController
         $menu_array = json_decode(file_get_contents($filename)) ;
         $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
 
+        $countArray = [] ;
+        foreach ($agences as $agence) {
+            $countUser = $this->entityManager->getRepository(User::class)->countUser($agence->getId()) ;
+            array_push($countArray,$countUser["countUser"]) ;
+        }
+    
         return $this->render('admin/menu/attribution.html.twig',[
             "agences" => $agences,
-            "menus" => $menu_array
+            "menus" => $menu_array,
+            "countArray" => $countArray
         ]);
     }
 
     #[Route('/admin/menu/attribution/save',name:'admin_save_attribution')]
     public function saveAttributionMenu(Request $request){
+        $agence = $request->request->get('agence') ;
         try
         {
-            $agence = $request->request->get('agence') ;
-            $menus = [] ;
-            $menus = $request->request->get('menus') ;
+            $menus = (array)$request->request->get('menus') ;
+            $compareMenu = [] ;
+            foreach ($menus as $unMenu) {
+                array_push($compareMenu,$unMenu) ;
+            }
+
             $agence = $this->entityManager->getRepository(Agence::class)->find($agence) ;
 
             if(!is_null($menus))
             {
+                $toremove = [];
                 for ($i=0; $i < count($menus); $i++) { 
+                    $menu = $this->entityManager->getRepository(Menu::class)->find($menus[$i]) ;
+                    $chkMenuAg = $this->entityManager->getRepository(MenuAgence::class)->findOneBy([
+                        "menu" => $menu,
+                        "agence" => $agence
+                    ]) ;
+
+                    if(!is_null($chkMenuAg))
+                    {
+                        array_push($toremove,$menus[$i]) ;
+                    }
+                }
+                $menus = array_diff($menus, $toremove);
+                $addMenus = [] ;
+
+                foreach ($menus as $menu) {
+                    array_push($addMenus,$menu) ; 
+                }
+
+                for ($i=0; $i < count($addMenus); $i++) { 
                     $menuAgence = new MenuAgence($agence) ;
                     $menuAgence->setAgence($agence) ;
-                    $menu = $this->entityManager->getRepository(Menu::class)->find($menus[$i]) ;
+                    $menu = $this->entityManager->getRepository(Menu::class)->find($addMenus[$i]) ;
                     $menuAgence->setMenu($menu) ;
+                    $menuAgence->setStatut(True) ;
                     $menuAgence->setCreatedAt(new \DateTimeImmutable) ;
                     $menuAgence->setUpdatedAt(new \DateTimeImmutable) ;
     
                     $this->entityManager->persist($menuAgence);
                     $this->entityManager->flush();
                 }
+
+                $menuAgAll = $this->entityManager->getRepository(MenuAgence::class)->findBy([
+                    "agence" => $agence
+                ]) ;
+                foreach ($menuAgAll as $mAgence) {
+                    if(!in_array($mAgence->getMenu()->getId(),$compareMenu))
+                    {
+                        $this->entityManager->remove($mAgence);
+                        $this->entityManager->flush();
+                    }
+                }
+
+                $user = $this->entityManager->getRepository(User::class)->findManager($agence->getId()) ;
+
+                $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+                if(file_exists($filename))
+                    unlink($filename) ;
+                $this->regenerateUserMenu($user) ;
                 $type = 'green' ;
                 $message = "Information enregistré avec succès" ;
             }
@@ -271,8 +324,17 @@ class AdminController extends AbstractController
         }
         catch(\Exception $e)
         {
-            $type = 'red' ;
-            $message = $e->getMessage() ;
+            if(empty($agence))
+            {
+                $type = 'orange' ;
+                $message = "Veuillez sélectionner une agence" ;
+            }
+            else
+            {
+                $type = 'red' ;
+                $message = $e->getMessage() ;
+            }
+            
         }
         
         return new JsonResponse(["type" => $type, "message" => $message]) ;
@@ -287,7 +349,7 @@ class AdminController extends AbstractController
             $url = $this->generateUrl('app_login');
             return new RedirectResponse($url);
         }
-
+        $hostname = gethostname();
         $menus = [] ;
         $pathMenuUser = "files/json/menuUser.json" ;
         if(!file_exists($pathMenuUser))
@@ -300,7 +362,8 @@ class AdminController extends AbstractController
         $menu_array = json_decode(file_get_contents($pathMenuUser)) ;
         return $this->render('admin/menu/creation.html.twig',[
             "menus" => $menu_array,
-            "listes" => $listes
+            "listes" => $listes,
+            "hostname" => $hostname
         ]);
             
     }
@@ -496,5 +559,24 @@ class AdminController extends AbstractController
         return new RedirectResponse($url);
     }
 
+    #[Route('admin/agence/manager', name:'manager_agence')]
+    public function managerAgence(Request $request)
+    {
+        $idAgence = $request->request->get("idAgence") ;
+
+        $user = $this->entityManager->getRepository(User::class)->findManager($idAgence) ;
+
+        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        if(!file_exists($filename))
+            $this->regenerateUserMenu() ;
+        
+        $menuManager = json_decode(file_get_contents($filename)) ;
+        $response = [
+            "manager" => strtolower($user["username"]),
+            "menuManager" => $menuManager
+            ] ;
+        
+        return new JsonResponse($response) ;
+    }
 
 }

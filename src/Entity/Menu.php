@@ -45,6 +45,9 @@ class Menu
     #[ORM\OneToMany(mappedBy: 'menuParent', targetEntity: self::class)]
     private Collection $menus;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $is_admin = null;
+
     public function __construct()
     {
         $this->menuAgences = new ArrayCollection();
@@ -208,6 +211,18 @@ class Menu
                 $menu->setMenuParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsAdmin(): ?bool
+    {
+        return $this->is_admin;
+    }
+
+    public function setIsAdmin(?bool $is_admin): self
+    {
+        $this->is_admin = $is_admin;
 
         return $this;
     }

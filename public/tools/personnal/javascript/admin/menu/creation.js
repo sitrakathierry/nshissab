@@ -49,7 +49,6 @@ $(document).ready(function(){
             $(".idMenu").val("") ;
             $(".type").val("enregistrer") ;
             $(".foot_action").html(normal)
-            location.reload()
         })
    }
    effacerTout()
@@ -78,49 +77,45 @@ $(document).ready(function(){
     $("#menu_parent_id").chosen({no_results_text: "Aucun resultat trouvé"});
     $(".menu_item").click(function(){
         var self = $(this)
-        var menuPlus = self.find('.menuPlus')
-        if(!menuPlus.hasClass("text-info"))
-        {
-            $(".idMenu").val(self.attr("value")) ;
-            $(".foot_action").html(custom)
-            effacerTout()
-            modifieCreate()
-            supprimeCreate()
-            self.addClass("active")
-            var instance = loading()
-            $.ajax({
-                url: routes.disp_edit_menu,
-                type: 'post',
-                data: {value:self.attr("value")},
-                dataType:'json',
-                success: function(res)
+        $(".idMenu").val(self.attr("value")) ;
+        $(".foot_action").html(custom)
+        effacerTout()
+        modifieCreate()
+        supprimeCreate()
+        self.addClass("active")
+        var instance = loading()
+        $.ajax({
+            url: routes.disp_edit_menu,
+            type: 'post',
+            data: {value:self.attr("value")},
+            dataType:'json',
+            success: function(res)
+            {
+                instance.close()
+                if(res.type == "green")
                 {
-                    instance.close()
-                    if(res.type == "green")
-                    {
-                        var menu = res.liste
-                        $("#menu_parent_id").val(menu.parent)
-                        $("#menu_parent_id").trigger("chosen:updated");
-                        $("#nom").val(menu.nom.toUpperCase())
-                        var icone = (menu.icone).split("-")
-                        icone.splice(0,1) 
-                        icone2 = icone.join("-")
-                        $("#icone").val(icone2)
-                        $("#icone").keyup()
-                        $("#route").val(menu.route)
-                        $("#rang").val(menu.rang)
-                    }
-                    else
-                    {
-                        $.alert({
-                            title: false,
-                            type:res.type,
-                            content: res.message
-                        }) ;
-                    }
+                    var menu = res.liste
+                    $("#menu_parent_id").val(menu.parent)
+                    $("#menu_parent_id").trigger("chosen:updated");
+                    $("#nom").val(menu.nom.toUpperCase())
+                    var icone = (menu.icone).split("-")
+                    icone.splice(0,1) 
+                    icone2 = icone.join("-")
+                    $("#icone").val(icone2)
+                    $("#icone").keyup()
+                    $("#route").val(menu.route)
+                    $("#rang").val(menu.rang)
                 }
-            })
-        }
+                else
+                {
+                    $.alert({
+                        title: false,
+                        type:res.type,
+                        content: res.message
+                    }) ;
+                }
+            }
+        })
     })
 
    $("#formCreation").submit(function(event){  
@@ -206,7 +201,10 @@ $(document).ready(function(){
             
                     })
                 },
-                NON : function(){}
+                NON : function(){
+                    effacerTout()
+                    $(".effacerTout").click()
+                }
             }
         })
    }) 
