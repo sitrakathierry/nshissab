@@ -64,7 +64,7 @@ class MenuUserRepository extends ServiceEntityRepository
         $sql = "SELECT
                 m.menu_parent_id as parent, 
                 m.id,
-                IF(m.route IS NULL,IF('ADMIN' MEMBER OF(u.roles),'app_admin','app_home'),m.route) as route, 
+                IF(m.route IS NULL,IF(u.roles LIKE '%ADMIN%','app_admin','app_home'),m.route) as route, 
                 m.nom, m.icone, m.rang
                 FROM `menu_user` mu 
                 JOIN menu_agence ma ON mu.menu_agence_id = ma.id 
