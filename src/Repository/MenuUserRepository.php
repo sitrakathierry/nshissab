@@ -6,7 +6,8 @@ use App\Entity\MenuUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-
+use Driver\MySQL\Driver as DriverMySql;
+use Driver\MariaDb\Driver as DriverMariaDb ;
 /**
  * @extends ServiceEntityRepository<MenuUser>  
  *
@@ -61,10 +62,18 @@ class MenuUserRepository extends ServiceEntityRepository
             $req = " AND m.is_admin IS NULL " ;
         }
 
+        $connection = $this->getEntityManager()->getConnection();
+        $driver = $connection->getDriver();
+        if ($driver instanceof DriverMySql) {
+            $addSql = "'ADMIN' MEMBER OF(roles)" ;
+        } elseif ($driver instanceof DriverMariaDb) {
+            $addSql = "FIND_IN_SET('ADMIN',`roles`) > 0" ;
+        } 
+
         $sql = "SELECT
                 m.menu_parent_id as parent, 
                 m.id,
-                IF(m.route IS NULL,IF(FIND_IN_SET('ADMIN',u.roles),'app_admin','app_home'),m.route) as route, 
+                IF(m.route IS NULL,IF($addSql,'app_admin','app_home'),m.route) as route, 
                 m.nom, m.icone, m.rang
                 FROM `menu_user` mu 
                 JOIN menu_agence ma ON mu.menu_agence_id = ma.id 

@@ -239,11 +239,15 @@ class AdminController extends AbstractController
             $countUser = $this->entityManager->getRepository(User::class)->countUser($agence->getId()) ;
             array_push($countArray,$countUser["countUser"]) ;
         }
-    
+        
+        $connection = $this->entityManager->getConnection();
+        $databaseName = $connection->getDatabase();
+
         return $this->render('admin/menu/attribution.html.twig',[
             "agences" => $agences,
             "menus" => $menu_array,
-            "countArray" => $countArray
+            "countArray" => $countArray,
+            "databaseName" => $databaseName
         ]);
     }
 

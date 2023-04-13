@@ -8,7 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
-
+use Symfony\Bridge\Doctrine\Middleware\Debug\Driver;
 /**
  * @extends ServiceEntityRepository<User>
  *
@@ -58,10 +58,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findManager($agence)
     {
-        $sql = "SELECT * FROM `user` WHERE `agence_id` = ? AND FIND_IN_SET( ? ,`roles`) " ;
+        $params = $this->getEntityManager()->getConnection()->getParams();
+        $driver = $params['driver'];
+        dd($driver) ;
+        $sql = "" ;
         $conn = $this->getEntityManager()->getConnection();
         $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery([$agence,"MANAGER"]);
+        $resultSet = $stmt->executeQuery([$agence,'MANAGER']);
         return $resultSet->fetchAssociative();
     }
 
