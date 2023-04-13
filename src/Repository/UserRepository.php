@@ -58,10 +58,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findManager($agence)
     {
-        $params = $this->getEntityManager()->getConnection()->getParams();
-        $driver = $params['driver'];
-        dd($driver) ;
-        $sql = "" ;
+        $sql = "SELECT * FROM `user` WHERE `agence_id` = ? AND ? MEMBER OF(roles) " ;
         $conn = $this->getEntityManager()->getConnection();
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([$agence,'MANAGER']);
