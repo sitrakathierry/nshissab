@@ -228,9 +228,13 @@ class AppService extends AbstractController
                             ->getRepository(MenuUser::class)
                             ->allMenuUser(null) ;
             $id = 0;
-            $this->getMenuUser($menuUsers,$id,$menus) ;
-            $json = json_encode($menus) ;
-            file_put_contents($filename, $json); 
+            if(!empty($menuUsers))
+            {
+                $this->getMenuUser($menuUsers,$id,$menus) ;
+                $json = json_encode($menus) ;
+                file_put_contents($filename, $json); 
+            }
+                
         }
     }
 
