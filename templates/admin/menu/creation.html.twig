@@ -17,7 +17,7 @@
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom py-2 px-3">
         <a href="{{path('menu_corbeille')}}" type="button" class="btn btn-primary btn-sm float-right"><i class="fa fa-trash"></i>&nbsp;Corbeille</a>
-        <h4 class="text-uppercase entete_page text-black">Creation menu (obligation de collaborer avec un développeur) {{ hostname }} </h4>
+        <h4 class="text-uppercase entete_page text-black">Creation menu (obligation de collaborer avec un développeur)</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <div class="row mx-3">
@@ -34,6 +34,9 @@
                     {% endfor %}
                 </select>
 
+                <label for="nom" class="mt-2 font-weight-bold">Nom</label>
+                <input type="text" name="nom" class="form-control" oninput="this.value = this.value.toUpperCase();" id="nom" placeholder=". . .">
+
                 <div class="row mt-2 ">
                     <div class="col-md-8">
                         <label for="icone" class="font-weight-bold">Icone</label>
@@ -44,14 +47,11 @@
                     </div>
                 </div>
 
-                <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-                <input type="text" name="nom" class="form-control" oninput="this.value = this.value.toUpperCase();" id="nom" placeholder=". . .">
+                <label for="rang" class="mt-2 font-weight-bold">Rang</label>
+                <input type="number" name="rang" name="nom" class="form-control" id="rang" placeholder=". . .">
 
                 <label for="route" class="mt-2 font-weight-bold">Route</label>
                 <input type="text" name="route" class="form-control" id="route" placeholder=". . .">
-
-                <label for="rang" class="mt-2 font-weight-bold">Rang</label>
-                <input type="number" name="rang" name="nom" class="form-control" id="rang" placeholder=". . .">
             </div>
             <div class="col-md-6"> 
                 {% include 'admin/menu/template.html.twig' with menus %}

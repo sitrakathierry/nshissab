@@ -1,0 +1,10 @@
+.custom_padding
+{
+    padding-right: 110px ;
+}
+
+.custom_logo
+{
+    height: 273px !important;
+    object-fit: cover;
+}

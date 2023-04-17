@@ -1,0 +1,121 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-6 px-5">
+                <label for="categorie" class="mt-2 font-weight-bold">Catégorie</label>
+                <select name="categorie" class="custom-select custom-select-sm" id="categorie">
+                    <option value="">Aucune</option>
+                </select>
+
+                <label for="nom" class="mt-2 font-weight-bold">Code</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                
+                <label for="nom" class="mt-2 font-weight-bold">Nom</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-6 px-5">
+                <div class="qr_block mt-2 w-100 d-flex flex-row align-items-center justify-content-center">
+                    <img src="{{asset('data/images/profile.png')}}" class="img border img-fluid" alt="">
+                </div>
+
+                <label for="nom" class="unite_produit font-weight-bold">Unité</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+        </div>
+        <div class="w-100 px-4">
+            <label for="nom" class="mt-2 font-weight-bold text-uppercase">Description</label>
+            <textarea name="produit_editor" class="form-control produit_editor" id="" cols="10" rows="5"></textarea>
+        </div>
+        <div class="w-100 mt-4 px-3 text-right action_global_product">
+            <button class="btn btn-primary px-2 btn-sm"><i class="fa fa-plus-circle"></i>&nbsp;Ajouter</button>
+        </div>
+        <div class="mt-2 px-3 w-100">
+            <div class="content_product container-fluid rounded w-100 py-3 shadow">
+                <div class="row">
+                    <div class="col-md-6 px-4">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label for="nom" class="mt-2 font-weight-bold">Code</label>
+                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="nom" class="mt-2 font-weight-bold">Indice</label>
+                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                            </div>
+                        </div>
+                        
+                        <label for="nom" class="mt-1 font-weight-bold">Entrepot</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Prix Achat</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Prix de revient</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Calcul</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Prix Vente</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Stock Alerte</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-6 px-4">
+                        <label for="nom" class="mt-2 text-white mb-0 text-right annule_product w-100 h3 font-weight-bold">&times;</label>
+                        <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
+
+                        <label for="nom" class="mt-0 font-weight-bold">Fournisseur</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Charge</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
+                        <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
+
+                        <label for="nom" class="mt-3 font-weight-bold">Marge</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Stock</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+
+                        <label for="nom" class="mt-1 font-weight-bold">Expiré le</label>
+                        <input type="date" name="nom" id="nom" class="form-control" placeholder=". . .">
+                    </div>
+                </div>
+                
+
+                
+
+
+            </div>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}

@@ -32,9 +32,9 @@ class HomeController extends AbstractController
     public function index(): Response
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
         } 
         // $user = $this->entityManager->getRepository(User::class)->findOneBy(["username" => "SHISSAB"]) ;

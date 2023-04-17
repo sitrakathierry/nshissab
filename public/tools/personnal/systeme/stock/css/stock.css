@@ -1,0 +1,27 @@
+.qr_block img
+{
+    height: 150px ;
+}
+
+.unite_produit
+{
+    margin-top: 19px;
+}
+
+.content_product
+{
+    background-color: #555 ;
+    color: white !important;
+    font-size: small;
+}
+
+.annule_product
+{
+    transition: .1s;
+}
+
+.annule_product:hover
+{
+    color: #ecb534 !important;
+    cursor: pointer;
+}

@@ -55,17 +55,46 @@ class AppService extends AbstractController
     public function checkUrl()
     {
         $allowUrl = true ;
-        if(is_null($this->getUser()))
+        $user = $this->session->get("user") ;
+        if(!isset($user))
         {
             $allowUrl = false ;
         }
         else
         {
             $currentRoute = $this->router->match($this->requestStack->getCurrentRequest()->getPathInfo())['_route'];
+            $blockedRoute = 
+            [
+                "admin_add_societe",
+                "admin_saveSociete",
+                "getRandomPass",
+                "admin_listSociete",
+                "menu_attribution",
+                "admin_save_attribution",
+                "admin_menu_creation",
+                "disp_edit_menu",
+                "admin_validCreation",
+                "menu_corbeille",
+                "restore_menu_corbeille",
+                "manager_agence",
+                "app_admin"
+            ] ;
+            if($user["role"] != "ADMIN")
+            {
+                for ($i=0; $i < count($blockedRoute); $i++) { 
+                    if($currentRoute == $blockedRoute[$i])
+                    {
+                        $allowUrl = false ;
+                        break ;
+                    }
+                }
+            }
         }
-        $allowUrl = true ;
-
-        return $allowUrl; 
+        $response = [
+            "response" => $allowUrl,
+            "route" => "app_logout"
+        ] ;
+        return $response; 
     }
 
     public function requestMenu($role,User $user,$parent)

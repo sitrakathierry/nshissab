@@ -1,23 +1,62 @@
 $(document).ready(function(){
-    // bloquer la cache 
+
     $.ajaxSetup({
         cache: false
       });
-      
+      function toggleParent(object,flag)
+      {
+            if(flag)
+            {
+                object.find(".iSub").removeClass("fa-plus")
+                object.find(".iSub").addClass("fa-minus")
+                
+            }
+            else
+            {
+                object.find(".iSub").addClass("fa-plus")
+                object.find(".iSub").removeClass("fa-minus")
+            } 
+      }
+    function  dispSubMenu()
+    {
+        $(".dispSubMenu").click(function(){
+            var self = $(this)
+            var clone = self.parent().parent().find(".dispSubMenu")
+            clone.each(function()
+            {
+                if(!$(this).is(self))
+                {
+                    toggleParent($(this),false)
+                    $($(this).data("target")).collapse('hide');
+                }
+            })
+            
+            if(self.find(".iSub").hasClass("fa-plus"))
+            {
+                toggleParent(self,true)
+            }
+            else
+            {
+                toggleParent(self,false)
+            }
+        })
+    }    
     // fonction  générer un menu de type accordion
     function generateAccordionMenu(menuData, parentElement) 
       {
           var menuList = $('<ul>').addClass('accordion-menu list-unstyled components');
           $.each(menuData, function(index, item) {
             var menuItem = $('<li>');
-            var menuItemLink = $('<a>').attr('href',routes[item.route]).html('<i class="fa ' + item.icone + '"></i>&nbsp;' + item.nom);
+            var plus = "" ;
+            if (item.submenu && item.submenu.length > 0)
+                plus = "<i class='fa iSub fa-plus ml-auto'></i>" ;
+            var menuItemLink = $('<a>').attr('href',routes[item.route]).html('<i class="fa ' + item.icone + '"></i>&nbsp;&nbsp;' + item.nom+plus);
             
           if (item.submenu && item.submenu.length > 0) {
-                  menuItemLink.addClass('accordion-toggle collapsed');
+                  menuItemLink.addClass('accordion-toggle dispSubMenu d-flex align-items-center flex-row collapsed');
                   menuItemLink.attr('data-toggle', 'collapse');
                   menuItemLink.attr('data-parent','#submenu-' + item.id);
                   menuItemLink.attr('data-target', '#submenu-' + item.id);
-                  
                   var submenu = $('<ul>').addClass('sub-menu list-unstyled collapse').attr('id', 'submenu-' + item.id);
                   generateAccordionMenu(item.submenu, submenu);
                   menuItem.append(menuItemLink).append(submenu);
@@ -28,8 +67,9 @@ $(document).ready(function(){
           });
           
           parentElement.append(menuList);
+          dispSubMenu()
     } 
-    
+
     // appliquer la génération du menu de type accordion
     $.getJSON(routes.jsonPath, function(json) {
           generateAccordionMenu(json,$('.menu_accr'))

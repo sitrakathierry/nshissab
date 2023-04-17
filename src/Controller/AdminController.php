@@ -35,11 +35,11 @@ class AdminController extends AbstractController
     public function index(): Response
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
+        } 
         $this->regenerateUserMenu() ;
         return $this->render('admin/index.html.twig');
     }
@@ -76,11 +76,11 @@ class AdminController extends AbstractController
     public function addSociete()
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
+        } 
 
         $password = $this->appService->generatePassword() ;
         return $this->render('admin/societe/add.html.twig',[
@@ -92,11 +92,11 @@ class AdminController extends AbstractController
     public function saveSociete(Request $request)
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
+        } 
 
         $nom = $request->request->get('nom') ;
         $region = $request->request->get('region') ;
@@ -188,11 +188,11 @@ class AdminController extends AbstractController
     public function getRandomPass()
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
+        } 
 
         $randomPass = $this->appService->generatePassword() ;
 
@@ -203,11 +203,11 @@ class AdminController extends AbstractController
     public function listSociete()
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
+        } 
 
         $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
 
@@ -220,12 +220,12 @@ class AdminController extends AbstractController
     public function menuAttribution()
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
-
+        } 
+   
         $menus = [] ;
         $filename = "files/json/menuUser.json" ;
         if(!file_exists($filename))
@@ -348,12 +348,11 @@ class AdminController extends AbstractController
     public function menuCreation()
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
-        $hostname = gethostname();
+        } 
         $menus = [] ;
         $pathMenuUser = "files/json/menuUser.json" ;
         if(!file_exists($pathMenuUser))
@@ -366,8 +365,7 @@ class AdminController extends AbstractController
         $menu_array = json_decode(file_get_contents($pathMenuUser)) ;
         return $this->render('admin/menu/creation.html.twig',[
             "menus" => $menu_array,
-            "listes" => $listes,
-            "hostname" => $hostname
+            "listes" => $listes
         ]);
             
     }
@@ -502,11 +500,11 @@ class AdminController extends AbstractController
     public function menuCorbeille()
     {
         $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl)
+        if(!$allowUrl["response"])
         {
-            $url = $this->generateUrl('app_login');
+            $url = $this->generateUrl($allowUrl["route"]);
             return new RedirectResponse($url);
-        }
+        } 
 
         $menus = $this->entityManager->getRepository(Menu::class)->findBy(["statut" => False]) ;
 

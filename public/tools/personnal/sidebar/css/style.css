@@ -2901,7 +2901,9 @@ input[type="button"].btn-block {
     margin-left: -1px; }
 
 .input-group-prepend {
-  margin-right: -1px; }
+  margin-right: -1px; 
+  height: 33px ;
+}
 
 .input-group-append {
   margin-left: -1px; }
@@ -3135,7 +3137,7 @@ input[type="button"].btn-block {
     display: none; }
 
 .custom-select-sm {
-  height: calc(1.5em + 0.5rem + 2px);
+  height: 33px ;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   padding-left: 0.5rem;
@@ -8132,7 +8134,7 @@ body {
   line-height: 1.8;
   font-weight: normal;
   background: #fff;
-  color: gray; }
+  color: #646464; }
 
 a {
   -webkit-transition: .3s all ease;
@@ -8218,13 +8220,16 @@ h1, h2, h3, h4, h5,
   #sidebar ul li {
     font-size: 0.7em; 
     letter-spacing: 1px;
+    line-height: 2.5;
   }
     #sidebar ul li > ul {
-      margin-left: 10px; }
+      margin-left: 12px; 
+      border-left: 4px solid #ecb534;
+    }
       #sidebar ul li > ul li {
         font-size: 14px; }
     #sidebar ul li a {
-      padding: 7px 15px;
+      padding: 7px 10px;
       display: block;
       color: rgba(255, 255, 255, 0.6);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
@@ -8309,10 +8314,10 @@ a[data-toggle="collapse"] {
   color: rgba(255, 255, 255, 0.5); }
 
 .form-control {
-  height: 40px !important;
+  height: 33px !important;
   background: #fff;
   color: #3d3c3c ;
-  font-size: 15px;
+  font-size: 13px;
   border-radius: 4px;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;

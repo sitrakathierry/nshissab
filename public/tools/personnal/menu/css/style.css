@@ -139,7 +139,7 @@
 .chosen-container-single .chosen-single
 {
     padding: 5px 0px 0px 14px !important;
-    height: 37px !important;
+    height: 33px !important;
     background: white !important;
     font-size: 1.1em !important;
 }
@@ -157,4 +157,20 @@
 .email_user:hover
 {
     color : #ecb534 !important;
+}
+
+.table-responsive > .table-bordered
+{
+    font-size: smaller;
+}
+.btn-group > .dropdown-menu > li > a
+{
+    color : black !important ;
+    margin-left: 15px !important;
+}
+
+.btn-group > .dropdown-menu > li > a:hover
+{
+    color : #ecb534 !important ;
+    background: none !important;
 }
