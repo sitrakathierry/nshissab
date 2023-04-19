@@ -63,6 +63,15 @@
     border-top : 2px dashed grey ; 
 }
 
+.border_bottom
+{
+    border-bottom : 2px dashed var(--gray-dark) ; 
+}
+
+.border_dark
+{
+    border-color: var(--gray-dark) !important;
+}
 .content_list
 {
     max-height: 300px !important;

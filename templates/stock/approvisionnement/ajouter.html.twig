@@ -1,0 +1,77 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-2">
+        <div class="w-100 text-right mb-2">
+            <button caption="Existant" class="btn btn-sm btn-primary appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
+            <button caption="Nouveau" class="btn btn-sm btn-info ml-2 appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
+        </div>
+        <div class="table-responsive barre_dashed pt-2">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Entrepôt</th>
+                        <th>Type</th>
+                        <th>Produit</th>
+                        <th>Qte</th>
+                        <th>Prix de vente</th>
+                        <th>Montant total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a>&emsp;&emsp;<a href="#"><i class="fa text-danger fa-trash"></i></a></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5">Total Géneral</th>
+                        <th class="bg-secondary text-right text-white">10000</th>
+                        <td class="bg-secondary"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5">
+                <label for="nom" class="mt-1 font-weight-bold">Approvisionnement le,</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}

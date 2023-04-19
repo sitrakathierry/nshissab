@@ -24,9 +24,13 @@ class AgcDevise
     #[ORM\OneToMany(mappedBy: 'devise', targetEntity: Agence::class)]
     private Collection $agences;
 
+    #[ORM\OneToMany(mappedBy: 'devise', targetEntity: PrdEntrepot::class)]
+    private Collection $prdEntrepots;
+
     public function __construct()
     {
         $this->agences = new ArrayCollection();
+        $this->prdEntrepots = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -82,6 +86,36 @@ class AgcDevise
             // set the owning side to null (unless already changed)
             if ($agence->getDevise() === $this) {
                 $agence->setDevise(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdEntrepot>
+     */
+    public function getPrdEntrepots(): Collection
+    {
+        return $this->prdEntrepots;
+    }
+
+    public function addPrdEntrepot(PrdEntrepot $prdEntrepot): self
+    {
+        if (!$this->prdEntrepots->contains($prdEntrepot)) {
+            $this->prdEntrepots->add($prdEntrepot);
+            $prdEntrepot->setDevise($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdEntrepot(PrdEntrepot $prdEntrepot): self
+    {
+        if ($this->prdEntrepots->removeElement($prdEntrepot)) {
+            // set the owning side to null (unless already changed)
+            if ($prdEntrepot->getDevise() === $this) {
+                $prdEntrepot->setDevise(null);
             }
         }
 

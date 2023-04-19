@@ -19,33 +19,15 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Modèle</label>
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
                 <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Type</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">N° Facture</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Client</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
+                    <option value="">Tous</option>
                 </select>
             </div>
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
                 <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
+                    <option value="">Tous</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -87,38 +69,47 @@
             </div>
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <div class="btn-group w-100" role="group" aria-label="Basic example">
-                    <button class="btn btn-perso-one btn-sm"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-                    <button class="btn btn-secondary btn-sm"><i class="fa fa-download"></i></button>
-                </div>
+                <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
             </div>
         </div>
-        <div class="table-responsive mt-4">
+        <div class="table-responsive mt-3">
             <table class="table table-sm table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>
-                        <th>N° facture</th>
-                        <th>Modèle</th>
-                        <th>Type</th>
-                        <th>Date Création</th>
-                        <th>Date Facture</th>
-                        <th>Client</th>
-                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Entrepôt</th>
+                        <th>Produit</th>
+                        <th class="text-right">Qte</th>
+                        <th class="text-right">Prix vente</th>
+                        <th class="text-right">Total</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
+                        <td rowspan="2" class="align-middle">-</td>
+                        <td rowspan="2" class="align-middle">-</td>
                         <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td rowspan="2" class="text-center align-middle"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Total Partiel</td>
+                        <th class="bg-secondary text-right text-white">10000</th>
+                    </tr>
+                    <tr class="bg-light border_dark">
+                        <td colspan="7"></td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5">Total Géneral</th>
+                        <th class="bg-primary text-right text-white">10000</th>
+                        <td class="bg-primary"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 

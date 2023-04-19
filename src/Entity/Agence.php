@@ -61,11 +61,31 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: MenuAgence::class)]
     private Collection $menuAgences;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdCategories::class)]
+    private Collection $prdCategories;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Produit::class)]
+    private Collection $produits;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdEntrepot::class)]
+    private Collection $prdEntrepots;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdMargeType::class)]
+    private Collection $prdMargeTypes;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdFournisseur::class)]
+    private Collection $prdFournisseurs;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->agcHistoTickets = new ArrayCollection();
         $this->menuAgences = new ArrayCollection();
+        $this->prdCategories = new ArrayCollection();
+        $this->produits = new ArrayCollection();
+        $this->prdEntrepots = new ArrayCollection();
+        $this->prdMargeTypes = new ArrayCollection();
+        $this->prdFournisseurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -301,6 +321,156 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($menuAgence->getAgence() === $this) {
                 $menuAgence->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdCategories>
+     */
+    public function getPrdCategories(): Collection
+    {
+        return $this->prdCategories;
+    }
+
+    public function addPrdCategory(PrdCategories $prdCategory): self
+    {
+        if (!$this->prdCategories->contains($prdCategory)) {
+            $this->prdCategories->add($prdCategory);
+            $prdCategory->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdCategory(PrdCategories $prdCategory): self
+    {
+        if ($this->prdCategories->removeElement($prdCategory)) {
+            // set the owning side to null (unless already changed)
+            if ($prdCategory->getAgence() === $this) {
+                $prdCategory->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Produit>
+     */
+    public function getProduits(): Collection
+    {
+        return $this->produits;
+    }
+
+    public function addProduit(Produit $produit): self
+    {
+        if (!$this->produits->contains($produit)) {
+            $this->produits->add($produit);
+            $produit->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduit(Produit $produit): self
+    {
+        if ($this->produits->removeElement($produit)) {
+            // set the owning side to null (unless already changed)
+            if ($produit->getAgence() === $this) {
+                $produit->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdEntrepot>
+     */
+    public function getPrdEntrepots(): Collection
+    {
+        return $this->prdEntrepots;
+    }
+
+    public function addPrdEntrepot(PrdEntrepot $prdEntrepot): self
+    {
+        if (!$this->prdEntrepots->contains($prdEntrepot)) {
+            $this->prdEntrepots->add($prdEntrepot);
+            $prdEntrepot->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdEntrepot(PrdEntrepot $prdEntrepot): self
+    {
+        if ($this->prdEntrepots->removeElement($prdEntrepot)) {
+            // set the owning side to null (unless already changed)
+            if ($prdEntrepot->getAgence() === $this) {
+                $prdEntrepot->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdMargeType>
+     */
+    public function getPrdMargeTypes(): Collection
+    {
+        return $this->prdMargeTypes;
+    }
+
+    public function addPrdMargeType(PrdMargeType $prdMargeType): self
+    {
+        if (!$this->prdMargeTypes->contains($prdMargeType)) {
+            $this->prdMargeTypes->add($prdMargeType);
+            $prdMargeType->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdMargeType(PrdMargeType $prdMargeType): self
+    {
+        if ($this->prdMargeTypes->removeElement($prdMargeType)) {
+            // set the owning side to null (unless already changed)
+            if ($prdMargeType->getAgence() === $this) {
+                $prdMargeType->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdFournisseur>
+     */
+    public function getPrdFournisseurs(): Collection
+    {
+        return $this->prdFournisseurs;
+    }
+
+    public function addPrdFournisseur(PrdFournisseur $prdFournisseur): self
+    {
+        if (!$this->prdFournisseurs->contains($prdFournisseur)) {
+            $this->prdFournisseurs->add($prdFournisseur);
+            $prdFournisseur->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdFournisseur(PrdFournisseur $prdFournisseur): self
+    {
+        if ($this->prdFournisseurs->removeElement($prdFournisseur)) {
+            // set the owning side to null (unless already changed)
+            if ($prdFournisseur->getAgence() === $this) {
+                $prdFournisseur->setAgence(null);
             }
         }
 

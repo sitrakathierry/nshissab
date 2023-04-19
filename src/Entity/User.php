@@ -67,10 +67,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PrdPreferences::class)]
+    private Collection $prdPreferences;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Produit::class)]
+    private Collection $produits;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
         $this->menuUsers = new ArrayCollection();
+        $this->prdPreferences = new ArrayCollection();
+        $this->produits = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,6 +291,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdPreferences>
+     */
+    public function getPrdPreferences(): Collection
+    {
+        return $this->prdPreferences;
+    }
+
+    public function addPrdPreference(PrdPreferences $prdPreference): self
+    {
+        if (!$this->prdPreferences->contains($prdPreference)) {
+            $this->prdPreferences->add($prdPreference);
+            $prdPreference->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdPreference(PrdPreferences $prdPreference): self
+    {
+        if ($this->prdPreferences->removeElement($prdPreference)) {
+            // set the owning side to null (unless already changed)
+            if ($prdPreference->getUser() === $this) {
+                $prdPreference->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Produit>
+     */
+    public function getProduits(): Collection
+    {
+        return $this->produits;
+    }
+
+    public function addProduit(Produit $produit): self
+    {
+        if (!$this->produits->contains($produit)) {
+            $this->produits->add($produit);
+            $produit->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduit(Produit $produit): self
+    {
+        if ($this->produits->removeElement($produit)) {
+            // set the owning side to null (unless already changed)
+            if ($produit->getUser() === $this) {
+                $produit->setUser(null);
+            }
+        }
 
         return $this;
     }

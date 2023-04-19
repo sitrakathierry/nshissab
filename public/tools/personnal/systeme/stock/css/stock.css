@@ -1,6 +1,6 @@
 .qr_block img
 {
-    height: 150px ;
+    height: 141px ;
 }
 
 .unite_produit
@@ -24,4 +24,10 @@
 {
     color: #ecb534 !important;
     cursor: pointer;
+}
+
+.image_categorie
+{
+    height: 200px ;
+    object-fit: cover ;
 }
