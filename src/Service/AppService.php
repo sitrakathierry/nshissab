@@ -4,6 +4,9 @@ namespace App\Service;
 
 use App\Entity\Menu;
 use App\Entity\MenuUser;
+use App\Entity\PrdCategories;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdPreferences;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,13 +27,15 @@ class AppService extends AbstractController
     private $entityManager ;
     private $session ;
     private $encoder ; 
-    public function __construct(SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder)
+    private $urlGenerator ;
+    public function __construct(SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder, UrlGeneratorInterface $urlGenerator)
     {
         $this->router = $router ;
         $this->requestStack = $requestStack ;
         $this->entityManager = $entityManager;
         $this->session = $session ;
         $this->encoder = $encoder ; 
+        $this->urlGenerator = $urlGenerator ;
     }
     public function getHappyMessage(): string
     {
@@ -90,11 +95,13 @@ class AppService extends AbstractController
                 }
             }
         }
-        $response = [
-            "response" => $allowUrl,
-            "route" => "app_logout"
-        ] ;
-        return $response; 
+
+        if(!$allowUrl)
+        {
+            $url = $this->urlGenerator->generate('app_logout');
+            header('location:'.$url) ;
+            exit(); 
+        }
     }
 
     public function requestMenu($role,User $user,$parent)
@@ -204,7 +211,8 @@ class AppService extends AbstractController
             $this->getMenuUser($menuUsers, $id,$menus) ;
     }
 
-    function generatePassword() {
+    public function generatePassword() 
+    {
         $lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
         $uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
@@ -371,5 +379,104 @@ class AppService extends AbstractController
         $result["message"] = $message ;
 
         return $result ;
+    }
+
+    public function generateStockCategorie($filename,$agence)
+    {
+        $categories = $this->entityManager->getRepository(PrdCategories::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        $elements = [] ;
+        
+        foreach ($categories as $cat) {
+            $element = [] ;
+            $element["id"] = $cat->getId() ;
+            $element["nom"] = $cat->getNom() ;
+            $element["image"] = $cat->getImages() ;
+            $element["agence"] = $cat->getAgence()->getId() ;
+            array_push($elements,$element) ;
+        } 
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateStockEntrepot($filename, $agence)
+    {
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        $elements = [] ;
+        
+        foreach ($entrepots as $entrepot) {
+            $element = [] ;
+            $element["id"] = $entrepot->getId() ;
+            $element["nom"] = $entrepot->getNom() ;
+            $element["adresse"] = $entrepot->getAdresse() ;
+            $element["telephone"] = $entrepot->getTelephone() ;
+            $element["agence"] = $entrepot->getAgence()->getId() ;
+            array_push($elements,$element) ;
+        } 
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateStockPreferences($filename,$user)
+    {
+        $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
+            "user" => $user,
+            "statut" => True
+        ]) ;
+
+        $elements = [] ;
+        
+        if(!empty($preferences))
+        {
+            foreach ($preferences as $preference) {
+                $element = [] ;
+                $element["id"] = $preference->getId() ;
+                $element["nom"] = $preference->getCategorie()->getNom() ;
+                $element["categorie"] = $preference->getCategorie()->getId() ;
+    
+                array_push($elements,$element) ;
+            } 
+        }
+        
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function recherche($item, $search = []) {
+        if (count($search) > 1) {
+            $result = false;
+            foreach ($search as $key => $value) {
+                if(!empty($value))
+                {
+                    if(strpos(strtolower($item->$key), strtolower($value)) !== false) {
+                        $result = true;
+                        break ;
+                    }
+                }
+            }
+            return $result;
+        } else {
+            $key = key($item);
+            return isset($item->$key) && strpos($item->$key, $search[$key]) !== false;
+        }
+    } 
+    public function searchData($data, $search = [])
+    {
+        $resultats = array_filter($data, function($item) use($search) {
+            return $this->recherche($item, $search);
+        });
+        $vide = True ;
+        foreach ($search as $key => $value) {
+            if(!empty($value))
+            {
+                $vide = False ;
+                break ;
+            }
+        }
+        if(empty($resultats) && $vide)
+            return $data ;
+        return $resultats ;
     }
 }

@@ -26,6 +26,9 @@
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
 		<script src="{{asset('tools/linecontrol/LineEditor.js')}}"></script>
+		<script src="{{asset('tools/personnal/js/CustomImage.js')}}"></script>
+		<script src="{{asset('tools/personnal/js/Loading.js')}}"></script>
+		<script src="{{asset('tools/personnal/js/AppBase.js')}}"></script>
 	</head>
 	<body version="1.0">
 		{% block menu %}
@@ -42,7 +45,6 @@
 			<script src="{{asset('tools/personnal/sidebar/js/main.js')}}"></script>
 			<script src="{{asset('tools/chosen/chosen.jquery.js')}}"></script>
 			<script src="{{asset('tools/linecontrol/editor.js')}}"></script>
-
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
@@ -83,10 +85,19 @@
 					stock_int_entreesortie :"{{path('stock_int_entreesortie')}}",
 					stock_appr_ajouter:"{{path('stock_appr_ajouter')}}",
 					stock_appr_liste:"{{path('stock_appr_liste')}}",
+					stock_save_categorie:"{{path('stock_save_categorie')}}",
+					stock_delete_categorie:"{{path('stock_delete_categorie')}}",
+					stock_save_entrepot:"{{path('stock_save_entrepot')}}",
+					stock_edit_entrepot:"{{path('stock_edit_entrepot')}}",
+					stock_delete_entrepot:"{{path('stock_delete_entrepot')}}",
+					stock_search_entrepot:"{{path('stock_search_entrepot')}}",
+					stock_save_prefs:"{{path('stock_save_prefs')}}",
+					stock_delete_prefs:"{{path('stock_delete_prefs')}}",
 					
-				};
+				}; 
 				const files = {
-					loading : "{{asset('data/images/loading.svg')}}"
+					loading : "{{asset('data/images/loading.svg')}}",
+					search : "{{asset('data/images/search.svg')}}"
 				}	
 			</script>
 			<script src="{{asset('tools/personnal/js/main.js')}}"></script>

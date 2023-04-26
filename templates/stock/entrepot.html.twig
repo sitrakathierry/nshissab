@@ -16,33 +16,69 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 pt-3 pb-3">
         <h5 class="title_form text-black text-uppercase">Création entrepôt</h5>
-        <div class="row">
-            <div class="col-md-5">
-                <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+        <form id="formEntrepot" >
+            <div class="row">
+                <div class="col-md-5">
+                    <label for="nom" class="mt-2 font-weight-bold">Nom</label>
+                    <input type="text" name="nom" id="nom" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-5">
+                    <label for="adresse" class="mt-2 font-weight-bold">Adresse</label>
+                    <input type="text" name="adresse" id="adresse" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-2">
+                    <label for="telephone" class="mt-2 font-weight-bold">Tél</label>
+                    <input type="text" name="telephone" id="telephone" class="form-control" placeholder=". . .">
+                </div>
             </div>
-            <div class="col-md-5">
-                <label for="nom" class="mt-2 font-weight-bold">Adresse</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-2">
-                <label for="nom" class="mt-2 font-weight-bold">Tél</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-        </div>
+        
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
+        </form>
         <div class="w-100 barre_dashed">
-            <h5 class="title_form mt-4 mb-3 text-black text-uppercase">Liste des entrepôts</h5>
+            <h5 class="title_form mt-4 text-black text-uppercase">Liste des entrepôts</h5>
         </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rch_nom" class="font-weight-bold">Nom</label>
+                <div class="input-group">
+                    <input type="text" name="rch_nom" id="rch_nom" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#rch_nom').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="rch_adresse" class="font-weight-bold">Adresse</label>
+                <div class="input-group">
+                    <input type="text" name="rch_adresse" id="rch_adresse" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#rch_adresse').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="rch_tel" class="font-weight-bold">Téléhpone</label>
+                <div class="input-group">
+                    <input type="text" name="rch_tel" id="rch_tel" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#rch_tel').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            {# <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                <button class="btn btn-perso-one btn_recherche btn-block btn-sm"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
+            </div> #}
+        </div>
+        <div class="table-responsive limit_tbody overflow-auto mt-3">
+            <table class="table table-bordered table-hover table-sm">
                 <thead class="thead-light">
                     <tr>
                         <th>Nom</th>
@@ -51,18 +87,18 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa fa-edit"></i></a>&emsp;<a href="#"><i class="fa fa-trash"></i></a></td>
+                <tbody class="elem_entrepots">
+                    {% for entrepot in entrepots %}
+                        <tr value="{{entrepot.id}}">
+                            <td>{{entrepot.nom}}</td>
+                            <td>{{entrepot.adresse}}</td>
+                            <td>{{entrepot.telephone}}</td>
+                        <td class="text-center"><button class="btn btn-sm btn-outline-warning edit_entrepot font-smaller"><i class="fa fa-edit"></i></button>&emsp;<button class="btn btn-sm btn-outline-danger delete_entrepot font-smaller" ><i class="fa fa-trash"></i></button></td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
-
-
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,7 @@
+
+{% for preference in preferences %}
+    <tr value="{{preference.id}}">
+        <td>{{preference.nom | upper}}</td>
+        <td class="text-center"><button class="btn delete_prefs btn-sm btn-outline-danger font-smaller"><i class="fa fa-times"></i></button></td>
+    </tr>
+{% endfor %}

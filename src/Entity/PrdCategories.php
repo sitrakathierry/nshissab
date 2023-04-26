@@ -34,6 +34,9 @@ class PrdCategories
     #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: PrdPreferences::class)]
     private Collection $prdPreferences;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $statut = null;
+
     public function __construct()
     {
         $this->prdPreferences = new ArrayCollection();
@@ -130,6 +133,18 @@ class PrdCategories
                 $prdPreference->setCategorie(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isStatut(): ?bool
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?bool $statut): self
+    {
+        $this->statut = $statut;
 
         return $this;
     }

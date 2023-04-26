@@ -29,17 +29,13 @@ class AdminController extends AbstractController
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
+        $this->appService->checkUrl() ;
     }
 
     #[Route('/admin', name: 'app_admin')]
     public function index(): Response
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
+        
         $this->regenerateUserMenu() ;
         return $this->render('admin/index.html.twig');
     }
@@ -75,13 +71,6 @@ class AdminController extends AbstractController
     #[Route('/admin/societe/add', name: 'admin_add_societe')]
     public function addSociete()
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
-
         $password = $this->appService->generatePassword() ;
         return $this->render('admin/societe/add.html.twig',[
             'password' => $password
@@ -91,13 +80,6 @@ class AdminController extends AbstractController
     #[Route('/admin/societe/save', name:'admin_saveSociete')]
     public function saveSociete(Request $request)
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
-
         $nom = $request->request->get('nom') ;
         $region = $request->request->get('region') ;
         $capacite = $request->request->get('capacite') ;
@@ -187,12 +169,7 @@ class AdminController extends AbstractController
     #[Route('/admin/password/get', name:"getRandomPass")]
     public function getRandomPass()
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
+        
 
         $randomPass = $this->appService->generatePassword() ;
 
@@ -202,12 +179,7 @@ class AdminController extends AbstractController
     #[Route('/admin/societe/list',name:'admin_listSociete')]
     public function listSociete()
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
+        
 
         $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
 
@@ -219,12 +191,7 @@ class AdminController extends AbstractController
     #[Route('/admin/menu/attribution',name:'menu_attribution')]
     public function menuAttribution()
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
+        
    
         $menus = [] ;
         $filename = "files/json/menuUser.json" ;
@@ -347,12 +314,7 @@ class AdminController extends AbstractController
     #[Route('/admin/menu/creation',name:'admin_menu_creation')]
     public function menuCreation()
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
+        
         $menus = [] ;
         $pathMenuUser = "files/json/menuUser.json" ;
         if(!file_exists($pathMenuUser))
@@ -499,12 +461,7 @@ class AdminController extends AbstractController
     #[Route('admin/menu/affiche/corbeille',name:'menu_corbeille')]
     public function menuCorbeille()
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
+        
 
         $menus = $this->entityManager->getRepository(Menu::class)->findBy(["statut" => False]) ;
 

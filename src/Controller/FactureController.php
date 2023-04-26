@@ -20,18 +20,12 @@ class FactureController extends AbstractController
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
+        $this->appService->checkUrl() ;
     }
     
     #[Route('/facture/creation', name: 'ftr_creation')]
     public function factureCreation(): Response
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
-        
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Création Facture",
@@ -41,14 +35,7 @@ class FactureController extends AbstractController
 
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
-    {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
-        
+    { 
         return $this->render('facture/consultation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Consultation Facture",

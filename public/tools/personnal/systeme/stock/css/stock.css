@@ -31,3 +31,11 @@
     height: 200px ;
     object-fit: cover ;
 }
+
+.table_img_cat
+{
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+}
+

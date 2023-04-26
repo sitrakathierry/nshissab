@@ -12,22 +12,23 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
+{% set role = app.session.get("user")["role"] %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3">
+    <div class="container-fluid px-3 pb-4">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="nom" class="mt-2 font-weight-bold">Rechercher</label>
+                <input type="text" name="rch_nom" id="rch_nom" class="form-control" placeholder="Nom">
             </div>
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button class="btn btn-perso-one btn-block btn-sm"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
+                <button class="btn btn-perso-one btn_recherche btn-block btn-sm"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
             </div>
         </div>
-        <div class="table-responsive mt-3">
+        <div class="table-responsive limit_tbody overflow-auto mt-3 ">
             <table class="table table-bordered table-sm">
                 <thead class="thead-light">
                     <tr>
@@ -36,12 +37,26 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><button class="btn btn-sm btn-outline-warning"><i class="fa fa-edit"></i>&nbsp;Afficher</button></td>
-                    </tr>
+                <tbody class="elem_categories"> 
+                    {% set image = "" %}
+                    {% for categorie in categories %}
+                        {% if categorie.image is not empty %}
+                            {% set image = categorie.image %}
+                        {% else %}
+                            {% set image = asset('data/images/building.png') %}
+                        {% endif %}
+                        <tr value="{{categorie.id}}">
+                            <td class="align-middle text-center py-2"><img src="{{image}}" alt="" class="img table_img_cat img-fluid img-thumbnail"></td>
+                            <td class="align-middle">{{categorie.nom}}</td>
+                            <td class="text-center align-middle">
+                            <a href="{{path('stock_cat_creation',{'id':categorie.id})}}" class="btn btn-sm btn-outline-warning font-smaller" ><i class="fa fa-edit"></i></a>
+                            {% if role != "AGENT" %}
+                                <button class="btn ml-2 btn-sm btn-outline-danger delete_prd_categorie font-smaller" ><i class="fa fa-trash"></i></button>
+                            {% endif %}                           
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    
                 </tbody>
             </table>
         </div>

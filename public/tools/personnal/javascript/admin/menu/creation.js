@@ -74,7 +74,7 @@ $(document).ready(function(){
        })
     }
    
-    $("#menu_parent_id").chosen({no_results_text: "Aucun resultat trouvé"});
+    $("#menu_parent_id").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".menu_item").click(function(){
         var self = $(this)
         $(".idMenu").val(self.attr("value")) ;

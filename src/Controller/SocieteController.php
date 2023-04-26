@@ -21,18 +21,12 @@ class SocieteController extends AbstractController
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
+        $this->appService->checkUrl() ;
     }
      
     #[Route('/societe/details', name: 'soc_details')]
     public function societeDetails(): Response
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
-        
         return $this->render('societe/details.html.twig', [
             "filename" => "societe",
             "titlePage" => "Détails Société",

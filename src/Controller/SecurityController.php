@@ -114,9 +114,10 @@ class SecurityController extends AbstractController
         $data = [
             "username" => strtoupper($username),
             "email" => $user->getEmail(),
+            "agence" => $user->getAgence()->getId(),
             "role" =>$role,
             "csrf_token" => $csrfToken
-        ] ;  
+        ];  
         
         $this->session->set("user", $data) ;
 

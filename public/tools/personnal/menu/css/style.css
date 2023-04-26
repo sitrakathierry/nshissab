@@ -183,3 +183,18 @@
     color : #ecb534 !important ;
     background: none !important;
 }
+
+.font-smaller
+{
+    font-size: smaller !important;
+}
+
+.limit_tbody
+{
+    max-height: 360px !important;
+}
+
+.load_search
+{
+    height: 80px;
+}

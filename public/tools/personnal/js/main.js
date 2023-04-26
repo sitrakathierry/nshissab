@@ -84,10 +84,19 @@ $(document).ready(function(){
         </div>
         `
         alertInstance = $.alert({
+            backgroundDismiss: true,
             title:false,
-            content:loading,
+            content:`
+            <style>
+                .jconfirm .jconfirm-box
+                {
+                    background-color: transparent !important;
+                    box-shadow: none !important;
+                }
+            </style>
+        `+loading,
             closeIcon: false,
-            buttons: false
+            buttons: false,
             });
         
         return alertInstance ; 

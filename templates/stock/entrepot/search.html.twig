@@ -1,0 +1,8 @@
+{% for entrepot in entrepots %}
+<tr value="{{entrepot.id}}">
+    <td>{{entrepot.nom}}</td>
+    <td>{{entrepot.adresse}}</td>
+    <td>{{entrepot.telephone}}</td>
+<td class="text-center"><button class="btn btn-sm btn-outline-warning edit_entrepot font-smaller"><i class="fa fa-edit"></i></button>&emsp;<button class="btn btn-sm btn-outline-danger delete_entrepot font-smaller" ><i class="fa fa-trash"></i></button></td>
+</tr>
+{% endfor %}

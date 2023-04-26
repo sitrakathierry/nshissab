@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class HomeController extends AbstractController
@@ -18,12 +20,13 @@ class HomeController extends AbstractController
     private $entityManager;
     private $session ;
     private $appService ;
-
+    private $urlGenerator ;
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
+        $this->appService->checkUrl() ;
     }
 
     /**
@@ -31,12 +34,6 @@ class HomeController extends AbstractController
      */
     public function index(): Response
     {
-        $allowUrl = $this->appService->checkUrl() ;
-        if(!$allowUrl["response"])
-        {
-            $url = $this->generateUrl($allowUrl["route"]);
-            return new RedirectResponse($url);
-        } 
         // $user = $this->entityManager->getRepository(User::class)->findOneBy(["username" => "SHISSAB"]) ;
         // dd($this->appService->hashPassword($user, "HikamSM#23")) ;
         return $this->render('home/index.html.twig', [
