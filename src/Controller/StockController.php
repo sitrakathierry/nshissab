@@ -103,8 +103,6 @@ class StockController extends AbstractController
         $produit_editor = $request->request->get('produit_editor') ;
         $qr_code_produit = $request->request->get('qr_code_produit') ;
 
-        dd($produit_editor) ;
-
         $data = [
             $prod_categorie,
             $code_produit,

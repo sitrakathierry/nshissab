@@ -58,6 +58,18 @@
     border-color: #179d82;
   }
 
+  .btn-purple
+  {
+    color: white;
+    background-color: var(--purple);
+    border-color: var(--purple);
+  }
+
+  .btn-purple:hover {
+    color: white;
+    background-color: var(--indigo);
+    border-color: var(--indigo);
+  }
 /* FOOTER ACCUEIL */
 .footer_accueil
 {

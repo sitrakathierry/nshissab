@@ -781,7 +781,7 @@ $(document).ready(function(){
                     <input type="number" name="crt_prix_achat[]" id="ncrt_prix_achatom" class="form-control ncrt_prix_achatom" placeholder=". . .">
 
                     <label for="crt_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
-                    <input type="number" name="crt_prix_revient[]" id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
+                    <input type="number" name="crt_prix_revient[]" readonly id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
 
                     <label for="crt_calcul" class="mt-1 font-weight-bold">Calcul</label>
                     <select name="crt_calcul[]" class="custom-select crt_prix_revient" id="crt_calcul">
@@ -789,7 +789,7 @@ $(document).ready(function(){
                     </select>
 
                     <label for="crt_prix_vente" class="mt-1 font-weight-bold">Prix Vente</label>
-                    <input type="number" name="crt_prix_vente[]" id="crt_prix_vente" class="form-control crt_prix_vente" placeholder=". . .">
+                    <input type="number" name="crt_prix_vente[]" readonly id="crt_prix_vente" class="form-control crt_prix_vente" placeholder=". . .">
 
                     <label for="crt_stock_alert" class="mt-1 font-weight-bold">Stock Alerte</label>
                     <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
@@ -844,17 +844,41 @@ $(document).ready(function(){
     }
     closeProduct()
 
+    var inputNumber = [
+        ".crt_prix_achat",
+        ".crt_charge",
+        ".crt_prix_revient",
+        ".crt_marge",
+        ".crt_prix_vente"
+    ]
+
     var prixProduit = 
     {
-        achat:"",
-        charge:"",
-        revient:"",
-        marge:"",
-        vente:"",
+        achat:".crt_prix_achat",
+        charge:".crt_charge",
+        revient:".crt_prix_revient",
+        marge:".crt_marge",
+        vente:".crt_prix_vente",
     }
 
+    inputNumber.forEach(elem => {
+        $(elem).keyup(function(){
+            calculPrix($(this).closest(".content_product"),prixProduit) ;
+        })
+    })
+    /*
+        Revient = achat + charge
+        Vente = revient + marge
+    */
     function calculPrix(parent,prixProduit)
     {
+        parent.find(prixProduit.revient).val(
+            parseFloat($(prixProduit.achat).val()) + parseFloat($(prixProduit.charge).val())
+        )
 
+        parent.find(prixProduit.vente).val(
+            parseFloat($(prixProduit.achat).val()) + parseFloat($(prixProduit.charge).val()) + parseFloat($(prixProduit.marge).val())
+        )
     }
 })
+
