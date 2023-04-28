@@ -1,0 +1,58 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        {# <h5 class="title_form text-black text-uppercase">Information société</h5> #}
+
+        {# <label for="nom" class="mt-2 font-weight-bold">Nom</label>
+        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . ."> #}
+
+        <div class="table-responsive pt-3 mt-2 barre_dashed">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Produit</th>
+                        <th>Code Produit</th>
+                        <th>Qte</th>
+                        <th>Prix Unitaire</th>
+                        <th>Montant Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td class="text-center"><button class="btn btn-sm font-smaller btn-outline-danger"><i class="fa fa-times"></i></button></td>
+                </tbody>
+            </table>
+        </div>  
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

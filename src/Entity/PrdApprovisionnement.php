@@ -58,9 +58,19 @@ class PrdApprovisionnement
     #[ORM\OneToMany(mappedBy: 'prdAppro', targetEntity: PrdApproFournisseur::class)]
     private Collection $prdApproFournisseurs;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\ManyToOne(inversedBy: 'prdApprovisionnements')]
+    private ?User $user = null;
+
+    #[ORM\OneToMany(mappedBy: 'approvisionnement', targetEntity: PrdHistoFournisseur::class)]
+    private Collection $prdHistoFournisseurs;
+
     public function __construct()
     {
         $this->prdApproFournisseurs = new ArrayCollection();
+        $this->prdHistoFournisseurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -248,6 +258,60 @@ class PrdApprovisionnement
             // set the owning side to null (unless already changed)
             if ($prdApproFournisseur->getPrdAppro() === $this) {
                 $prdApproFournisseur->setPrdAppro(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdHistoFournisseur>
+     */
+    public function getPrdHistoFournisseurs(): Collection
+    {
+        return $this->prdHistoFournisseurs;
+    }
+
+    public function addPrdHistoFournisseur(PrdHistoFournisseur $prdHistoFournisseur): self
+    {
+        if (!$this->prdHistoFournisseurs->contains($prdHistoFournisseur)) {
+            $this->prdHistoFournisseurs->add($prdHistoFournisseur);
+            $prdHistoFournisseur->setApprovisionnement($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdHistoFournisseur(PrdHistoFournisseur $prdHistoFournisseur): self
+    {
+        if ($this->prdHistoFournisseurs->removeElement($prdHistoFournisseur)) {
+            // set the owning side to null (unless already changed)
+            if ($prdHistoFournisseur->getApprovisionnement() === $this) {
+                $prdHistoFournisseur->setApprovisionnement(null);
             }
         }
 

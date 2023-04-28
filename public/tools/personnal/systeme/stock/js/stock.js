@@ -1,5 +1,4 @@
 $(document).ready(function(){
-    var produit_editor = new LineEditor(".produit_editor") ;
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
     $(".appr_ajout").click(function(){
@@ -465,23 +464,40 @@ $(document).ready(function(){
         }
     ]
 
+    function searchEntrepot()
+    {
+        var instance = new Loading(files.search) ;
+            $(".elem_entrepots").html(instance.search(4)) ;
+            var formData = new FormData() ;
+            for (let j = 0; j < entrepot_search.length; j++) {
+                const search = entrepot_search[j];
+                formData.append(search.name,$("#"+search.selector).val());
+            }
+            $.ajax({
+                url: routes.stock_search_entrepot ,
+                type: 'post',
+                cache: false,
+                data:formData,
+                dataType: 'html',
+                processData: false, // important pour éviter la transformation automatique des données en chaîne
+                contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+                success: function(response){
+                    $(".elem_entrepots").html(response) ;
+                    editEntrepot()
+                    deleteEntrepot()
+                }
+            })
+    }
+
     for (let i = 0; i < entrepot_search.length; i++) {
         const element = entrepot_search[i];
         $("#"+element.selector).keyup(function(){
-                appBase.searchElement(
-                ".elem_entrepots",
-                routes.stock_search_entrepot,
-                entrepot_search,
-                4)
+            searchEntrepot() ;
         })
     }
 
     $('.vider').click(function(){
-        appBase.searchElement(
-            ".elem_entrepots",
-            routes.stock_search_entrepot,
-            entrepot_search,
-            4)
+        searchEntrepot() ;
     })
 
     $("#list_preferences").chosen({no_results_text: "Aucun resultat trouvé : "});
@@ -576,4 +592,269 @@ $(document).ready(function(){
             }
         })
     })
+
+    $("#prod_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
+
+    $(".code_produit").keyup(function(){
+        var self = $(this)
+        $(".qr_block").html("")
+        $(".qr_block").qrcode({
+            // render method: 'canvas', 'image' or 'div'
+            render: 'image',
+            size: 2400,
+            text: self.val(),
+        });
+        $(".qr_code_produit").val($(".qr_block img").attr("src"))
+        $(".crt_code").each(function(){
+            $(this).val(self.val()) ;
+        })
+    })
+    
+    $(".qr_block").qrcode({
+        // render method: 'canvas', 'image' or 'div'
+        render: 'image',
+        size: 2400,
+        text: "DEFAULT",
+    });
+
+    $(".code_produit").change(function(){
+        var self = $(this)
+        $.ajax({
+            url: routes.stock_check_codeProduit,
+            type: 'post',
+            cache: false,
+            data:{codeProduit:self.val()},
+            dataType: 'json',
+            success: function(resp){
+                if(resp.type == "orange")
+                {
+                    $.alert({
+                        title: resp.title,
+                        content: resp.message,
+                        type: resp.type,
+                        buttons: {
+                            OK: function(){
+                                self.val("")
+                            }
+                        }
+                    })
+                }
+            }
+        })
+    })
+
+    var produit_editor = new LineEditor(".produit_editor") ;
+
+    $("#formFournisseur").submit(function(event){
+        event.preventDefault()  
+        var data = $(this).serialize();
+        $.confirm({
+            title: 'Confirmation',
+            content:"Voulez-vous vraiment enregistrer ?",
+            type:"blue",
+            theme:"modern",
+            buttons : {
+                NON : function(){
+                    
+                },
+                OUI : function(){
+                    $(".content_fournisseur").html(instance.search(7))
+                    $.ajax({
+                        url: routes.stock_save_fournisseur,
+                        type:"post",
+                        data:data,
+                        dataType:"html",
+                        success : function(resp){
+                            $(".content_fournisseur").html(resp) ;
+                            var elements = data.split("&") ;
+                            elements.forEach(elem => {
+                                $("#"+elem.split("=")[0]).val("")
+                            })
+
+                        }
+                    })
+                }
+            }
+        })
+    })
+
+    $("#formCreateProduit").submit(function(event){
+        event.preventDefault()
+        var self = $(this)
+        $(".produit_editor").text(produit_editor.getEditorText()) 
+        $.confirm({
+            title: 'Confirmation',
+            content:"Voulez-vous vraiment enregistrer ?",
+            type:"blue",
+            theme:"modern",
+            buttons : {
+                NON : function()
+                {
+                    $('input, select').val('');
+                    $("#prod_categorie").trigger("chosen:updated");
+                    $(".crt_entrepot").trigger("chosen:updated");
+                    $(".crt_fournisseur").trigger("chosen:updated");
+                    location.reload()
+                },
+                OUI : function(){
+                    var crt_frns_vide = false
+                    $(".crt_fournisseur").each(function(){
+                        if($(this).val().length == 0)
+                        {
+                            crt_frns_vide = true ;
+                            return ;
+                        }
+                    })
+
+                    if(crt_frns_vide)
+                    {
+                        $.alert({
+                            title: 'Fournisseur vide',
+                            content: "Veuillez séléctionner au moins un fournisseur",
+                            type:'orange',
+                        })
+                        return ;
+                    }
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.stock_save_creationProduit,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                            });
+                            if(json.type == "green")
+                            {
+                                $('input, select').val('');
+                                $("#prod_categorie").trigger("chosen:updated");
+                                $(".crt_entrepot").trigger("chosen:updated");
+                                $(".crt_fournisseur").trigger("chosen:updated");
+                                location.reload()
+                            }
+                        }
+                    })
+                }
+            }
+        })
+        
+    })
+
+    function countFournisseur()
+    {
+        $(".crt_fournisseur").change(function(){
+            var countFrns = $(this).closest('div').find(".crt_count_fournisseur")
+            countFrns.val($(this).val().length)
+        })
+    }
+    countFournisseur()
+    compteur = 1
+    $(".add_product_variation").click(function(){
+        var content = `
+        <div class="content_product mt-5 container-fluid rounded w-100 py-3 shadow">
+            <div class="row"> 
+                <div class="col-md-6 px-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label for="crt_code" class="mt-2 font-weight-bold">Code</label>
+                            <input type="text" name="crt_code[]" id="crt_code" value="`+$('.code_produit').val()+`" class="form-control crt_code" readonly placeholder=". . .">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crt_indice" class="mt-2 font-weight-bold">Indice</label>
+                            <input type="text" name="crt_indice[]" oninput="this.value = this.value.toUpperCase();" id="crt_indice" class="form-control crt_indice" placeholder=". . .">
+                        </div>
+                    </div>
+                    
+                    <label for="crt_entrepot" class="mt-1 font-weight-bold">Entrepot</label>
+                    <select name="crt_entrepot[]" class="custom-select crt_entrepot" id="crt_entrepot">
+                        `+$('#crt_entrepot').html()+`
+                    </select>
+
+                    <label for="crt_prix_achat" class="mt-2 font-weight-bold">Prix Achat</label>
+                    <input type="number" name="crt_prix_achat[]" id="ncrt_prix_achatom" class="form-control ncrt_prix_achatom" placeholder=". . .">
+
+                    <label for="crt_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
+                    <input type="number" name="crt_prix_revient[]" id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
+
+                    <label for="crt_calcul" class="mt-1 font-weight-bold">Calcul</label>
+                    <select name="crt_calcul[]" class="custom-select crt_prix_revient" id="crt_calcul">
+                        `+$('#crt_calcul').html()+`
+                    </select>
+
+                    <label for="crt_prix_vente" class="mt-1 font-weight-bold">Prix Vente</label>
+                    <input type="number" name="crt_prix_vente[]" id="crt_prix_vente" class="form-control crt_prix_vente" placeholder=". . .">
+
+                    <label for="crt_stock_alert" class="mt-1 font-weight-bold">Stock Alerte</label>
+                    <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
+                </div>
+                <div class="col-md-6 px-4">
+                    <label for="nom" class="mt-2 text-white mb-0 text-right annule_product w-100 h3 font-weight-bold">&times;</label>
+                    <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
+
+                    <label for="crt_fournisseur" class="mt-0 font-weight-bold">Fournisseur</label>
+                    <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
+                    `+$('#crt_fournisseur').html()+`
+                    </select>
+
+                    <input type="hidden" name="crt_count_fournisseur[]" value="0" class="crt_count_fournisseur" >
+
+                    <label for="crt_charge" class="mt-2 font-weight-bold">Charge</label>
+                    <input type="number" name="crt_charge[]" id="crt_charge" class="form-control crt_charge" placeholder=". . .">
+
+                    <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
+                    <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
+
+                    <label for="crt_marge" class="mt-3 font-weight-bold">Marge</label>
+                    <input type="number" name="crt_marge[]" id="crt_marge" class="form-control crt_marge" placeholder=". . .">
+
+                    <label for="crt_stock" class="mt-1 font-weight-bold">Stock</label>
+                    <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
+
+                    <label for="crt_expiree_le" class="mt-1 font-weight-bold">Expirée le</label>
+                    <input type="date" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
+                </div>
+            </div>
+        </div>
+        `
+        $(".all_product").append(content)
+
+        $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
+        $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
+        countFournisseur()
+        closeProduct()
+
+        compteur = compteur + 1 ; 
+        $(".crt_title_form").text("Variation produit : Prix & indice ("+compteur+")") ;
+    })
+    
+    function closeProduct()
+    {
+        $(".annule_product").click(function(){
+            $(this).closest('.content_product').remove() ;
+            compteur = compteur - 1 ; 
+            $(".crt_title_form").text("Variation produit : Prix & indice ("+compteur+")") ;
+        })
+    }
+    closeProduct()
+
+    var prixProduit = 
+    {
+        achat:"",
+        charge:"",
+        revient:"",
+        marge:"",
+        vente:"",
+    }
+
+    function calculPrix(parent,prixProduit)
+    {
+
+    }
 })

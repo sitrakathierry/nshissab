@@ -17,105 +17,123 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
+    <form id="formCreateProduit">
         <div class="row">
             <div class="col-md-6 px-5">
-                <label for="categorie" class="mt-2 font-weight-bold">Catégorie</label>
-                <select name="categorie" class="custom-select custom-select-sm" id="categorie">
-                    <option value="">Aucune</option>
+                <label for="prod_categorie" class="mt-2 font-weight-bold">Catégories</label>
+                <select name="prod_categorie" class="custom-select custom-select-sm" id="prod_categorie">
+                    {% for categorie in categories %}
+                        <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
+                    {% endfor %}
                 </select>
 
-                <label for="nom" class="mt-2 font-weight-bold">Code</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="code_produit" class="mt-2 font-weight-bold">Code</label>
+                <input type="text" name="code_produit" id="code_produit" oninput="this.value = this.value.toUpperCase();" class="form-control code_produit" placeholder=". . .">
                 
-                <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <input type="hidden" name="qr_code_produit" value="exemple" class="qr_code_produit">
+
+                <label for="prod_nom" class="mt-2 font-weight-bold">Nom</label>
+                <input type="text" name="prod_nom" oninput="this.value = this.value.toUpperCase();" id="prod_nom" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-6 px-5">
                 <div class="qr_block mt-2 w-100 d-flex flex-row align-items-center justify-content-center">
-                    <img src="{{asset('data/images/profile.png')}}" class="img border img-fluid" alt="">
+                    
                 </div>
 
-                <label for="nom" class="unite_produit font-weight-bold">Unité</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="unite_produit" class="unite_produit font-weight-bold">Unité</label>
+                <input type="text" name="unite_produit" id="unite_produit" class="form-control" placeholder=". . .">
             </div>
         </div>
         <div class="w-100 px-4">
-            <label for="nom" class="mt-2 font-weight-bold text-uppercase">Description</label>
-            <textarea name="produit_editor" class="form-control produit_editor" id="" cols="10" rows="5"></textarea>
+            <label for="produit_editor" class="mt-2 font-weight-bold text-uppercase">Description</label>
+            <textarea name="produit_editor" class="form-control produit_editor" id="produit_editor" cols="10" rows="5"></textarea>
         </div>
         <div class="w-100 mt-4 px-3 text-right action_global_product">
-            <button class="btn btn-primary px-2 btn-sm"><i class="fa fa-plus-circle"></i>&nbsp;Ajouter</button>
+            <button type="button" class="btn btn-primary px-2 btn-sm add_product_variation"><i class="fa fa-plus-circle"></i>&nbsp;Ajouter</button>
         </div>
-        <div class="mt-2 px-3 w-100">
+
+        <div class="mt-2 px-3 all_product w-100">
+            <h5 class="title_form crt_title_form text-black mt-2 mb-3 text-uppercase">Variation produit : Prix & indice (1)</h5>
             <div class="content_product container-fluid rounded w-100 py-3 shadow">
-                <div class="row">
+                <div class="row"> 
                     <div class="col-md-6 px-4">
                         <div class="row">
                             <div class="col-md-8">
-                                <label for="nom" class="mt-2 font-weight-bold">Code</label>
-                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                                <label for="crt_code" class="mt-2 font-weight-bold">Code</label>
+                                <input type="text" name="crt_code[]" id="crt_code" class="form-control crt_code" readonly placeholder=". . .">
                             </div>
                             <div class="col-md-4">
-                                <label for="nom" class="mt-2 font-weight-bold">Indice</label>
-                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                                <label for="crt_indice" class="mt-2 font-weight-bold">Indice</label>
+                                <input type="text" name="crt_indice[]"  oninput="this.value = this.value.toUpperCase();" id="crt_indice" class="form-control crt_indice" placeholder=". . .">
                             </div>
                         </div>
                         
-                        <label for="nom" class="mt-1 font-weight-bold">Entrepot</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_entrepot" class="mt-1 font-weight-bold">Entrepot</label>
+                        <select name="crt_entrepot[]" class="custom-select crt_entrepot" id="crt_entrepot">
+                            <option value="">AUCUN</option>
+                            {% for entrepot in entrepots %}
+                                <option value="{{entrepot.id}}">{{entrepot.nom}}</option>
+                            {% endfor %}
+                        </select>
 
-                        <label for="nom" class="mt-1 font-weight-bold">Prix Achat</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_prix_achat" class="mt-2 font-weight-bold">Prix Achat</label>
+                        <input type="number" name="crt_prix_achat[]" id="ncrt_prix_achatom" class="form-control ncrt_prix_achatom" placeholder=". . .">
 
-                        <label for="nom" class="mt-1 font-weight-bold">Prix de revient</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
+                        <input type="number" name="crt_prix_revient[]" id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
 
-                        <label for="nom" class="mt-1 font-weight-bold">Calcul</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_calcul" class="mt-1 font-weight-bold">Calcul</label>
+                        <select name="crt_calcul[]" class="custom-select crt_prix_revient" id="crt_calcul">
+                            {% for marge_type in marge_types %}
+                                <option value="{{marge_type.id}}">{{marge_type.notation | upper}}</option>
+                            {% endfor %}
+                        </select>
 
-                        <label for="nom" class="mt-1 font-weight-bold">Prix Vente</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_prix_vente" class="mt-1 font-weight-bold">Prix Vente</label>
+                        <input type="number" name="crt_prix_vente[]" id="crt_prix_vente" class="form-control crt_prix_vente" placeholder=". . .">
 
-                        <label for="nom" class="mt-1 font-weight-bold">Stock Alerte</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_stock_alert" class="mt-1 font-weight-bold">Stock Alerte</label>
+                        <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
                     </div>
                     <div class="col-md-6 px-4">
                         <label for="nom" class="mt-2 text-white mb-0 text-right annule_product w-100 h3 font-weight-bold">&times;</label>
                         <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
 
-                        <label for="nom" class="mt-0 font-weight-bold">Fournisseur</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_fournisseur" class="mt-0 font-weight-bold">Fournisseur</label>
+                        <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
+                            {% for fournisseur in fournisseurs %}
+                                <option value="{{fournisseur.id}}">{{fournisseur.nom | upper}}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        <input type="hidden" name="crt_count_fournisseur[]" value="0" class="crt_count_fournisseur" >
 
-                        <label for="nom" class="mt-1 font-weight-bold">Charge</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_charge" class="mt-2 font-weight-bold">Charge</label>
+                        <input type="number" name="crt_charge[]" id="crt_charge" class="form-control crt_charge" placeholder=". . .">
 
                         <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
                         <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
 
-                        <label for="nom" class="mt-3 font-weight-bold">Marge</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_marge" class="mt-3 font-weight-bold">Marge</label>
+                        <input type="number" name="crt_marge[]" id="crt_marge" class="form-control crt_marge" placeholder=". . .">
 
-                        <label for="nom" class="mt-1 font-weight-bold">Stock</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_stock" class="mt-1 font-weight-bold">Stock</label>
+                        <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
 
-                        <label for="nom" class="mt-1 font-weight-bold">Expiré le</label>
-                        <input type="date" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <label for="crt_expiree_le" class="mt-1 font-weight-bold">Expirée le</label>
+                        <input type="date" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
                     </div>
                 </div>
-                
-
-                
-
-
             </div>
         </div>
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
+    </form>
     </div>
 </div>
 {% endblock %}

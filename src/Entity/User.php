@@ -73,12 +73,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Produit::class)]
     private Collection $produits;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PrdApprovisionnement::class)]
+    private Collection $prdApprovisionnements;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
         $this->menuUsers = new ArrayCollection();
         $this->prdPreferences = new ArrayCollection();
         $this->produits = new ArrayCollection();
+        $this->prdApprovisionnements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -349,6 +353,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($produit->getUser() === $this) {
                 $produit->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdApprovisionnement>
+     */
+    public function getPrdApprovisionnements(): Collection
+    {
+        return $this->prdApprovisionnements;
+    }
+
+    public function addPrdApprovisionnement(PrdApprovisionnement $prdApprovisionnement): self
+    {
+        if (!$this->prdApprovisionnements->contains($prdApprovisionnement)) {
+            $this->prdApprovisionnements->add($prdApprovisionnement);
+            $prdApprovisionnement->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdApprovisionnement(PrdApprovisionnement $prdApprovisionnement): self
+    {
+        if ($this->prdApprovisionnements->removeElement($prdApprovisionnement)) {
+            // set the owning side to null (unless already changed)
+            if ($prdApprovisionnement->getUser() === $this) {
+                $prdApprovisionnement->setUser(null);
             }
         }
 

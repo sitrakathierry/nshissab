@@ -18,34 +18,36 @@
     </div>
     <div class="container-fluid px-3 pt-3">
         <h5 class="title_form text-black text-uppercase">Ajout fournisseur</h5>
+        <form id="formFournisseur">
         <div class="row">
             <div class="col-md-6 px-4">
-                <label for="nom" class="font-weight-bold">Nom</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="frns_nom" class="font-weight-bold">Nom</label>
+                <input type="text" name="frns_nom" id="frns_nom" class="form-control" placeholder=". . .">
 
-                <label for="nom" class="mt-1 font-weight-bold">Tel bureau</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="frns_tel_bureau" class="mt-1 font-weight-bold">Tel bureau</label>
+                <input type="text" name="frns_tel_bureau" id="frns_tel_bureau" class="form-control" placeholder=". . .">
 
-                <label for="nom" class="mt-1 font-weight-bold">Adresse</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="frns_adresse" class="mt-1 font-weight-bold">Adresse</label>
+                <input type="text" name="frns_adresse" id="frns_adresse" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-6 px-4">
-                <label for="nom" class="font-weight-bold">Nom Contact</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="frns_nom_contact" class="font-weight-bold">Nom Contact</label>
+                <input type="text" name="frns_nom_contact" id="frns_nom_contact" class="form-control" placeholder=". . .">
 
-                <label for="nom" class="mt-1 font-weight-bold">Tel Mobile</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="frns_tel_mobile" class="mt-1 font-weight-bold">Tel Mobile</label>
+                <input type="text" name="frns_tel_mobile" id="frns_tel_mobile" class="form-control" placeholder=". . .">
 
-                <label for="nom" class="mt-1 font-weight-bold">Email</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="frns_email" class="mt-1 font-weight-bold">Email</label>
+                <input type="email" name="frns_email" id="frns_email" class="form-control" placeholder=". . .">
             </div>
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
+        </form>
         <div class="w-100 barre_dashed">
             <h5 class="title_form mt-4 mb-3 text-black text-uppercase">Liste des fournisseurs</h5>
         </div>
@@ -62,16 +64,21 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa fa-edit"></i></a>&emsp;<a href="#"><i class="fa fa-trash"></i></a></td>
-                    </tr>
+                <tbody class="content_fournisseur">
+                    {% for fournisseur in fournisseurs %}
+                        <tr value="{{fournisseur.id}}">
+                            <td>{{fournisseur.nom}}</td>
+                            <td>{{fournisseur.nomContact}}</td>
+                            <td>{{fournisseur.telBureau}}</td>
+                            <td>{{fournisseur.telMobile}}</td>
+                            <td>{{fournisseur.adresse}}</td>
+                            <td>{{fournisseur.email}}</td>
+                            <td class="text-center">
+                            <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                            <button class="btn ml-2 btn-sm btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

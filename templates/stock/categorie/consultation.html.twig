@@ -47,7 +47,7 @@
                         {% endif %}
                         <tr value="{{categorie.id}}">
                             <td class="align-middle text-center py-2"><img src="{{image}}" alt="" class="img table_img_cat img-fluid img-thumbnail"></td>
-                            <td class="align-middle">{{categorie.nom}}</td>
+                            <td class="align-middle">{{categorie.nom | upper}}</td>
                             <td class="text-center align-middle">
                             <a href="{{path('stock_cat_creation',{'id':categorie.id})}}" class="btn btn-sm btn-outline-warning font-smaller" ><i class="fa fa-edit"></i></a>
                             {% if role != "AGENT" %}

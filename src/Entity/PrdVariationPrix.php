@@ -39,6 +39,9 @@ class PrdVariationPrix
     #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: PrdApprovisionnement::class)]
     private Collection $prdApprovisionnements;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $stock_alert = null;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
@@ -178,6 +181,18 @@ class PrdVariationPrix
                 $prdApprovisionnement->setVariationPrix(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStockAlert(): ?int
+    {
+        return $this->stock_alert;
+    }
+
+    public function setStockAlert(?int $stock_alert): self
+    {
+        $this->stock_alert = $stock_alert;
 
         return $this;
     }

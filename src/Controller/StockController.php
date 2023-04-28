@@ -3,9 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
+use App\Entity\PrdFournisseur;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdHistoFournisseur;
+use App\Entity\PrdMargeType;
 use App\Entity\PrdPreferences;
+use App\Entity\PrdVariationPrix;
+use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,7 +46,6 @@ class StockController extends AbstractController
         $this->filename = "files/systeme/stock/" ;
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
-        
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
             "username" => $this->user["username"] 
         ]) ;
@@ -48,11 +54,263 @@ class StockController extends AbstractController
     #[Route('/stock/creationproduit', name: 'stock_creationproduit')]
     public function stockCreationproduit(): Response
     {
+        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $preferences = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        $entrepots = (json_decode(file_get_contents($filename))) ;
+
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+        $fournisseurs = json_decode(file_get_contents($filename)) ;
+        
+        $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findBy([
+            'agence' => $this->agence 
+        ]) ;
+
         return $this->render('stock/creationproduit.html.twig', [
             "filename" => "stock",
             "titlePage" => "Création Produit",
-            "with_foot" => true
+            "with_foot" => true,
+            "categories" => $preferences,
+            "entrepots" => $entrepots,
+            "fournisseurs" => $fournisseurs,
+            "marge_types" => $marge_types 
         ]);
+    }
+
+    
+    #[Route('/stock/creationproduit/save', name: 'stock_save_creationProduit')]
+    public function stockSaveCreationProduit(Request $request)
+    {
+        $codeProduit = $request->request->get('code_produit') ;
+        $produitcChk = $this->entityManager->getRepository(Produit::class)->findOneBy([
+            "codeProduit" => $codeProduit
+        ]) ;
+
+        if(!empty($codeProduit) && !is_null($produitcChk))
+        {
+            return new JsonResponse([
+                "title" => "Code existant",
+                "message" => "Veuillez changer le code car elle existe déjà",
+                "type" => "orange"
+            ]) ;
+        }
+
+        $prod_categorie = $request->request->get('prod_categorie') ;
+        $code_produit = $request->request->get('code_produit') ;
+        $prod_nom = $request->request->get('prod_nom') ;
+        $unite_produit = $request->request->get('unite_produit') ;
+        $produit_editor = $request->request->get('produit_editor') ;
+        $qr_code_produit = $request->request->get('qr_code_produit') ;
+
+        dd($produit_editor) ;
+
+        $data = [
+            $prod_categorie,
+            $code_produit,
+            $prod_nom,
+            $unite_produit,
+        ];
+
+        $dataMessage = [
+            "Catégorie",
+            "Code Produit",
+            "Nom",
+            "Unité"
+        ] ;
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $crt_code = (array)$request->request->get('crt_code') ;
+        $crt_indice = $request->request->get('crt_indice') ;
+        $crt_entrepot = $request->request->get('crt_entrepot') ;
+        $crt_prix_achat = $request->request->get('crt_prix_achat') ;
+        $crt_prix_revient = $request->request->get('crt_prix_revient') ;
+        $crt_calcul = $request->request->get('crt_calcul') ; // Marge Type
+        $crt_prix_vente = $request->request->get('crt_prix_vente') ;
+        $crt_stock_alert = $request->request->get('crt_stock_alert') ;
+        $crt_charge = $request->request->get('crt_charge') ;
+        $crt_marge = $request->request->get('crt_marge') ;
+        $crt_stock = $request->request->get('crt_stock') ;
+        $crt_expiree_le = $request->request->get('crt_expiree_le') ;
+        
+        $tableau = [] ;
+        foreach ($crt_code as $key => $value) {
+            $data = [
+                $crt_entrepot[$key],
+                $crt_prix_achat[$key],
+                $crt_prix_revient[$key],
+                $crt_prix_vente[$key],
+                $crt_stock_alert[$key],
+                $crt_charge[$key],
+                $crt_marge[$key],
+                $crt_stock[$key]
+            ];
+    
+            $dataMessage = [
+                "Entrepot",
+                "Prix Achat",
+                "Prix Revient",
+                "Prix Vente",
+                "Stock Alert",
+                "Charge",
+                "Marge",
+                "Stock",
+            ] ;
+
+            $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+            
+            $uniteTableau = [] ;
+            
+            $uniteTableau["entrepot"] = $crt_entrepot[$key] ;
+            $uniteTableau["indice"] = $crt_indice[$key] ;
+            $uniteTableau["prix_vente"] = $crt_prix_vente[$key] ;
+
+            array_push($tableau,$uniteTableau) ;
+        }
+
+        $doublons = $this->appService->detecter_doublons($tableau) ;
+
+        if(!empty($doublons))
+            return new JsonResponse([
+                "message" => "Veuiller vérifier vos variations de produit car il y a des doublons (Entrepot, Indice et Prix de Vente)" ,
+                "type" => "orange"
+            ]) ;
+
+        $produit = new Produit() ;
+        
+        $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($prod_categorie) ;  
+
+        $produit->setAgence($this->agence) ;
+        $produit->setPreference($preference) ;
+        $produit->setUser($this->userObj) ;
+        $produit->setCodeProduit($code_produit) ;
+        $produit->setQrCode($qr_code_produit) ;
+        $produit->setImages(null) ;
+        $produit->setNom($prod_nom) ;
+        $produit->setDescription($produit_editor) ;
+        $produit->setUnite($unite_produit) ;
+        $produit->setStock(null) ;
+        $produit->setStatut(True) ;
+        $produit->setCreatedAt(new \DateTimeImmutable) ;
+        $produit->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($produit) ;
+        $this->entityManager->flush() ;
+
+        $stockProduit = 0 ;
+        $indice = 0 ;
+        foreach ($crt_code  as $key => $value) {
+            $variationPrix = new PrdVariationPrix() ;
+
+            $variationPrix->setProduit($produit) ;
+            $variationPrix->setPrixVente($crt_prix_vente[$key]) ;
+            $variationPrix->setStock($crt_stock[$key]) ;
+            $variationPrix->setStockAlert($crt_stock_alert[$key]) ;
+            $variationPrix->setStatut(True) ;
+            $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
+            $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
+
+            $this->entityManager->persist($variationPrix) ;
+            $this->entityManager->flush() ;
+
+            $histoEntrepot = new PrdHistoEntrepot() ;
+
+            $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($crt_entrepot[$key]) ; 
+            if(empty($crt_indice[$key]))
+                $crt_indice[$key] = null ;
+            
+            if(empty($crt_expiree_le[$key]))
+                $crt_expiree_le[$key] = null ;
+
+            $histoEntrepot->setEntrepot($entrepot) ;
+            $histoEntrepot->setVariationPrix($variationPrix) ;
+            $histoEntrepot->setIndice($crt_indice[$key]) ;
+            $histoEntrepot->setStock($crt_stock[$key]) ;
+            $histoEntrepot->setStatut(True) ;
+            $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+            $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+
+            $this->entityManager->persist($histoEntrepot) ;
+            $this->entityManager->flush() ;
+
+            $approvisionnement = new PrdApprovisionnement() ;
+
+            $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($crt_calcul[$key]) ;
+
+            $approvisionnement->setUser($this->userObj) ;
+            $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+            $approvisionnement->setVariationPrix($variationPrix) ;
+            $approvisionnement->setMargeType($margeType) ;
+            $approvisionnement->setQuantite($crt_stock[$key]) ;
+            $approvisionnement->setPrixAchat($crt_prix_achat[$key]) ;
+            $approvisionnement->setCharge($crt_charge[$key]) ;
+            $approvisionnement->setMargeValeur($crt_marge[$key]) ;
+            $approvisionnement->setPrixRevient($crt_prix_revient[$key]) ;
+            $approvisionnement->setPrixVente($crt_prix_vente[$key]) ;
+            $approvisionnement->setExpireeLe($crt_expiree_le[$key]) ;
+            $approvisionnement->setDateAppro(null) ;
+            $approvisionnement->setDescription("Création de Produit Code : ".$crt_code[$key]) ;
+            $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+            $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+            $this->entityManager->persist($approvisionnement) ;
+            $this->entityManager->flush() ;
+
+            $crt_fournisseur = (array)$request->request->get('crt_fournisseur') ;
+            $crt_count_fournisseur = $request->request->get('crt_count_fournisseur') ;
+
+            for ($i=$indice; $i < $crt_count_fournisseur[$key] + $indice; $i++) { 
+                $histoFournisseur = new PrdHistoFournisseur() ;
+                $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->find($crt_fournisseur[$i][0]) ;
+                
+                $histoFournisseur->setFournisseur($fournisseur) ;
+                $histoFournisseur->setApprovisionnement($approvisionnement) ;
+                $histoFournisseur->setCreatedAt(new \DateTimeImmutable) ;
+                $histoFournisseur->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->entityManager->persist($histoFournisseur) ;
+                $this->entityManager->flush() ;
+            } 
+            
+            $indice += $crt_count_fournisseur[$key];
+
+            $stockProduit += $crt_stock[$key] ;
+        }
+
+        $produit->setStock($stockProduit) ;
+
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/stock/creationproduit/code/check', name: 'stock_check_codeProduit')]
+    public function stockCheckCodeProduit(Request $request)
+    {
+        $codeProduit = $request->request->get('codeProduit') ;
+        $produit = $this->entityManager->getRepository(Produit::class)->findOneBy([
+            "codeProduit" => $codeProduit
+        ]) ;
+
+        if(!is_null($produit))
+        {
+            return new JsonResponse([
+                "title" => "Code existant",
+                "message" => "Veuillez changer le code car elle existe déjà",
+                "type" => "orange"
+            ]) ;
+        }
+
+        return new JsonResponse([
+            "type" => "green"
+        ]) ;
     }
 
     #[Route('/stock/general', name: 'stock_general')]
@@ -423,13 +681,77 @@ class StockController extends AbstractController
     #[Route('/stock/fournisseur', name: 'stock_fournisseur')]
     public function stockFournisseur(): Response
     {
-        
-
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockFournisseur($filename,$this->agence) ;
+        $fournisseurs = json_decode(file_get_contents($filename)) ;
         return $this->render('stock/fournisseur.html.twig', [
             "filename" => "stock",
             "titlePage" => "Fournisseur",
-            "with_foot" => true
+            "with_foot" => true,
+            "fournisseurs" => $fournisseurs
         ]);
+    }
+    
+    #[Route('/stock/fournisseur/save', name: 'stock_save_fournisseur')]
+    public function stockSaveFournisseur(Request $request)
+    {
+        $frns_nom = $request->request->get('frns_nom') ; 
+        $frns_tel_bureau = $request->request->get('frns_tel_bureau') ; 
+        $frns_adresse = $request->request->get('frns_adresse') ; 
+        $frns_nom_contact = $request->request->get('frns_nom_contact') ; 
+        $frns_tel_mobile = $request->request->get('frns_tel_mobile') ; 
+        $frns_email = $request->request->get('frns_email') ; 
+
+        $data = [
+            $frns_nom,
+            $frns_tel_bureau,
+            $frns_adresse,
+            $frns_nom_contact,
+            $frns_tel_mobile,
+            $frns_email,
+        ] ;
+
+        $dataMessage = [
+            "Nom",
+            "Tél Bureau",
+            "Adresse",
+            "Nom Contact",
+            "Tél Mobile",
+            "Email"
+        ] ;
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $fournisseur = new PrdFournisseur() ;
+
+        $fournisseur->setNom($frns_nom) ;
+        $fournisseur->setTelBureau($frns_tel_bureau) ;
+        $fournisseur->setAdresse($frns_adresse) ;
+        $fournisseur->setNomContact($frns_nom_contact) ;
+        $fournisseur->setTelMobile($frns_tel_mobile,) ;
+        $fournisseur->setEmail($frns_email) ;
+        $fournisseur->setStatut(True) ;
+        $fournisseur->setAgence($this->agence) ;
+        $fournisseur->setCreatedAt(new \DateTimeImmutable) ;
+        $fournisseur->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($fournisseur) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+        $this->appService->generateStockFournisseur($filename,$this->agence) ;
+        
+        $fournisseurs = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("stock/searchFournisseur.html.twig", [
+            "fournisseurs" => $fournisseurs
+        ]) ;
+
+        return new Response($response) ;
     }
 
     #[Route('/stock/stockentrepot', name: 'stock_stockentrepot')]
@@ -457,10 +779,7 @@ class StockController extends AbstractController
     #[Route('/stock/stockinterne/creation', name: 'stock_int_creation')]
     public function stockIntCreation(): Response
     {
-        
-
         return $this->render('stock/stockinterne/creation.html.twig', [
-            
         ]);
     }
 

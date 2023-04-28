@@ -6,6 +6,7 @@ use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
+use App\Entity\PrdFournisseur;
 use App\Entity\PrdPreferences;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -444,6 +445,30 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateStockFournisseur($filename,$agence)
+    {
+        $fournisseurs = $this->entityManager->getRepository(PrdFournisseur::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        
+        $elements = [] ;
+
+        foreach ($fournisseurs as $fournisseur) {
+            $element = [] ;
+            $element["id"] = $fournisseur->getId() ;
+            $element["nom"] = $fournisseur->getNom() ;
+            $element["nomContact"] = $fournisseur->getNomContact() ;
+            $element["telBureau"] = $fournisseur->getTelBureau() ;
+            $element["telMobile"] = $fournisseur->getTelMobile() ;
+            $element["adresse"] = $fournisseur->getAdresse() ;
+            $element["email"] = $fournisseur->getEmail() ;
+            $element["agence"] = $fournisseur->getAgence()->getId() ;
+
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
     public function recherche($item, $search = []) {
         if (count($search) > 1) {
             $result = false;
@@ -478,5 +503,45 @@ class AppService extends AbstractController
         if(empty($resultats) && $vide)
             return $data ;
         return $resultats ;
+    }
+
+    function check_duplicates_recursive($arr) {
+        // Si le tableau ne contient qu'un élément, il n'y a pas de doublon
+        if (count($arr) <= 1) {
+            return false;
+        }
+        
+        // Sélectionne le premier élément du tableau
+        $elem = array_shift($arr);
+        
+        // Vérifie si l'élément est présent dans le reste du tableau
+        if (in_array($elem, $arr)) {
+            return true;
+        }
+        
+        // Sinon, répète la même opération sur le reste du tableau
+        return $this->check_duplicates_recursive($arr);
+    } 
+
+    public function detecter_doublons($tableau) {
+        $keys = array_keys($tableau[0]);
+        $enregistrements = array();
+        $doublons = array();
+        
+        foreach ($tableau as $enregistrement) {
+            $enregistrement_str = '';
+            foreach ($keys as $key) {
+                $enregistrement_str .= $enregistrement[$key];
+            }
+            
+            if (in_array($enregistrement_str, $enregistrements)) {
+                $doublons[] = $enregistrement;
+            }
+            else {
+                $enregistrements[] = $enregistrement_str;
+            }
+        }
+        
+        return $doublons;
     }
 }

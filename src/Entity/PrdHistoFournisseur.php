@@ -14,9 +14,6 @@ class PrdHistoFournisseur
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'prdHistoFournisseurs')]
-    private ?Produit $produit = null;
-
-    #[ORM\ManyToOne(inversedBy: 'prdHistoFournisseurs')]
     private ?PrdFournisseur $fournisseur = null;
 
     #[ORM\Column]
@@ -25,21 +22,12 @@ class PrdHistoFournisseur
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'prdHistoFournisseurs')]
+    private ?PrdApprovisionnement $approvisionnement = null;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getProduit(): ?Produit
-    {
-        return $this->produit;
-    }
-
-    public function setProduit(?Produit $produit): self
-    {
-        $this->produit = $produit;
-
-        return $this;
     }
 
     public function getFournisseur(): ?PrdFournisseur
@@ -74,6 +62,18 @@ class PrdHistoFournisseur
     public function setUpdatedAt(\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getApprovisionnement(): ?PrdApprovisionnement
+    {
+        return $this->approvisionnement;
+    }
+
+    public function setApprovisionnement(?PrdApprovisionnement $approvisionnement): self
+    {
+        $this->approvisionnement = $approvisionnement;
 
         return $this;
     }

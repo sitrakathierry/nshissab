@@ -45,6 +45,7 @@
 			<script src="{{asset('tools/personnal/sidebar/js/main.js')}}"></script>
 			<script src="{{asset('tools/chosen/chosen.jquery.js')}}"></script>
 			<script src="{{asset('tools/linecontrol/editor.js')}}"></script>
+			<script src="{{asset('tools/jqueryQrCode/jquery-qrcode.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
@@ -93,7 +94,10 @@
 					stock_search_entrepot:"{{path('stock_search_entrepot')}}",
 					stock_save_prefs:"{{path('stock_save_prefs')}}",
 					stock_delete_prefs:"{{path('stock_delete_prefs')}}",
-					
+					stock_save_creationProduit:"{{path('stock_save_creationProduit')}}",
+					stock_save_fournisseur:"{{path('stock_save_fournisseur')}}",
+					stock_check_codeProduit:"{{path('stock_check_codeProduit')}}",
+					caisse_activity:"{{path('caisse_activity')}}"
 				}; 
 				const files = {
 					loading : "{{asset('data/images/loading.svg')}}",

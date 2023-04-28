@@ -1,0 +1,11 @@
+{% for fournisseur in fournisseurs %}
+    <tr value="{{fournisseur.id}}">
+        <td>{{fournisseur.nom}}</td>
+        <td>{{fournisseur.nomContact}}</td>
+        <td>{{fournisseur.telBureau}}</td>
+        <td>{{fournisseur.telMobile}}</td>
+        <td>{{fournisseur.adresse}}</td>
+        <td>{{fournisseur.email}}</td>
+        <td class="text-center"><button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button><button class="btn ml-2 btn-sm btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button></td>
+    </tr>
+{% endfor %}
