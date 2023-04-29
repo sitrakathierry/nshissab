@@ -283,8 +283,10 @@ class StockController extends AbstractController
         }
 
         $produit->setStock($stockProduit) ;
-
         $this->entityManager->flush() ;
+
+        $filename = $this->filename."stock_general(agence)".$this->nameAgence ;
+        $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
 
         return new JsonResponse($result) ;
     }
@@ -314,12 +316,22 @@ class StockController extends AbstractController
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
     {
+        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $preferences = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
         
 
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",
-            "with_foot" => false
+            "with_foot" => false,
+            "categories" => $preferences,
+            "stockGenerales" => $stockGenerales
         ]);
     }
 

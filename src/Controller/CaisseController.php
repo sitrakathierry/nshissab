@@ -30,7 +30,7 @@ class CaisseController extends AbstractController
         $this->appService->checkUrl() ;
         $this->user = $this->session->get("user") ;
         $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
-        $this->filename = "files/systeme/stock/" ;
+        $this->filename = "files/systeme/caisse/" ;
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
@@ -41,8 +41,7 @@ class CaisseController extends AbstractController
     #[Route('/caisse', name: 'caisse_activity')]
     public function index(): Response
     {
-
-
+        
         return $this->render('caisse/caisse.html.twig', [
             "filename" => "caisse",
             "titlePage" => "Vente des Produits",

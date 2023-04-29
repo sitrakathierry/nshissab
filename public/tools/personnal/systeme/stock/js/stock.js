@@ -1,6 +1,13 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
+
+    $("#search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $("#search_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $("#prod_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
+
     $(".appr_ajout").click(function(){
         var self = $(this)
         $.confirm({
@@ -127,6 +134,7 @@ $(document).ready(function(){
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);
       });
+
     $(".save_prd_categorie").click(function(){
         var elements = [
             {
@@ -593,10 +601,6 @@ $(document).ready(function(){
         })
     })
 
-    $("#prod_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
-    $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
-    $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
-
     $(".code_produit").keyup(function(){
         var self = $(this)
         $(".qr_block").html("")
@@ -754,9 +758,53 @@ $(document).ready(function(){
             countFrns.val($(this).val().length)
         })
     }
+    /*
+        Revient = achat + charge
+        Vente = revient + marge
+    */
+    function calculPrix(parent,prixProduit)
+    {
+        var achat = parent.find(prixProduit.achat).val() != "" ? parent.find(prixProduit.achat).val() : 0
+        var charge = parent.find(prixProduit.charge).val() != "" ? parent.find(prixProduit.charge).val() : 0
+        var marge = parent.find(prixProduit.marge).val() != "" ? parent.find(prixProduit.marge).val() : 0
+
+        parent.find(prixProduit.revient).val(parseFloat(achat) + parseFloat(charge))
+        parent.find(prixProduit.vente).val(parseFloat(achat) + parseFloat(charge) + parseFloat(marge))
+    }
+
+    var inputNumber = [
+        ".crt_prix_achat",
+        ".crt_charge",
+        ".crt_prix_revient",
+        ".crt_marge",
+        ".crt_prix_vente"
+    ]
+
+    var prixProduit = 
+    {
+        achat:".crt_prix_achat",
+        charge:".crt_charge",
+        revient:".crt_prix_revient",
+        marge:".crt_marge",
+        vente:".crt_prix_vente",
+    }
+
+    function checkInputPrix()
+    {
+        inputNumber.forEach(elem => {
+            $(elem).each(function()
+            {
+                $(this).keyup(function(){
+                    console.log($(this).val())
+                    calculPrix($(this).closest(".content_product"),prixProduit) ;
+                })
+            })
+        })
+    }
+    checkInputPrix()
     countFournisseur()
-    compteur = 1
-    $(".add_product_variation").click(function(){
+    $(".add_product_variation").click(function()
+    {
         var content = `
         <div class="content_product mt-5 container-fluid rounded w-100 py-3 shadow">
             <div class="row"> 
@@ -778,13 +826,13 @@ $(document).ready(function(){
                     </select>
 
                     <label for="crt_prix_achat" class="mt-2 font-weight-bold">Prix Achat</label>
-                    <input type="number" name="crt_prix_achat[]" id="ncrt_prix_achatom" class="form-control ncrt_prix_achatom" placeholder=". . .">
+                    <input type="number" name="crt_prix_achat[]" id="crt_prix_achat" class="form-control crt_prix_achat" placeholder=". . .">
 
                     <label for="crt_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
                     <input type="number" name="crt_prix_revient[]" readonly id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
 
                     <label for="crt_calcul" class="mt-1 font-weight-bold">Calcul</label>
-                    <select name="crt_calcul[]" class="custom-select crt_prix_revient" id="crt_calcul">
+                    <select name="crt_calcul[]" class="custom-select crt_calcul" id="crt_calcul">
                         `+$('#crt_calcul').html()+`
                     </select>
 
@@ -829,56 +877,67 @@ $(document).ready(function(){
         $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
         countFournisseur()
         closeProduct()
-
-        compteur = compteur + 1 ; 
-        $(".crt_title_form").text("Variation produit : Prix & indice ("+compteur+")") ;
+        checkInputPrix()
     })
     
     function closeProduct()
     {
         $(".annule_product").click(function(){
             $(this).closest('.content_product').remove() ;
-            compteur = compteur - 1 ; 
-            $(".crt_title_form").text("Variation produit : Prix & indice ("+compteur+")") ;
         })
     }
     closeProduct()
 
-    var inputNumber = [
-        ".crt_prix_achat",
-        ".crt_charge",
-        ".crt_prix_revient",
-        ".crt_marge",
-        ".crt_prix_vente"
+
+    var stock_general_search = [
+        {
+            name: "nom",
+            selector : "rch_nom"
+        },
+        {
+            name: "adresse",
+            selector : "rch_adresse"
+        },
+        {
+            name: "telephone",
+            selector : "rch_tel"
+        }
     ]
 
-    var prixProduit = 
+    function searchStockGeneral()
     {
-        achat:".crt_prix_achat",
-        charge:".crt_charge",
-        revient:".crt_prix_revient",
-        marge:".crt_marge",
-        vente:".crt_prix_vente",
+        var instance = new Loading(files.search) ;
+            $(".elem_entrepots").html(instance.search(4)) ;
+            var formData = new FormData() ;
+            for (let j = 0; j < entrepot_search.length; j++) {
+                const search = entrepot_search[j];
+                formData.append(search.name,$("#"+search.selector).val());
+            }
+            $.ajax({
+                url: routes.stock_search_entrepot ,
+                type: 'post',
+                cache: false,
+                data:formData,
+                dataType: 'html',
+                processData: false, // important pour éviter la transformation automatique des données en chaîne
+                contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+                success: function(response){
+                    $(".elem_entrepots").html(response) ;
+                    editEntrepot()
+                    deleteEntrepot()
+                }
+            })
     }
 
-    inputNumber.forEach(elem => {
-        $(elem).keyup(function(){
-            calculPrix($(this).closest(".content_product"),prixProduit) ;
-        })
+
+    $("#search_categorie").change(function(){
+        $.alert($(this).val())
     })
-    /*
-        Revient = achat + charge
-        Vente = revient + marge
-    */
-    function calculPrix(parent,prixProduit)
-    {
-        parent.find(prixProduit.revient).val(
-            parseFloat($(prixProduit.achat).val()) + parseFloat($(prixProduit.charge).val())
-        )
 
-        parent.find(prixProduit.vente).val(
-            parseFloat($(prixProduit.achat).val()) + parseFloat($(prixProduit.charge).val()) + parseFloat($(prixProduit.marge).val())
-        )
-    }
+    $("#search_produit").change(function(){
+        $.alert($(this).val())
+    })
+
+
 })
 

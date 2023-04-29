@@ -23,15 +23,21 @@
                 <input type="text" name="societe" id="societe" class="form-control" value="HIKAM SM MADA" readonly>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
+                <select name="search_categorie" class="custom-select search_categorie custom-select-sm" id="search_categorie">
+                    <option value="">TOUS</option>
+                    {% for categorie in categories %}
+                        <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Produit</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="search_produit" class="mt-2 font-weight-bold text-uppercase">Produit</label>
+                <select name="search_produit" class="custom-select search_produit custom-select-sm" id="search_produit">
+                    <option value="">TOUS</option>
+                    {% for stockGeneral in stockGenerales %}
+                        <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
@@ -51,13 +57,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
-                    </tr>
+                    {% for stockGeneral in stockGenerales %}
+                        <tr>
+                            <td class="align-middle">{{stockGeneral.codeProduit}}</td>
+                            <td class="align-middle">{{stockGeneral.categorie|upper}}</td>
+                            <td class="align-middle">{{stockGeneral.nom}}</td>
+                            <td class="align-middle">{{stockGeneral.stock}}</td>
+                            <td class="text-center align-middle"><button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button></td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

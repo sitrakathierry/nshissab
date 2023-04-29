@@ -8,6 +8,7 @@ use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdPreferences;
+use App\Entity\Produit;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -469,6 +470,30 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($elements)) ;
     }
+
+    public function generateProduitStockGeneral($filename,$agence)
+    {
+        $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        
+        $elements = [] ;
+
+        foreach ($stockGenerales as $stockGeneral) {
+            $element = [] ;
+            $element["id"] = $stockGeneral->getId() ;
+            $element["codeProduit"] = $stockGeneral->getCodeProduit() ;
+            $element["categorie"] = $stockGeneral->getPreference()->getCategorie()->getNom() ;
+            $element["nom"] = $stockGeneral->getNom() ;
+            $element["stock"] = $stockGeneral->getStock() ;
+            $element["agence"] = $stockGeneral->getAgence()->getId() ;
+
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
     public function recherche($item, $search = []) {
         if (count($search) > 1) {
             $result = false;
@@ -476,7 +501,7 @@ class AppService extends AbstractController
                 if(!empty($value))
                 {
                     if(strpos(strtolower($item->$key), strtolower($value)) !== false) {
-                        $result = true;
+                        $result = false;
                         break ;
                     }
                 }
