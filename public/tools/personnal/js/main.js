@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    $.datepicker.setDefaults($.datepicker.regional["fr"]);
 
     $.ajaxSetup({
         cache: false

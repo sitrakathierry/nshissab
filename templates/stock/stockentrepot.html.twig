@@ -19,27 +19,36 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="search_entrepot_ste" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
+                <select name="search_entrepot_ste" class="custom-select search_entrepot_ste custom-select-sm" id="search_entrepot_ste">
+                    <option value="">TOUS</option>
+                    {% for entrepot in entrepots %}
+                        <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="search_categorie_ste" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
+                <select name="search_categorie_ste" class="custom-select search_categorie_ste custom-select-sm" id="search_categorie_ste">
+                    <option value="">TOUS</option>
+                    {% for categorie in categories %}
+                        <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Produit</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="search_produit_ste" class="mt-2 font-weight-bold text-uppercase">Produit</label>
+                <select name="search_produit_ste" class="custom-select search_produit_ste custom-select-sm" id="search_produit_ste">
+                    <option value="">TOUS</option>
+                    {% for stockGeneral in stockGenerales %}
+                        <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
                 <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-            </div>
+            </div> #}
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered table-hover">
@@ -54,16 +63,18 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_stock_entrepot">
+                {% for stockEntrepot in stockEntrepots %}
                     <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
+                        <td>{{stockEntrepot.entrepot}}</td>
+                        <td>{{stockEntrepot.code}}</td>
+                        <td>{{stockEntrepot.indice}}</td>
+                        <td>{{stockEntrepot.categorie|upper}}</td>
+                        <td>{{stockEntrepot.nom}}</td>
+                        <td>{{stockEntrepot.stock}}</td>
+                        <td class="text-center"><button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button></td>
                     </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>

@@ -39,6 +39,35 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
         }
     }
 
+    public function getProduitsInEntrepots($entrepot)
+    {
+        $sql = "
+        SELECT p.id, p.code_produit as codeProduit, p.nom, p.stock FROM `prd_histo_entrepot` phe 
+        JOIN prd_variation_prix pvp ON phe.variation_prix_id = pvp.id
+        LEFT JOIN produit p ON p.id = pvp.produit_id
+        WHERE phe.entrepot_id = ? AND p.statut = 1 AND phe.statut = 1 AND pvp.statut = 1 
+        GROUP BY p.id ORDER BY p.id ASC
+        " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$entrepot]);
+        return $resultSet->fetchAllAssociative();
+    }
+    
+    public function getPrixProduitsE($idE, $idP)
+    {
+        $sql = "
+        SELECT pvp.id, pvp.prix_vente as prixVente, IF(phe.indice IS NULL,'-',phe.indice) as indice FROM `prd_histo_entrepot` phe 
+        JOIN prd_variation_prix pvp ON phe.variation_prix_id = pvp.id 
+        LEFT JOIN produit p ON p.id = pvp.produit_id 
+        WHERE phe.entrepot_id = ? AND p.id = ? AND p.statut = 1 AND phe.statut = 1 AND pvp.statut = 1 
+        ORDER BY pvp.id ASC ; 
+        " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$idE,$idP]);
+        return $resultSet->fetchAllAssociative();
+    }
 //    /**
 //     * @return PrdHistoEntrepot[] Returns an array of PrdHistoEntrepot objects
 //     */

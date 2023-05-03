@@ -7,6 +7,7 @@ use App\Entity\MenuUser;
 use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
+use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdPreferences;
 use App\Entity\Produit;
 use App\Entity\User;
@@ -482,12 +483,38 @@ class AppService extends AbstractController
         foreach ($stockGenerales as $stockGeneral) {
             $element = [] ;
             $element["id"] = $stockGeneral->getId() ;
+            $element["idC"] = $stockGeneral->getPreference()->getId() ;
             $element["codeProduit"] = $stockGeneral->getCodeProduit() ;
             $element["categorie"] = $stockGeneral->getPreference()->getCategorie()->getNom() ;
             $element["nom"] = $stockGeneral->getNom() ;
             $element["stock"] = $stockGeneral->getStock() ;
             $element["agence"] = $stockGeneral->getAgence()->getId() ;
+            array_push($elements,$element) ;
+        }
 
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateStockInEntrepot($filename,$agence)
+    {
+        $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        
+        $elements = [] ;
+
+        foreach ($stockEntrepots as $stockEntrepot) {
+            $element = [] ;
+            $element["id"] = $stockEntrepot->getId() ;
+            $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
+            $element["idC"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getId() ;
+            $element["idP"] = $stockEntrepot->getVariationPrix()->getProduit()->getId() ;
+            $element["entrepot"] = $stockEntrepot->getEntrepot()->getNom() ;
+            $element["code"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
+            $element["indice"] = !empty($stockEntrepot->getIndice()) ? $stockEntrepot->getIndice() : "-" ;
+            $element["categorie"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getCategorie()->getNom() ;
+            $element["nom"] = $stockEntrepot->getVariationPrix()->getProduit()->getNom() ;
+            $element["stock"] = $stockEntrepot->getStock() ;
             array_push($elements,$element) ;
         }
 
@@ -496,17 +523,12 @@ class AppService extends AbstractController
 
     public function recherche($item, $search = []) {
         if (count($search) > 1) {
-            $result = false;
+            $condition = true ;
             foreach ($search as $key => $value) {
                 if(!empty($value))
-                {
-                    if(strpos(strtolower($item->$key), strtolower($value)) !== false) {
-                        $result = false;
-                        break ;
-                    }
-                }
+                    $condition = $condition && (strpos(strtolower($item->$key), strtolower($value)) !== false) ;  
             }
-            return $result;
+            return $condition;
         } else {
             $key = key($item);
             return isset($item->$key) && strpos($item->$key, $search[$key]) !== false;

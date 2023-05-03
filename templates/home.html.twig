@@ -5,7 +5,7 @@
 		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 		<meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
-    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>
 			{% block title %}Welcome!
 			{% endblock %}
@@ -23,6 +23,7 @@
 			<link rel="stylesheet" href="{{asset('tools/confirm/css/jquery-confirm.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/chosen/chosen.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/linecontrol/editor.css')}}">
+			<link rel="stylesheet" href="{{asset('tools/datePicker/datePicker.css')}}">
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
 		<script src="{{asset('tools/linecontrol/LineEditor.js')}}"></script>
@@ -46,6 +47,8 @@
 			<script src="{{asset('tools/chosen/chosen.jquery.js')}}"></script>
 			<script src="{{asset('tools/linecontrol/editor.js')}}"></script>
 			<script src="{{asset('tools/jqueryQrCode/jquery-qrcode.js')}}"></script>
+			<script src="{{asset('tools/datePicker/datePicker.js')}}"></script>
+			<script src="{{asset('tools/datePicker/jquery.ui.datepicker-fr.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
@@ -97,8 +100,14 @@
 					stock_save_creationProduit:"{{path('stock_save_creationProduit')}}",
 					stock_save_fournisseur:"{{path('stock_save_fournisseur')}}",
 					stock_check_codeProduit:"{{path('stock_check_codeProduit')}}",
+					stock_search_stock_general:"{{path('stock_search_stock_general')}}",
+					stock_get_produit_et_entrepot:"{{path('stock_get_produit_et_entrepot')}}",
+					stock_search_stock_entrepot:"{{path('stock_search_stock_entrepot')}}",
+					stock_find_produit_in_entrepot:"{{path('stock_find_produit_in_entrepot')}}",
+					stock_get_prix_produitE:"{{path('stock_get_prix_produitE')}}",
+					stock_details_variation_prix:"{{path('stock_details_variation_prix')}}",
 					caisse_activity:"{{path('caisse_activity')}}"
-				}; 
+				};  
 				const files = {
 					loading : "{{asset('data/images/loading.svg')}}",
 					search : "{{asset('data/images/search.svg')}}"

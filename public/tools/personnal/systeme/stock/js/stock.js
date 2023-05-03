@@ -1,117 +1,363 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
+    $("#search_entrepot_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $("#search_categorie_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $("#search_produit_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
 
     $("#search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#search_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
+    
     $("#prod_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
 
     $(".appr_ajout").click(function(){
         var self = $(this)
-        $.confirm({
-            boxWidth: '800px',
-            useBootstrap: false,
-            title:"Approvisionnement Type : <span class='text-warning'>"+self.attr('caption')+"</span>",
-            content: `
-            <div class="w-100 container-fluid">
-                <div class="row">
-                    <div class="col-md-4 text-left">
-                        <label for="nom" class="font-weight-bold">Entrepôt</label>
-                        <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                            <option value="">Tous</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 text-left">
-                        <label for="nom" class="font-weight-bold">Produit</label>
-                        <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                            <option value="">Tous</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 text-left">
-                        <label for="nom" class="font-weight-bold">Prix Produit</label>
-                        <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                            <option value="">Tous</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 text-left">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Indice</label>
-                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Quantité</label>
-                                <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
-                            </div>
-                        </div>
+        var indiceReadOnly = self.attr('caption') == "Nouveau" ? '' : 'readonly'
+        var disablePrixProduit = self.attr('caption') == "Nouveau" ? 'disabled' : ''
+        var optionsE = '' ;
+        var optionsP = '' ;
+        var optionsF = '' ;
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.stock_get_produit_et_entrepot,
+            type:'post',
+            cache:false,
+            dataType: 'json',
+            success: function(resp){
+                realinstance.close()
+                for (let i = 0; i < resp.entrepots.length; i++) {
+                    const elementE = resp.entrepots[i];
+                    optionsE += '<option value="'+elementE.id+'">'+elementE.nom.toUpperCase()+'</option>'
+                }
 
-                        <label for="nom" class="mt-1 font-weight-bold">Fournisseurs</label>
-                        <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                            <option value="">Tous</option>
-                        </select>
+                for (let i = 0; i < resp.stockGenerales.length; i++) {
+                    const elementP = resp.stockGenerales[i];
+                    optionsP += '<option value="'+elementP.id+'">'+elementP.codeProduit+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                }
 
-                        <label for="nom" class="mt-1 font-weight-bold">Expirée le</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-                    </div>
-                    <div class="col-md-6 text-left">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Prix Achat</label>
-                                <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Charge</label>
-                                <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
-                            </div>
-                        </div>
+                for (let i = 0; i < resp.fournisseurs.length; i++) {
+                    const elementF = resp.fournisseurs[i];
+                    optionsF += '<option value="'+elementF.id+'">'+elementF.nom.toUpperCase()+'</option>'
+                }
 
+                $.confirm({
+                    boxWidth: '800px',
+                    useBootstrap: false,
+                    title:"Approvisionnement Type : <span class='text-warning appro_caption'>"+self.attr('caption')+"</span>",
+                    content: `
+                    <form id="formAppro">
+                    <div class="w-100 container-fluid">
                         <div class="row">
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Marge type</label>
-                                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                                    <option value="">Tous</option>
+                            <div class="col-md-4 text-left">
+                                <label for="appro_search_entrepot" class="font-weight-bold">Entrepôt</label>
+                                <select name="appro_search_entrepot" class="custom-select appro_search_entrepot custom-select-sm" id="appro_search_entrepot">
+                                    <option value=""></option>
+                                    `+optionsE+`
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Marge valeur</label>
-                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                            <div class="col-md-4 text-left">
+                                <label for="appro_search_produit" class="font-weight-bold">Produit</label>
+                                <select name="appro_search_produit" class="custom-select appro_search_produit custom-select-sm" id="appro_search_produit">
+                                    <option value=""></option>
+                                    `+optionsP+`
+                                </select>
                             </div>
-                        </div>
-
+                            <div class="col-md-4 text-left">
+                                <label for="appro_prix_produit" class="font-weight-bold">Prix Produit</label>
+                                <select name="appro_prix_produit" class="custom-select appro_prix_produit custom-select-sm" id="appro_prix_produit" `+disablePrixProduit+` >
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div> 
                         <div class="row">
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Prix de revient</label>
-                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                            <div class="col-md-6 text-left">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="appro_indice" class="mt-1 font-weight-bold">Indice</label>
+                                        <input type="text" name="appro_indice" `+indiceReadOnly+` id="appro_indice" class="form-control appro_indice" placeholder=". . .">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="appro_quantite" class="mt-1 font-weight-bold">Quantité</label>
+                                        <input type="number" name="appro_quantite" id="appro_quantite" class="form-control appro_quantite" placeholder=". . .">
+                                    </div>
+                                </div>
+        
+                                <label for="appro_fournisseur" class="mt-1 font-weight-bold">Fournisseurs</label>
+                                <select name="appro_fournisseur" class="custom-select appro_fournisseur custom-select-sm" multiple id="appro_fournisseur">
+                                    <option value=""></option>
+                                    `+optionsF+`
+                                </select>
+        
+                                <label for="appro_expireeLe" class="mt-1 font-weight-bold">Expirée le</label>
+                                <input type="text" name="appro_expireeLe" id="appro_expireeLe" class="form-control appro_expireeLe" placeholder=". . .">
                             </div>
-                            <div class="col-md-6">
-                                <label for="nom" class="mt-1 font-weight-bold">Prix de vente</label>
-                                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                            <div class="col-md-6 text-left">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="appro_prix_achat" class="mt-1 font-weight-bold">Prix Achat</label>
+                                        <input type="number" name="appro_prix_achat" id="appro_prix_achat" class="form-control appro_prix_achat" placeholder=". . .">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="appro_charge" class="mt-1 font-weight-bold">Charge</label>
+                                        <input type="number" name="appro_charge" id="appro_charge" class="form-control appro_charge" placeholder=". . .">
+                                    </div>
+                                </div>
+        
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="appro_calcul" class="mt-1 font-weight-bold">Calcul</label>
+                                        <select name="appro_calcul" class="custom-select appro_calcul custom-select-sm" id="appro_calcul">
+                                            <option value="1">Montant</option>
+                                            <option value="2">%</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="appro_marge" class="mt-1 font-weight-bold">Marge</label>
+                                        <input type="number" name="appro_marge" id="appro_marge" class="form-control appro_marge" placeholder=". . .">
+                                    </div>
+                                </div>
+        
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="appro_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
+                                        <input type="number" name="appro_prix_revient" id="appro_prix_revient" class="form-control appro_prix_revient" placeholder=". . .">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="appro_prix_vente" class="mt-1 font-weight-bold">Prix de vente</label>
+                                        <input type="number" name="appro_prix_vente" id="appro_prix_vente" class="form-control appro_prix_vente" placeholder=". . .">
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <h6 class="font-weight-bold mt-1">Montant Total : <span class="text-warning appro_montant_total">-</span> KMF</h6>
                     </div>
-                </div>
-                <h6 class="font-weight-bold mt-1">Montant Total : <span class="text-warning">10000 KMF</span></h6>
-            </div>
-            `,
-            theme:"modern",
-            type:'blue',
-            buttons:{
-                btn1:{
-                    text: 'Annuler',
-                    action: function(){}
-                },
-                btn2:{
-                    text: 'Ajouter',
-                    btnClass: 'btn-blue',
-                    keys: ['enter', 'shift'],
-                    action: function(){
-                        $.alert("Ajoutée !!! ")
+                    </form>
+                    <script>
+                        var produitEntrepots = $("#appro_search_produit").html() ;
+                        var instance = new Loading(files.loading)
+                        $( "#appro_expireeLe").datepicker();
+
+                        $("#appro_search_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
+                        $("#appro_search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
+                        $("#appro_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
+
+                        function approSearchEntrepot()
+                        {
+                            $("#appro_search_entrepot").change(function(){
+                                var self = $(this)
+                                var realinstance = instance.loading()
+                                $.ajax({
+                                    url: routes.stock_find_produit_in_entrepot,
+                                    type:'post',
+                                    cache: false,
+                                    data: {idE:self.val()} ,
+                                    dataType:'json',
+                                    success: function(resp)
+                                    {
+                                        realinstance.close()
+                                        if(resp.vide)
+                                        {
+                                            $.confirm({
+                                                title: "Entrepot vide",
+                                                content:"Voulez-vous ajouter de nouveau produit dans cet entrepôt ?",
+                                                type:"blue",
+                                                theme:"modern",
+                                                buttons:{
+                                                    btn1:{
+                                                        text: 'Non',
+                                                        action: function(){
+                                                            $("#appro_search_produit").html('<option value=""></option>')
+                                                            $("#appro_search_produit").trigger("chosen:updated"); 
+                                                            $.alert({
+                                                                title:"Entrepot",
+                                                                content:"Veuiller changer d'entrepot",
+                                                                type:"orange"
+                                                            })
+                                                        }
+                                                    },
+                                                    btn2:{
+                                                        text: 'Oui',
+                                                        btnClass: 'btn-blue',
+                                                        keys: ['enter', 'shift'],
+                                                        action: function(){
+                                                            $("#appro_indice").removeAttr("readonly") ;
+                                                            $(".appro_caption").text("Nouveau")
+                                                            $("#appro_prix_produit").attr("disabled","true")
+                                                            $("#appro_search_produit").html(produitEntrepots)
+                                                            $("#appro_search_produit").trigger("chosen:updated"); 
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                        }
+                                        else
+                                        {
+                                            $("#appro_indice").attr("readonly","true") ;
+                                            $(".appro_caption").text("Existant")
+                                            $("#appro_prix_produit").removeAttr("disabled")
+                                            
+                                            var options = '<option value=""></option>'
+                                            for (let i = 0; i < resp.produitEntrepots.length; i++) {
+                                                const elementP = resp.produitEntrepots[i];
+                                                options += '<option value="'+elementP.id+'">'+elementP.codeProduit+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                                            }
+    
+                                            $("#appro_search_produit").html(options) ;
+                                            $("#appro_search_produit").trigger("chosen:updated"); 
+                                        }
+                                    }
+                                })
+                            })
+                        }
+
+                        var appro_caption = $(".appro_caption").text()
+                        if(appro_caption == "Existant" )
+                        {
+                            approSearchEntrepot()
+                        }
+
+                        $("#appro_search_produit").change(function(){
+                            var appro_caption = $(".appro_caption").text()
+                            if(appro_caption == "Existant" )
+                            {
+                                var realinstance = instance.loading()
+                                var idE = $("#appro_search_entrepot").val()
+                                var idP = $(this).val()
+                                $.ajax({
+                                    url: routes.stock_get_prix_produitE, 
+                                    type:'post',
+                                    cache:false,
+                                    data:{idE:idE,idP:idP},
+                                    dataType:'json',
+                                    success: function(resp){
+                                        realinstance.close()
+                                        var optionsPrix = '<option value=""></option>'
+                                        
+                                        for (let i = 0; i < resp.length; i++) {
+                                            const element = resp[i];
+                                            optionsPrix += '<option value="'+element.id+'">'+element.prixVente+' | '+element.indice+'</option>'
+                                        }
+                                        $("#appro_prix_produit").html(optionsPrix)
+                                    }
+                                })
+                            }
+                        })
+
+                        $("#appro_prix_produit").change(function(){
+                            var self = $(this)
+                            var realinstance = instance.loading()
+                            $.ajax({
+                                url: routes.stock_details_variation_prix,
+                                type:'post',
+                                cache: false,
+                                data:{idVar:self.val()},
+                                dataType:'json',
+                                success: function(resp){
+                                    realinstance.close()
+                                    var setNumberArray = [
+                                        "#appro_prix_achat",
+                                        "#appro_charge",
+                                        "#appro_marge",
+                                        "#appro_prix_revient",
+                                        "#appro_prix_vente"
+                                    ]
+
+                                    setNumberArray.forEach(elem => {
+                                        $(elem).attr("readonly","true")
+                                    })
+                                    
+                                    var selectorsVar = [
+                                        "#appro_prix_achat",
+                                        "#appro_charge",
+                                        "#appro_marge",
+                                        "#appro_prix_revient",
+                                        "#appro_prix_vente",
+                                        "#appro_fournisseur",
+                                        "#appro_expireeLe",
+                                        "#appro_indice",
+                                        "#appro_calcul"
+                                    ]
+
+                                    var selectorValue = [
+                                        resp.prixAchat,
+                                        resp.charge,
+                                        resp.marge,
+                                        resp.prixRevient,
+                                        resp.prixVente,
+                                        resp.fournisseur,
+                                        resp.expireeLe,
+                                        $("#appro_prix_produit option:selected").text().split(" | ")[1],
+                                        resp.calcul,
+                                    ]
+                                    
+                                    for (let i = 0; i < selectorsVar.length; i++) {
+                                        const element = selectorsVar[i];
+                                        $(element).val(selectorValue[i])
+                                    }
+
+                                    $("#appro_fournisseur").trigger("chosen:updated"); 
+                                    $(".appro_montant_total").text($("#appro_prix_vente").val())
+                                }
+                            })
+                        })
+
+                        function approCalculPrix()
+                        {
+                            var prix_achat = $("#appro_prix_achat").val() != "" ? $("#appro_prix_achat").val() : 0
+                            var charge = $("#appro_charge").val() != "" ? $("#appro_charge").val() : 0
+                            var marge = $("#appro_marge").val() != "" ? $("#appro_marge").val() : 0
+                            var quantite = $("#appro_quantite").val() != "" ? $("#appro_quantite").val() : 0
+                            var prix_revient = $("#appro_prix_revient")
+                            var prix_vente = $("#appro_prix_vente")
+
+
+
+                            prix_revient.val(parseFloat(prix_achat) + parseFloat(charge))
+                            prix_vente.val(parseFloat(prix_revient.val()) + parseFloat(marge))
+
+                            var total_partiel = parseFloat(quantite) * parseFloat(prix_vente.val())
+                            $(".appro_montant_total").text(total_partiel)
+                        }
+
+                        var numberArray = [
+                            "#appro_prix_achat",
+                            "#appro_charge",
+                            "#appro_marge",
+                            "#appro_prix_revient",
+                            "#appro_prix_vente",
+                            "#appro_quantite"
+                        ]
+                        numberArray.forEach(elem => {
+                            $(elem).keyup(function(){
+                                approCalculPrix()
+                            })
+
+                            $(elem).change(function(){
+                                approCalculPrix()
+                            })
+                        })
+
+                    </script>
+                    `,
+                    theme:"modern",
+                    type:'blue',
+                    buttons:{
+                        btn1:{
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Ajouter',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                $.alert("Ajoutée !!! ")
+                            }
+                        }
                     }
-                }
+                })
             }
         })
     })
@@ -795,7 +1041,6 @@ $(document).ready(function(){
             $(elem).each(function()
             {
                 $(this).keyup(function(){
-                    console.log($(this).val())
                     calculPrix($(this).closest(".content_product"),prixProduit) ;
                 })
             })
@@ -843,10 +1088,10 @@ $(document).ready(function(){
                     <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
                 </div>
                 <div class="col-md-6 px-4">
-                    <label for="nom" class="mt-2 text-white mb-0 text-right annule_product w-100 h3 font-weight-bold">&times;</label>
-                    <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
-
-                    <label for="crt_fournisseur" class="mt-0 font-weight-bold">Fournisseur</label>
+                    <div class="mt-2 text-white mb-4 text-right w-100 h3 font-weight-bold">
+                        <button class="btn btn-outline-danger annule_product btn-sm"><i class="fa fa-times"></i></button>
+                    </div>
+                    <label for="crt_fournisseur" class="mt-2 font-weight-bold">Fournisseur</label>
                     <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
                     `+$('#crt_fournisseur').html()+`
                     </select>
@@ -866,20 +1111,26 @@ $(document).ready(function(){
                     <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
 
                     <label for="crt_expiree_le" class="mt-1 font-weight-bold">Expirée le</label>
-                    <input type="date" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
+                    <input type="text" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
                 </div>
             </div>
         </div>
         `
         $(".all_product").append(content)
-
         $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
         $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
         countFournisseur()
         closeProduct()
         checkInputPrix()
-    })
+        $(".crt_expiree_le").each(function(){
+            $(this).datepicker() ;
+        })
+    }) 
     
+    $(".crt_expiree_le").each(function(){
+        $(this).datepicker() ;
+    })
+
     function closeProduct()
     {
         $(".annule_product").click(function(){
@@ -891,51 +1142,96 @@ $(document).ready(function(){
 
     var stock_general_search = [
         {
-            name: "nom",
-            selector : "rch_nom"
+            name: "idC",
+            selector : "search_categorie"
         },
         {
-            name: "adresse",
-            selector : "rch_adresse"
-        },
-        {
-            name: "telephone",
-            selector : "rch_tel"
+            name: "id",
+            selector : "search_produit"
         }
     ]
 
     function searchStockGeneral()
     {
         var instance = new Loading(files.search) ;
-            $(".elem_entrepots").html(instance.search(4)) ;
-            var formData = new FormData() ;
-            for (let j = 0; j < entrepot_search.length; j++) {
-                const search = entrepot_search[j];
-                formData.append(search.name,$("#"+search.selector).val());
+        $(".elem_stock_general").html(instance.search(5)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < stock_general_search.length; j++) {
+            const search = stock_general_search[j];
+            formData.append(search.name,$("#"+search.selector).val());
+        }
+        $.ajax({
+            url: routes.stock_search_stock_general ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".elem_stock_general").html(response) ;
             }
-            $.ajax({
-                url: routes.stock_search_entrepot ,
-                type: 'post',
-                cache: false,
-                data:formData,
-                dataType: 'html',
-                processData: false, // important pour éviter la transformation automatique des données en chaîne
-                contentType: false, // important pour envoyer des données binaires (comme les fichiers)
-                success: function(response){
-                    $(".elem_entrepots").html(response) ;
-                    editEntrepot()
-                    deleteEntrepot()
-                }
-            })
+        })
     }
 
 
     $("#search_categorie").change(function(){
-        $.alert($(this).val())
+        searchStockGeneral()
     })
 
     $("#search_produit").change(function(){
-        $.alert($(this).val())
+        searchStockGeneral()
+    })
+
+    var stock_entrepot_search = [
+        {
+            name: "idE",
+            selector : "search_entrepot_ste"
+        },
+        {
+            name: "idC",
+            selector : "search_categorie_ste"
+        },
+        {
+            name: "idP",
+            selector : "search_produit_ste"
+        }
+    ]
+
+    function searchStockEntrepot()
+    {
+        var instance = new Loading(files.search) ;
+        $(".elem_stock_entrepot").html(instance.search(7)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < stock_entrepot_search.length; j++) {
+            const search = stock_entrepot_search[j];
+            formData.append(search.name,$("#"+search.selector).val());
+        }
+        $.ajax({
+            url: routes.stock_search_stock_entrepot ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".elem_stock_entrepot").html(response) ;
+            }
+        })
+    }
+
+    var stock_entrepot = [
+        "#search_entrepot_ste",
+        "#search_categorie_ste",
+        "#search_produit_ste"
+    ]
+
+    stock_entrepot.forEach(elem => {
+        $(elem).change(function()
+        {
+            searchStockEntrepot()
+        })
     })
 
 

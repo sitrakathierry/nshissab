@@ -1,0 +1,11 @@
+{% for stockEntrepot in stockEntrepots %}
+    <tr>
+        <td>{{stockEntrepot.entrepot}}</td>
+        <td>{{stockEntrepot.code}}</td>
+        <td>{{stockEntrepot.indice}}</td>
+        <td>{{stockEntrepot.categorie|upper}}</td>
+        <td>{{stockEntrepot.nom}}</td>
+        <td>{{stockEntrepot.stock}}</td>
+        <td class="text-center"><button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button></td>
+    </tr>
+{% endfor %}

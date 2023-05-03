@@ -232,6 +232,7 @@ class StockController extends AbstractController
             $histoEntrepot->setIndice($crt_indice[$key]) ;
             $histoEntrepot->setStock($crt_stock[$key]) ;
             $histoEntrepot->setStatut(True) ;
+            $histoEntrepot->setAgence($this->agence) ;
             $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
             $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
 
@@ -325,14 +326,43 @@ class StockController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
         
-
+        $societe = $this->agence->getNom() ;
+ 
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",
             "with_foot" => false,
+            "societe" => $societe,
             "categories" => $preferences,
             "stockGenerales" => $stockGenerales
         ]);
+    }
+
+    
+    #[Route('/stock/general/search', name: 'stock_search_stock_general')]
+    public function stockGeneralSearch(Request $request)
+    {
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+        $id = $request->request->get('id') ;
+        $idC = $request->request->get('idC') ;
+
+        $search = [
+            "id" => $id,
+            "idC" => $idC
+        ] ;
+
+        $stockGenerales = $this->appService->searchData($stockGenerales,$search) ;
+
+        $response = $this->renderView("stock/searchStockGenerales.html.twig", [
+            "stockGenerales" => $stockGenerales
+        ]) ;
+
+        return new Response($response) ; 
     }
 
     #[Route('/stock/categorie/creation/{id}', name: 'stock_cat_creation', defaults:['id' => null])]
@@ -558,16 +588,107 @@ class StockController extends AbstractController
             "with_foot" => false
         ]);
     }
+    
+    #[Route('/stock/entrepot/produit/get', name: 'stock_get_produit_et_entrepot')]
+    public function stockGetEntrepotProduit()
+    {
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+        
+        $entrepots = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockFournisseur($filename,$this->agence) ;
+
+        $fournisseurs = json_decode(file_get_contents($filename)) ;
+
+        $response = [
+            "entrepots" => $entrepots,
+            "stockGenerales" => $stockGenerales,
+            "fournisseurs" => $fournisseurs
+        ] ;
+
+        return new JsonResponse($response) ;
+    }
+
+    #[Route('/stock/entrepot/produit/prix/get', name: 'stock_get_prix_produitE')]
+    public function stockGetPrixProduitsE(Request $request)
+    {
+        $idE = $request->request->get('idE') ;
+        $idP = $request->request->get('idP') ; 
+
+        $prixProduits = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getPrixProduitsE($idE, $idP) ;
+
+        return new JsonResponse($prixProduits) ;
+    }
+
+    #[Route('/stock/produit/variation/details', name: 'stock_details_variation_prix')]
+    public function stockDetailsVariationProduit(Request $request)
+    {
+        $idVar = $request->request->get('idVar') ;
+
+        $result = [] ;
+        // $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVar) ;
+        $repository = $this->entityManager->getRepository(PrdApprovisionnement::class) ; 
+
+        $query = $repository->createQueryBuilder('e')
+            ->where('e.variationPrix = :variation')
+            ->orderBy('e.id', 'DESC')
+            ->setMaxResults(1)
+            ->setParameter('variation', $idVar)
+            ->getQuery();
+        $approvisionnement = $query->getOneOrNullResult();
+
+        $histoFournisseur = $this->entityManager->getRepository(PrdHistoFournisseur::class)->findBy([
+            "approvisionnement" => $approvisionnement
+        ]) ;
+
+        $fournisseur = [] ;
+        foreach ($histoFournisseur as $histoFournisseur) {
+            array_push($fournisseur,$histoFournisseur->getFournisseur()->getId()) ;
+        }
+
+        $result["prixAchat"] = $approvisionnement->getPrixAchat() ; 
+        $result["charge"] = $approvisionnement->getCharge() ; 
+        $result["calcul"] = $approvisionnement->getMargeType()->getId() ; 
+        $result["marge"] = $approvisionnement->getMargeValeur() ; 
+        $result["prixRevient"] = $approvisionnement->getPrixRevient() ; 
+        $result["prixVente"] = $approvisionnement->getPrixVente() ; 
+        $result["expireeLe"] = $approvisionnement->getExpireeLe() ; 
+        $result["fournisseur"] = $fournisseur ; 
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/stock/entrepot/produit/find', name: 'stock_find_produit_in_entrepot')]
+    public function stockFindProduitInEntrepot(Request $request)
+    {
+        $idE = $request->request->get('idE') ;
+
+        $produitEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getProduitsInEntrepots($idE) ;
+        
+        $result = [] ;
+        $result["vide"] = empty($produitEntrepots) ;
+        $result["produitEntrepots"] = $produitEntrepots ;
+        return new JsonResponse($result) ;
+    }
 
     #[Route('/stock/entrepot', name: 'stock_entrepot')]
     public function stockEntrepot(): Response
     {
         
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
-        {   
+        if(!file_exists($filename))  
             $this->appService->generateStockEntrepot($filename,$this->agence) ;
-        }
+        
         $entrepots = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/entrepot.html.twig', [
@@ -767,13 +888,64 @@ class StockController extends AbstractController
     #[Route('/stock/stockentrepot', name: 'stock_stockentrepot')]
     public function stockStockentrepot(): Response
     {
-        
+        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $preferences = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
+        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockInEntrepot($filename, $this->agence);
+
+        $stockEntrepots = json_decode(file_get_contents($filename)) ; 
 
         return $this->render('stock/stockentrepot.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock d'entrepot",
-            "with_foot" => false
+            "with_foot" => false,
+            "entrepots" => $entrepots,
+            "categories" => $preferences,
+            "stockGenerales" => $stockGenerales,
+            "stockEntrepots" => $stockEntrepots
         ]);
+    }
+
+    #[Route('/stock/stockentrepot/search', name: 'stock_search_stock_entrepot')]
+    public function stockStockInEntrepotSearch(Request $request)
+    {
+        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockInEntrepot($filename, $this->agence) ;
+
+        $stockEntrepots = json_decode(file_get_contents($filename)) ;
+
+        $idE = $request->request->get('idE') ;
+        $idC = $request->request->get('idC') ;
+        $idP = $request->request->get('idP') ;
+
+        $search = [
+            "idE" => $idE,
+            "idC" => $idC,
+            "idP" => $idP
+        ] ;
+
+        $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
+
+        $response = $this->renderView("stock/searchStockEntrepots.html.twig", [
+            "stockEntrepots" => $stockEntrepots
+        ]) ;
+
+        return new Response($response) ; 
     }
 
     #[Route('/stock/stockinterne/libellee', name: 'stock_int_libellee')]

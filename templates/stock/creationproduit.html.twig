@@ -96,10 +96,10 @@
                         <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
                     </div>
                     <div class="col-md-6 px-4">
-                        <label for="nom" class="mt-2 text-white mb-0 text-right annule_product w-100 h3 font-weight-bold">&times;</label>
-                        <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
-
-                        <label for="crt_fournisseur" class="mt-0 font-weight-bold">Fournisseur</label>
+                        <div class="mt-2 text-white mb-4 text-right w-100 h3 font-weight-bold">
+                            <button class="btn btn-outline-danger annule_product btn-sm"><i class="fa fa-times"></i></button>
+                        </div>
+                        <label for="crt_fournisseur" class="mt-2 font-weight-bold">Fournisseur</label>
                         <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
                             {% for fournisseur in fournisseurs %}
                                 <option value="{{fournisseur.id}}">{{fournisseur.nom | upper}}</option>
@@ -121,7 +121,7 @@
                         <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
 
                         <label for="crt_expiree_le" class="mt-1 font-weight-bold">Expirée le</label>
-                        <input type="date" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
+                        <input type="text" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
                     </div>
                 </div>
             </div>

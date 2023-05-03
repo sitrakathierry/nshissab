@@ -76,6 +76,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdFournisseur::class)]
     private Collection $prdFournisseurs;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdHistoEntrepot::class)]
+    private Collection $prdHistoEntrepots;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -86,6 +89,7 @@ class Agence
         $this->prdEntrepots = new ArrayCollection();
         $this->prdMargeTypes = new ArrayCollection();
         $this->prdFournisseurs = new ArrayCollection();
+        $this->prdHistoEntrepots = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -471,6 +475,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($prdFournisseur->getAgence() === $this) {
                 $prdFournisseur->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdHistoEntrepot>
+     */
+    public function getPrdHistoEntrepots(): Collection
+    {
+        return $this->prdHistoEntrepots;
+    }
+
+    public function addPrdHistoEntrepot(PrdHistoEntrepot $prdHistoEntrepot): self
+    {
+        if (!$this->prdHistoEntrepots->contains($prdHistoEntrepot)) {
+            $this->prdHistoEntrepots->add($prdHistoEntrepot);
+            $prdHistoEntrepot->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdHistoEntrepot(PrdHistoEntrepot $prdHistoEntrepot): self
+    {
+        if ($this->prdHistoEntrepots->removeElement($prdHistoEntrepot)) {
+            // set the owning side to null (unless already changed)
+            if ($prdHistoEntrepot->getAgence() === $this) {
+                $prdHistoEntrepot->setAgence(null);
             }
         }
 

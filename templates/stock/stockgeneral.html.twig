@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Société</label>
-                <input type="text" name="societe" id="societe" class="form-control" value="HIKAM SM MADA" readonly>
+                <input type="text" name="societe" id="societe" class="form-control" value="{{societe|upper}}" readonly>
             </div>
             <div class="col-md-3">
                 <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
@@ -36,14 +36,14 @@
                 <select name="search_produit" class="custom-select search_produit custom-select-sm" id="search_produit">
                     <option value="">TOUS</option>
                     {% for stockGeneral in stockGenerales %}
-                        <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}}</option>
+                        <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
                 <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-            </div>
+            </div> #}
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered table-hover">
@@ -56,7 +56,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_stock_general">
                     {% for stockGeneral in stockGenerales %}
                         <tr>
                             <td class="align-middle">{{stockGeneral.codeProduit}}</td>

@@ -1,0 +1,9 @@
+{% for stockGeneral in stockGenerales %}
+    <tr>
+        <td class="align-middle">{{stockGeneral.codeProduit}}</td>
+        <td class="align-middle">{{stockGeneral.categorie|upper}}</td>
+        <td class="align-middle">{{stockGeneral.nom}}</td>
+        <td class="align-middle">{{stockGeneral.stock}}</td>
+        <td class="text-center align-middle"><button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button></td>
+    </tr>
+{% endfor %}

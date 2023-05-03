@@ -42,6 +42,9 @@ class PrdHistoEntrepot
     #[ORM\OneToMany(mappedBy: 'histoEntrepot', targetEntity: PrdApprovisionnement::class)]
     private Collection $prdApprovisionnements;
 
+    #[ORM\ManyToOne(inversedBy: 'prdHistoEntrepots')]
+    private ?Agence $agence = null;
+
     public function __construct()
     {
         $this->prdDeductions = new ArrayCollection();
@@ -193,6 +196,18 @@ class PrdHistoEntrepot
                 $prdApprovisionnement->setHistoEntrepot(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }
