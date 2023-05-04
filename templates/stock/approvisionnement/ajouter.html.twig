@@ -17,43 +17,38 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-2">
+        <form id="formAppro">
         <div class="w-100 text-right mb-2">
-            <button caption="Existant" class="btn btn-sm btn-primary appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
-            <button caption="Nouveau" class="btn btn-sm btn-info ml-2 appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
+            <button type="button" caption="Existant" class="btn btn-sm btn-primary appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
+            <button type="button" caption="Nouveau" class="btn btn-sm btn-info ml-2 appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
         </div>
         <div class="table-responsive barre_dashed pt-2">
-            <table class="table table-sm table-bordered table-hover">
+            <table class="table table-sm font-smaller table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>
                         <th>Entrepôt</th>
                         <th>Type</th>
                         <th>Produit</th>
                         <th>Indice</th>
+                        <th>Fournisseur</th>
+                        <th>Expirée le</th>
                         <th>Qte</th>
-                        <th>Prix de vente</th>
+                        <th>Prix Achat</th>
+                        <th>Charge</th>
+                        <th>Prix Revient</th>
+                        <th>Calcul</th>
+                        <th>Marge</th>
+                        <th>Prix Vente</th>
                         <th>Montant total</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-center">
-                        <button class="btn-outline-warning btn btn-sm font-smaller"><i class="fa fa-edit"></i></button>
-                        <button class="btn-outline-danger btn ml-2 btn-sm font-smaller"><i class="fa fa-trash"></i></button>
-                        </td>
-                    </tr>
+                <tbody class="elem_appro">
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="6">Total Géneral</th>
-                        <th class="bg-secondary text-right text-white">10000</th>
+                        <th colspan="13">Total Géneral</th>
+                        <th class="bg-secondary text-right text-white appro_total_general" id="appro_total_general">0</th>
                         <td class="bg-secondary"></td>
                     </tr>
                 </tfoot>
@@ -73,10 +68,11 @@
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
                 <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
+    </form>
     </div>
 </div>
 {% endblock %}

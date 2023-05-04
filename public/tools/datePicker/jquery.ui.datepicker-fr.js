@@ -20,7 +20,7 @@ jQuery(function($){
 		showMonthAfterYear: false,
 		yearSuffix: '',
 		// minDate: 0,
-		maxDate: '+12M +0D',
+		// maxDate: '+12M +0D',
 		numberOfMonths: 1,
 		showButtonPanel: true
 		};

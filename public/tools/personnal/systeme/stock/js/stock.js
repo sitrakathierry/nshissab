@@ -12,6 +12,16 @@ $(document).ready(function(){
     $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
 
+    function deleteLigneAppro()
+    {
+        $("#delete_appro").click(function(){
+            $(this).closest('tr').remove()
+        })
+    }
+
+    deleteLigneAppro()
+
+    var reference = 1
     $(".appr_ajout").click(function(){
         var self = $(this)
         var indiceReadOnly = self.attr('caption') == "Nouveau" ? '' : 'readonly'
@@ -20,6 +30,7 @@ $(document).ready(function(){
         var optionsP = '' ;
         var optionsF = '' ;
         var realinstance = instance.loading()
+
         $.ajax({
             url: routes.stock_get_produit_et_entrepot,
             type:'post',
@@ -47,15 +58,16 @@ $(document).ready(function(){
                     useBootstrap: false,
                     title:"Approvisionnement Type : <span class='text-warning appro_caption'>"+self.attr('caption')+"</span>",
                     content: `
-                    <form id="formAppro">
-                    <div class="w-100 container-fluid">
+                    <div id="elemAppro" class="w-100 container-fluid">
                         <div class="row">
                             <div class="col-md-4 text-left">
+                                
                                 <label for="appro_search_entrepot" class="font-weight-bold">Entrepôt</label>
                                 <select name="appro_search_entrepot" class="custom-select appro_search_entrepot custom-select-sm" id="appro_search_entrepot">
                                     <option value=""></option>
                                     `+optionsE+`
                                 </select>
+                                <input type="hidden" class="appro_entrepot_text" id="appro_entrepot_text">
                             </div>
                             <div class="col-md-4 text-left">
                                 <label for="appro_search_produit" class="font-weight-bold">Produit</label>
@@ -63,6 +75,7 @@ $(document).ready(function(){
                                     <option value=""></option>
                                     `+optionsP+`
                                 </select>
+                                <input type="hidden" class="appro_produit_text" id="appro_produit_text">
                             </div>
                             <div class="col-md-4 text-left">
                                 <label for="appro_prix_produit" class="font-weight-bold">Prix Produit</label>
@@ -90,7 +103,7 @@ $(document).ready(function(){
                                     `+optionsF+`
                                 </select>
         
-                                <label for="appro_expireeLe" class="mt-1 font-weight-bold">Expirée le</label>
+                                <label for="appro_expireeLe" class="mt-2 font-weight-bold">Expirée le</label>
                                 <input type="text" name="appro_expireeLe" id="appro_expireeLe" class="form-control appro_expireeLe" placeholder=". . .">
                             </div>
                             <div class="col-md-6 text-left">
@@ -133,15 +146,28 @@ $(document).ready(function(){
                         </div>
                         <h6 class="font-weight-bold mt-1">Montant Total : <span class="text-warning appro_montant_total">-</span> KMF</h6>
                     </div>
-                    </form>
                     <script>
                         var produitEntrepots = $("#appro_search_produit").html() ;
                         var instance = new Loading(files.loading)
                         $( "#appro_expireeLe").datepicker();
-
+                        $( "#appro_expireeLe").val("")
                         $("#appro_search_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
                         $("#appro_search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
                         $("#appro_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
+
+                        $(".appro_search_entrepot").chosen().change(function() {
+                            var selectedText = $(this).find("option:selected").text();
+                            var ref = $(this).val()
+                            $("#appro_entrepot_text").val(selectedText)
+                            $("#appro_entrepot_text").attr("ref", ref)
+                        });
+
+                        $(".appro_search_produit").chosen().change(function() {
+                            var selectedText = $(this).find("option:selected").text();
+                            var ref = $(this).val()
+                            $("#appro_produit_text").val(selectedText) 
+                            $("#appro_produit_text").attr("ref", ref) 
+                        });
 
                         function approSearchEntrepot()
                         {
@@ -312,8 +338,6 @@ $(document).ready(function(){
                             var prix_revient = $("#appro_prix_revient")
                             var prix_vente = $("#appro_prix_vente")
 
-
-
                             prix_revient.val(parseFloat(prix_achat) + parseFloat(charge))
                             prix_vente.val(parseFloat(prix_revient.val()) + parseFloat(marge))
 
@@ -346,14 +370,178 @@ $(document).ready(function(){
                     buttons:{
                         btn1:{
                             text: 'Annuler',
-                            action: function(){}
+                            action: function(){
+                                
+                            }
                         },
                         btn2:{
                             text: 'Ajouter',
                             btnClass: 'btn-blue',
                             keys: ['enter', 'shift'],
                             action: function(){
-                                $.alert("Ajoutée !!! ")
+                                var appro_fournisseur = $("#appro_fournisseur").val()
+                                if(appro_fournisseur.length == 0)
+                                {
+                                    $.alert({
+                                        title: 'Fournisseur vide',
+                                        content: "Veuillez séléctionner au moins un fournisseur",
+                                        type:'orange',
+                                    })
+                                    callback(1) ;
+                                    return ;
+                                }
+
+                                var numberArray = [
+                                    "#appro_prix_achat",
+                                    "#appro_charge",
+                                    "#appro_marge",
+                                    "#appro_quantite"
+                                ]
+
+                                var numberCaption = 
+                                [
+                                    "Prix Achat",
+                                    "Charge",
+                                    "Marge",
+                                    "Quantite",
+                                ]
+
+                                var vide = false ;
+                                var negatif = false ;
+                                var n = 0 ;
+                                var caption = "" ;
+                                numberArray.forEach(elem => {
+                                    const item = $(elem).val()
+                                    if(item == "")
+                                    {
+                                        caption = numberCaption[n] ;
+                                        vide = true ;
+                                        return 
+                                    }
+                                    else if(parseFloat(item) < 0)
+                                    {
+                                        caption = numberCaption[n] ;
+                                        negatif = true ;
+                                        return 
+                                    }
+                                    n++ ;
+                                })
+
+                                if(vide)
+                                {
+                                    $.alert({
+                                        title: 'Champ vide',
+                                        content: caption+" est vide",
+                                        type:'orange',
+                                    })
+                                    callback(1) ;
+                                    return ;
+                                }
+                                else if(negatif)
+                                {
+                                    $.alert({
+                                        title: 'Valeur négatif',
+                                        content: caption+" doit être positif ",
+                                        type:'red',
+                                    })
+                                    callback(1) ;
+                                    return ;
+                                }
+
+                                var appro_entrepot_text = $("#appro_entrepot_text").val()
+                                var ref_appro_entrepot = $("#appro_entrepot_text").attr("ref")
+                                var appro_type = $(".appro_caption").text()
+                                var appro_produit_text = $("#appro_produit_text").val()
+                                var ref_appro_produit = $("#appro_produit_text").attr("ref")
+                                var appro_indice = $("#appro_indice").val() == "" ? "-" : $("#appro_indice").val()
+                                var appro_quantite = $("#appro_quantite").val()
+                                var appro_fournisseur = $("#appro_fournisseur").val()
+                                var appro_expireeLe = $("#appro_expireeLe").val() == "[object Object]" ? "" : $("#appro_expireeLe").val() ;
+                                var appro_prix_achat = $("#appro_prix_achat").val()
+                                var appro_charge = $("#appro_charge").val()
+                                var appro_calcul = $("#appro_calcul").val()
+                                var appro_marge = $("#appro_marge").val()
+                                var appro_prix_revient = $("#appro_prix_revient").val()
+                                var appro_prix_vente = $("#appro_prix_vente").val()
+                                var appro_montant_total = $("#appro_montant_total").val()
+                                var appro_montant_total = $(".appro_montant_total").text()
+                                
+                                var item = `
+                                        <tr id="`+reference+`">
+                                            <td class="align-middle">
+                                                <input type="hidden" name="enr_ref_entrepot[]" value="`+ref_appro_entrepot+`">
+                                                `+appro_entrepot_text+`
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_type+`
+                                                <input type="hidden" name="enr_appro_type[]" value="`+appro_type+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                <input type="hidden" name="enr_ref_appro_produit[]" value="`+ref_appro_produit+`">
+                                                `+appro_produit_text+`
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_indice+`
+                                                <input type="hidden" name="enr_appro_indice[]" value="`+appro_indice+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                <select name="enr_appro_fournisseur[][]" class="custom-select enr_appro_fournisseur custom-select-sm" multiple id="enr_appro_fournisseur_`+reference+`">
+                                                    <option value=""></option>
+                                                    `+optionsF+`
+                                                </select>
+                                                <script>
+                                                    $("#enr_appro_fournisseur_`+reference+`").val(`+appro_fournisseur+`)
+                                                    $("#enr_appro_fournisseur_`+reference+`").chosen({no_results_text: "Aucun resultat trouvé : "});
+                                                    $("#enr_appro_fournisseur_`+reference+`").trigger("chosen:updated"); 
+                                                </script>
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_expireeLe+`
+                                                <input type="hidden" name="enr_appro_expireeLe[]" value="`+appro_expireeLe+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_quantite+`
+                                                <input type="hidden" name="enr_appro_quantite[]" value="`+appro_quantite+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_prix_achat+`
+                                                <input type="hidden" name="enr_appro_prix_achat[]" value="`+appro_prix_achat+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_charge+`
+                                                <input type="hidden" name="enr_appro_charge[]" value="`+appro_charge+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_prix_revient+`
+                                                <input type="hidden" name="enr_appro_prix_revient[]" value="`+appro_prix_revient+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                <select name="enr_appro_calcul[]" value="`+appro_calcul+`" readonly style="width: 100px !important;" class="custom-select enr_appro_calcul custom-select-sm" id="enr_appro_calcul_`+reference+`">
+                                                    <option value="1">Montant</option>
+                                                    <option value="2">%</option>
+                                                </select>
+                                                <script>
+                                                    $("#enr_appro_calcul_`+reference+`").val(`+appro_calcul+`)
+                                                </script>
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_marge+`
+                                                <input type="hidden" name="enr_appro_marge[]" value="`+appro_marge+`">
+                                            </td>
+                                            <td class="align-middle">
+                                                `+appro_prix_vente+`
+                                                <input type="hidden" name="enr_appro_prix_vente[]" value="`+appro_prix_vente+`">
+                                            </td>
+                                            <td class="text-right align-middle">`+appro_montant_total+`</td>
+                                            <td class="text-center align-middle">
+                                                <button type="button" class="btn-outline-danger delete_appro btn btn-sm font-smaller"><i class="fa fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    `
+                                    $("#appro_total_general").text(parseFloat($("#appro_total_general").text())+parseFloat(appro_montant_total))
+                                $(".elem_appro").append(item) 
+                                deleteLigneAppro()
+                                reference += 1 ;
                             }
                         }
                     }
@@ -362,6 +550,7 @@ $(document).ready(function(){
         })
     })
 
+    // <button type="button" class="btn-outline-warning edit_appro btn btn-sm font-smaller"><i class="fa fa-edit"></i></button> 
     $(".importImage").click(function(){
         $("#imageImport").click()
     })
@@ -651,7 +840,9 @@ $(document).ready(function(){
             })
         })
     }
+
     editEntrepot()
+    
     function deleteEntrepot()
     {
         $(".delete_entrepot").click(function(){
@@ -997,6 +1188,60 @@ $(document).ready(function(){
         
     })
 
+    $("#formAppro").submit(function(event){
+        event.preventDefault()
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Vous êtes sûre de vouloir enregistrer ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){
+                        location.reload()
+                    }
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.stock_save_approvisionnement,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+    })
+
     function countFournisseur()
     {
         $(".crt_fournisseur").change(function(){
@@ -1050,6 +1295,8 @@ $(document).ready(function(){
     countFournisseur()
     $(".add_product_variation").click(function()
     {
+        var compteur = $('.content_product').length
+        $('.caption_compteur').text("("+compteur+")")
         var content = `
         <div class="content_product mt-5 container-fluid rounded w-100 py-3 shadow">
             <div class="row"> 
@@ -1089,7 +1336,7 @@ $(document).ready(function(){
                 </div>
                 <div class="col-md-6 px-4">
                     <div class="mt-2 text-white mb-4 text-right w-100 h3 font-weight-bold">
-                        <button class="btn btn-outline-danger annule_product btn-sm"><i class="fa fa-times"></i></button>
+                        <button type="button" class="btn btn-outline-danger annule_product btn-sm"><i class="fa fa-times"></i></button>
                     </div>
                     <label for="crt_fournisseur" class="mt-2 font-weight-bold">Fournisseur</label>
                     <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
@@ -1111,7 +1358,7 @@ $(document).ready(function(){
                     <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
 
                     <label for="crt_expiree_le" class="mt-1 font-weight-bold">Expirée le</label>
-                    <input type="text" name="crt_expiree_le[]" id="crt_expiree_le" class="form-control crt_expiree_le" placeholder=". . .">
+                    <input type="text" name="crt_expiree_le[]" id="crt_expiree_le_`+compteur+`" class="form-control crt_expiree_le" placeholder=". . .">
                 </div>
             </div>
         </div>
@@ -1122,19 +1369,28 @@ $(document).ready(function(){
         countFournisseur()
         closeProduct()
         checkInputPrix()
-        $(".crt_expiree_le").each(function(){
-            $(this).datepicker() ;
-        })
+        $("#crt_expiree_le_"+compteur).datepicker() ;
+        $("#crt_expiree_le_"+compteur).val("") ; 
     }) 
     
-    $(".crt_expiree_le").each(function(){
-        $(this).datepicker() ;
-    })
-
+    $("#crt_expiree_le").datepicker() ;
+    $("#crt_expiree_le").val("") ;
     function closeProduct()
     {
         $(".annule_product").click(function(){
-            $(this).closest('.content_product').remove() ;
+            var compteur = $('.content_product').length
+            $('.caption_compteur').text("("+compteur+")")
+            if(compteur > 1)
+                $(this).closest('.content_product').remove() ;
+            else
+            {
+                $.alert({
+                    title: "Attention",
+                    content: "Il doit y avoir au moins un élément à enregistrer",
+                    type: "orange"
+                })
+            }
+
         })
     }
     closeProduct()

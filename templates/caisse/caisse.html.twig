@@ -16,7 +16,16 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 pt-3 pb-4">
+        <form id="formCaisse">
+        {% if with_foot %}
+            <div class="foot_action p-3 text-right w-100 barre_dashed">
+                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                <button type="button" onclick="location.reload()" class="btn btn-sm btn-secondary"><i class="fa fa-times"></i>&nbsp;Annulé</button>
+                <button type="submit" class="btn btn-sm ml-3 btn-purple px-3"><i class="fa fa-check"></i>&nbsp;Payé</button>
+                <button type="button" class="btn btn-sm print_caisse ml-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+            </div>
+        {% endif %} 
         <div class="barre_dashed w-100"></div>
         <div class="row pt-2 mt-2 ">
             <div class="col-md-8 border-right px-4 ">
@@ -32,32 +41,27 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td class="text-center"><button class="btn btn-sm font-smaller btn-outline-danger"><i class="fa fa-times"></i></button></td>
+                        <tbody class="elem_caisse">
+                            
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="4" class="text-uppercase">Total</th>
-                                <th colspan="2" class="bg-light"></th>
+                                <th colspan="2" class="bg-light"><span class="cs_total_general"></span></th>
                             </tr>
                             <tr>
                                 <th colspan="4" class="text-uppercase align-middle">Montant reçu</th>
                                 <th colspan="2"class="bg-light align-middle">
-                                    <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
+                                    <input type="number" name="cs_mtn_recu" id="cs_mtn_recu" class="form-control cs_mtn_recu" placeholder=". . .">
                                 </th>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-uppercase">Montant restant</th>
-                                <th colspan="2" class="bg-light"></th>
+                                <th colspan="4" class="text-uppercase">Montant à rembourser</th>
+                                <th colspan="2" class="bg-light"><span class="cs_mtn_rembourse"></span></th>
                             </tr>
                             <tr>
                                 <th colspan="4" class="text-uppercase">Total payée</th>
-                                <th colspan="2" class="bg-light"></th>
+                                <th colspan="2" class="bg-light"><span class="cs_total_pyee"></span></th>
                             </tr>
                         </tfoot>
                     </table>
@@ -65,47 +69,46 @@
                 
             </div>
             <div class="col-md-4 px-4">
-                <input type="text" name="nom" id="nom" class="form-control" placeholder="Rechercher un produit">
+                <select name="caisse_search_produit" class="custom-select caisse_search_produit custom-select-sm" id="caisse_search_produit">
+                    <option value="">TOUS</option>
+                    {% for stockGeneral in stockGenerales %}
+                        <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
+                    {% endfor %}
+                </select>
+                {# <input type="text" name="caisse_search_produit" id="caisse_search_produit" class="form-control caisse_search_produit" placeholder="Rechercher un produit"> #}
                 <div class="row mt-3">
                     <div class="col-md-7">
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder="Prix">
+                        <select name="caisse_search_prix" class="custom-select chosen_select caisse_search_prix custom-select-sm" id="caisse_search_prix">  
+                            <option value=""></option>
+                        </select>
+                        {# <input type="text" name="caisse_search_prix" id="caisse_search_prix" class="form-control caisse_search_prix" placeholder="Prix"> #}
                     </div>
                     <div class="col-md-5">
-                        <input type="number" name="nom" id="nom" class="form-control" placeholder="Quantité">
+                        <input type="number" name="caisse_search_quantite" id="caisse_search_quantite" class="form-control caisse_search_quantite" placeholder="Quantité">
                     </div>
                 </div>
                 <div class="w-100 text-right mt-2">
-                    <button class="btn btn-sm btn-block btn-success font-smaller"><i class="fa fa-plus"></i>&nbsp;Ajouter</button>
+                    <button type="button" class="btn btn-sm btn-block btn-success caisse_ajout font-smaller"><i class="fa fa-plus"></i>&nbsp;Ajouter</button>
                 </div>
 
                 <div class="w-100 mt-3 text-center pt-3 barre_dashed">
-                    <button class="btn caisse_perso_btn btn-outline-secondary">1</button>
-                    <button class="btn ml-2 caisse_perso_btn btn-outline-secondary">2</button>
-                    <button class="btn ml-2 caisse_perso_btn btn-outline-secondary">3</button><br>
-                    <button class="btn mt-2 caisse_perso_btn btn-outline-secondary">4</button>
-                    <button class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">5</button>
-                    <button class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">6</button><br>
-                    <button class="btn mt-2 caisse_perso_btn btn-outline-secondary">7</button>
-                    <button class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">8</button>
-                    <button class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">9</button><br>
-                    <button class="btn mt-2 caisse_perso_btn btn-outline-secondary">.</button>
-                    <button class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">0</button>
-                    <button class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">CE</button>
+                    <button type="button" class="btn caisse_perso_btn btn-outline-secondary">1</button>
+                    <button type="button" class="btn ml-2 caisse_perso_btn btn-outline-secondary">2</button>
+                    <button type="button" class="btn ml-2 caisse_perso_btn btn-outline-secondary">3</button><br>
+                    <button type="button" class="btn mt-2 caisse_perso_btn btn-outline-secondary">4</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">5</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">6</button><br>
+                    <button type="button" class="btn mt-2 caisse_perso_btn btn-outline-secondary">7</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">8</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">9</button><br>
+                    <button type="button" class="btn mt-2 caisse_perso_btn btn-outline-secondary">.</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">0</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">CE</button>
                 </div>
             </div>
         </div>
+        </form>
         {# <h5 class="title_form text-black text-uppercase">Information société</h5> #}
-          
-
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
-                <button type="submit" class="btn btn-sm btn-secondary"><i class="fa fa-times"></i>&nbsp;Annulé</button>
-                <button type="submit" class="btn btn-sm ml-3 btn-purple px-3"><i class="fa fa-check"></i>&nbsp;Payé</button>
-                <button type="submit" class="btn btn-sm ml-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-            </div>
-        {% endif %} 
     </div>
 </div>
 {% endblock %}

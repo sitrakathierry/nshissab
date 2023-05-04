@@ -39,6 +39,20 @@ class PrdVariationPrixRepository extends ServiceEntityRepository
         }
     }
 
+    public function getProdtuiPrixParIndice($idP)
+    {
+        $sql = "
+        SELECT phe.id, pvp.prix_vente as prixVente, phe.indice FROM `prd_variation_prix` pvp
+        JOIN produit p ON pvp.produit_id = p.id
+        LEFT JOIN prd_histo_entrepot phe ON pvp.id = phe.variation_prix_id
+        WHERE p.id = ? AND p.statut = 1 AND pvp.statut = 1 AND phe.statut = 1
+        ORDER BY pvp.id ASC
+        " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$idP]);
+        return $resultSet->fetchAllAssociative();
+    }
 //    /**
 //     * @return PrdVariationPrix[] Returns an array of PrdVariationPrix objects
 //     */

@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,11 +43,26 @@ class CaisseController extends AbstractController
     #[Route('/caisse', name: 'caisse_activity')]
     public function index(): Response
     {
-        
+        $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
         return $this->render('caisse/caisse.html.twig', [
             "filename" => "caisse",
             "titlePage" => "Vente des Produits",
-            "with_foot" => true
+            "with_foot" => true,
+            "stockGenerales" => $stockGenerales
         ]);
+    }
+
+    
+    #[Route('/caisse/activity/save', name: 'caisse_save_activites')]
+    public function caisseSaveActivity(Request $request)
+    {
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Enregistrement éffectué"
+        ]) ;
     }
 }

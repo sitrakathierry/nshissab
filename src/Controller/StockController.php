@@ -253,7 +253,8 @@ class StockController extends AbstractController
             $approvisionnement->setMargeValeur($crt_marge[$key]) ;
             $approvisionnement->setPrixRevient($crt_prix_revient[$key]) ;
             $approvisionnement->setPrixVente($crt_prix_vente[$key]) ;
-            $approvisionnement->setExpireeLe($crt_expiree_le[$key]) ;
+            $expirer = !empty($crt_expiree_le[$key]) ? \DateTime::createFromFormat('j/m/Y', $crt_expiree_le[$key]) : null;
+            $approvisionnement->setExpireeLe($expirer) ;
             $approvisionnement->setDateAppro(null) ;
             $approvisionnement->setDescription("Création de Produit Code : ".$crt_code[$key]) ;
             $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
@@ -286,10 +287,15 @@ class StockController extends AbstractController
         $produit->setStock($stockProduit) ;
         $this->entityManager->flush() ;
 
-        $filename = $this->filename."stock_general(agence)".$this->nameAgence ;
-        $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        unlink($filename) ;
+
+
+        $filename1 = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
+        unlink($filename1) ;
 
         return new JsonResponse($result) ;
+
     }
 
     #[Route('/stock/creationproduit/code/check', name: 'stock_check_codeProduit')]
@@ -948,6 +954,15 @@ class StockController extends AbstractController
         return new Response($response) ; 
     }
 
+    #[Route('/stock/produit/prix/get', name: 'stock_get_produit_prix')]
+    public function stockGetProduitPrix(Request $request)
+    {
+        $idP = $request->request->get('idP') ;
+
+        $produitPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->getProdtuiPrixParIndice($idP);
+        
+        return new JsonResponse($produitPrix) ;
+    }
     #[Route('/stock/stockinterne/libellee', name: 'stock_int_libellee')]
     public function stockIntLibellee(): Response
     {
@@ -1008,13 +1023,17 @@ class StockController extends AbstractController
     #[Route('/stock/approvisionnement/ajouter', name: 'stock_appr_ajouter')]
     public function stockApprAjouter(): Response
     {
-        
-
         return $this->render('stock/approvisionnement/ajouter.html.twig', [
             "filename" => "stock",
             "titlePage" => "Approvisionnement des Produits",
             "with_foot" => true
         ]);
+    }
+
+    #[Route('/stock/approvisionnement/save', name: 'stock_save_approvisionnement')]
+    public function stockSaveApprovisionnement(Request $request)
+    {
+        dd($request->request) ; 
     }
 
     #[Route('/stock/approvisionnement/liste', name: 'stock_appr_liste')]

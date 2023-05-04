@@ -25,3 +25,18 @@ $.confirm({
         }
     }
 })
+
+
+$.ajax({
+    url: ,
+    type: ,
+    cache: false,
+    data: ,
+    dataType: 'json',
+    success: function(){
+
+    },
+    error: function(){
+        
+    }
+})
