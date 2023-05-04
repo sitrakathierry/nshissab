@@ -20,5 +20,3 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 config/packages/web_profiler.yaml
-
-/public/files/
