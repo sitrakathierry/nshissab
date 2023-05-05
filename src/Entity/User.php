@@ -76,6 +76,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: PrdApprovisionnement::class)]
     private Collection $prdApprovisionnements;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CaisseCommande::class)]
+    private Collection $caisseCommandes;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
@@ -83,6 +86,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->prdPreferences = new ArrayCollection();
         $this->produits = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
+        $this->caisseCommandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -383,6 +387,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($prdApprovisionnement->getUser() === $this) {
                 $prdApprovisionnement->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CaisseCommande>
+     */
+    public function getCaisseCommandes(): Collection
+    {
+        return $this->caisseCommandes;
+    }
+
+    public function addCaisseCommande(CaisseCommande $caisseCommande): self
+    {
+        if (!$this->caisseCommandes->contains($caisseCommande)) {
+            $this->caisseCommandes->add($caisseCommande);
+            $caisseCommande->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCaisseCommande(CaisseCommande $caisseCommande): self
+    {
+        if ($this->caisseCommandes->removeElement($caisseCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($caisseCommande->getUser() === $this) {
+                $caisseCommande->setUser(null);
             }
         }
 

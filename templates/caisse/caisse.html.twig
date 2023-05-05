@@ -47,26 +47,44 @@
                         <tfoot>
                             <tr>
                                 <th colspan="4" class="text-uppercase">Total</th>
-                                <th colspan="2" class="bg-light"><span class="cs_total_general"></span></th>
+                                <th colspan="1" class="bg-light">
+                                    <span class="cs_total_general"></span>
+                                    <input type="hidden" class="csenr_total_general" name="csenr_total_general">
+                                </th>
+                                <td class="bg-light"></td>
                             </tr>
                             <tr>
                                 <th colspan="4" class="text-uppercase align-middle">Montant reçu</th>
-                                <th colspan="2"class="bg-light align-middle">
+                                <th colspan="1"class="bg-light align-middle">
                                     <input type="number" name="cs_mtn_recu" id="cs_mtn_recu" class="form-control cs_mtn_recu" placeholder=". . .">
                                 </th>
+                                <td class="bg-light"></td>
                             </tr>
                             <tr>
                                 <th colspan="4" class="text-uppercase">Montant à rembourser</th>
-                                <th colspan="2" class="bg-light"><span class="cs_mtn_rembourse"></span></th>
+                                <th colspan="1" class="bg-light"><span class="cs_mtn_rembourse"></span></th>
+                                <td class="bg-light"></td>
                             </tr>
                             <tr>
                                 <th colspan="4" class="text-uppercase">Total payée</th>
-                                <th colspan="2" class="bg-light"><span class="cs_total_pyee"></span></th>
+                                <th colspan="1" class="bg-light"><span class="cs_total_pyee"></span></th>
+                                <td class="bg-light"></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-                
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5"> 
+                        <label for="nom" class="mt-1 font-weight-bold">Vente le,</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                            </div>
+                            <input type="text" class="form-control csenr_date_caisse" value="{{ 'now'|date('d/m/Y') }}" id="csenr_date_caisse" name="csenr_date_caisse" placeholder=". . ." aria-label="dateCaisse" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-4 px-4">
                 <select name="caisse_search_produit" class="custom-select caisse_search_produit custom-select-sm" id="caisse_search_produit">
@@ -101,9 +119,9 @@
                     <button type="button" class="btn mt-2 caisse_perso_btn btn-outline-secondary">7</button>
                     <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">8</button>
                     <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">9</button><br>
-                    <button type="button" class="btn mt-2 caisse_perso_btn btn-outline-secondary">.</button>
+                    <button type="button" value="1" class="btn mt-2 caisse_perso_btn btn-outline-secondary">CE</button>
                     <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">0</button>
-                    <button type="button" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">CE</button>
+                    <button type="button" value="0" class="btn mt-2 ml-2 caisse_perso_btn btn-outline-secondary">DEL</button>
                 </div>
             </div>
         </div>

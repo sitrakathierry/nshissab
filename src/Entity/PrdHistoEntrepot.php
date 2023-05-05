@@ -45,10 +45,14 @@ class PrdHistoEntrepot
     #[ORM\ManyToOne(inversedBy: 'prdHistoEntrepots')]
     private ?Agence $agence = null;
 
+    #[ORM\OneToMany(mappedBy: 'histoEntrepot', targetEntity: CaissePanier::class)]
+    private Collection $caissePaniers;
+
     public function __construct()
     {
         $this->prdDeductions = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
+        $this->caissePaniers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -208,6 +212,36 @@ class PrdHistoEntrepot
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CaissePanier>
+     */
+    public function getCaissePaniers(): Collection
+    {
+        return $this->caissePaniers;
+    }
+
+    public function addCaissePanier(CaissePanier $caissePanier): self
+    {
+        if (!$this->caissePaniers->contains($caissePanier)) {
+            $this->caissePaniers->add($caissePanier);
+            $caissePanier->setHistoEntrepot($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCaissePanier(CaissePanier $caissePanier): self
+    {
+        if ($this->caissePaniers->removeElement($caissePanier)) {
+            // set the owning side to null (unless already changed)
+            if ($caissePanier->getHistoEntrepot() === $this) {
+                $caissePanier->setHistoEntrepot(null);
+            }
+        }
 
         return $this;
     }

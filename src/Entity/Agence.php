@@ -79,6 +79,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdHistoEntrepot::class)]
     private Collection $prdHistoEntrepots;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CaisseCommande::class)]
+    private Collection $caisseCommandes;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -90,6 +93,7 @@ class Agence
         $this->prdMargeTypes = new ArrayCollection();
         $this->prdFournisseurs = new ArrayCollection();
         $this->prdHistoEntrepots = new ArrayCollection();
+        $this->caisseCommandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -505,6 +509,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($prdHistoEntrepot->getAgence() === $this) {
                 $prdHistoEntrepot->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CaisseCommande>
+     */
+    public function getCaisseCommandes(): Collection
+    {
+        return $this->caisseCommandes;
+    }
+
+    public function addCaisseCommande(CaisseCommande $caisseCommande): self
+    {
+        if (!$this->caisseCommandes->contains($caisseCommande)) {
+            $this->caisseCommandes->add($caisseCommande);
+            $caisseCommande->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCaisseCommande(CaisseCommande $caisseCommande): self
+    {
+        if ($this->caisseCommandes->removeElement($caisseCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($caisseCommande->getAgence() === $this) {
+                $caisseCommande->setAgence(null);
             }
         }
 

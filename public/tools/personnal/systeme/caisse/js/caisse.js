@@ -2,7 +2,7 @@ $(document).ready(function(){
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
     $("#caisse_search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
-
+    $("#csenr_date_caisse").datepicker()
     $(".chosen_select").chosen({
         no_results_text: "Aucun resultat trouvé : "
     });
@@ -38,12 +38,29 @@ $(document).ready(function(){
             }
         })
       });
+
       var prixText = ''
       $("#caisse_search_prix").chosen().change(function(){
         var selectedText = $(this).find("option:selected").text();
         prixText = selectedText ;
       })
     var totalGeneral = 0
+
+    function removeLigneCaisse()
+    {
+        $(".remove_ligne_caisse").click(function(){
+            if(!$(this).attr("disabled"))
+            {
+                var totalPartiel = $(this).closest('tr').find(".csenr_total_partiel").text()
+                totalGeneral = parseFloat(totalGeneral) - parseFloat(totalPartiel)
+                $(".cs_total_general").text(totalGeneral)
+                $(".cs_mtn_recu").keyup()
+            }
+            $(this).prop("disabled", true);
+            $(this).closest('tr').remove()
+        })
+    }
+
     $(".caisse_ajout").click(function(){
         var caisse_prix = $("#caisse_search_prix").val()
         var caisse_produit = $("#caisse_search_produit").val()
@@ -93,43 +110,92 @@ $(document).ready(function(){
             })
             return ;
         }
+        else if(parseFloat($("#caisse_search_quantite").val()) == 0)
+        {
+            $.alert({
+                title: 'Valeur nul',
+                content: "Quantité doit être valide",
+                type:'orange',
+            })
+            return ;
+        }
+
+        var stock = parseInt(prodtuitText.split(" | ")[2].split(" : ")[1])
+        if(stock < parseInt(caisse_quantite))
+        {
+            $.alert({
+                title: "Stock insuffisant",
+                content: "Veuiller entrer une quantité inférieure au stock",
+                type:'red',
+            })
+            return ;
+        }
+        var existant = false ;
+        $(".csenr_produit").each(function(){
+            var idPrix = $(this).closest('tr').find(".csenr_prix").val() ;
+            var idProd =  $(this).val() ;
+
+            caisse_prix
+            caisse_produit
+
+            if(caisse_produit == idProd && caisse_prix == idPrix)
+            {
+                existant = true ;
+                return
+            }
+
+        })
+
+        if(existant)
+        {
+            $.alert({
+                title: 'Produit existant',
+                content: "Vous ne pouvez pas ajouter ce produit avec ce prix car elle existe déjà ",
+                type:'orange',
+            })
+            return 
+        }
 
         var item = `
         <tr>
             <td class="align-middle">
                 `+prodtuitText+`
-                <input type="hidden" name="csenr_produit[]" value="`+caisse_produit+`">
+                <input type="hidden" class="csenr_produit" name="csenr_produit[]" value="`+caisse_produit+`">
             </td>
             <td class="align-middle">
                 code
             </td>
             <td class="align-middle">
                 `+prixText+`
-                <input type="hidden" name="csenr_prix[]" value="`+caisse_prix+`">
+                <input type="hidden" class="csenr_prix" name="csenr_prix[]" value="`+caisse_prix+`">
+                <input type="hidden" name="csenr_prixText[]" value="`+prixText+`">
             </td>
             <td class="align-middle">
                 `+caisse_quantite+`
                 <input type="hidden" name="csenr_quantite[]" value="`+caisse_quantite+`">
             </td>
-            <td class="align-middle">`+totalPartiel+`</td>
+            <td class="align-middle csenr_total_partiel">`+totalPartiel+`</td>
             <td class="text-center align-middle">
-                <button class="btn btn-sm remove_ligne_caisse font-smaller btn-outline-danger"><i class="fa fa-times"></i></button>
+                <button type="button" class="btn btn-sm remove_ligne_caisse font-smaller btn-outline-danger"><i class="fa fa-times"></i></button>
             </td>
         </tr>
         `
+        
         $(".elem_caisse").append(item)
         elemSearch.forEach(elem => {
             elem.val("")
             elem.trigger("chosen:updated"); 
         })
-
         totalGeneral += totalPartiel
         $(".cs_total_general").text(totalGeneral)
+        $(".csenr_total_general").val(totalGeneral)
+        removeLigneCaisse()
+        $(".cs_mtn_recu").keyup()
     })
 
-    $(".cs_mtn_recu").keyup(function(){
-        var a_rembourser = parseFloat($(this).val()) - totalGeneral ; 
-
+    function updateMontant(selection)
+    {
+        var a_rembourser = parseFloat(selection.val()) - parseFloat(totalGeneral) ; 
         if(a_rembourser < 0)
         {
             $(".cs_mtn_rembourse").addClass("text-danger")
@@ -142,9 +208,15 @@ $(document).ready(function(){
         }
         $(".cs_mtn_rembourse").text(a_rembourser)
         $(".cs_total_pyee").addClass("text-primary")
-        $(".cs_total_pyee").text(parseFloat($(this).val()) - a_rembourser)
+        var rembourse = a_rembourser < 0 ? 0 : a_rembourser ;
+        $(".cs_total_pyee").text(parseFloat(selection.val()) - parseFloat(rembourse))
+    }
+
+    $(".cs_mtn_recu").keyup(function(){
+        updateMontant($(this))
     })
 
+    $(".cs_mtn_recu").val("")
     $("#formCaisse").submit(function(event){
         event.preventDefault()
         var self = $(this)
@@ -180,6 +252,7 @@ $(document).ready(function(){
                                     OK: function(){
                                         if(json.type == "green")
                                         {
+                                            $(".cs_mtn_recu").val("")
                                             location.reload()
                                         }
                                     }
@@ -196,4 +269,39 @@ $(document).ready(function(){
             }
         })
     })
+
+    var elementTo = ''
+    var arrayElem = [
+        $("#caisse_search_quantite"),
+        $(".cs_mtn_recu")
+    ]
+
+    arrayElem.forEach(elem => {
+        elem.click(function(){
+            elementTo = $(this)
+        })
+    })
+
+
+    $(".caisse_perso_btn").click(function(){
+        if(!isNaN($(this).text()))
+        {
+            var quantite = elementTo.val()
+            elementTo.val(quantite+$(this).text())
+        }
+        else if($(this).attr("value") == 1 )
+        {
+            elementTo.val("")
+        }
+        else
+        {
+            var oldChar = elementTo.val()
+            var newChar = oldChar.slice(0, -1);
+            elementTo.val(newChar)
+        }
+
+        elementTo.keyup()
+    })
+    
+
 })

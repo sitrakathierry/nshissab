@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\CaisseCommande;
+use App\Entity\CaissePanier;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\PrdCategories;
@@ -521,6 +523,35 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateCaissePanierCommande($filename,$agence)
+    {
+        $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->getCaissePanier($agence) ;
+
+        file_put_contents($filename,json_encode($panierCommandes)) ;
+    }
+
+    public function generateCaisseCommande($filename, $agence) 
+    {
+        $commandes = $this->entityManager->getRepository(CaisseCommande::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        
+        $elements = [] ;
+
+        foreach ($commandes as $commande) {
+            $element = [] ;
+            $element["id"] = $commande->getId() ;
+            $element["agence"] = $commande->getAgence()->getId() ;
+            $element["user"] = $commande->getUser()->getId() ;
+            $element["numCommande"] = $commande->getNumCommande() ;
+            $element["montantRecu"] = $commande->getMontantRecu() ;
+            $element["montantPayee"] = $commande->getMontantPayee();
+            $element["date"] = $commande->getDate()->format('d/m/Y') ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
     public function recherche($item, $search = []) {
         if (count($search) > 1) {
             $condition = true ;
