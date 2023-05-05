@@ -86,7 +86,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% set premier = paniersCommande[0].numCommande %}
+                    
+                    {% set premier = (paniersCommande is not empty) ? paniersCommande[0].numCommande : "" %}
                     {% set passe = true %}
                     {% set passeM = true %}
                     {% set compteur = 1 %}
