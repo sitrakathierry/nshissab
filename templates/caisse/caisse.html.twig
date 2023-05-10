@@ -88,7 +88,7 @@
             </div>
             <div class="col-md-4 px-4">
                 <select name="caisse_search_produit" class="custom-select caisse_search_produit custom-select-sm" id="caisse_search_produit">
-                    <option value="">TOUS</option>
+                    <option value=""></option>
                     {% for stockGeneral in stockGenerales %}
                         <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
                     {% endfor %}

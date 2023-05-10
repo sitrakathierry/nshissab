@@ -108,16 +108,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
-                    </tr>
+                    {% for facture in factures %}
+                        <tr>
+                            <td>{{ facture.numFact }}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
+                        </tr>  
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

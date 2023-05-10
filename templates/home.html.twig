@@ -24,6 +24,7 @@
 			<link rel="stylesheet" href="{{asset('tools/chosen/chosen.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/linecontrol/editor.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/datePicker/datePicker.css')}}">
+			<link rel="stylesheet" href="{{asset('tools/tagsInput/tagsinput.css')}}">
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
 		<script src="{{asset('tools/linecontrol/LineEditor.js')}}"></script>
@@ -49,6 +50,8 @@
 			<script src="{{asset('tools/jqueryQrCode/jquery-qrcode.js')}}"></script>
 			<script src="{{asset('tools/datePicker/datePicker.js')}}"></script>
 			<script src="{{asset('tools/datePicker/jquery.ui.datepicker-fr.js')}}"></script>
+			<script src="{{asset('tools/tagsInput/tagsinput.js')}}"></script>
+			
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
@@ -108,9 +111,11 @@
 					stock_details_variation_prix:"{{path('stock_details_variation_prix')}}",
 					stock_save_approvisionnement:"{{path('stock_save_approvisionnement')}}",
 					stock_get_produit_prix:"{{path('stock_get_produit_prix')}}",
+					stock_get_produit:"{{path('stock_get_produit')}}",
 					caisse_activity:"{{path('caisse_activity')}}",
 					caisse_save_activites:"{{path('caisse_save_activites')}}",
-					caisse_liste_vente:"{{path('caisse_liste_vente')}}"
+					caisse_liste_vente:"{{path('caisse_liste_vente')}}",
+					fact_save_activites:"{{path('fact_save_activites')}}"
 				};  
 				const files = {
 					loading : "{{asset('data/images/loading.svg')}}",

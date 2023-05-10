@@ -387,8 +387,7 @@ $(document).ready(function(){
                                         content: "Veuillez séléctionner au moins un fournisseur",
                                         type:'orange',
                                     })
-                                    callback(1) ;
-                                    return ;
+                                    return false;
                                 }
 
                                 var numberArray = [
@@ -434,8 +433,7 @@ $(document).ready(function(){
                                         content: caption+" est vide",
                                         type:'orange',
                                     })
-                                    callback(1) ;
-                                    return ;
+                                    return false;
                                 }
                                 else if(negatif)
                                 {
@@ -444,8 +442,7 @@ $(document).ready(function(){
                                         content: caption+" doit être positif ",
                                         type:'red',
                                     })
-                                    callback(1) ;
-                                    return ;
+                                    return false;
                                 }
 
                                 var appro_entrepot_text = $("#appro_entrepot_text").val()

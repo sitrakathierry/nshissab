@@ -29,14 +29,14 @@ $.confirm({
 
 $.ajax({
     url: ,
-    type: ,
+    type:'post',
     cache: false,
     data: ,
     dataType: 'json',
     success: function(){
 
     },
-    error: function(){
-        
+    error: function(resp){
+        $.alert(JSON.stringify(resp)) ;
     }
 })

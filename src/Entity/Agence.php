@@ -82,6 +82,15 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CaisseCommande::class)]
     private Collection $caisseCommandes;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CltHistoClient::class)]
+    private Collection $cltHistoClients;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: FactTva::class)]
+    private Collection $factTvas;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Facture::class)]
+    private Collection $factures;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -94,6 +103,9 @@ class Agence
         $this->prdFournisseurs = new ArrayCollection();
         $this->prdHistoEntrepots = new ArrayCollection();
         $this->caisseCommandes = new ArrayCollection();
+        $this->cltHistoClients = new ArrayCollection();
+        $this->factTvas = new ArrayCollection();
+        $this->factures = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -539,6 +551,96 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($caisseCommande->getAgence() === $this) {
                 $caisseCommande->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CltHistoClient>
+     */
+    public function getCltHistoClients(): Collection
+    {
+        return $this->cltHistoClients;
+    }
+
+    public function addCltHistoClient(CltHistoClient $cltHistoClient): self
+    {
+        if (!$this->cltHistoClients->contains($cltHistoClient)) {
+            $this->cltHistoClients->add($cltHistoClient);
+            $cltHistoClient->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCltHistoClient(CltHistoClient $cltHistoClient): self
+    {
+        if ($this->cltHistoClients->removeElement($cltHistoClient)) {
+            // set the owning side to null (unless already changed)
+            if ($cltHistoClient->getAgence() === $this) {
+                $cltHistoClient->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactTva>
+     */
+    public function getFactTvas(): Collection
+    {
+        return $this->factTvas;
+    }
+
+    public function addFactTva(FactTva $factTva): self
+    {
+        if (!$this->factTvas->contains($factTva)) {
+            $this->factTvas->add($factTva);
+            $factTva->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactTva(FactTva $factTva): self
+    {
+        if ($this->factTvas->removeElement($factTva)) {
+            // set the owning side to null (unless already changed)
+            if ($factTva->getAgence() === $this) {
+                $factTva->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Facture>
+     */
+    public function getFactures(): Collection
+    {
+        return $this->factures;
+    }
+
+    public function addFacture(Facture $facture): self
+    {
+        if (!$this->factures->contains($facture)) {
+            $this->factures->add($facture);
+            $facture->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFacture(Facture $facture): self
+    {
+        if ($this->factures->removeElement($facture)) {
+            // set the owning side to null (unless already changed)
+            if ($facture->getAgence() === $this) {
+                $facture->setAgence(null);
             }
         }
 

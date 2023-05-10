@@ -1,5 +1,9 @@
 $(document).ready(function(){
     $.datepicker.setDefaults($.datepicker.regional["fr"]);
+    
+    $(".chosen_select").chosen({
+        no_results_text: "Aucun resultat trouvé : "
+    });
 
     $.ajaxSetup({
         cache: false

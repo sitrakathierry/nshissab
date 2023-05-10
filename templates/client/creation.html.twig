@@ -17,10 +17,11 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
+        <form id="formClient">
         <div class="row">
             <div class="col-md-6">
                 <label for="nom" class="font-weight-bold">Société</label>
-                <h6 class="font-weight-bold text-primary">HIKAM SM MADA</h6>
+                <h6 class="font-weight-bold text-primary">{{ nomAgence }}</h6>
             </div>
             <div class="col-md-6 px-4">
                 <label for="statut" class="font-weight-bold">Statut*</label>
@@ -73,18 +74,17 @@
                 <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-6 px-4">
-                <label for="nom" class="font-weight-bold">Téléphone</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="clt_lien_telephone" class="font-weight-bold">Téléphone</label>
+                <input type="text" name="clt_lien_telephone" data-role="tagsinput" id="clt_lien_telephone" class="form-control clt_lien_telephone" placeholder=". . . ">
             </div>
         </div>
-        
-
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                 <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
                 <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}

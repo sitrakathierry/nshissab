@@ -963,11 +963,22 @@ class StockController extends AbstractController
         
         return new JsonResponse($produitPrix) ;
     }
+
+    #[Route('/stock/produit/get', name: 'stock_get_produit')]
+    public function stockGetProduit()
+    {
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+        
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+        return new JsonResponse($stockGenerales) ;
+    }
+
     #[Route('/stock/stockinterne/libellee', name: 'stock_int_libellee')]
     public function stockIntLibellee(): Response
     {
-        
-
         return $this->render('stock/stockinterne/libellee.html.twig', [
             
         ]);
