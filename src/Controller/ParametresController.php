@@ -50,10 +50,15 @@ class ParametresController extends AbstractController
     #[Route('/parametres/general', name: 'param_general')]
     public function paramGeneral(): Response
     {
+        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
         return $this->render('parametres/general.html.twig', [
             "filename" => "parametres",
             "titlePage" => "Paramètre Général",
             "with_foot" => false,
+            "devises" => $devises
         ]);
     }
 }
