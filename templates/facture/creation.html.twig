@@ -26,7 +26,7 @@
         </div>
         <div class="d-flex flex-row align-items-center fact_content_paiement justify-content-left mt-3">
             {% for paiement in paiements %}
-                <button type="button" disabled="true" data-text="{{paiement.nom|upper}}" data-class="btn-info" data-target="#fact_paiement" value="{{paiement.id}}" class="btn fact_btn_paiement {{paiement.reference}} btn-sm btn-outline-info mx-2">{{paiement.nom|upper}}</button>
+                <button type="button" data-numcaption="{{paiement.numCaption}}" disabled="true" data-text="{{paiement.nom|upper}}" data-class="btn-info" data-target="#fact_paiement" value="{{paiement.id}}" class="btn fact_btn_paiement {{paiement.reference}} btn-sm btn-outline-info mx-2">{{paiement.nom|upper}}</button>
             {% endfor %}
             <input type="hidden" class="fact_paiement" id="fact_paiement" name="fact_paiement" >
         </div>
@@ -45,8 +45,8 @@
                 <button type="button" class="btn btn-sm btn-primary btn-block ajout_client" id="ajout_client"><i class="fa fa-plus-circle"></i></button>
             </div>
             <div class="col-md-3">
-                <label for="fact_num" class="font-weight-bold text-uppercase">Numéro ...</label>
-                <input type="number" disabled="true" class="form-control fact_num" id="fact_num" name="fact_num">
+                <label for="fact_num" class="font-weight-bold fact_num_caption text-uppercase">Numéro ...</label>
+                <input type="text" disabled="true" class="form-control fact_num" oninput="this.value = this.value.toUpperCase();" id="fact_num" name="fact_num">
             </div>
         </div>
         <div class="table-responsive w-50 px-2 mt-3">
@@ -86,7 +86,7 @@
                     <div class="col-md-3">
                         <label for="fact_mod_prod_type" class="font-weight-bold">Type</label>
                         <select class="custom-select custom-select-sm chosen_select fact_mod_prod_type" name="fact_mod_prod_type" id="fact_mod_prod_type" >
-                            <option value="PrdVariationPrix">Produit</option> 
+                            <option value="Produit">Produit</option> 
                             <option value="autre">Autre</option> 
                         </select>
                     </div>
@@ -103,7 +103,7 @@
                         <input type="hidden" id="fact_text_designation">
                     </div>
                     <div class="col-md-3">
-                        <label for="fact_mod_prod_prix" class="font-weight-bold">Prix</label>
+                        <label for="fact_mod_prod_prix" class="font-weight-bold">Prix Unitaire HT</label>
                         <div class="content_fact_prix w-100">
                             <select class="custom-select custom-select-sm chosen_select fact_mod_prod_prix" name="fact_mod_prod_prix" id="fact_mod_prod_prix" >
                                 <option value=""></option> 
@@ -117,6 +117,10 @@
                     </div>
                 </div>
                 <div class="row mt-2">
+                    <div class="col-md-2">
+                        <label for="fact_mod_prod_tva_val" class="font-weight-bold">TVA(%)</label>
+                        <input type="number" name="fact_mod_prod_tva_val" class="form-control fact_mod_prod_tva_val" id="fact_mod_prod_tva_val" placeholder=". . .">
+                    </div>
                     <div class="col-md-2">
                         <label for="fact_mod_prod_type_remise" class="font-weight-bold">Type Remise</label>
                         <select class="custom-select custom-select-sm chosen_select fact_mod_prod_type_remise" name="fact_mod_prod_type_remise" id="fact_mod_prod_type_remise" >
@@ -144,9 +148,10 @@
                         <th>Type</th>
                         <th>Designation</th>
                         <th class="fact_title_qte">Qte</th>
-                        <th>Prix (KMF)</th>
-                        <th>Remise Type</th>
-                        <th>Remise Valeur</th>
+                        <th>Prix Unitaire HT</th>
+                        <th>Montant TVA</th>
+                        <th>Type Remise</th>
+                        <th>Valeur Remise</th>
                         <th>Montant Total</th>
                         <th></th>
                     </tr>
@@ -155,12 +160,12 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="6">Total</th>
+                        <th colspan="7">Total HT</th>
                         <th class="bg-light"><span id="fact_total_fixe"></span></th>
                         <td class="bg-light"></td>
                     </tr>
                     <tr>
-                        <th colspan="6">Remise</th>
+                        <th colspan="7">Remise</th>
                         <td>
                             <div class="container-fluid" style="width:325px ;">
                                 <div class="row">
@@ -180,26 +185,50 @@
                         <td></td>
                     </tr>
                     <tr>
-                        <th colspan="6">Montant après déduction</th>
+                        <th colspan="7">Montant après déduction</th>
                         <th class="bg-light"><span id="fact_total_apres_deduction"></span></th>
                         <td class="bg-light"></td>
                     </tr>
                     <tr>
-                        <th colspan="6">Montant TVA (%)</th>
-                        <th class="px-3">
-                            <div class="d-flex flex-row justify-content-center w-100">
-                                <input type="number" class="form-control" name="fact_prod_tva" id="fact_prod_tva" style="width:295px ;">
-                            </div>
+                        <th colspan="7">Total TVA</th>
+                        <th class="align-middle bg-light">
+                            <span id="fact_total_tva"></span>
+                            <input type="hidden" class="fact_enr_total_tva" name="fact_enr_total_tva">   
                         </th>
                         <td></td>
                     </tr>
                     <tr>
-                        <th colspan="6">Total Général</th>
-                        <th class="bg-primary text-white"><span id="fact_total_general"></span></th>
+                        <th colspan="7" class="fact_caption_total_general">Total ...</th>
+                        <th class="bg-primary text-white">
+                        <span id="fact_total_general"></span>
+                        <input type="hidden" class="fact_enr_total_general" name="fact_enr_total_general">
+                        </th>
                         <td class="bg-primary"></td>
+                    </tr>
+                    <tr>
+                        <th colspan="7">Montant en <span id="fact_lettre_devise">(lettre)</span></th>
+                        <th class="bg-light"><span id="fact_montant_devise"></span></th>
+                        <td class="bg-light"></td>
                     </tr>
                 </tfoot>
             </table>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label for="fact_devise" class="font-weight-bold text-uppercase">Montant en</label>
+                <select name="fact_devise" class="custom-select chosen_select fact_devise custom-select-sm" id="fact_devise">
+                    <option value=""></option>
+                    {% for devise in devises %}
+                        <option value="{{devise.id}}" base="{{devise.montantBase}}">{{devise.symbole}} | {{devise.lettre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-10">
+                <label for="" class="font-weight-bold text-uppercase">&nbsp;</label>
+                <div class="w-100">
+                    Arrêté à la somme de <span id="fact_somme_lettre" class="font-weight-bold text-uppercase">Zéro Francs Comorien</span>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-7"></div>
@@ -216,7 +245,7 @@
         <div class="row">
             <div class="col-md-7"></div>
             <div class="col-md-5"> 
-                <label for="nom" class="mt-1 font-weight-bold">le,</label>
+                <label for="nom" class="mt-1 font-weight-bold">Le,</label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>

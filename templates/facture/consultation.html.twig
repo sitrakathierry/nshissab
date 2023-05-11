@@ -111,13 +111,13 @@
                     {% for facture in factures %}
                         <tr>
                             <td>{{ facture.numFact }}</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td class="text-center"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
+                            <td>{{ facture.modele }}</td>
+                            <td>{{ facture.type }}</td>
+                            <td>{{ facture.dateCreation }}</td>
+                            <td>{{ facture.dateFacture }}</td>
+                            <td>{{ facture.client }}</td>
+                            <td>{{ facture.total }}</td>
+                            <td class="text-center"><button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button></td>
                         </tr>  
                     {% endfor %}
                 </tbody>

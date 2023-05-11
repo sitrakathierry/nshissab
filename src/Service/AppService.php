@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
+use App\Entity\Facture;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\PrdCategories;
@@ -552,6 +553,34 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($elements)) ;
     }
+
+    public function generateFacture($filename, $agence)
+    {
+        $factures = $this->entityManager->getRepository(Facture::class)->findBy([
+            "agence" => $agence
+        ]) ; 
+        
+        $elements = [] ;
+
+        foreach ($factures as $facture) {
+            $element = [] ;
+            $element["id"] = $facture->getId() ;
+            $element["agence"] = $facture->getAgence()->getId() ;
+            $element["user"] = $facture->getUser()->getId() ;
+            $element["numFact"] = $facture->getNumFact() ;
+            $element["modele"] = $facture->getModele()->getNom() ;
+            $element["type"] = $facture->getType()->getNom() ;
+            $element["dateCreation"] = $facture->getCreatedAt()->format('d/m/Y')  ;
+            $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
+            $element["client"] = $facture->getClient()->getClient()->getNom() ;
+            $element["total"] = $facture->getTotal();
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+
     public function recherche($item, $search = []) {
         if (count($search) > 1) {
             $condition = true ;

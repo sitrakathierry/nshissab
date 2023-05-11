@@ -167,22 +167,27 @@ $(document).ready(function(){
     })
 
    var totalFixe = 0
+   var totalTva = 0
+   var totalPartiel = 0
    $(".ajout_fact_element").click(function(){
     var elemArray = [
         "#fact_mod_prod_designation",
         "#fact_mod_prod_prix",
-        "#fact_mod_prod_qte"
+        "#fact_mod_prod_qte",
+        "#fact_mod_prod_tva_val"
     ]
 
     var elemCaption = [
         "Désignation",
         "Prix",
-        "Quantité"
+        "Quantité",
+        "TVA"
     ]
 
     var vide = false ;
     var caption = '' ;
     var n = 0 ;
+
     elemArray.forEach(elem => {
         if($(elem).val() == "")
         {
@@ -232,7 +237,7 @@ $(document).ready(function(){
         {
             $.alert({
                 title: 'Valeur négatif',
-                content: "Prix doit être positif ",
+                content: "Prix doit être positif",
                 type:'red',
             })
             return false;
@@ -255,6 +260,7 @@ $(document).ready(function(){
     var fact_mod_prod_designation = fact_mod_prod_type == "autre" ? fact_text_designation : $("#fact_mod_prod_designation").val()
     var fact_mod_prod_prix =  $("#fact_mod_prod_prix").val()
     var fact_mod_prod_qte = $("#fact_mod_prod_qte").val()
+    var fact_mod_prod_tva_val = $("#fact_mod_prod_tva_val").val()
 
     if(fact_mod_prod_type != "autre")
     {
@@ -275,8 +281,9 @@ $(document).ready(function(){
     var fact_mod_prod_type_remise = $("#fact_mod_prod_type_remise").val()
     var fact_text_type_remise = fact_mod_prod_type_remise == 1 ? "%" : (fact_mod_prod_type_remise == 2 ? "Montant" : "") ;
     var fact_mod_prod_remise = $("#fact_mod_prod_remise").val()
+    var fact_valeur_tva = ((fact_text_prix * fact_mod_prod_tva_val) / 100) * fact_mod_prod_qte
     var fact_total_partiel = fact_text_prix * fact_mod_prod_qte ;
-    
+
     if(fact_text_type_remise != "")
     {
         if(fact_mod_prod_remise == "")
@@ -326,8 +333,11 @@ $(document).ready(function(){
             return false;
         }
     }
+    var fact_total_ttc = fact_valeur_tva + fact_total_partiel ; 
 
-    totalFixe += fact_total_partiel
+    totalPartiel += fact_total_partiel
+    totalFixe += fact_total_ttc
+    totalTva += fact_valeur_tva
     var item = `
         <tr>
             <td>
@@ -348,6 +358,10 @@ $(document).ready(function(){
                 <input type="hidden" value="`+fact_text_prix+`" name="fact_enr_text_prix[]" class="fact_enr_text_prix"> 
             </td>
             <td>
+                `+fact_valeur_tva+` (`+fact_mod_prod_tva_val+`%)
+                <input type="hidden" value="`+fact_mod_prod_tva_val+`" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val"> 
+            </td>
+            <td>
                 `+fact_text_type_remise+`
                 <input type="hidden" value="`+fact_mod_prod_type_remise+`" name="fact_enr_prod_remise_type[]" class="fact_enr_prod_remise_type"> 
             </td>
@@ -363,16 +377,24 @@ $(document).ready(function(){
     `
 
     $(".elem_facture_produit").append(item)
-    $("#fact_total_fixe").text(totalFixe)
-    $("#fact_total_apres_deduction").text(totalFixe)
+    $("#fact_total_fixe").text(totalPartiel)
+    $("#fact_total_apres_deduction").text(totalPartiel)
+    $("#fact_total_tva").text(totalTva)
     $("#fact_total_general").text(totalFixe)  
+    $(".fact_enr_total_general").val(totalFixe)
+    $(".fact_enr_total_tva").val(totalTva)
+    $("#fact_remise_prod_general").keyup()
+
+    var lettreTotal = NumberToLetter(totalFixe)
+    $("#fact_somme_lettre").text(lettreTotal) ;
 
     var emptyArray = [
         "#fact_mod_prod_designation",
         "#fact_mod_prod_prix",
         "#fact_mod_prod_qte",
         "#fact_mod_prod_type_remise",
-        "#fact_mod_prod_remise"
+        "#fact_mod_prod_remise",
+        "#fact_mod_prod_tva_val"
     ]
 
     emptyArray.forEach(elem => {
@@ -380,6 +402,7 @@ $(document).ready(function(){
         $(elem).trigger("chosen:updated");
     })
 
+    
 
    })
 
@@ -407,17 +430,38 @@ $(document).ready(function(){
                 var remise = $(this).val() != "" ? $(this).val() : 0
                 newVal = currentVal - $(this).val()
             }
+            var fact_total_tva = $("#fact_total_tva").text()
             $("#fact_total_apres_deduction").text(newVal)
-            $("#fact_total_general").text(newVal)
+            $("#fact_total_general").text(newVal + parseFloat(fact_total_tva))
+            $(".fact_enr_total_general").val(newVal + parseFloat(fact_total_tva)) ;
+
+            var lettreTotal = NumberToLetter(newVal + parseFloat(fact_total_tva))
+            $("#fact_somme_lettre").text(lettreTotal) ;
         }
    })
-   $("#fact_prod_tva").keyup(function(){
-        var currentVal = parseFloat($("#fact_total_apres_deduction").text())
-        var newVal = 0
-        var tva = $(this).val() != "" ? (currentVal * $(this).val()) / 100 : 0
-        newVal = currentVal - tva
-        $("#fact_total_general").text(newVal)
-   })
+
+   $("#fact_devise").change(function(){
+        var option = $(this).find("option:selected") ;
+        var montantbase = option.attr("base") ;
+        var totalBase = $(".fact_enr_total_general").val()
+        var selectedText = option.text() ;  
+
+        $("#fact_lettre_devise").text(selectedText.split(" | ")[1])
+        var montantDevise = parseFloat(totalBase) / parseFloat(montantbase)
+        $("#fact_montant_devise").text(montantDevise.toFixed(2)+" "+selectedText.split(" | ")[0])
+
+        var lettreTotal = NumberToLetter(montantDevise.toFixed(2),selectedText.split(" | ")[1])
+        $("#fact_somme_lettre").text(lettreTotal) ;
+    })
+
+//    $("#fact_prod_tva").keyup(function(){
+//         var currentVal = parseFloat($("#fact_total_apres_deduction").text())
+//         var newVal = 0
+//         var tva = $(this).val() != "" ? (currentVal * $(this).val()) / 100 : 0
+//         newVal = currentVal + tva
+//         $("#fact_total_general").text(newVal)
+//         $(".fact_enr_total_general").val(newVal)
+//    })
 
    $("#fact_type_remise_prod_general").change(function(){
         $("#fact_remise_prod_general").keyup()
@@ -428,8 +472,6 @@ $(document).ready(function(){
         var selectedText = $(this).find("option:selected").text();
         $(".fact_table_client").text(selectedText)
    })
-
-
 
         $(".fact_btn_type").click(function(){
             var btnClass = $(this).data("class")
@@ -473,11 +515,23 @@ $(document).ready(function(){
             var inputValue = $(this).attr("value")
             var btnText = $(this).data("text")
             var self = $(this)
+            var numCaption = $(this).data('numcaption')
             $(target).val(inputValue) ;
             $(".fact_table_paiement").text(btnText)
+
+            if(numCaption != "")
+            {
+                $("#fact_num").removeAttr("disabled")
+                $(".fact_num_caption").text(numCaption)
+            }
+            else
+            {
+                $("#fact_num").attr("disabled","true")
+                $(".fact_num_caption").text("-")
+            }
+
             $(this).addClass(btnClass)
             $(this).removeClass(currentbtnClass)
-
             $(".fact_btn_paiement").each(function(){
                 if (!self.is($(this))) {
                     $(this).addClass(currentbtnClass) ; 
@@ -493,12 +547,14 @@ $(document).ready(function(){
             var inputValue = $(this).attr("value")
             var self = $(this)
             var btnText = $(this).data("text")
+
             $(target).val(inputValue) ;
 
             $(this).addClass(btnClass)
             $(this).removeClass(currentbtnClass)
 
             $(".fact_title_modele").text(btnText)
+            $(".fact_caption_total_general").text("TOTAL "+btnText)
 
             $(".fact_btn_modele").each(function(){
                 if (!self.is($(this))) {

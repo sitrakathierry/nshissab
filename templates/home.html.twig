@@ -27,6 +27,7 @@
 			<link rel="stylesheet" href="{{asset('tools/tagsInput/tagsinput.css')}}">
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
+		<script src="{{asset('tools/numToLetter/NumberToLetter.js')}}"></script>
 		<script src="{{asset('tools/linecontrol/LineEditor.js')}}"></script>
 		<script src="{{asset('tools/personnal/js/CustomImage.js')}}"></script>
 		<script src="{{asset('tools/personnal/js/Loading.js')}}"></script>
@@ -115,7 +116,8 @@
 					caisse_activity:"{{path('caisse_activity')}}",
 					caisse_save_activites:"{{path('caisse_save_activites')}}",
 					caisse_liste_vente:"{{path('caisse_liste_vente')}}",
-					fact_save_activites:"{{path('fact_save_activites')}}"
+					fact_save_activites:"{{path('fact_save_activites')}}",
+					param_general:"{{path('param_general')}}"
 				};  
 				const files = {
 					loading : "{{asset('data/images/loading.svg')}}",

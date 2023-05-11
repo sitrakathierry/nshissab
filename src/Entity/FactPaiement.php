@@ -24,6 +24,9 @@ class FactPaiement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reference = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numCaption = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -84,6 +87,18 @@ class FactPaiement
     public function setReference(?string $reference): self
     {
         $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getNumCaption(): ?string
+    {
+        return $this->numCaption;
+    }
+
+    public function setNumCaption(?string $numCaption): self
+    {
+        $this->numCaption = $numCaption;
 
         return $this;
     }

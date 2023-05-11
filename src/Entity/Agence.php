@@ -91,6 +91,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Facture::class)]
     private Collection $factures;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Devise::class)]
+    private Collection $devises;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -106,6 +109,7 @@ class Agence
         $this->cltHistoClients = new ArrayCollection();
         $this->factTvas = new ArrayCollection();
         $this->factures = new ArrayCollection();
+        $this->devises = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -641,6 +645,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($facture->getAgence() === $this) {
                 $facture->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Devise>
+     */
+    public function getDevises(): Collection
+    {
+        return $this->devises;
+    }
+
+    public function addDevise(Devise $devise): self
+    {
+        if (!$this->devises->contains($devise)) {
+            $this->devises->add($devise);
+            $devise->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDevise(Devise $devise): self
+    {
+        if ($this->devises->removeElement($devise)) {
+            // set the owning side to null (unless already changed)
+            if ($devise->getAgence() === $this) {
+                $devise->setAgence(null);
             }
         }
 

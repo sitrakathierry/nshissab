@@ -40,6 +40,9 @@ class FactDetails
     #[ORM\ManyToOne(inversedBy: 'factDetails')]
     private ?FactRemiseType $remiseType = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $tvaVal = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -149,6 +152,18 @@ class FactDetails
     public function setRemiseType(?FactRemiseType $remiseType): self
     {
         $this->remiseType = $remiseType;
+
+        return $this;
+    }
+
+    public function getTvaVal(): ?float
+    {
+        return $this->tvaVal;
+    }
+
+    public function setTvaVal(?float $tvaVal): self
+    {
+        $this->tvaVal = $tvaVal;
 
         return $this;
     }
