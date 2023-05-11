@@ -383,7 +383,7 @@ $(document).ready(function(){
     $("#fact_total_general").text(totalFixe)  
     $(".fact_enr_total_general").val(totalFixe)
     $(".fact_enr_total_tva").val(totalTva)
-    $("#fact_remise_prod_general").keyup()
+    // $("#fact_remise_prod_general").keyup()
 
     var lettreTotal = NumberToLetter(totalFixe)
     $("#fact_somme_lettre").text(lettreTotal) ;
