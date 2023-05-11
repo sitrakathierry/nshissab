@@ -448,9 +448,11 @@ $(document).ready(function(){
 
         $("#fact_lettre_devise").text(selectedText.split(" | ")[1])
         var montantDevise = parseFloat(totalBase) / parseFloat(montantbase)
-        $("#fact_montant_devise").text(montantDevise.toFixed(2)+" "+selectedText.split(" | ")[0])
+        montantDevise = montantDevise.toFixed(2)
+        montantDevise = montantDevise.endsWith('.00') ? nombreLimite.slice(0, -3) : montantDevise ;
+        $("#fact_montant_devise").text(montantDevise+" "+selectedText.split(" | ")[0])
 
-        var lettreTotal = NumberToLetter(montantDevise.toFixed(2),selectedText.split(" | ")[1])
+        var lettreTotal = NumberToLetter(montantDevise,selectedText.split(" | ")[1])
         $("#fact_somme_lettre").text(lettreTotal) ;
     })
 
