@@ -39,6 +39,19 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
         }
     }
 
+    public function getLastApproVariationPrix($idVar)
+    {
+        $repository = $this->getEntityManager()->getRepository(PrdApprovisionnement::class) ; 
+
+        $query = $repository->createQueryBuilder('e')
+            ->where('e.variationPrix = :variation')
+            ->orderBy('e.id', 'DESC')
+            ->setMaxResults(1)
+            ->setParameter('variation', $idVar)
+            ->getQuery();
+        return $query->getOneOrNullResult();
+    }
+
 //    /**
 //     * @return PrdApprovisionnement[] Returns an array of PrdApprovisionnement objects
 //     */

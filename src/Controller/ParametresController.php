@@ -2,12 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\AgcDevise;
 use App\Entity\Agence;
 use App\Entity\Devise;
+use App\Entity\ParamTvaType;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,7 +36,7 @@ class ParametresController extends AbstractController
         $this->appService->checkUrl() ;
         $this->user = $this->session->get("user") ;
         $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
-        $this->filename = "files/systeme/facture/" ;
+        $this->filename = "files/systeme/parametres/" ;
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
@@ -51,15 +55,179 @@ class ParametresController extends AbstractController
     #[Route('/parametres/general', name: 'param_general')]
     public function paramGeneral(): Response
     {
-        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
-            "agence" => $this->agence,
-            "statut" => True
-        ]) ; 
+
+        $filename = $this->filename."general(agence)/".$this->nameAgence ; 
+
+        if(!file_exists($filename))
+            $this->appService->generateParamGeneral($filename, $this->agence) ; 
+
+        $devises = json_decode(file_get_contents($filename)) ;
+        
+        $deviseAgence = $this->agence->getDevise() ;
+
         return $this->render('parametres/general.html.twig', [
             "filename" => "parametres",
             "titlePage" => "Paramètre Général",
             "with_foot" => false,
-            "devises" => $devises
+            "devises" => $devises,
+            "deviseAgence" => $deviseAgence
         ]);
+    }
+    
+    #[Route('/parametres/agence/update', name: 'param_agence_update')]
+    public function parametreAgenceUpdate(Request $request)
+    {
+        $devise_symbole_base = $request->request->get('devise_symbole_base') ; 
+        $devise_lettre_base = $request->request->get('devise_lettre_base') ; 
+
+        $agcDevise = $this->entityManager->getRepository(AgcDevise::class)->findOneBy([
+            "symbole" => $devise_symbole_base 
+        ]) ;
+
+        if(is_null($agcDevise))
+        {
+            $agcDevise = new AgcDevise() ;
+            $agcDevise->setSymbole($devise_symbole_base) ;
+            $agcDevise->setLettre($devise_lettre_base) ;
+
+            $this->entityManager->persist($agcDevise) ;
+            $this->entityManager->flush() ;
+
+            $this->agence->setDevise($agcDevise) ;
+            $this->entityManager->flush() ;
+        }
+        else
+        {
+            $this->agence->setDevise($agcDevise) ;
+            $this->entityManager->flush() ;
+        }
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Votre devise de base a été défini avec succès"
+        ]) ;
+    }
+
+    
+    #[Route('/parametres/devise/save', name: 'param_devise_save')]
+    public function paramSaveDeviseGeneral(Request $request)
+    {
+        $devise_symbole_change = $request->request->get('devise_symbole_change') ; 
+        $devise_lettre_change = $request->request->get('devise_lettre_change') ; 
+        $devise_montant_base = $request->request->get('devise_montant_base') ; 
+
+        $data = [
+            $devise_symbole_change,
+            $devise_lettre_change,
+            $devise_montant_base
+        ] ;
+
+        $dataMessage = [
+            "Symbole",
+            "Lettre",
+            "Montant de base"
+        ] ;
+
+        $result = $this->appService->verificationElement($data, $dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $devise = new Devise() ;
+
+        $devise->setAgence($this->agence) ;
+        $devise->setSymbole($devise_symbole_change);
+        $devise->setLettre($devise_lettre_change) ;
+        $devise->setMontantBase($devise_montant_base) ;
+        $devise->setStatut(True) ;
+        $devise->setCreatedAt(new \DateTimeImmutable) ;
+        $devise->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($devise) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/parametres/tva/creation', name: 'param_tva_creation_type')]
+    public function paramTvaCreationType()
+    {
+        $paramTvaTypes = $this->entityManager->getRepository(ParamTvaType::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ;
+        return $this->render('parametres/tva/creationType.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Création Type TVA",
+            "with_foot" => false,
+            "paramTvaTypes" => $paramTvaTypes
+        ]);
+    }   
+
+    #[Route('/parametres/tva/definition', name: 'param_tva_definir_plage')]
+    public function paramTvadefinitionPlage()
+    {
+        $paramTvaTypes = $this->entityManager->getRepository(ParamTvaType::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ;
+        
+        $filename = "files/systeme/stock/preference(user)/".$this->nameUser.".json" ;
+        $preferences = json_decode(file_get_contents($filename)) ;
+        
+        $path = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ; 
+        $filename = $this->filename."produitTypeTva(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+            
+        if(!file_exists($filename))
+            $this->appService->generateProduitParamTypeTva($path,$filename,$this->agence) ;
+        
+        $produitsTypeTvas = json_decode(file_get_contents($filename)) ;
+
+        return $this->render('parametres/tva/definitionPlage.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Définition Plage TVA",
+            "with_foot" => true,
+            "paramTvaTypes" => $paramTvaTypes,
+            "categories" => $preferences,
+            "produitsTypeTvas" => $produitsTypeTvas
+        ]);
+    }
+
+    #[Route('/parametres/tva/save', name: 'param_tva_save_type')]
+    public function paramTvaSaveType(Request $request)
+    {
+        $tva_designation = $request->request->get('tva_designation'); 
+        $tva_valeur = $request->request->get('tva_valeur'); 
+
+        $data = [
+            $tva_designation,
+            $tva_valeur
+        ] ;
+
+        $dataMessage = [
+            "Désignation",
+            "Désignation",
+        ];
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $paramTvaType = new ParamTvaType() ;
+
+        $paramTvaType->setAgence($this->agence);
+        $paramTvaType->setDesignation($tva_designation) ;
+        $paramTvaType->setValeur($tva_valeur) ;
+        $paramTvaType->setStatut(True) ;
+        $paramTvaType->setCreatedAt(new \DateTimeImmutable);
+        $paramTvaType->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($paramTvaType) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
     }
 }

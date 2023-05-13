@@ -27,6 +27,9 @@ class FactPaiement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $numCaption = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $libelleCaption = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -99,6 +102,18 @@ class FactPaiement
     public function setNumCaption(?string $numCaption): self
     {
         $this->numCaption = $numCaption;
+
+        return $this;
+    }
+
+    public function getLibelleCaption(): ?string
+    {
+        return $this->libelleCaption;
+    }
+
+    public function setLibelleCaption(?string $libelleCaption): self
+    {
+        $this->libelleCaption = $libelleCaption;
 
         return $this;
     }

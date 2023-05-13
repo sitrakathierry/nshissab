@@ -68,6 +68,8 @@ class FactureController extends AbstractController
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
         
         $stockGenerales = json_decode(file_get_contents($filename)) ;
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
 
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
@@ -78,7 +80,8 @@ class FactureController extends AbstractController
             "paiements" => $paiements,
             "clients" => $clients,
             "stockGenerales" => $stockGenerales,
-            "devises" => $devises
+            "devises" => $devises,
+            "agcDevise" => $agcDevise
         ]);
     }
 
@@ -113,7 +116,11 @@ class FactureController extends AbstractController
         $fact_lieu = $request->request->get('fact_lieu') ; 
         $fact_date = $request->request->get('fact_date') ; 
         $fact_num = $request->request->get('fact_num') ;
+        $fact_libelle = $request->request->get('fact_libelle') ;
+
+        // dd($fact_libelle) ;
         $fact_enr_total_general = $request->request->get('fact_enr_total_general') ;
+
         $data = [
             $fact_modele,
             $fact_type,
@@ -134,11 +141,22 @@ class FactureController extends AbstractController
         }
         
         $paiement = $this->entityManager->getRepository(FactPaiement::class)->find($fact_paiement) ; 
-        if(!is_null($fact_num))
+
+        if(!is_null($paiement))
         {
-            array_push($data,$fact_num) ;
-            array_push($dataMessage,$paiement->getNumCaption()) ;
+            if(!is_null($paiement->getLibelleCaption()))
+            {
+                array_push($data,$fact_libelle) ;
+                array_push($dataMessage,$paiement->getLibelleCaption()) ;
+            }
+
+            if(!is_null($paiement->getNumCaption()))
+            {
+                array_push($data,$fact_num) ;
+                array_push($dataMessage,$paiement->getNumCaption()) ;
+            }
         }
+        
 
         $result = $this->appService->verificationElement($data, $dataMessage) ;
 
@@ -170,6 +188,9 @@ class FactureController extends AbstractController
         $numFacture = str_pad($numFacture, 3, "0", STR_PAD_LEFT);
         $numFacture = $type->getReference()."-".$numFacture."/".date('y') ; 
         
+        $fact_enr_val_devise = $request->request->get('fact_enr_val_devise') ; 
+        $fact_enr_val_devise = empty($fact_enr_val_devise) ? null : $this->entityManager->getRepository(Devise::class)->find($fact_enr_val_devise) ;
+
         $facture = new Facture() ;
 
         $facture->setAgence($this->agence) ;
@@ -185,6 +206,7 @@ class FactureController extends AbstractController
         $facture->setLieu($fact_lieu) ;
         $facture->setDate(new \DateTime($fact_date)) ;
         $facture->setTotal(floatval($fact_enr_total_general)) ;
+        $facture->setDevise($fact_enr_val_devise) ;
         $facture->setStatut(True) ;
         $facture->setCreatedAt(new \DateTimeImmutable) ;
         $facture->setUpdatedAt(new \DateTimeImmutable) ;
@@ -194,7 +216,6 @@ class FactureController extends AbstractController
 
         $histoPaiement = new FactHistoPaiement() ;
 
-        
         /*
             Statut : 
                 - Payee
@@ -212,6 +233,11 @@ class FactureController extends AbstractController
                 break;
         }
 
+        $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
+        $fact_num = empty($fact_num) ? null : $fact_num ;
+        
+        $histoPaiement->setLibelle($fact_libelle) ;
+        $histoPaiement->setNumero($fact_num) ;
         $histoPaiement->setPaiement($paiement) ;
         $histoPaiement->setFacture($facture) ;
         $histoPaiement->setStatutPaiement($statutPaiement) ;
@@ -235,11 +261,6 @@ class FactureController extends AbstractController
             if(!is_null($typeRemiseUnit))
             {
                 $remiseVal = !empty($fact_enr_prod_remise[$key]) ? $fact_enr_prod_remise[$key] : null ; 
-
-                if($typeRemiseUnit == 1)
-                {
-
-                }
             }
             else
                 $remiseVal = null ;
@@ -249,13 +270,16 @@ class FactureController extends AbstractController
                 $factDetail->setActivite($fact_enr_prod_type[$key]) ;
                 $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
             }
+            
+            $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
+
             $factDetail->setFacture($facture) ; 
             $factDetail->setRemiseType($typeRemiseUnit) ;
             $factDetail->setRemiseVal($remiseVal) ;
             $factDetail->setDesignation($fact_enr_prod_designation[$key]) ;
             $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
             $factDetail->setPrix($fact_enr_text_prix[$key]) ;
-            $factDetail->setTvaVal($fact_enr_prod_tva_val[$key]) ;
+            $factDetail->setTvaVal($dtlsTvaVal) ;
 
             $this->entityManager->persist($factDetail) ;
             $this->entityManager->flush() ; 

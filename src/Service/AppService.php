@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
+use App\Entity\Devise;
 use App\Entity\Facture;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
@@ -478,7 +479,8 @@ class AppService extends AbstractController
     public function generateProduitStockGeneral($filename,$agence)
     {
         $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
-            "agence" => $agence
+            "agence" => $agence,
+            "statut" => True
         ]) ;
         
         $elements = [] ;
@@ -498,10 +500,74 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateProduitParamTypeTva($path,$filename,$agence)
+    {
+        if(!file_exists($path))
+            $this->generateProduitStockGeneral($path, $agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($path)) ;
+        
+        $elements = [] ;
+
+        foreach ($stockGenerales as $stockGenerale) {
+            $element = [] ;
+            $element["id"] = $stockGenerale->id ;
+            $element["idC"] = $stockGenerale->idC ;
+            $element["produit"] = $stockGenerale->codeProduit." | ".$stockGenerale->nom." | ".$stockGenerale->stock ;
+            $element["categorie"] = $stockGenerale->categorie ;
+            $element["agence"] = $stockGenerale->agence ;
+            array_push($elements,$element) ;
+        } 
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function filterProdPreferences($path,$nameAgence,$nameUser,$user)
+    {
+        $filename = $path."categorie(agence)/".$nameAgence ;
+        $categories = json_decode(file_get_contents($filename)) ;
+
+        $filename = $path."preference(user)/".$nameUser.".json" ;
+        if(!file_exists($filename))
+            $this->generateStockPreferences($filename,$user) ;
+
+        $elements = [] ;
+        $dataPreferences = json_decode(file_get_contents($filename)) ;
+
+        foreach ($categories as $cat) {
+            $exist = False;
+            for ($i=0; $i < count($dataPreferences); $i++) { 
+                if($cat->id == $dataPreferences[$i]->categorie)
+                {
+                    $exist = True ;
+                    break ;
+                }
+            }
+            if(!$exist)
+            {
+                array_push($elements,$cat) ;
+            }
+        }
+        
+        return $elements ;
+    }
+
+    public function getAgenceDevise($agence) 
+    {
+        $element = [] ;
+
+        $element["symbole"] = is_null($agence->getDevise()) ? "" : $agence->getDevise()->getSymbole() ;
+        $element["lettre"] = is_null($agence->getDevise()) ? "" : $agence->getDevise()->getLettre() ;
+
+        return $element ;
+    }
+
     public function generateStockInEntrepot($filename,$agence)
     {
         $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
             "agence" => $agence
+        ],[
+            "entrepot" => "ASC"
         ]) ;
         
         $elements = [] ;
@@ -580,6 +646,27 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateParamGeneral($filename, $agence)
+    {
+        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($devises as $devise) {
+            $element = [] ;
+            $element["id"] = $devise->getId() ;
+            $element["agence"] = $devise->getAgence()->getId() ;
+            $element["symbole"] = $devise->getSymbole() ;
+            $element["lettre"] = $devise->getLettre() ;
+            $element["montantBase"] = $devise->getMontantBase() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
 
     public function recherche($item, $search = []) {
         if (count($search) > 1) {
@@ -650,5 +737,124 @@ class AppService extends AbstractController
         }
         
         return $doublons;
+    }
+
+    // U est l'unité de la partie entière
+    // D est l'unité de la partie décimale
+    public function NumberToLetter( $nombre, $U = null, $D = null) 
+    {
+        $toLetter = [
+            0 => "zéro",
+            1 => "un",
+            2 => "deux",
+            3 => "trois",
+            4 => "quatre",
+            5 => "cinq",
+            6 => "six",
+            7 => "sept",
+            8 => "huit",
+            9 => "neuf",
+            10 => "dix",
+            11 => "onze",
+            12 => "douze",
+            13 => "treize",
+            14 => "quatorze",
+            15 => "quinze",
+            16 => "seize",
+            17 => "dix-sept",
+            18 => "dix-huit",
+            19 => "dix-neuf",
+            20 => "vingt",
+            30 => "trente",
+            40 => "quarante",
+            50 => "cinquante",
+            60 => "soixante",
+            70 => "soixante-dix",
+            80 => "quatre-vingt",
+            90 => "quatre-vingt-dix",
+        ];
+        
+        global $toLetter;
+        $numberToLetter='';
+        $nombre = strtr((string)$nombre, [" "=>""]);
+        $nb = floatval($nombre);
+
+        if( strlen($nombre) > 15 ) return "dépassement de capacité";
+        if( !is_numeric($nombre) ) return "Nombre non valide";
+        if( ceil($nb) != $nb ){
+            $nb = explode('.',$nombre);
+            return $this->NumberToLetter($nb[0]) . ($U ? " $U et " : " virgule ") . $this->NumberToLetter($nb[1]) . ($D ? " $D" : "");
+        }
+
+        $n = strlen($nombre);
+        switch( $n ){
+            case 1:
+                $numberToLetter = $toLetter[$nb];
+                break;
+            case 2:
+                if(  $nb > 19  ){
+                    $quotient = floor($nb / 10);
+                    $reste = $nb % 10;
+                    if(  $nb < 71 || ($nb > 79 && $nb < 91)  ){
+                        if(  $reste == 0  ) $numberToLetter = $toLetter[$quotient * 10];
+                        if(  $reste == 1  ) $numberToLetter = $toLetter[$quotient * 10] . "-et-" . $toLetter[$reste];
+                        if(  $reste > 1   ) $numberToLetter = $toLetter[$quotient * 10] . "-" . $toLetter[$reste];
+                    }else $numberToLetter = $toLetter[($quotient - 1) * 10] . "-" . $toLetter[10 + $reste];
+                }else $numberToLetter = $toLetter[$nb];
+                break;
+
+            case 3:
+                $quotient = floor($nb / 100);
+                $reste = $nb % 100;
+                if(  $quotient == 1 && $reste == 0   ) $numberToLetter = "cent";
+                if(  $quotient == 1 && $reste != 0   ) $numberToLetter = "cent" . " " . $this->NumberToLetter($reste);
+                if(  $quotient > 1 && $reste == 0    ) $numberToLetter = $toLetter[$quotient] . " cents";
+                if(  $quotient > 1 && $reste != 0    ) $numberToLetter = $toLetter[$quotient] . " cent " . $this->NumberToLetter($reste);
+                break;
+            case 4 :
+            case 5 :
+            case 6 :
+                $quotient = floor($nb / 1000);
+                $reste = $nb - $quotient * 1000;
+                if(  $quotient == 1 && $reste == 0   ) $numberToLetter = "mille";
+                if(  $quotient == 1 && $reste != 0   ) $numberToLetter = "mille" . " " . $this->NumberToLetter($reste);
+                if(  $quotient > 1 && $reste == 0    ) $numberToLetter = $this->NumberToLetter($quotient) . " mille";
+                if(  $quotient > 1 && $reste != 0    ) $numberToLetter = $this->NumberToLetter($quotient) . " mille " . $this->NumberToLetter($reste);
+                break;
+            case 7:
+            case 8:
+            case 9:
+                $quotient = floor($nb / 1000000);
+                $reste = $nb % 1000000;
+                if(  $quotient == 1 && $reste == 0  ) $numberToLetter = "un million";
+                if(  $quotient == 1 && $reste != 0  ) $numberToLetter = "un million" . " " . $this->NumberToLetter($reste);
+                if(  $quotient > 1 && $reste == 0   ) $numberToLetter = $this->NumberToLetter($quotient) . " millions";
+                if(  $quotient > 1 && $reste != 0   ) $numberToLetter = $this->NumberToLetter($quotient) . " millions " . $this->NumberToLetter($reste);
+                break;
+            case 10:
+            case 11:
+            case 12:
+                $quotient = floor($nb / 1000000000);
+                $reste = $nb - $quotient * 1000000000;
+                if(  $quotient == 1 && $reste == 0  ) $numberToLetter = "un milliard";
+                if(  $quotient == 1 && $reste != 0  ) $numberToLetter = "un milliard" . " " . $this->NumberToLetter($reste);
+                if(  $quotient > 1 && $reste == 0   ) $numberToLetter = $this->NumberToLetter($quotient) . " milliards";
+                if(  $quotient > 1 && $reste != 0   ) $numberToLetter = $this->NumberToLetter($quotient) . " milliards " . $this->NumberToLetter($reste);
+                break;
+            case 13:
+            case 14:
+            case 15:
+                $quotient = floor($nb / 1000000000000);
+                $reste = $nb - $quotient * 1000000000000;
+                if(  $quotient == 1 && $reste == 0  ) $numberToLetter = "un billion";
+                if(  $quotient == 1 && $reste != 0  ) $numberToLetter = "un billion" . " " . $this->NumberToLetter($reste);
+                if(  $quotient > 1 && $reste == 0   ) $numberToLetter = $this->NumberToLetter($quotient) . " billions";
+                if(  $quotient > 1 && $reste != 0   ) $numberToLetter = $this->NumberToLetter($quotient) . " billions " . $this->NumberToLetter($reste);
+                break;
+        }
+        /*respect de l'accord de quatre-vingt*/
+        if( substr($numberToLetter, strlen($numberToLetter)-12, 12 ) == "quatre-vingt" ) $numberToLetter .= "s";
+
+        return $numberToLetter;
     }
 }

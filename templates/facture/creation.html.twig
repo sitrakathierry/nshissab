@@ -20,13 +20,13 @@
         <form id="formFacture">
         <div class="d-flex flex-row align-items-center justify-content-left">
             {% for type in types %}
-                <button type="button" data-mode="{{type.modePaiement}}" data-text="{{type.nom|upper}}" data-class="btn-primary" data-target="#fact_type" value="{{type.id}}" class="btn fact_btn_type btn-sm btn-outline-primary mx-2">{{type.nom|upper}}</button>
+                <button type="button" data-reference="{{type.reference}}" data-mode="{{type.modePaiement}}" data-text="{{type.nom|upper}}" data-class="btn-primary" data-target="#fact_type" value="{{type.id}}" class="btn fact_btn_type btn-sm btn-outline-primary mx-2">{{type.nom|upper}}</button>
             {% endfor %}
             <input type="hidden" class="fact_type" id="fact_type" name="fact_type" >
         </div>
         <div class="d-flex flex-row align-items-center fact_content_paiement justify-content-left mt-3">
             {% for paiement in paiements %}
-                <button type="button" data-numcaption="{{paiement.numCaption}}" disabled="true" data-text="{{paiement.nom|upper}}" data-class="btn-info" data-target="#fact_paiement" value="{{paiement.id}}" class="btn fact_btn_paiement {{paiement.reference}} btn-sm btn-outline-info mx-2">{{paiement.nom|upper}}</button>
+                <button type="button" data-libelle="{{paiement.libelleCaption}}" data-numcaption="{{paiement.numCaption}}" disabled="true" data-text="{{paiement.nom|upper}}" data-class="btn-info" data-target="#fact_paiement" value="{{paiement.id}}" class="btn fact_btn_paiement {{paiement.reference}} btn-sm btn-outline-info mx-2">{{paiement.nom|upper}}</button>
             {% endfor %}
             <input type="hidden" class="fact_paiement" id="fact_paiement" name="fact_paiement" >
         </div>
@@ -34,7 +34,7 @@
             <div class="col-md-3">
                 <label for="fact_client" class="font-weight-bold text-uppercase">Client*</label>
                 <select name="fact_client" class="custom-select chosen_select fact_client custom-select-sm" id="fact_client">
-                    <option value=""></option>
+                    <option value="">-</option>
                     {% for client in clients %}
                         <option value="{{client.id}}">{{client.client.nom|upper}}</option>
                     {% endfor %}
@@ -45,8 +45,12 @@
                 <button type="button" class="btn btn-sm btn-primary btn-block ajout_client" id="ajout_client"><i class="fa fa-plus-circle"></i></button>
             </div>
             <div class="col-md-3">
-                <label for="fact_num" class="font-weight-bold fact_num_caption text-uppercase">Numéro ...</label>
-                <input type="text" disabled="true" class="form-control fact_num" oninput="this.value = this.value.toUpperCase();" id="fact_num" name="fact_num">
+                <label for="fact_libelle" class="font-weight-bold fact_libelle_caption text-uppercase"></label>
+                <input type="text" style="display:none" class="form-control fact_libelle" oninput="this.value = this.value.toUpperCase();" placeholder=". . ." id="fact_libelle" name="fact_libelle">
+            </div>
+            <div class="col-md-3">
+                <label for="fact_num" class="font-weight-bold fact_num_caption text-uppercase"></label>
+                <input type="text" style="display:none" class="form-control fact_num" oninput="this.value = this.value.toUpperCase();" placeholder=". . ." id="fact_num" name="fact_num">
             </div>
         </div>
         <div class="table-responsive w-50 px-2 mt-3">
@@ -198,16 +202,19 @@
                         <td></td>
                     </tr>
                     <tr>
-                        <th colspan="7" class="fact_caption_total_general">Total ...</th>
+                        <th colspan="7" class="fact_caption_total_general">Total TTC</th>
                         <th class="bg-primary text-white">
-                        <span id="fact_total_general"></span>
+                        <span id="fact_total_general">0</span>&nbsp;{{agcDevise.symbole}}
                         <input type="hidden" class="fact_enr_total_general" name="fact_enr_total_general">
                         </th>
                         <td class="bg-primary"></td>
                     </tr>
-                    <tr>
+                    <tr class="fact_disp_devise d-none">
                         <th colspan="7">Montant en <span id="fact_lettre_devise">(lettre)</span></th>
-                        <th class="bg-light"><span id="fact_montant_devise"></span></th>
+                        <th class="bg-light">
+                            <span id="fact_montant_devise"></span>
+                            <input type="hidden" class="fact_enr_val_devise" name="fact_enr_val_devise">
+                        </th>
                         <td class="bg-light"></td>
                     </tr>
                 </tfoot>
@@ -217,7 +224,7 @@
             <div class="col-md-2">
                 <label for="fact_devise" class="font-weight-bold text-uppercase">Montant en</label>
                 <select name="fact_devise" class="custom-select chosen_select fact_devise custom-select-sm" id="fact_devise">
-                    <option value=""></option>
+                    <option value="">-</option>
                     {% for devise in devises %}
                         <option value="{{devise.id}}" base="{{devise.montantBase}}">{{devise.symbole}} | {{devise.lettre}}</option>
                     {% endfor %}
@@ -226,7 +233,7 @@
             <div class="col-md-10">
                 <label for="" class="font-weight-bold text-uppercase">&nbsp;</label>
                 <div class="w-100">
-                    Arrêté à la somme de <span id="fact_somme_lettre" class="font-weight-bold text-uppercase">Zéro Francs Comorien</span>
+                    Arrêté la présente facture à la somme de <span id="fact_somme_lettre" class="font-weight-bold text-uppercase">Zéro</span> {{agcDevise.lettre}}
                 </div>
             </div>
         </div>
@@ -238,7 +245,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
                     </div>
-                    <input type="text" class="form-control fact_lieu" name="fact_lieu" value="Moroni" placeholder=". . ." aria-label="Date Facture" id="fact_lieu">
+                    <input type="text" class="form-control fact_lieu" name="fact_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="fact_lieu">
                 </div>
             </div>
         </div>

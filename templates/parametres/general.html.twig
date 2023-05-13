@@ -17,46 +17,80 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <h5 class="title_form text-black text-uppercase">Creation devise</h5>
+        <h5 class="title_form text-black text-uppercase">Devise de base</h5>
+        {% set symbole = "" %}
+        {% set lettre = "" %}
+        {% set disabled = "" %}
+        {% set display = "" %}
+        {% if deviseAgence is not null %}
+            {% set symbole = deviseAgence.symbole %}
+            {% set lettre = deviseAgence.lettre %}
+            {% set disabled = "disabled" %}
+            {% set display = "style=display:none;" %}
+        {% endif %}
         <div class="row">
             <div class="col-md-3">
-                <label for="devise_symbole" class="mt-2 font-weight-bold">Symbole</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="devise_symbole_base" class="font-weight-bold">Symbole</label>
+                <input type="text" oninput="this.value = this.value.toUpperCase();" {{disabled}} name="devise_symbole_base" id="devise_symbole_base" value="{{symbole}}" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">Lettre</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="devise_lettre_base" class="font-weight-bold">Lettre</label>
+                <input type="text" {{disabled}} name="devise_lettre_base" id="devise_lettre_base" value="{{lettre}}" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-2">
-                <label for="nom" class="mt-2 font-weight-bold text-info">Lettre</label>
-                <input type="text" disabled name="nom" id="nom" class="form-control" placeholder="1 symbole">
+                <label for="nom" class="font-weight-bold">&nbsp;</label>
+                <button class="btn btn-block btn-sm btn-perso-one px-3" id="devise_create_base" {{display}}><i class="fa fa-cloud-upload"></i>&nbsp;Créer</button>
             </div>
-            <div class="col-md-1 text-center align-middle">
-                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <div class="w-100 h5 text-secondary">
-                    <i class="fa fa-exchange-alt"></i>
+        </div>
+        <div class="w-100 barre_dashed mt-3"></div>
+        <h5 class="title_form text-black text-uppercase mt-2">Creation devise de conversion</h5>
+        <form id="formDevise">
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="devise_symbole_change" class="font-weight-bold">Symbole</label>
+                    <input type="text" oninput="this.value = this.value.toUpperCase();" name="devise_symbole_change" id="devise_symbole_change" class="form-control" placeholder=". . .">
                 </div>
-                
+                <div class="col-md-3">
+                    <label for="devise_lettre_change" class="font-weight-bold">Lettre</label>
+                    <input type="text" name="devise_lettre_change" id="devise_lettre_change" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-2">
+                    <label for="devise_montant_base" class="font-weight-bold">
+                    {% if lettre is empty %}
+                        () 
+                    {% else %}
+                        {% set lenlettre = lettre|length %}
+                        {{ lenlettre < 16 ? lettre : lettre | slice(0, 16) ~ "..."}} 
+                    {% endif %}</label>
+                    <input type="number" step="any" name="devise_montant_base" id="devise_montant_base" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-1 text-center align-middle">
+                    <label for="nom" class="font-weight-bold">&nbsp;</label>
+                    <div class="w-100 h5 text-secondary">
+                        <i class="fa fa-exchange-alt"></i>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label for="devise_montant_change" class="font-weight-bold devise_label_change text-info" id="devise_label_change">Lettre</label>
+                    <input type="text" disabled name="devise_montant_change" id="devise_montant_change" class="form-control" placeholder="1 symbole">
+                </div>
+                <div class="col-md-2">
+                    <label for="nom" class="font-weight-bold">&nbsp;</label>
+                    <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">Francs Comorien (Base)</label>
-                <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-        </div>
-        <div class="w-100 text-right p-3">
-            <button class="btn btn-sm btn-perso-one px-3"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-        </div>
-        <div class="w-100 barre_dashed p-3">
-            <h5 class="title_form text-black text-uppercase">Liste des devises</h5>
+        </form>
+        <div class="w-100 barre_dashed mt-3 p-3">
+            <h5 class="title_form text-black text-uppercase">Liste des devises de conversion</h5>
             <div class="table-responsive mt-2">
                 <table class="table-sm table table-bordered">
                     <thead class="thead-light">
                         <tr>
                             <th>Symbole</th>
                             <th>Lettre</th>
-                            <th>Devise</th>
+                            <th>Devise de base</th>
                             <th></th>
-                            <th>Base</th>
+                            <th>Conversion/Taux de change</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -65,11 +99,11 @@
                             <tr>
                                 <td>{{devise.symbole}}</td>
                                 <td>{{devise.lettre}}</td>
-                                <td>1 {{devise.symbole}}</td>
+                                <td>{{devise.montantBase}} {{symbole}}</td>
                                 <td class="align-middle text-center">
                                     <i class="fa fa-exchange-alt"></i>
                                 </td>
-                                <td>{{devise.montantBase}} KMF</td>
+                                <td>1 {{devise.symbole}}</td>
                                 <td class="text-center">
                                     <button type="button" class="btn-outline-warning btn btn-sm font-smaller"><i class="fa fa-edit"></i></button>
                                     <button type="button" class="btn-outline-danger ml-1 btn btn-sm font-smaller"><i class="fa fa-trash"></i></button>

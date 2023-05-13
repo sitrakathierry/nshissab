@@ -23,11 +23,11 @@ class FactHistoPaiement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $numero = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $date = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $statutPaiement = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {
@@ -70,18 +70,6 @@ class FactHistoPaiement
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(?\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
     public function getStatutPaiement(): ?string
     {
         return $this->statutPaiement;
@@ -90,6 +78,18 @@ class FactHistoPaiement
     public function setStatutPaiement(?string $statutPaiement): self
     {
         $this->statutPaiement = $statutPaiement;
+
+        return $this;
+    }
+
+    public function getLibelle(): ?string
+    {
+        return $this->libelle;
+    }
+
+    public function setLibelle(?string $libelle): self
+    {
+        $this->libelle = $libelle;
 
         return $this;
     }

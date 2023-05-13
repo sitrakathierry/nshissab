@@ -40,9 +40,6 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?float $remiseVal = null;
 
-    #[ORM\ManyToOne(inversedBy: 'factures')]
-    private ?FactTva $codeTva = null;
-
     #[ORM\Column(nullable: true)]
     private ?float $tvaVal = null;
 
@@ -76,10 +73,17 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?float $total = null;
 
+    #[ORM\OneToMany(mappedBy: 'facture', targetEntity: CmdBonCommande::class)]
+    private Collection $cmdBonCommandes;
+
+    #[ORM\ManyToOne(inversedBy: 'factures')]
+    private ?Devise $devise = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
         $this->factDetails = new ArrayCollection();
+        $this->cmdBonCommandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,18 +183,6 @@ class Facture
     public function setRemiseVal(?float $remiseVal): self
     {
         $this->remiseVal = $remiseVal;
-
-        return $this;
-    }
-
-    public function getCodeTva(): ?FactTva
-    {
-        return $this->codeTva;
-    }
-
-    public function setCodeTva(?FactTva $codeTva): self
-    {
-        $this->codeTva = $codeTva;
 
         return $this;
     }
@@ -359,6 +351,48 @@ class Facture
     public function setTotal(?float $total): self
     {
         $this->total = $total;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmdBonCommande>
+     */
+    public function getCmdBonCommandes(): Collection
+    {
+        return $this->cmdBonCommandes;
+    }
+
+    public function addCmdBonCommande(CmdBonCommande $cmdBonCommande): self
+    {
+        if (!$this->cmdBonCommandes->contains($cmdBonCommande)) {
+            $this->cmdBonCommandes->add($cmdBonCommande);
+            $cmdBonCommande->setFacture($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCmdBonCommande(CmdBonCommande $cmdBonCommande): self
+    {
+        if ($this->cmdBonCommandes->removeElement($cmdBonCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($cmdBonCommande->getFacture() === $this) {
+                $cmdBonCommande->setFacture(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getDevise(): ?Devise
+    {
+        return $this->devise;
+    }
+
+    public function setDevise(?Devise $devise): self
+    {
+        $this->devise = $devise;
 
         return $this;
     }

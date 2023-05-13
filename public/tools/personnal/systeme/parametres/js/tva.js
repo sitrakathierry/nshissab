@@ -1,15 +1,10 @@
 $(document).ready(function(){
-    var cmd_creation_description = new LineEditor(".cmd_creation_description") ;
-    $("#cmd_date").datepicker()
-    $("#cmd_facture").chosen({
-        no_results_text: "Aucun resultat trouvé : "
-    }); 
-    $("#cmd_client").chosen({
+    var instance = new Loading(files.loading)
+    $(".chosen_select").chosen({
         no_results_text: "Aucun resultat trouvé : "
     });
-    $("#formBonCommande").submit(function(event){
-        event.preventDefault()
-        $(".cmd_creation_description").val(cmd_creation_description.getEditorText('.cmd_creation_description'))
+    $("#formTypeTva").submit(function(event){
+        event.preventDefault() ;
         var self = $(this)
         $.confirm({
             title: "Confirmation",
@@ -29,7 +24,7 @@ $(document).ready(function(){
                     var data = self.serialize();
                     var realinstance = instance.loading()
                     $.ajax({
-                        url: routes.cmd_save_bon_commande,
+                        url: routes.param_tva_save_type,
                         type:"post",
                         data:data,
                         dataType:"json",
@@ -43,11 +38,7 @@ $(document).ready(function(){
                                     OK: function(){
                                         if(json.type == "green")
                                         {
-                                            $("#cmd_facture").val("")
-                                            $("#cmd_client").val("")
-
-                                            $("#cmd_facture").trigger("chosen:updated")
-                                            $("#cmd_client").trigger("chosen:updated")
+                                            $("input").val("")
                                             location.reload()
                                         }
                                     }
@@ -63,6 +54,23 @@ $(document).ready(function(){
                 }
             }
         })
+    })
 
+    $(".tva_check_all").click(function(){
+        $('.type_tva_check').each(function(){
+            if (!$(this).is(':checked'))
+            {
+                $('.type_tva_check').prop('checked', true);
+            }
+        })
+    })
+    
+    $(".tva_off_all").click(function(){
+        $('.type_tva_check').each(function(){
+            if ($(this).is(':checked'))
+            {
+                $('.type_tva_check').prop('checked', false);
+            }
+        })
     })
 })

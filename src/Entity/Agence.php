@@ -94,6 +94,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Devise::class)]
     private Collection $devises;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: ParamTvaType::class)]
+    private Collection $paramTvaTypes;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -110,6 +113,7 @@ class Agence
         $this->factTvas = new ArrayCollection();
         $this->factures = new ArrayCollection();
         $this->devises = new ArrayCollection();
+        $this->paramTvaTypes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -209,7 +213,6 @@ class Agence
     public function setDevise(?AgcDevise $devise): self
     {
         $this->devise = $devise;
-
         return $this;
     }
 
@@ -675,6 +678,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($devise->getAgence() === $this) {
                 $devise->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ParamTvaType>
+     */
+    public function getParamTvaTypes(): Collection
+    {
+        return $this->paramTvaTypes;
+    }
+
+    public function addParamTvaType(ParamTvaType $paramTvaType): self
+    {
+        if (!$this->paramTvaTypes->contains($paramTvaType)) {
+            $this->paramTvaTypes->add($paramTvaType);
+            $paramTvaType->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParamTvaType(ParamTvaType $paramTvaType): self
+    {
+        if ($this->paramTvaTypes->removeElement($paramTvaType)) {
+            // set the owning side to null (unless already changed)
+            if ($paramTvaType->getAgence() === $this) {
+                $paramTvaType->setAgence(null);
             }
         }
 

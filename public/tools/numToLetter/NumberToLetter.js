@@ -125,10 +125,10 @@
                 case 15:
                     quotient = Math.floor(nb / 1000000000000);
                     reste = nb - quotient * 1000000000000;
-                    if (quotient == 1 && reste == 0) numberToLetter = "un milliard";
-                    if (quotient == 1 && reste != 0) numberToLetter = "un milliard" + " " + NumberToLetter(reste);
-                    if (quotient > 1 && reste == 0) numberToLetter = NumberToLetter(quotient) + " milliard";
-                    if (quotient > 1 && reste != 0) numberToLetter = NumberToLetter(quotient) + " milliard " + NumberToLetter(reste);
+                    if (quotient == 1 && reste == 0) numberToLetter = "un billion";
+                    if (quotient == 1 && reste != 0) numberToLetter = "un billion" + " " + NumberToLetter(reste);
+                    if (quotient > 1 && reste == 0) numberToLetter = NumberToLetter(quotient) + " billions";
+                    if (quotient > 1 && reste != 0) numberToLetter = NumberToLetter(quotient) + " billions" + NumberToLetter(reste);
                     break;
             }//fin switch
             /*respect de l'accord de quatre-vingt*/

@@ -8,11 +8,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CommandeController extends AbstractController
 {
-    #[Route('/commande', name: 'app_commande')]
+    #[Route('/commande/creation', name: 'cmd_creation')]
     public function index(): Response
     {
-        return $this->render('commande/index.html.twig', [
-            'controller_name' => 'CommandeController',
+        
+
+        return $this->render('commande/creation.html.twig', [
+            "filename" => "commande",
+            "titlePage" => "Création bon de commande",
+            "with_foot" => true,
         ]);
     }
+
+
 }

@@ -40,3 +40,5 @@ $.ajax({
         $.alert(JSON.stringify(resp)) ;
     }
 })
+
+oninput="this.value = this.value.toUpperCase();"

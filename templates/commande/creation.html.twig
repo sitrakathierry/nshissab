@@ -1,20 +1,127 @@
-{% extends 'base.html.twig' %}
+ {% extends 'menu/index.html.twig' %}
 
-{% block title %}Hello CommandeController!{% endblock %}
+{% block title %}{{titlePage}}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/laragon/www/shissabV2/src/Controller/CommandeController.php'|file_link(0) }}">src/Controller/CommandeController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/laragon/www/shissabV2/templates/commande/index.html.twig'|file_link(0) }}">templates/commande/index.html.twig</a></code></li>
-    </ul>
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <form id="formBonCommande">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">
+                <label for="cmd_facture" class="font-weight-bold">Facture</label>
+                <select name="cmd_facture" class="custom-select custom-select-sm cmd_facture" id="cmd_facture">
+                    <option value=""></option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="nom" class="font-weight-bold">Client</label>
+                <select name="cmd_client" class="custom-select custom-select-sm cmd_client" id="cmd_client">
+                    <option value=""></option>
+                </select>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <label for="nom" class="font-weight-bold mt-2">Description</label>
+                <textarea name="cmd_creation_description" id="cmd_creation_description" class="cmd_creation_description form-control" cols="30" rows="10"></textarea>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-bordered table-sm">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Type</th>
+                        <th>Désignation</th>
+                        <th>Qte/Durée</th>
+                        <th>Format</th>
+                        <th>Prix</th>
+                        <th>Remise</th>
+                        <th>Montant Total</th>
+                    </tr>
+                </thead>
+                <tbody class="elem_bon_commande"> 
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="6">Total HT</th>
+                        <th class="bg-light"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="6">Remise</th>
+                        <th class="bg-light"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="6">Total TVA</th>
+                        <th class="bg-light"></th> 
+                    </tr>
+                    <tr>
+                        <th colspan="6">Total TTC</th>
+                        <th class="bg-light"></th>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="w-100">
+                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">Zéro Francs Comorien</span>
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                    </div>
+                    <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <input type="text" class="form-control cmd_date" name="cmd_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="cmd_date">
+                </div>
+            </div>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+        </form>
+    </div>
 </div>
 {% endblock %}
+
+

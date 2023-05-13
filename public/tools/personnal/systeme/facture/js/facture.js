@@ -166,6 +166,7 @@ $(document).ready(function(){
         }
     })
 
+
    var totalFixe = 0
    var totalTva = 0
    var totalPartiel = 0
@@ -173,15 +174,13 @@ $(document).ready(function(){
     var elemArray = [
         "#fact_mod_prod_designation",
         "#fact_mod_prod_prix",
-        "#fact_mod_prod_qte",
-        "#fact_mod_prod_tva_val"
+        "#fact_mod_prod_qte"
     ]
 
     var elemCaption = [
         "Désignation",
         "Prix",
-        "Quantité",
-        "TVA"
+        "Quantité"
     ]
 
     var vide = false ;
@@ -358,7 +357,7 @@ $(document).ready(function(){
                 <input type="hidden" value="`+fact_text_prix+`" name="fact_enr_text_prix[]" class="fact_enr_text_prix"> 
             </td>
             <td>
-                `+fact_valeur_tva+` (`+fact_mod_prod_tva_val+`%)
+                `+(fact_valeur_tva == 0 ? "" : fact_valeur_tva)+` `+ (fact_mod_prod_tva_val == "" ? "" : "("+fact_mod_prod_tva_val+"%)") +` 
                 <input type="hidden" value="`+fact_mod_prod_tva_val+`" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val"> 
             </td>
             <td>
@@ -451,9 +450,16 @@ $(document).ready(function(){
         montantDevise = montantDevise.toFixed(2)
         montantDevise = montantDevise.endsWith('.00') ? montantDevise.slice(0, -3) : montantDevise ;
         $("#fact_montant_devise").text(montantDevise+" "+selectedText.split(" | ")[0])
-
-        var lettreTotal = NumberToLetter(montantDevise,selectedText.split(" | ")[1])
-        $("#fact_somme_lettre").text(lettreTotal) ;
+        if($(this).val() == "")
+        {
+            $(".fact_enr_val_devise").val("")
+            $(".fact_disp_devise").addClass("d-none")
+        }
+        else
+        {
+            $(".fact_enr_val_devise").val($(this).val())
+            $(".fact_disp_devise").removeClass("d-none")
+        }
     })
 
 //    $("#fact_prod_tva").keyup(function(){
@@ -499,6 +505,17 @@ $(document).ready(function(){
                 $(".fact_btn_paiement" + "." + elem).removeAttr("disabled");
             })
 
+            var reference = $(this).data("reference")
+
+            if(reference != "DF")
+            {
+                $("#fact_libelle").hide();
+                $(".fact_libelle_caption").text("")
+
+                $("#fact_num").hide();
+                $(".fact_num_caption").text("")
+            }
+
             $(this).addClass(btnClass)
             $(this).removeClass(currentbtnClass)
             $(".fact_table_type").text(btnText)
@@ -518,18 +535,31 @@ $(document).ready(function(){
             var btnText = $(this).data("text")
             var self = $(this)
             var numCaption = $(this).data('numcaption')
+            var libelleCaption = $(this).data('libelle')
+
             $(target).val(inputValue) ;
             $(".fact_table_paiement").text(btnText)
 
+            if(libelleCaption != "")
+            {
+                $("#fact_libelle").show();
+                $(".fact_libelle_caption").text(libelleCaption)
+            }
+            else
+            {
+                $("#fact_libelle").hide();
+                $(".fact_libelle_caption").text("")
+            }   
+
             if(numCaption != "")
             {
-                $("#fact_num").removeAttr("disabled")
+                $("#fact_num").show();
                 $(".fact_num_caption").text(numCaption)
             }
             else
             {
-                $("#fact_num").attr("disabled","true")
-                $(".fact_num_caption").text("-")
+                $("#fact_num").hide();
+                $(".fact_num_caption").text("")
             }
 
             $(this).addClass(btnClass)
