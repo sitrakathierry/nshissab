@@ -170,8 +170,6 @@ class FactureController extends AbstractController
         else
             $infoFacture["client"] = $facture->getClient()->getSociete()->getNom() ;
         
-        
-        $infoFacture["remise"] = $facture->getRemiseVal() ;
         $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ? "-" : $facture->getTvaVal();
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
@@ -219,8 +217,25 @@ class FactureController extends AbstractController
         } 
 
         $infoFacture["totalHt"] = $totalHt ;
-        $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
 
+        if(!is_null($facture->getRemiseType()))
+        {
+            if($facture->getRemiseType()->getId() == 1)
+            {
+                $remiseG = ($totalHt * $facture->getRemiseVal()) / 100 ; 
+            }
+            else
+            {
+                $remiseG = $facture->getRemiseVal() ;
+            }
+        }
+        else
+        {
+            $remiseG = 0 ;
+        }
+        $infoFacture["remise"] = $remiseG ;
+        $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
+        
         return $this->render('facture/detailsFacture.html.twig', [
             "filename" => "facture",
             "titlePage" => "Détails Facture",
