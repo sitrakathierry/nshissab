@@ -37,4 +37,100 @@ class AppBase
     {
         
     }
+
+    getMonthName(monthIndex) {
+        var monthNames = [
+          "Janvier",
+          "Février",
+          "Mars",
+          "Avril",
+          "Mai",
+          "Juin",
+          "Juillet",
+          "Août",
+          "Septembre",
+          "Octobre",
+          "Novembre",
+          "Décembre"
+        ];
+      
+        return monthNames[monthIndex];
+      }
+
+    getItemsDate(index)
+    {
+        var currentDate = new Date();
+        var currentYear = currentDate.getFullYear();
+        var optionMonth = ''
+        for (var i = 0; i < 12; i++) {
+            optionMonth += '<option value="'+(i+1)+'">'+this.getMonthName(i).toUpperCase()+'</option>'
+          }
+
+        var items = {
+          DT:`
+          <div class="col-md-3">
+              <label for="date_specifique" class="mt-2 font-weight-bold text-uppercase">Date</label>
+              <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+              </div>
+                  <input type="text" class="form-control" placeholder=". . ." id="date_specifique" name="date_specifique">
+              </div>
+          </div>
+          <script>
+              $("#date_specifique").datepicker()
+          </script>
+          `,
+          DD:`
+          <div class="col-md-3">
+              <label for="date_fourchette_debut" class="mt-2 font-weight-bold text-uppercase">Date Début</label>
+              <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+              </div>
+                  <input type="text" class="form-control" placeholder=". . ." id="date_fourchette_debut" name="date_fourchette_debut">
+              </div>
+          </div>
+          <script>
+              $("#date_fourchette_debut").datepicker()
+          </script>
+          `,
+          DF:`
+          <div class="col-md-3">
+              <label for="date_fourchette_fin" class="mt-2 font-weight-bold text-uppercase">Date fin</label>
+              <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                  </div>
+                  <input type="text" class="form-control" placeholder=". . ." id="date_fourchette_fin" name="date_fourchette_fin">
+              </div>
+          </div>
+          <script>
+              $("#date_fourchette_fin").datepicker()
+          </script>
+          `,
+          AN:`
+          <div class="col-md-3">
+              <label for="date_annee" class="mt-2 font-weight-bold text-uppercase">Année</label>
+              <input type="number" name="date_annee" id="date_annee" class="form-control" value="`+currentYear+`" placeholder=". . .">
+          </div>
+          `,
+          MS:`
+          <div class="col-md-3">
+              <label for="date_mois" class="mt-2 font-weight-bold text-uppercase">Mois</label>
+              <select name="date_mois" class="custom-select chosen_select custom-select-sm" id="date_mois">
+                  <option value="">-</option>
+                  `+optionMonth+`
+              </select>
+          </div>
+          <script>
+              $(".chosen_select").chosen({
+                  no_results_text: "Aucun resultat trouvé : "
+              });
+          </script>
+          `
+      }
+
+      return items[index] ;
+    }
 }

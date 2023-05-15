@@ -631,6 +631,14 @@ class AppService extends AbstractController
         foreach ($factures as $facture) {
             $element = [] ;
             $element["id"] = $facture->getId() ;
+            $element["idC"] = $facture->getClient()->getId() ;
+            $element["idT"] = $facture->getType()->getId() ;
+            $element["idM"] = $facture->getModele()->getId()  ;
+            $element["mois"] = $facture->getDate()->format('m')   ;
+            $element["annee"] = $facture->getDate()->format('Y')   ;
+            $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
+            $element["dateDebut"] = $facture->getDate()->format('d/m/Y')   ;
+            $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
             $element["agence"] = $facture->getAgence()->getId() ;
             $element["user"] = $facture->getUser()->getId() ;
             $element["numFact"] = $facture->getNumFact() ;
@@ -673,7 +681,43 @@ class AppService extends AbstractController
             $condition = true ;
             foreach ($search as $key => $value) {
                 if(!empty($value))
-                    $condition = $condition && (strpos(strtolower($item->$key), strtolower($value)) !== false) ;  
+                {
+                    if($key == "dateDebut")
+                    {
+                        $dateString1 = $value;
+                        $dateString2 = $item->$key;
+
+                        // Conversion des chaînes de caractères en objets DateTime
+                        $dateSearch = \DateTime::createFromFormat('d/m/Y', $dateString1)->setTime(0, 0, 0);
+                        $dateValue = \DateTime::createFromFormat('d/m/Y', $dateString2)->setTime(0, 0, 0);
+
+                        $condition = $condition && ($dateSearch <= $dateValue) ;
+                    }  
+                    else if($key == "dateFin")
+                    {
+                        $dateString1 = $value;
+                        $dateString2 = $item->$key;
+
+                        // Conversion des chaînes de caractères en objets DateTime
+                        $dateSearch = \DateTime::createFromFormat('d/m/Y', $dateString1)->setTime(0, 0, 0);
+                        $dateValue = \DateTime::createFromFormat('d/m/Y', $dateString2)->setTime(0, 0, 0);
+
+                        $condition = $condition && ($dateSearch >= $dateValue) ;
+                    }  
+                    else if($key == "dateFacture" || $key == "currentDate")
+                    {
+                        $dateString1 = $value;
+                        $dateString2 = $item->$key;
+
+                        // Conversion des chaînes de caractères en objets DateTime
+                        $dateSearch = \DateTime::createFromFormat('d/m/Y', $dateString1)->setTime(0, 0, 0);
+                        $dateValue = \DateTime::createFromFormat('d/m/Y', $dateString2)->setTime(0, 0, 0);
+
+                        $condition = $condition && ($dateSearch == $dateValue) ;
+                    }
+                    else
+                        $condition = $condition && (strpos(strtolower($item->$key), strtolower($value)) !== false) ;
+                }
             }
             return $condition;
         } else {
@@ -774,7 +818,6 @@ class AppService extends AbstractController
             90 => "quatre-vingt-dix",
         ];
         
-        global $toLetter;
         $numberToLetter='';
         $nombre = strtr((string)$nombre, [" "=>""]);
         $nb = floatval($nombre);

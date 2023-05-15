@@ -79,7 +79,8 @@ class CaisseController extends AbstractController
         $commande->setNumCommande($numCommande) ;
         $commande->setMontantRecu($cs_mtn_recu) ;
         $commande->setMontantPayee($csenr_total_general) ;
-        $commande->setDate(new \DateTime($csenr_date_caisse)) ;
+        $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $csenr_date_caisse);
+        $commande->setDate($dateTime) ;
         $commande->setStatut(True) ;
         $commande->setCreatedAt(new \DateTimeImmutable) ;
         $commande->setUpdatedAt(new \DateTimeImmutable) ;

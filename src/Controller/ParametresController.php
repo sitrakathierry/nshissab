@@ -208,7 +208,7 @@ class ParametresController extends AbstractController
 
         $dataMessage = [
             "Désignation",
-            "Désignation",
+            "Valeur",
         ];
 
         $result = $this->appService->verificationElement($data,$dataMessage) ;

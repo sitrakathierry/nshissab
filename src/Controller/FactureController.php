@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Agence;
 use App\Entity\CltHistoClient;
 use App\Entity\Devise;
+use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\FactModele;
@@ -15,6 +16,7 @@ use App\Entity\Facture;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -56,9 +58,11 @@ class FactureController extends AbstractController
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findAll() ; 
+
         $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
             "agence" => $this->agence 
         ]) ; 
+
         $devises = $this->entityManager->getRepository(Devise::class)->findBy([
             "agence" => $this->agence,
             "statut" => True
@@ -95,15 +99,137 @@ class FactureController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
+        $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
+        $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
+
+        $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
+            "agence" => $this->agence 
+        ]) ; 
+
+        $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
+
         return $this->render('facture/consultation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Consultation Facture",
             "with_foot" => false,
-            "factures" => $factures
+            "factures" => $factures,
+            "modeles" => $modeles,
+            "types" => $types,
+            "clients" => $clients,
+            "critereDates" => $critereDates
         ]);
     }
 
-    
+    #[Route('/facture/activite/details/{id}', name: 'ftr_details_activite' , defaults : ["id" => null])]
+    public function factureDetailsActivites($id)
+    {
+        $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
+
+        $infoFacture = [] ;
+
+        $infoFacture["numFact"] = $facture->getNumFact() ;
+        $infoFacture["modele"] = $facture->getModele()->getNom() ;
+        $infoFacture["type"] = $facture->getType()->getNom() ;
+        $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
+        $infoFacture["lieu"] = $facture->getLieu() ;
+
+        $infoFacture["devise"] = !is_null($facture->getDevise()) ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $infoFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $infoFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,",","")." ".$facture->getDevise()->getSymbole();
+        }
+
+        $histoPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+            "facture" => $facture
+        ]) ;
+        
+        $infoFacture["paiement"] = is_null($histoPaiement->getPaiement()) ? "-" : $histoPaiement->getPaiement()->getNom();
+        
+        if(!is_null($histoPaiement->getPaiement()))
+        {
+            $infoFacture["infoSup"] = !is_null($histoPaiement->getPaiement()->getNumCaption())  ;
+
+            if(!is_null($histoPaiement->getPaiement()->getNumCaption()))
+            {
+                $infoFacture["numeroCaption"] = $histoPaiement->getPaiement()->getNumCaption() ;
+                $infoFacture["numerovalue"] = $histoPaiement->getNumero() ;
+                $infoFacture["libelleCaption"] =  $histoPaiement->getPaiement()->getLibelleCaption() ;
+                $infoFacture["libelleValue"] = $histoPaiement->getLibelle() ;
+            }
+
+        }
+        else
+        {
+            $infoFacture["infoSup"] = false ;
+        }
+
+        if($facture->getClient()->getType()->getId() == 2)
+            $infoFacture["client"] = $facture->getClient()->getClient()->getNom() ;
+        else
+            $infoFacture["client"] = $facture->getClient()->getSociete()->getNom() ;
+        
+        
+        $infoFacture["remise"] = $facture->getRemiseVal() ;
+        $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ? "-" : $facture->getTvaVal();
+        $infoFacture["totalTtc"] = $facture->getTotal() ;
+
+        $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture
+        ]) ;
+        
+        $totalHt = 0 ;
+        $elements = [] ;
+        foreach ($factureDetails as $factureDetail) {
+            $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+            $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+            if(!is_null($factureDetail->getRemiseType()))
+            {
+                if($factureDetail->getRemiseType()->getId() == 1)
+                {
+                    $remise = ($total * $factureDetail->getRemiseVal()) / 100 ; 
+                }
+                else
+                {
+                    $remise = $factureDetail->getRemiseVal() ;
+                }
+            }
+            else
+            {
+                $remise = 0 ;
+            }
+            
+            $total = $total - $remise ;
+
+            $element = [] ;
+            $element["type"] = $factureDetail->getActivite() ;
+            $element["designation"] = $factureDetail->getDesignation() ;
+            $element["quantite"] = $factureDetail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $factureDetail->getPrix() ;
+            $element["tva"] = ($tva == 0) ? "-" : $tva ;
+            $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $factureDetail->getRemiseVal() ;
+            $element["total"] = $total ;
+            array_push($elements,$element) ;
+
+            $totalHt += $total ;
+        } 
+
+        $infoFacture["totalHt"] = $totalHt ;
+        $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
+
+        return $this->render('facture/detailsFacture.html.twig', [
+            "filename" => "facture",
+            "titlePage" => "Détails Facture",
+            "with_foot" => true,
+            "facture" => $infoFacture,
+            "factureDetails" => $elements
+        ]) ;
+    }
+
     #[Route('/facture/creation/save', name: 'fact_save_activites')]
     public function factSaveActivities(Request $request)
     {
@@ -204,7 +330,8 @@ class FactureController extends AbstractController
         $facture->setDescription($facture_editor) ;
         $facture->setTvaVal(floatval($fact_enr_total_tva)) ;
         $facture->setLieu($fact_lieu) ;
-        $facture->setDate(new \DateTime($fact_date)) ;
+        $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $fact_date);
+        $facture->setDate($dateTime) ;
         $facture->setTotal(floatval($fact_enr_total_general)) ;
         $facture->setDevise($fact_enr_val_devise) ;
         $facture->setStatut(True) ;
@@ -290,5 +417,55 @@ class FactureController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
         return new JsonResponse($result) ;
+    }
+
+    #[Route('/facture/items/search', name: 'facture_search_items')]
+    public function factureSearchItems(Request $request)
+    {
+        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateFacture($filename, $this->agence) ;
+
+        $factures = json_decode(file_get_contents($filename)) ;
+
+        $idT = $request->request->get('idT') ;
+        $idM = $request->request->get('idM') ;
+        $id = $request->request->get('id') ;
+        $idC = $request->request->get('idC') ;
+        $currentDate = $request->request->get('currentDate') ;
+        $dateFacture = $request->request->get('dateFacture') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $annee = $request->request->get('annee') ;
+        $mois = $request->request->get('mois') ;
+
+        
+        $search = [
+            "idT" => $idT,
+            "idM" => $idM,
+            "id" => $id,
+            "idC" => $idC,
+            "currentDate" => $currentDate,
+            "dateFacture" => $dateFacture,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
+        ] ;
+
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
+        } 
+
+        $factures = $this->appService->searchData($factures,$search) ;
+
+        $response = $this->renderView("facture/searchFacture.html.twig", [
+            "factures" => $factures
+        ]) ;
+
+        return new Response($response) ; 
     }
 }

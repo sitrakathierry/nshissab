@@ -10,88 +10,71 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/consultation.js')}}"></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 pt-2">
         <div class="row">
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Modèle</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Type</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">N° Facture</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Client</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+            <div class="col-md-4">
+                <label for="nom" class="font-weight-bold ml-1 text-uppercase">Type</label>
+                <div class="w-100 d-flex flex-wrap flex-row align-items-center justify-content-left">
+                    <button type="button" data-reference="" data-mode="" data-text="" data-class="btn-primary" data-target="#fact_search_type" value="" class="btn mt-2 fact_search_btn_type btn-sm btn-outline-primary mx-1">TOUS</button>
+                    {% for type in types %}
+                        <button type="button" data-reference="{{type.reference}}" data-mode="{{type.modePaiement}}" data-text="{{type.nom|upper}}" data-class="btn-primary" data-target="#fact_search_type" value="{{type.id}}" class="btn fact_search_btn_type btn-sm btn-outline-primary mt-2 mx-1">{{type.nom|upper}}</button>
+                    {% endfor %}
+                    <input type="hidden" id="fact_search_type" name="fact_search_type">
                 </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date Début</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date fin</label>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                    </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+            <div class="col-md-7">
+                <label for="nom" class="font-weight-bold ml-1 text-uppercase">Modèle</label>
+                <div class="w-100 d-flex flex-wrap flex-row align-items-center justify-content-left">
+                    <button type="button" data-text="" data-class="btn-warning" data-target="#fact_search_modele" value="" class="btn fact_search_btn_modele btn-sm mt-2 btn-outline-warning mx-1">TOUS</button>
+                    {% for modele in modeles %}
+                        <button type="button" data-text="{{modele.nom|upper}}" data-class="btn-warning" data-target="#fact_search_modele" value="{{modele.id}}" class="btn fact_search_btn_modele btn-sm mt-2 btn-outline-warning mx-1">{{modele.nom|upper}}</button>
+                    {% endfor %}
+                    <input type="hidden" id="fact_search_modele" name="fact_search_modele">
                 </div>
             </div>
+        </div>
+        <div class="row mt-2">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Avril</option>
+                <label for="fact_search_num" class="mt-2 font-weight-bold text-uppercase">N° Facture</label>
+                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                    <option value="">TOUS</option>
+                    {% for facture in factures %}
+                        <option value="{{facture.id}}">{{facture.numFact}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Année</label>
-                <input type="number" name="nom" id="nom" class="form-control" placeholder="2023">
+                <label for="fact_search_client" class="mt-2 font-weight-bold text-uppercase">Client</label>
+                <select name="fact_search_client" class="custom-select chosen_select custom-select-sm" id="fact_search_client">
+                    <option value="">TOUS</option>
+                    {% for client in clients %}
+                        <option value="{{client.id}}">{{client.client.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_date" class="mt-2 font-weight-bold text-uppercase">Date</label>
+                <select name="fact_search_date" class="custom-select chosen_select fact_search_date custom-select-sm" id="fact_search_date">
+                    <option value="" data-critere="">TOUS</option>
+                    {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <div class="btn-group w-100" role="group" aria-label="Basic example">
-                    <button class="btn btn-perso-one btn-sm"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-                    <button class="btn btn-secondary btn-sm"><i class="fa fa-download"></i></button>
-                </div>
+                <button class="btn btn-block btn-secondary btn-sm"><i class="fa fa-download"></i>&nbsp;Exporter</button>
             </div>
+        </div>
+        <div class="row mt-2 elem_date">
+
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered table-hover">
@@ -103,11 +86,11 @@
                         <th>Date Création</th>
                         <th>Date Facture</th>
                         <th>Client</th>
-                        <th>Total</th>
+                        <th>Montant Total Facture</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_facture">
                     {% for facture in factures %}
                         <tr>
                             <td>{{ facture.numFact }}</td>
@@ -117,7 +100,7 @@
                             <td>{{ facture.dateFacture }}</td>
                             <td>{{ facture.client }}</td>
                             <td>{{ facture.total }}</td>
-                            <td class="text-center"><button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button></td>
+                            <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
                         </tr>  
                     {% endfor %}
                 </tbody>

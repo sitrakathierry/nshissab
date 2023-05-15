@@ -189,6 +189,11 @@
     font-size: smaller !important;
 }
 
+.font-medium
+{
+    font-size:medium !important;
+}
+
 .limit_tbody
 {
     max-height: 360px !important;
