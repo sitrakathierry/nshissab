@@ -188,7 +188,7 @@ class ParametresController extends AbstractController
         return $this->render('parametres/tva/definitionPlage.html.twig', [
             "filename" => "parametres",
             "titlePage" => "Définition Plage TVA",
-            "with_foot" => true,
+            "with_foot" => false,
             "paramTvaTypes" => $paramTvaTypes,
             "categories" => $preferences,
             "produitsTypeTvas" => $produitsTypeTvas

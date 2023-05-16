@@ -57,20 +57,50 @@ $(document).ready(function(){
     })
 
     $(".tva_check_all").click(function(){
-        $('.type_tva_check').each(function(){
+        var self = $(this)
+        $(this).closest('table').find('.type_tva_check').each(function(){
             if (!$(this).is(':checked'))
             {
-                $('.type_tva_check').prop('checked', true);
+                self.closest('table').find('.type_tva_check').prop('checked', true);
             }
         })
     })
     
     $(".tva_off_all").click(function(){
-        $('.type_tva_check').each(function(){
+        var self = $(this)
+        $(this).closest('table').find('.type_tva_check').each(function(){
             if ($(this).is(':checked'))
             {
-                $('.type_tva_check').prop('checked', false);
+                self.closest('table').find('.type_tva_check').prop('checked', false);
             }
         })
+    })
+
+    $("#add_elem_type_tva").click(function(){
+        var count = 0
+        $(this).closest('table').find('.type_tva_check').each(function(){
+            if ($(this).is(':checked'))
+            {
+                var item = $(this).closest('tr') ; 
+                $(this).closest('tr').remove() ;
+                $("#table_type_tva").find('tbody').append(item) ;
+                count++ ;
+            }
+        })
+        console.log(count) ;
+    })
+
+    $("#remove_elem_type_tva").click(function(){
+        var count = 0
+        $(this).closest('table').find('.type_tva_check').each(function(){
+            if ($(this).is(':checked'))
+            {
+                var item = $(this).closest('tr') ; 
+                $(this).closest('tr').remove() ;
+                $("#table_produits").find('tbody').append(item) ;
+                count++ ;
+            }
+        })
+        console.log(count) ;
     })
 })
