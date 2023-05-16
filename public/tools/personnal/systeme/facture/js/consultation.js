@@ -61,7 +61,7 @@ $(document).ready(function(){
             $(".elem_date").html("")
             if(option.text() == "TOUS")
             {
-                searchStockEntrepot()
+                searchFacture()
             }
             else
             {
@@ -98,11 +98,11 @@ $(document).ready(function(){
             $(".elem_date").html(elements)
             
         }
-        searchStockEntrepot()
+        searchFacture()
 
     })
 
-    function searchStockEntrepot()
+    function searchFacture()
     {
         var instance = new Loading(files.search) ;
         $(".elem_facture").html(instance.search(8)) ;
@@ -128,7 +128,7 @@ $(document).ready(function(){
 
     elemSearch.forEach(elem => {
         $(document).on(elem.action,elem.selector,function(){
-            searchStockEntrepot()
+            searchFacture()
         })
     })
 

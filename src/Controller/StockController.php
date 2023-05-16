@@ -1132,9 +1132,10 @@ class StockController extends AbstractController
             $approvisionnement->setMargeValeur($enr_appro_marge[$key]) ;
             $approvisionnement->setPrixRevient($enr_appro_prix_revient[$key]) ;
             $approvisionnement->setPrixVente($enr_appro_prix_vente[$key]) ;
-            $expirer = !empty($crt_expiree_le[$key]) ? new \Datetime($enr_appro_expireeLe[$key]) : null;
+            $expirer = !empty($crt_expiree_le[$key]) ? \DateTime::createFromFormat('j/m/Y',$enr_appro_expireeLe[$key]) : null;
             $approvisionnement->setExpireeLe($expirer) ;
-            $approvisionnement->setDateAppro(new \Datetime($enr_appro_date)) ; 
+            $dateTimeDateAppro = \DateTime::createFromFormat('j/m/Y',$enr_appro_date);
+            $approvisionnement->setDateAppro($dateTimeDateAppro) ; 
             $approvisionnement->setDescription("Approvisionnement de Produit Code : ".$produit->getCodeProduit()) ;
             $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
             $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;

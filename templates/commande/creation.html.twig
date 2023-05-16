@@ -23,14 +23,17 @@
             <div class="col-md-5">
                 <label for="cmd_facture" class="font-weight-bold">Facture</label>
                 <select name="cmd_facture" class="custom-select custom-select-sm cmd_facture" id="cmd_facture">
-                    <option value=""></option>
+                    <option value="">-</option>
+                    {% for facture in factures %}
+                        <option value="{{facture.id}}">{{facture.numFact}} | FACTURE {{facture.modele|upper}} | {{facture.client|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-5">
-                <label for="nom" class="font-weight-bold">Client</label>
+                {# <label for="nom" class="font-weight-bold">Client</label>
                 <select name="cmd_client" class="custom-select custom-select-sm cmd_client" id="cmd_client">
                     <option value=""></option>
-                </select>
+                </select> #}
             </div>
             <div class="col-md-1"></div>
         </div>
@@ -42,63 +45,19 @@
             </div>
             <div class="col-md-1"></div>
         </div>
-        <div class="table-responsive mt-4">
-            <table class="table table-bordered table-sm">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Type</th>
-                        <th>Désignation</th>
-                        <th>Qte/Durée</th>
-                        <th>Format</th>
-                        <th>Prix</th>
-                        <th>Remise</th>
-                        <th>Montant Total</th>
-                    </tr>
-                </thead>
-                <tbody class="elem_bon_commande"> 
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="6">Total HT</th>
-                        <th class="bg-light"></th>
-                    </tr>
-                    <tr>
-                        <th colspan="6">Remise</th>
-                        <th class="bg-light"></th>
-                    </tr>
-                    <tr>
-                        <th colspan="6">Total TVA</th>
-                        <th class="bg-light"></th> 
-                    </tr>
-                    <tr>
-                        <th colspan="6">Total TTC</th>
-                        <th class="bg-light"></th>
-                    </tr>
-                </tfoot>
-            </table>
-            <div class="w-100">
-                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">Zéro Francs Comorien</span>
-            </div>
+        <div class="container-fluid elem_bon_commande mt-4">
+            
         </div>
-            <div class="row">
-                <div class="col-md-7"></div>
-                <div class="col-md-5"> 
-                <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
-                <div class="input-group mb-2">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
-                    </div>
-                    <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+            <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
                 </div>
+                <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+            </div>
             </div>
         </div>
         <div class="row">
@@ -115,8 +74,8 @@
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                <button type="button" onclick="location.reload()" class="btn btn-sm btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 commande_bon_save btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
         </form>

@@ -66,6 +66,7 @@ class CaisseController extends AbstractController
         $cs_mtn_recu = $request->request->get('cs_mtn_recu') ; 
         $csenr_total_general = $request->request->get('csenr_total_general') ; 
         $csenr_date_caisse = $request->request->get('csenr_date_caisse') ; 
+        
         $lastRecordCommande = $this->entityManager->getRepository(CaisseCommande::class)->findOneBy([], ['id' => 'DESC']);
 
         $numCommande = !is_null($lastRecordCommande) ? ($lastRecordCommande->getId()+1) : 1 ;

@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
+use App\Entity\CmdBonCommande;
 use App\Entity\Devise;
+use App\Entity\FactDetails;
 use App\Entity\Facture;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
@@ -517,6 +519,73 @@ class AppService extends AbstractController
             $element["categorie"] = $stockGenerale->categorie ;
             $element["agence"] = $stockGenerale->agence ;
             array_push($elements,$element) ;
+        } 
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateBonCommande($filename,$agence)
+    {
+        $bonCommandes = $this->entityManager->getRepository(CmdBonCommande::class)->findBy([
+            "agence" => $agence
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($bonCommandes as $bonCommande) {
+            $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "facture" => $bonCommande->getFacture()
+            ]) ;
+
+            foreach ($factureDetails as $factureDetail) {
+                $element = [] ;
+                if($bonCommande->getFacture()->getClient()->getType()->getId() == 2)
+                    $client = $bonCommande->getFacture()->getClient()->getClient()->getNom() ;
+                else
+                    $client = $bonCommande->getFacture()->getClient()->getSociete()->getNom() ;
+
+                $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite() ;
+                $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+                if(!is_null($factureDetail->getRemiseType()))
+                {
+                    if($factureDetail->getRemiseType()->getId() == 1)
+                    {
+                        $remiseVal = ($total * $factureDetail->getRemiseVal()) / 100 ; 
+                    }
+                    else
+                    {
+                        $remiseVal = $factureDetail->getRemiseVal() ;
+                    }
+                }
+                else
+                {
+                    $remiseVal = 0 ;
+                }
+                $total = $total - $remiseVal ;
+
+                $typeRemise = is_null($factureDetail->getRemiseType()) ? "" : $factureDetail->getRemiseType()->getNotation() ;
+                $typeRemise = ($typeRemise == "%") ? $typeRemise : "" ;
+
+                $typeRemiseG = ($bonCommande->getFacture()->getRemiseType() == "%") ? $bonCommande->getFacture()->getRemiseType() : "" ;
+                $element["id"] = $bonCommande->getId() ;
+                $element["agence"] = $bonCommande->getAgence()->getId() ;
+                $element["date"] = $bonCommande->getDate()->format('d/m/Y') ;
+                $element["numBon"] = $bonCommande->getNumBonCmd() ;
+                $element["client"] = $client ;
+                $element["designation"] = $factureDetail->getDesignation() ;
+                $element["qte"] = $factureDetail->getQuantite() ;
+                $element["prix"] = $factureDetail->getPrix() ;
+                $element["tva"] = ($tva == 0) ? "-" : $tva ; ;
+                $element["remise"] = $factureDetail->getRemiseVal()." ".$typeRemise ;
+                $element["total"] = $total ;
+                $element["statut"] = $bonCommande->getStatut()->getNom() ;
+                $element["remiseG"] = $bonCommande->getFacture()->getRemiseVal()." ".$typeRemiseG ;
+                $element["totalTva"] = $bonCommande->getFacture()->getTvaVal() ;
+                $element["totalTtc"] = $bonCommande->getFacture()->getTotal() ;
+
+                array_push($elements,$element) ;
+            }
         } 
 
         file_put_contents($filename,json_encode($elements)) ;

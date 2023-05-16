@@ -1,0 +1,82 @@
+
+<div class="row">
+    <div class="col-md-3 mt-3">
+        <h5 class="font-medium" >Modèle : <span class="text-primary">{{facture.modele|upper}}</span></h5>
+    </div>
+    <div class="col-md-3 mt-3">
+        <h5 class="font-medium" >Type : <span class="text-primary">{{facture.type|upper}}</span></h5>
+    </div>
+    <div class="col-md-3 mt-3">
+        <h5 class="font-medium" >Paiement : <span class="text-primary">{{facture.paiement|upper}}</span></h5>
+    </div>
+    {% if facture.infoSup %}
+        <div class="col-md-3 d-flex flex-row flex-wrap mt-3">
+            <h5 class="font-medium" >{{facture.libelleCaption}} : <span class="text-primary">{{facture.libelleValue}}</span></h5>
+        </div>
+        <div class="col-md-3 d-flex flex-row flex-wrap mt-3">
+            <h5 class="font-medium" >{{facture.numeroCaption}} : <span class="text-primary">{{facture.numerovalue}}</span></h5>
+        </div>
+    {% endif %}  
+    <div class="col-md-3 mt-3">
+        <h5 class="font-medium" >Client : <span class="text-primary">{{facture.client|upper}}</span></h5>
+    </div>
+</div>
+<div class="table-responsive mt-4">
+    <table class="table table-bordered table-sm">
+        <thead class="thead-light">
+            <tr>
+                <th>Type</th>
+                <th>Désignation</th>
+                <th>Qte/Durée</th>
+                <th>Format</th>
+                <th>Prix Unitaire HT</th>
+                <th>Montant TVA</th>
+                <th>Type Remise</th>
+                <th>Valeur Remise</th>
+                <th>Montant Total</th>
+            </tr>
+        </thead>
+        <tbody> 
+            {% for factureDetail in factureDetails %}
+                <tr>
+                    <td>{{ factureDetail.type|upper }}</td>
+                    <td>{{ factureDetail.designation }}</td>
+                    <td>{{ factureDetail.quantite }}</td>
+                    <td>{{ factureDetail.format }}</td>
+                    <td>{{ factureDetail.prix }}</td>
+                    <td>{{ factureDetail.tva }}</td>
+                    <td>{{ factureDetail.typeRemise }}</td>
+                    <td>{{ factureDetail.valRemise }}</td>
+                    <td>{{ factureDetail.total }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="8">Total HT</th>
+                <th class="bg-light">{{facture.totalHt}}</th>
+            </tr>
+            <tr>
+                <th colspan="8">Remise</th>
+                <th class="bg-light">{{facture.remise}}</th>
+            </tr>
+            <tr>
+                <th colspan="8">Total TVA</th>
+                <th class="bg-light">{{facture.totalTva}}</th> 
+            </tr>
+            <tr>
+                <th colspan="8">Total TTC</th>
+                <th class="bg-primary text-white">{{facture.totalTtc}}</th>
+            </tr>
+            {% if facture.devise %}
+                <tr>
+                    <th colspan="8">Montant en {{facture.deviseCaption}}</th>
+                    <th class="bg-light">{{facture.deviseValue}}</th>
+                </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+    <div class="w-100">
+        Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> Francs Comorien
+    </div>
+</div>

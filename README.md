@@ -42,3 +42,7 @@ $.ajax({
 })
 
 oninput="this.value = this.value.toUpperCase();"
+
+Au moment de mettre les données réels, effacer la table : 
+
+CmdBonCommande, CaisseCommande, CaissePanier, ...

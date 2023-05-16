@@ -97,6 +97,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: ParamTvaType::class)]
     private Collection $paramTvaTypes;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CmdBonCommande::class)]
+    private Collection $cmdBonCommandes;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -114,6 +117,7 @@ class Agence
         $this->factures = new ArrayCollection();
         $this->devises = new ArrayCollection();
         $this->paramTvaTypes = new ArrayCollection();
+        $this->cmdBonCommandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -708,6 +712,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($paramTvaType->getAgence() === $this) {
                 $paramTvaType->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmdBonCommande>
+     */
+    public function getCmdBonCommandes(): Collection
+    {
+        return $this->cmdBonCommandes;
+    }
+
+    public function addCmdBonCommande(CmdBonCommande $cmdBonCommande): self
+    {
+        if (!$this->cmdBonCommandes->contains($cmdBonCommande)) {
+            $this->cmdBonCommandes->add($cmdBonCommande);
+            $cmdBonCommande->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCmdBonCommande(CmdBonCommande $cmdBonCommande): self
+    {
+        if ($this->cmdBonCommandes->removeElement($cmdBonCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($cmdBonCommande->getAgence() === $this) {
+                $cmdBonCommande->setAgence(null);
             }
         }
 
