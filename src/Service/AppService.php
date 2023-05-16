@@ -566,8 +566,8 @@ class AppService extends AbstractController
 
                 $typeRemise = is_null($factureDetail->getRemiseType()) ? "" : $factureDetail->getRemiseType()->getNotation() ;
                 $typeRemise = ($typeRemise == "%") ? $typeRemise : "" ;
-
-                $typeRemiseG = ($bonCommande->getFacture()->getRemiseType()->getNotation() == "%") ? $bonCommande->getFacture()->getRemiseType() : "" ;
+                $typeRemiseG = is_null($bonCommande->getFacture()->getRemiseType()) ? "" : $bonCommande->getFacture()->getRemiseType()->getNotation() ;
+                $typeRemiseG = ($typeRemiseG == "%") ? $typeRemiseG : "" ;
                 $element["id"] = $bonCommande->getId() ;
                 $element["agence"] = $bonCommande->getAgence()->getId() ;
                 $element["date"] = $bonCommande->getDate()->format('d/m/Y') ;
