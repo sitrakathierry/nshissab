@@ -931,7 +931,14 @@ class StockController extends AbstractController
 
         $produitPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->getProdtuiPrixParIndice($idP);
         
-        return new JsonResponse($produitPrix) ;
+        $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
+
+        $tva = $produit->getTvaType() ;
+
+        return new JsonResponse([
+            "produitPrix" => $produitPrix,
+            "tva" => is_null($tva) ? "" : $tva->getValeur() 
+        ]) ;
     }
 
     #[Route('/stock/produit/get', name: 'stock_get_produit')]

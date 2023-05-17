@@ -76,19 +76,29 @@ $(document).ready(function(){
                     dataType: 'json',
                     success: function(resp){
                         realinstance.close()
-                        if(resp.length > 1)
+                        if(resp.produitPrix.length > 1)
                         {
                             var optionsPrix = '<option value=""></option>' ;
-                            resp.forEach(elem => {
+                            resp.produitPrix.forEach(elem => {
                                 optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
                             });
                         }
                         else
                         {
-                            var optionsPrix = '<option value="'+resp[0].id+'">'+resp[0].prixVente+' | '+resp[0].indice+'</option>' ;
-                            $("#fact_text_prix").val(resp[0].prixVente+' | '+resp[0].indice) ;
+                            var optionsPrix = '<option value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
+                            $("#fact_text_prix").val(resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice) ;
                         }
                         
+                        if(resp.tva != "")
+                        {
+                            $("#fact_mod_prod_tva_val").attr("readonly",true)
+                            $("#fact_mod_prod_tva_val").val(resp.tva)
+                        }
+                        else
+                        {
+                            $("#fact_mod_prod_tva_val").removeAttr("readonly")
+                            $("#fact_mod_prod_tva_val").val("")
+                        }
                         
                         $(".fact_mod_prod_prix").html(optionsPrix)
                         $(".fact_mod_prod_prix").trigger("chosen:updated"); 
