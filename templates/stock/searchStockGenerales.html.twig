@@ -4,7 +4,9 @@
         <td class="align-middle">{{stockGeneral.categorie|upper}}</td>
         <td class="align-middle">{{stockGeneral.nom}}</td>
         <td class="align-middle">{{stockGeneral.stock}}</td>
-        <td class="text-center align-middle"><button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button></td>
-        <a href="{{path('stock_general_pdf_ticket',{'id':stockGeneral.id})}}" class="btn btn-sm ml-2 btn-outline-info font-smaller"><i class="fa fa-ticket"></i></a>
+        <td class="text-center align-middle">
+            <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+            <a href="{{path('stock_general_pdf_ticket',{'id':stockGeneral.id})}}" class="btn btn-sm ml-2 btn-outline-info font-smaller"><i class="fa fa-ticket"></i></a>
+        </td>
     </tr>
 {% endfor %}
