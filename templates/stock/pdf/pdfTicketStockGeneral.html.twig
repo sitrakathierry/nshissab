@@ -1,0 +1,93 @@
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+    <style>
+        /* APPLIQUEE A TOUS */
+        *
+        {
+            font-family: "Times New Roman";
+        }
+        .border_dark
+        {
+            border: 2px solid black !important;
+        }
+        .cadre
+        {
+            padding: 12px !important;
+            font-weight: bold ;
+            margin: 0 ;
+        }
+        .flex
+        {
+            display: flex;
+            flex-direction: row;
+            align-items : center;
+            justify-content: center ;
+        }
+        .w-75
+        {
+            width: 75% !important;
+        }
+        .w-25
+        {
+            width: 25% !important;
+        }
+        .inline-block
+        {
+            display: inline-block;
+        }
+        .w-100
+        {
+            width: 100% !important ;
+        }
+        .w-50
+        {
+            width: 50% !important ;
+        }
+        .produit
+        {
+            max-width : 500px !important;
+            min-width : 500px !important;
+        }
+        .prix
+        {
+            max-width : 200px !important;
+            min-width : 200px !important;
+        }
+        .font-normal
+        {
+            font-size: 1.1em !important;
+        }
+        .ml-auto
+        {
+            margin-left: auto;
+        }
+        .mr-auto
+        {
+            margin-right: auto;
+        }
+        .mt-2
+        {
+            margin-top: 25px !important ;
+        }
+    </style>
+</head>
+<body>
+    {% for param in params %}
+    <div class="w-100 mx-auto mt-2">
+        <div class="inline-block produit">
+            <div class="border_dark font-normal cadre">
+                <span>{{param.code}} | {{param.nom}}</span>
+            </div>
+        </div>
+        <div class="inline-block font-normal prix">
+            <div class="border_dark cadre">
+                <span>{{param.prix}}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</body>
+</html>

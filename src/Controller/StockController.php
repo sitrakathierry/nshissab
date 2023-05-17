@@ -15,6 +15,7 @@ use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\PdfGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -344,6 +345,34 @@ class StockController extends AbstractController
         ]);
     }
 
+    #[Route('/stock/general/ticket/pdf/{id}', name: 'stock_general_pdf_ticket', defaults: ["id" => null])]
+    public function stockPdfTicketStockGeneral(PdfGeneratorService $pdfGenerator, $id)
+    {
+        $params = [] ;
+
+        $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
+
+        $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+            "produit" => $produit,
+            "statut" => True
+        ]) ; 
+        
+        foreach ($variationPrix as $variationPrix) {
+            $param = [] ;
+
+            $param["code"] = $variationPrix->getProduit()->getCodeProduit() ;
+            $param["nom"] = $variationPrix->getProduit()->getNom() ;
+            $param["prix"] = $variationPrix->getPrixVente() ;
+
+            array_push($params,$param) ;
+        }
+
+        $content = $this->renderView('stock/pdf/pdfTicketStockGeneral.html.twig',[
+            "params" => $params
+        ]);
+
+        $pdfGenerator->generatePdf($content,'TICKETPRODUIT'.$id.'.pdf');
+    }
     
     #[Route('/stock/general/search', name: 'stock_search_stock_general')]
     public function stockGeneralSearch(Request $request)
@@ -940,6 +969,8 @@ class StockController extends AbstractController
             "tva" => is_null($tva) ? "" : $tva->getValeur() 
         ]) ;
     }
+
+    
 
     #[Route('/stock/produit/get', name: 'stock_get_produit')]
     public function stockGetProduit()
