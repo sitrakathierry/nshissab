@@ -266,10 +266,20 @@ class ParametresController extends AbstractController
     }
 
     
-    #[Route('/parametres/tva/produit/search', name: 'param_tva_update_produit')]
+    #[Route('/parametres/tva/produit/update', name: 'param_tva_update_produit')]
     public function paramTvaUpdateProduit(Request $request)
     {
         $info = (array)$request->request->get('info') ;
+        if(empty($info))
+        {
+            $result = [
+                "type" => "orange",
+                "message" => "Aucun élément séléctionnée"
+            ] ;
+
+            return new JsonResponse($result) ;
+        }
+
         foreach ($info as $info) {
             $idP = $info['idP'] ;
             $idType = $info['idType'] ;
