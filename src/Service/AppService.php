@@ -495,6 +495,7 @@ class AppService extends AbstractController
             $element["categorie"] = $stockGeneral->getPreference()->getCategorie()->getNom() ;
             $element["nom"] = $stockGeneral->getNom() ;
             $element["stock"] = $stockGeneral->getStock() ;
+            $element["tvaType"] = is_null($stockGeneral->getTvaType()) ? "-" : $stockGeneral->getTvaType()->getId() ;
             $element["agence"] = $stockGeneral->getAgence()->getId() ;
             array_push($elements,$element) ;
         }
@@ -504,6 +505,7 @@ class AppService extends AbstractController
 
     public function generateProduitParamTypeTva($path,$filename,$agence)
     {
+        unlink($path) ; 
         if(!file_exists($path))
             $this->generateProduitStockGeneral($path, $agence) ;
 
@@ -517,7 +519,8 @@ class AppService extends AbstractController
             $element["idC"] = $stockGenerale->idC ;
             $element["produit"] = $stockGenerale->codeProduit." | ".$stockGenerale->nom." | ".$stockGenerale->stock ;
             $element["categorie"] = $stockGenerale->categorie ;
-            $element["agence"] = $stockGenerale->agence ;
+            $element["tvaType"] = $stockGenerale->tvaType ;
+            $element["agence"] = $stockGenerale->agence ; 
             array_push($elements,$element) ;
         } 
 
@@ -746,7 +749,7 @@ class AppService extends AbstractController
     }
 
     public function recherche($item, $search = []) {
-        if (count($search) > 1) {
+        // if (count($search) > 1) {
             $condition = true ;
             foreach ($search as $key => $value) {
                 if(!empty($value))
@@ -789,10 +792,10 @@ class AppService extends AbstractController
                 }
             }
             return $condition;
-        } else {
-            $key = key($item);
-            return isset($item->$key) && strpos($item->$key, $search[$key]) !== false;
-        }
+        // } else {
+        //     $key = key($item);
+        //     return strpos($item->$key, $search[$key]) !== false;
+        // }
     } 
     public function searchData($data, $search = [])
     {

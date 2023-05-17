@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ParamTvaTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ParamTvaTypeRepository::class)]
@@ -30,6 +32,14 @@ class ParamTvaType
 
     #[ORM\ManyToOne(inversedBy: 'paramTvaTypes')]
     private ?Agence $agence = null;
+
+    #[ORM\OneToMany(mappedBy: 'tvaType', targetEntity: Produit::class)]
+    private Collection $produits;
+
+    public function __construct()
+    {
+        $this->produits = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -104,6 +114,36 @@ class ParamTvaType
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Produit>
+     */
+    public function getProduits(): Collection
+    {
+        return $this->produits;
+    }
+
+    public function addProduit(Produit $produit): self
+    {
+        if (!$this->produits->contains($produit)) {
+            $this->produits->add($produit);
+            $produit->setTvaType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduit(Produit $produit): self
+    {
+        if ($this->produits->removeElement($produit)) {
+            // set the owning side to null (unless already changed)
+            if ($produit->getTvaType() === $this) {
+                $produit->setTvaType(null);
+            }
+        }
 
         return $this;
     }

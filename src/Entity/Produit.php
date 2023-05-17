@@ -61,6 +61,9 @@ class Produit
     #[ORM\OneToMany(mappedBy: 'produit', targetEntity: PrdHistoFournisseur::class)]
     private Collection $prdHistoFournisseurs;
 
+    #[ORM\ManyToOne(inversedBy: 'produits')]
+    private ?ParamTvaType $tvaType = null;
+
     public function __construct()
     {
         $this->prdVariationPrixes = new ArrayCollection();
@@ -284,6 +287,18 @@ class Produit
                 $prdHistoFournisseur->setProduit(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTvaType(): ?ParamTvaType
+    {
+        return $this->tvaType;
+    }
+
+    public function setTvaType(?ParamTvaType $tvaType): self
+    {
+        $this->tvaType = $tvaType;
 
         return $this;
     }

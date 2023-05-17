@@ -6,6 +6,7 @@ use App\Entity\AgcDevise;
 use App\Entity\Agence;
 use App\Entity\Devise;
 use App\Entity\ParamTvaType;
+use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -176,6 +177,7 @@ class ParametresController extends AbstractController
         $preferences = json_decode(file_get_contents($filename)) ;
         
         $path = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ; 
+
         $filename = $this->filename."produitTypeTva(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
@@ -185,6 +187,12 @@ class ParametresController extends AbstractController
         
         $produitsTypeTvas = json_decode(file_get_contents($filename)) ;
 
+        $search = [
+            "tvaType" => "-"
+        ] ;
+
+        $produitsTypeTvas = $this->appService->searchData($produitsTypeTvas,$search) ;
+
         return $this->render('parametres/tva/definitionPlage.html.twig', [
             "filename" => "parametres",
             "titlePage" => "Définition Plage TVA",
@@ -193,6 +201,109 @@ class ParametresController extends AbstractController
             "categories" => $preferences,
             "produitsTypeTvas" => $produitsTypeTvas
         ]);
+    }
+
+    #[Route('/parametres/tva/type/display', name: 'param_display_elem_type_tva')]
+    public function paramDisplayElemTypeTva(Request $request)
+    {
+        $path = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ; 
+        $filename = $this->filename."produitTypeTva(agence)/".$this->nameAgence ;    
+        // unlink($filename) ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitParamTypeTva($path,$filename,$this->agence) ;
+        
+        $produitsStock = json_decode(file_get_contents($filename)) ;
+
+        $idTypeTva = $request->request->get('idTypeTva') ;
+
+        $search = [
+            "tvaType" => $idTypeTva
+        ] ;
+        $produitsTypeTvas = $this->appService->searchData($produitsStock,$search) ;
+
+        $search = [
+            "tvaType" => "-"
+        ] ;
+        $produits = $this->appService->searchData($produitsStock,$search) ;
+
+        $response = $this->renderView('parametres/tva/displayTypeTva.html.twig', [
+            "produitsTypeTvas" => $produitsTypeTvas,
+            "produits" => $produits
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    
+    #[Route('/parametres/tva/type/search', name: 'param_search_prd_in_tva_type')]
+    public function paramSearchPrdInTvaType(Request $request)
+    {
+        $path = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ; 
+        $filename = $this->filename."produitTypeTva(agence)/".$this->nameAgence ;    
+        // unlink($filename) ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitParamTypeTva($path,$filename,$this->agence) ;
+        
+        $produitsStock = json_decode(file_get_contents($filename)) ;
+
+        $tvaType = $request->request->get('tvaType') ;
+        $idC = $request->request->get('idC') ;
+        $produit = $request->request->get('produit') ;
+
+        $search = [
+            "idC" => $idC,
+            "produit" => $produit,
+            "tvaType" => $tvaType
+        ] ;
+
+        $produitsTypeTvas = $this->appService->searchData($produitsStock,$search) ;
+
+        $response = $this->renderView('parametres/tva/searchPrdTypeTva.html.twig', [
+            "produitsTypeTvas" => $produitsTypeTvas
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    
+    #[Route('/parametres/tva/produit/search', name: 'param_tva_update_produit')]
+    public function paramTvaUpdateProduit(Request $request)
+    {
+        $info = (array)$request->request->get('info') ;
+        foreach ($info as $info) {
+            $idP = $info['idP'] ;
+            $idType = $info['idType'] ;
+
+            $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
+            if(!empty($idType))
+            {   
+                $paramTvaType = $this->entityManager->getRepository(ParamTvaType::class)->find($idType) ;
+                $produit->setTvaType($paramTvaType) ;
+                $result = [
+                    "type" => "green",
+                    "message" => "Type ajoutée"
+                ] ;
+            }
+            else
+            {
+                $produit->setTvaType(null) ;
+                $result = [
+                    "type" => "dark",
+                    "message" => "Type supprimée"
+                ] ;
+            }
+            
+            $this->entityManager->flush() ;
+        } 
+        
+        $path = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ; 
+        $filename = $this->filename."produitTypeTva(agence)/".$this->nameAgence ;    
+        unlink($filename) ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitParamTypeTva($path,$filename,$this->agence) ;
+
+        return new JsonResponse($result) ;
+
     }
 
     #[Route('/parametres/tva/save', name: 'param_tva_save_type')]

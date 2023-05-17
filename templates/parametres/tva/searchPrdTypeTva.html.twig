@@ -1,0 +1,10 @@
+{% for produitsTypeTva in produitsTypeTvas %}
+    <tr>
+        <td>{{produitsTypeTva.produit}}</td>
+        <td>{{produitsTypeTva.categorie}}</td>
+        <td  class="text-center align-middle">
+            <input type="checkbox" data-reference="1" class="form-check-input position-static ml-0 type_tva_check" id="type_tva_check">
+            <input type="hidden" name="produit_enr_id[]" value="{{produitsTypeTva.id}}" class="produit_enr_id">
+        </td>
+    </tr>
+{% endfor %}
