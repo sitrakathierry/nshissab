@@ -24,9 +24,13 @@ class CmdStatut
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reference = null;
 
+    #[ORM\OneToMany(mappedBy: 'statut', targetEntity: LvrLivraison::class)]
+    private Collection $lvrLivraisons;
+
     public function __construct()
     {
         $this->cmdBonCommandes = new ArrayCollection();
+        $this->lvrLivraisons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,6 +88,36 @@ class CmdStatut
     public function setReference(?string $reference): self
     {
         $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LvrLivraison>
+     */
+    public function getLvrLivraisons(): Collection
+    {
+        return $this->lvrLivraisons;
+    }
+
+    public function addLvrLivraison(LvrLivraison $lvrLivraison): self
+    {
+        if (!$this->lvrLivraisons->contains($lvrLivraison)) {
+            $this->lvrLivraisons->add($lvrLivraison);
+            $lvrLivraison->setStatut($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLvrLivraison(LvrLivraison $lvrLivraison): self
+    {
+        if ($this->lvrLivraisons->removeElement($lvrLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($lvrLivraison->getStatut() === $this) {
+                $lvrLivraison->setStatut(null);
+            }
+        }
 
         return $this;
     }

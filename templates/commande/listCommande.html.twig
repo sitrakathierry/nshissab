@@ -1,0 +1,4 @@
+<option value="">-</option>
+{% for bonCommande in bonCommandes %}
+    <option value="{{bonCommande.id}}">{{bonCommande.numBon}} | {{bonCommande.client|upper}}</option>
+{% endfor %}

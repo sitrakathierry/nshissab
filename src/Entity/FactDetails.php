@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\FactDetailsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FactDetailsRepository::class)]
@@ -42,6 +44,14 @@ class FactDetails
 
     #[ORM\Column(nullable: true)]
     private ?float $tvaVal = null;
+
+    #[ORM\OneToMany(mappedBy: 'factureDetail', targetEntity: LvrDetails::class)]
+    private Collection $lvrDetails;
+
+    public function __construct()
+    {
+        $this->lvrDetails = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -164,6 +174,36 @@ class FactDetails
     public function setTvaVal(?float $tvaVal): self
     {
         $this->tvaVal = $tvaVal;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LvrDetails>
+     */
+    public function getLvrDetails(): Collection
+    {
+        return $this->lvrDetails;
+    }
+
+    public function addLvrDetail(LvrDetails $lvrDetail): self
+    {
+        if (!$this->lvrDetails->contains($lvrDetail)) {
+            $this->lvrDetails->add($lvrDetail);
+            $lvrDetail->setFactureDetail($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLvrDetail(LvrDetails $lvrDetail): self
+    {
+        if ($this->lvrDetails->removeElement($lvrDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($lvrDetail->getFactureDetail() === $this) {
+                $lvrDetail->setFactureDetail(null);
+            }
+        }
 
         return $this;
     }

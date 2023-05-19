@@ -26,17 +26,20 @@ $.confirm({
     }
 })
 
-
+var realinstance = instance.loading()
 $.ajax({
     url: ,
     type:'post',
     cache: false,
     data: ,
     dataType: 'json',
+    processData: false,
+    contentType: false,
     success: function(){
 
     },
     error: function(resp){
+        realinstance.close()
         $.alert(JSON.stringify(resp)) ;
     }
 })

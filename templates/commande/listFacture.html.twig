@@ -1,0 +1,4 @@
+<option value="">-</option>
+{% for facture in factures %}
+    <option value="{{facture.id}}">{{facture.numFact}} | FACTURE {{facture.modele|upper}} | {{facture.client|upper}}</option>
+{% endfor %}

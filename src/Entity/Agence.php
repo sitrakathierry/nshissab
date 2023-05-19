@@ -100,6 +100,12 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CmdBonCommande::class)]
     private Collection $cmdBonCommandes;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LvrLivraison::class)]
+    private Collection $lvrLivraisons;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LvrDetails::class)]
+    private Collection $lvrDetails;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -118,6 +124,8 @@ class Agence
         $this->devises = new ArrayCollection();
         $this->paramTvaTypes = new ArrayCollection();
         $this->cmdBonCommandes = new ArrayCollection();
+        $this->lvrLivraisons = new ArrayCollection();
+        $this->lvrDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -742,6 +750,66 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($cmdBonCommande->getAgence() === $this) {
                 $cmdBonCommande->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LvrLivraison>
+     */
+    public function getLvrLivraisons(): Collection
+    {
+        return $this->lvrLivraisons;
+    }
+
+    public function addLvrLivraison(LvrLivraison $lvrLivraison): self
+    {
+        if (!$this->lvrLivraisons->contains($lvrLivraison)) {
+            $this->lvrLivraisons->add($lvrLivraison);
+            $lvrLivraison->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLvrLivraison(LvrLivraison $lvrLivraison): self
+    {
+        if ($this->lvrLivraisons->removeElement($lvrLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($lvrLivraison->getAgence() === $this) {
+                $lvrLivraison->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LvrDetails>
+     */
+    public function getLvrDetails(): Collection
+    {
+        return $this->lvrDetails;
+    }
+
+    public function addLvrDetail(LvrDetails $lvrDetail): self
+    {
+        if (!$this->lvrDetails->contains($lvrDetail)) {
+            $this->lvrDetails->add($lvrDetail);
+            $lvrDetail->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLvrDetail(LvrDetails $lvrDetail): self
+    {
+        if ($this->lvrDetails->removeElement($lvrDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($lvrDetail->getAgence() === $this) {
+                $lvrDetail->setAgence(null);
             }
         }
 

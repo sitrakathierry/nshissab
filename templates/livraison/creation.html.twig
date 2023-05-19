@@ -1,20 +1,74 @@
-{% extends 'base.html.twig' %}
+ {% extends 'menu/index.html.twig' %}
 
-{% block title %}Hello LivraisonController!{% endblock %}
+{% block title %}{{titlePage}}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/laragon/www/shissabV2/src/Controller/LivraisonController.php'|file_link(0) }}">src/Controller/LivraisonController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/laragon/www/shissabV2/templates/livraison/index.html.twig'|file_link(0) }}">templates/livraison/index.html.twig</a></code></li>
-    </ul>
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <button type="button" data-caption="Un bon de commande" data-source="BonCommande" data-class="btn-info" data-target="#lvr_source"  class="btn lvr_btn_source btn-outline-info btn-sm text-uppercase">Bon de commande</button>
+        <button type="button" data-caption="Une facture définitive" data-source="Facture" data-class="btn-info" data-target="#lvr_source"   class="btn lvr_btn_source btn-outline-info ml-3 btn-sm text-uppercase">Facture Définitive</button>
+        <form id="formLivraison">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="lvr_val_source" class="mt-3 font-weight-bold text-uppercase">Séléctionner <span id="lvr_source_caption">...</span></label>
+                    <select name="lvr_val_source" class="custom-select custom-select-sm lvr_val_source" id="lvr_val_source">
+                        <option value="">-</option>
+                    </select>
+                    <input type="hidden" name="lvr_source" id="lvr_source" class="form-control" placeholder=". . .">
+                </div>
+            </div>
+            <div class="w-100">
+                <label for="lvr_creation_description" class="mt-3 font-weight-bold text-uppercase">Déscription</label>
+                <textarea name="lvr_creation_description" id="lvr_creation_description" class="lvr_creation_description form-control" cols="30" rows="10"></textarea>
+            </div>
+            <div class="container-fluid elem_bon_livraison mb-2 mt-4">
+                
+            </div>
+            <div class="row">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                        </div>
+                        <input type="text" class="form-control lvr_lieu" name="lvr_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Livraison" id="lvr_lieu">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        <input type="text" class="form-control lvr_date" name="lvr_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Livraisin" id="lvr_date">
+                    </div>
+                </div>
+            </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" onclick="location.reload()" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %}
+        </form> 
+    </div>
 </div>
 {% endblock %}
+
+

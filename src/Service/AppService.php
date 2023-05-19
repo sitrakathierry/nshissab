@@ -8,6 +8,7 @@ use App\Entity\CmdBonCommande;
 use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\Facture;
+use App\Entity\LvrDetails;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\PrdCategories;
@@ -46,6 +47,7 @@ class AppService extends AbstractController
         $this->encoder = $encoder ; 
         $this->urlGenerator = $urlGenerator ;
     }
+    
     public function getHappyMessage(): string
     {
         $messages = [
@@ -257,7 +259,7 @@ class AppService extends AbstractController
         }
       
         return $password;
-      }
+    }
 
     public function hashPassword(User $user,string $plainPassword): string
     {
@@ -594,6 +596,31 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateCommande($filename, $agence)
+    {
+        $bonCommandes = $this->entityManager->getRepository(CmdBonCommande::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        
+        $elements = [] ;
+
+        foreach ($bonCommandes as $bonCommande) {
+            if($bonCommande->getFacture()->getClient()->getType()->getId() == 2)
+                $client = $bonCommande->getFacture()->getClient()->getClient()->getNom() ;
+            else
+                $client = $bonCommande->getFacture()->getClient()->getSociete()->getNom() ;
+
+            $element = [] ;
+            $element["id"] = $bonCommande->getId() ;
+            $element["numBon"] = $bonCommande->getNumBonCmd() ;
+            $element["client"] = $client ;
+            $element["agence"] = $bonCommande->getAgence()->getId() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
     public function filterProdPreferences($path,$nameAgence,$nameUser,$user)
     {
         $filename = $path."categorie(agence)/".$nameAgence ;
@@ -742,6 +769,49 @@ class AppService extends AbstractController
             $element["symbole"] = $devise->getSymbole() ;
             $element["lettre"] = $devise->getLettre() ;
             $element["montantBase"] = $devise->getMontantBase() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateBonLivraison($filename, $agence)
+    {
+        $lvrDetails = $this->entityManager->getRepository(LvrDetails::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($lvrDetails as $lvrDetail) {
+            if($lvrDetail->getLivraison()->getTypeSource() =="Facture")
+            {
+                $facture = $this->entityManager->getRepository(Facture::class)->find($lvrDetail->getLivraison()->getSource()) ;
+                if($facture->getClient()->getType()->getId() == 2)
+                    $client = $facture->getClient()->getClient()->getNom() ;
+                else
+                    $client = $facture->getClient()->getSociete()->getNom() ;
+            }
+            else
+            {
+                $bonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->find($lvrDetail->getLivraison()->getSource()) ;
+                if($bonCommande->getFacture()->getClient()->getType()->getId() == 2)
+                    $client =   $bonCommande->getFacture()->getClient()->getClient()->getNom() ;
+                else
+                    $client = $bonCommande->getFacture()->getClient()->getSociete()->getNom() ;
+            }
+            
+            $element = [] ;
+            $element["id"] = $lvrDetail->getId() ;
+            $element["numBonLvr"] = $lvrDetail->getLivraison()->getNumLivraison() ;
+            $element["client"] = $client ;
+            $element["designation"] = $lvrDetail->getFactureDetail()->getDesignation() ;
+            $element["quantite"] = $lvrDetail->getFactureDetail()->getQuantite() ;
+            $element["agence"] = $lvrDetail->getAgence()->getId() ;
+            $element["date"] = $lvrDetail->getLivraison()->getDate()->format('d/m/Y') ;
+            $element["lieu"] = $lvrDetail->getLivraison()->getLieu() ;
+            $element["statut"] = $lvrDetail->getLivraison()->getStatut()->getNom() ;
             array_push($elements,$element) ;
         }
 

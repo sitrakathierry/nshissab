@@ -1,0 +1,109 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-1">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class=" font-weight-bold">Date</label>
+                <select name="cmd_bon_search_date" class="custom-select chosen_select cmd_bon_search_date custom-select-sm" id="cmd_bon_search_date">
+                    <option value="" data-critere="">TOUS</option>
+                    {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="nom" class=" font-weight-bold">Nom</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-sm">
+                <thead class="thead-light text-uppercase">
+                    <tr>
+                        <th>Date</th>
+                        <th>N° Bon</th>
+                        <th>Client</th>
+                        <th>Désignation</th>
+                        <th>Qte</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set premier = (livraisons is not empty) ? livraisons[0].numBonLvr : "" %}
+                    {% set passe = true %}
+                    {% set passeM = true %}
+                    {% set compteur = 1 %}
+                    {% for bonLivraison in livraisons %}
+                        {% if bonLivraison.numBonLvr != premier %}
+                            {% set premier = bonLivraison.numBonLvr %}
+                            {% set passe = true %}
+                            {% set passeM = true %}
+                            {% set compteur = 1 %}
+                        {% endif %}
+                    <tr>
+                        {% set elements = livraisons|filter(o => o.numBonLvr == premier) %}
+                        {% set ligne = elements|length %}
+                        {% if passe %}
+                            <td rowspan="{{ligne}}" class="align-middle">{{bonLivraison.date}}</td>
+                            <td rowspan="{{ligne}}" class="align-middle">{{bonLivraison.numBonLvr}}</td>
+                            <td rowspan="{{ligne}}" class="align-middle">{{bonLivraison.client|upper}}</td>
+                            {% set passe = false %}
+                        {% endif %}
+                        <td class="align-middle">{{bonLivraison.designation}}</td>
+                        <td class="align-middle">{{bonLivraison.quantite}}</td>
+                        {% if passeM %}
+                            <td rowspan="{{ligne}}" class="align-middle">{{bonLivraison.statut|upper}}</td>
+                            <td rowspan="{{ligne}}" class="align-middle text-center">
+                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <button class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button>
+                                    <button class="btn m-1 btn-outline-info btn-sm font-smaller"><i class="fa fa-check"></i></button>
+                                </div>
+                            </td>
+                            {% set passeM = false %}
+                        {% endif %}
+                    </tr>
+                        {% if compteur == ligne %}
+                            <tr class="bg-light border_dark">
+                                <td colspan="7"></td>
+                            </tr>
+                        {% endif %}
+                        {% if bonLivraison.numBonLvr == premier %}
+                            {% set compteur = compteur + 1 %}
+                        {% endif %}
+                        
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

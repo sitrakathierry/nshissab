@@ -156,23 +156,23 @@ $(document).ready(function(){
 
     $(".fact_search_btn_modele").click(function(){
         var btnClass = $(this).data("class")
-            var target = $(this).data("target")
-            var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
-            var inputValue = $(this).attr("value")
-            var self = $(this)
+        var target = $(this).data("target")
+        var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
+        var inputValue = $(this).attr("value")
+        var self = $(this)
 
-            $(target).val(inputValue) ;
+        $(target).val(inputValue) ;
 
-            $(this).addClass(btnClass)
-            $(this).removeClass(currentbtnClass)
+        $(this).addClass(btnClass)
+        $(this).removeClass(currentbtnClass)
 
-            $(".fact_search_btn_modele").each(function(){
-                if (!self.is($(this))) {
-                    $(this).addClass(currentbtnClass) ; 
-                    $(this).removeClass(btnClass);
-                }
-            })
+        $(".fact_search_btn_modele").each(function(){
+            if (!self.is($(this))) {
+                $(this).addClass(currentbtnClass) ; 
+                $(this).removeClass(btnClass);
+            }
+        })
 
-            $(target).change()
+        $(target).change()
     })
 })

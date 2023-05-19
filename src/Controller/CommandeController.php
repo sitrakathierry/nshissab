@@ -56,11 +56,16 @@ class CommandeController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
+        $lastRecordBonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->findOneBy([], ['id' => 'DESC']);
+        $numBonCommande = !is_null($lastRecordBonCommande) ? ($lastRecordBonCommande->getId()+1) : 1 ;
+        $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT);
+
         return $this->render('commande/creation.html.twig', [
             "filename" => "commande",
             "titlePage" => "Création bon de commande",
             "with_foot" => true,
-            "factures" => $factures
+            "factures" => $factures,
+            "numBonCommande" => $numBonCommande
         ]);
     }
     
@@ -70,6 +75,7 @@ class CommandeController extends AbstractController
         $idF = $request->request->get('idF') ; 
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idF) ;
+        
         $infoFacture = [] ;
 
         $infoFacture["numFact"] = $facture->getNumFact() ;
