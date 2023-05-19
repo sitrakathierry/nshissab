@@ -1,0 +1,124 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{facture.numBonCommande}}</span></h4>
+    </div>
+    <div class="container-fluid px-3">   
+        <div class="row"> 
+            <div class="col-md-3 mt-3">
+                <h5 class="font-medium" >N° Facture : <span class="text-primary">{{facture.numFact|upper}}</span></h5>
+            </div>
+            <div class="col-md-3 mt-3">
+                <h5 class="font-medium" >Client : <span class="text-primary">{{facture.client|upper}}</span></h5>
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-bordered table-sm">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Type</th>
+                        <th>Désignation</th>
+                        <th>Qte/Durée</th>
+                        <th>Format</th>
+                        <th>Prix Unitaire HT</th>
+                        <th>Montant TVA</th>
+                        <th>Type Remise</th>
+                        <th>Valeur Remise</th>
+                        <th>Montant Total</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% for factureDetail in factureDetails %}
+                        <tr>
+                            <td>{{ factureDetail.type|upper }}</td>
+                            <td>{{ factureDetail.designation }}</td>
+                            <td>{{ factureDetail.quantite }}</td>
+                            <td>{{ factureDetail.format }}</td>
+                            <td>{{ factureDetail.prix }}</td>
+                            <td>{{ factureDetail.tva }}</td>
+                            <td>{{ factureDetail.typeRemise }}</td>
+                            <td>{{ factureDetail.valRemise }}</td>
+                            <td>{{ factureDetail.total }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="8">Total HT</th>
+                        <th class="bg-light">{{facture.totalHt}}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="8">Remise</th>
+                        <th class="bg-light">{{facture.remise}}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="8">Total TVA</th>
+                        <th class="bg-light">{{facture.totalTva}}</th> 
+                    </tr>
+                    <tr>
+                        <th colspan="8">Total TTC</th>
+                        <th class="bg-primary text-white">{{facture.totalTtc}}</th>
+                    </tr>
+                    {% if facture.devise %}
+                        <tr>
+                            <th colspan="8">Montant en {{facture.deviseCaption}}</th>
+                            <th class="bg-light">{{facture.deviseValue}}</th>
+                        </tr>
+                    {% endif %}
+                </tfoot>
+            </table>
+            <div class="w-100">
+                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> Francs Comorien
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                    </div>
+                    <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="{{ facture.lieu }}" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <input type="text" class="form-control cmd_date" name="cmd_date" value="{{ facture.date }}" placeholder=". . ." aria-label="Date Facture" id="cmd_date">
+                </div>
+            </div>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button onclick="history.back()" class="btn btn-sm ml-2 btn-secondary text-white"><i class="fa fa-arrow-left"></i>&nbsp;Retour</button>
+                <button type="button" class="btn btn-sm ml-2 btn-danger text-white"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
+                <button type="button" class="btn btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                <button type="submit" class="btn btn-sm ml-2 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
+            </div>
+        {% endif %} 
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

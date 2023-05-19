@@ -37,7 +37,7 @@
                     <td>{{ factureDetail.total }}</td>
                     <td class="text-center align-middle">
                         {% if factureDetail.statut is not empty %}
-                            {{factureDetail.statut}}
+                            {{factureDetail.statut|raw|upper}}
                         {% else %}
                         <button type="button" value="{{ factureDetail.id }}" class="btn btn_lvr_check btn-outline-success btn-sm font-smaller"><i class="fa fa-check"></i></button>
                         {# <button class="btn btn-outline-danger btn-sm font-smaller"><i class="fa fa-times"></i></button> #}

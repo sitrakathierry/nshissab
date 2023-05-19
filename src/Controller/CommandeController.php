@@ -272,4 +272,163 @@ class CommandeController extends AbstractController
             "bonCommandes" => $bonCommandes
         ]);
     }
+
+    #[Route('/commande/boncommande/check', name: 'cmd_check_bon_commande')]
+    public function commandeCheckBonCommande(Request $request)
+    {
+        $id = $request->request->get('id') ;
+        $bonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->find($id) ;
+        $cmdStatut = $this->entityManager->getRepository(CmdStatut::class)->findOneBy([
+            "reference" => "VLD"
+        ]) ;
+
+        $bonCommande->setStatut($cmdStatut) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."bonCommande(agence)/".$this->nameAgence ;
+        
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Bon de commande validé avec succès"
+        ]) ;
+    }
+
+    #[Route('/commande/boncommande/details/{id}', name: 'cmd_details_bon_commande', defaults: ["id" => null])]
+    public function commandeDetailsBonCommande($id)
+    {
+        $bonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->find($id) ;
+        
+        $facture = $bonCommande->getFacture() ;
+        
+        $infoFacture = [] ;
+
+        $infoFacture["numBonCommande"] = $bonCommande->getNumBonCmd() ;
+
+        $infoFacture["numFact"] = $facture->getNumFact() ;
+        $infoFacture["modele"] = $facture->getModele()->getNom() ;
+        $infoFacture["type"] = $facture->getType()->getNom() ;
+        $infoFacture["date"] = $bonCommande->getDate()->format("d/m/Y") ;
+        $infoFacture["lieu"] = $bonCommande->getLieu() ;
+
+        $infoFacture["devise"] = !is_null($facture->getDevise()) ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $infoFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $infoFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,",","")." ".$facture->getDevise()->getSymbole();
+        }
+
+        $histoPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+            "facture" => $facture
+        ]) ;
+        
+        $infoFacture["paiement"] = is_null($histoPaiement->getPaiement()) ? "-" : $histoPaiement->getPaiement()->getNom();
+        
+        if(!is_null($histoPaiement->getPaiement()))
+        {
+            $infoFacture["infoSup"] = !is_null($histoPaiement->getPaiement()->getNumCaption())  ;
+
+            if(!is_null($histoPaiement->getPaiement()->getNumCaption()))
+            {
+                $infoFacture["numeroCaption"] = $histoPaiement->getPaiement()->getNumCaption() ;
+                $infoFacture["numerovalue"] = $histoPaiement->getNumero() ;
+                $infoFacture["libelleCaption"] =  $histoPaiement->getPaiement()->getLibelleCaption() ;
+                $infoFacture["libelleValue"] = $histoPaiement->getLibelle() ;
+            }
+
+        }
+        else
+        {
+            $infoFacture["infoSup"] = false ;
+        }
+
+        if($facture->getClient()->getType()->getId() == 2)
+            $infoFacture["client"] = $facture->getClient()->getClient()->getNom() ;
+        else
+            $infoFacture["client"] = $facture->getClient()->getSociete()->getNom() ;
+        
+        $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ? "-" : $facture->getTvaVal();
+        $infoFacture["totalTtc"] = $facture->getTotal() ;
+
+        $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture
+        ]) ;
+        
+        $totalHt = 0 ;
+        $elements = [] ;
+        foreach ($factureDetails as $factureDetail) {
+            $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+            $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+            if(!is_null($factureDetail->getRemiseType()))
+            {
+                if($factureDetail->getRemiseType()->getId() == 1)
+                {
+                    $remise = ($total * $factureDetail->getRemiseVal()) / 100 ; 
+                }
+                else
+                {
+                    $remise = $factureDetail->getRemiseVal() ;
+                }
+            }
+            else
+            {
+                $remise = 0 ;
+            }
+            
+            $total = $total - $remise ;
+
+            $element = [] ;
+            $element["type"] = $factureDetail->getActivite() ;
+            $element["designation"] = $factureDetail->getDesignation() ;
+            $element["quantite"] = $factureDetail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $factureDetail->getPrix() ;
+            $element["tva"] = ($tva == 0) ? "-" : $tva ;
+            $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $factureDetail->getRemiseVal() ;
+            $element["total"] = $total ;
+            array_push($elements,$element) ;
+
+            $totalHt += $total ;
+        } 
+
+        $infoFacture["totalHt"] = $totalHt ;
+
+        if(!is_null($facture->getRemiseType()))
+        {
+            if($facture->getRemiseType()->getId() == 1)
+            {
+                $remiseG = ($totalHt * $facture->getRemiseVal()) / 100 ; 
+            }
+            else
+            {
+                $remiseG = $facture->getRemiseVal() ;
+            }
+        }
+        else
+        {
+            $remiseG = 0 ;
+        }
+        $infoFacture["remise"] = $remiseG ;
+        $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
+
+        // $response = $this->renderView('commande/commandeFactureDetails.html.twig',[
+        //     "facture" => $infoFacture,
+        //     "factureDetails" => $elements
+        // ]) ;
+        
+        return $this->render('commande/detailsBonCommande.html.twig', [
+            "filename" => "commande",
+            "titlePage" => "Détails Bon de Commande",
+            "with_foot" => true,
+            "facture" => $infoFacture,
+            "factureDetails" => $elements
+        ]) ;
+
+    }
 }

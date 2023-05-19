@@ -45,7 +45,7 @@
                         <th>Client</th>
                         <th>Désignation</th>
                         <th>Qte</th>
-                        <th>Statut</th>
+                        <th class="text-center">Statut</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -73,11 +73,18 @@
                         <td class="align-middle">{{bonLivraison.designation}}</td>
                         <td class="align-middle">{{bonLivraison.quantite}}</td>
                         {% if passeM %}
-                            <td rowspan="{{ligne}}" class="align-middle">{{bonLivraison.statut|upper}}</td>
+                            {% if bonLivraison.refStatut == "ECR" %}
+                                {% set statutClass = "text-warning" %}
+                            {% else %}
+                                {% set statutClass = "text-info" %}
+                            {% endif %}
+                            <td rowspan="{{ligne}}" class="align-middle text-center font-weight-bold {{statutClass}}">{{bonLivraison.statut|upper}}</td>
                             <td rowspan="{{ligne}}" class="align-middle text-center">
                                 <div class="d-flex flex-column align-items-center justify-content-center">
-                                    <button class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button>
-                                    <button class="btn m-1 btn-outline-info btn-sm font-smaller"><i class="fa fa-check"></i></button>
+                                    <a href="{{path('lvr_details_bon_livraison',{'id':bonLivraison.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                    {% if bonLivraison.refStatut == "ECR" %}
+                                        <button value="{{bonLivraison.id}}" class="btn lvr_btn_check m-1 btn-outline-info btn-sm font-smaller"><i class="fa fa-check"></i></button>
+                                    {% endif %}
                                 </div>
                             </td>
                             {% set passeM = false %}

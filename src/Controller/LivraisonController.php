@@ -72,6 +72,8 @@ class LivraisonController extends AbstractController
                 "source" => $bonCommande->getId(),
                 "typeSource" => "BonCommande"
             ]) ;
+
+
         }
         else
         {
@@ -79,9 +81,27 @@ class LivraisonController extends AbstractController
 
             $bonLivraisons = $this->entityManager->getRepository(LvrLivraison::class)->findBy([
                 "source" => $facture->getId(),
-                "typeSource" => "BonCommande"
+                "typeSource" => "Facture"
             ]) ;
-            
+        }
+
+        $itemLvrDetail = [] ;
+
+        if(!is_null($bonLivraisons))
+        {
+            foreach($bonLivraisons as $bonLivraison)
+            {
+                $detailsLvrs = $this->entityManager->getRepository(LvrDetails::class)->findBy([
+                    "livraison" => $bonLivraison
+                ]) ;
+                foreach($detailsLvrs as $detailsLvr)
+                {
+                    $itemLvr = [] ;
+                    $itemLvr["id"] = $detailsLvr->getFactureDetail()->getId() ;
+
+                    array_push($itemLvrDetail,$itemLvr) ; 
+                } 
+            }
         }
 
         $infoFacture = [] ;
@@ -157,6 +177,15 @@ class LivraisonController extends AbstractController
             {
                 $remise = 0 ;
             }
+            $statutDtls = "" ;
+            for ($i=0; $i < count($itemLvrDetail); $i++) { 
+                $idDtlsLvr = $itemLvrDetail[$i]["id"] ; // Id Details de Livraison
+                if($factureDetail->getId() == $idDtlsLvr)
+                {
+                    $statutDtls = '<b class="text-success">Livré</b>' ;
+                    break ;
+                }
+            } 
 
             $total = $total - $remise ;
 
@@ -170,8 +199,8 @@ class LivraisonController extends AbstractController
             $element["tva"] = ($tva == 0) ? "-" : $tva ;
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
-            $element["statut"] = "" ;
-
+            $element["statut"] = $statutDtls ;
+ 
             $element["total"] = $total ;
             array_push($elements,$element) ;
 
@@ -220,6 +249,12 @@ class LivraisonController extends AbstractController
                 $this->appService->generateCommande($filename,$this->agence) ;
 
             $bonCommandes = json_decode(file_get_contents($filename)) ;
+
+            $search = [
+                "statut" => "VLD"
+            ] ;
+    
+            $bonCommandes = $this->appService->searchData($bonCommandes,$search) ;
 
             $response = $this->renderView("commande/listCommande.html.twig",[
                 "bonCommandes" => $bonCommandes
@@ -349,7 +384,6 @@ class LivraisonController extends AbstractController
         
         return new JsonResponse($result) ;
     }
-
     
     #[Route('/livraison/activities/consultation', name: 'lvr_consultation_livraison')]
     public function lvrConsultationLivraison()
@@ -368,5 +402,84 @@ class LivraisonController extends AbstractController
             "critereDates" => $critereDates,
             "livraisons" => $livraisons
         ]); 
+    }
+
+    #[Route('/livraison/bon/check', name: 'lvr_check_bon_livraison')]
+    public function lvrCheckBonLivraison(Request $request)
+    {
+        $id = $request->request->get('id') ;
+        $bonLivraison = $this->entityManager->getRepository(LvrLivraison::class)->find($id) ;
+        $cmdStatut = $this->entityManager->getRepository(CmdStatut::class)->findOneBy([
+            "reference" => "VLD"
+        ]) ;
+
+        $bonLivraison->setStatut($cmdStatut) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."bonLivraison(agence)/".$this->nameAgence ;
+        
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Bon de livraison validé avec succès"
+        ]) ;
+    }
+
+    #[Route('/livraison/bon/details/{id}', name: 'lvr_details_bon_livraison', defaults: ["id" => null])]
+    public function lvrDetailsBonLivraison($id)
+    {
+        $bonLivraison = $this->entityManager->getRepository(LvrLivraison::class)->find($id) ;
+        if($bonLivraison->getTypeSource() == "BonCommande")
+        {
+            $bonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->find($bonLivraison->getSource()) ;
+            $numero = $bonCommande->getNumBonCmd() ;
+            $libelle = "Bon de Commande" ;
+            $client = $this->appService->getFactureClient($bonCommande->getFacture())  ;
+        }
+        else
+        {
+            $facture = $this->entityManager->getRepository(Facture::class)
+                                            ->find($bonLivraison->getSource()) ;
+                                            
+            $numero = $facture->getNumFact() ;
+            $libelle = "facture" ;
+            $client = $this->appService->getFactureClient($facture) ;
+        }
+        $livraison = [] ;
+
+        $livraison["numLivraison"] = $bonLivraison->getNumLivraison() ;
+        $livraison["libelleNum"] = $libelle ;
+        $livraison["valeurNum"] = $numero ;
+        $livraison["date"] = $bonLivraison->getDate()->format('d/m/Y') ;
+        $livraison["lieu"] = $bonLivraison->getLieu() ;
+        $livraison["client"] = $client['client'] ;
+
+        $details = [] ;
+
+        $lvrDetails = $this->entityManager->getRepository(LvrDetails::class)->findBy([
+            "livraison" => $bonLivraison
+        ]) ;
+
+        foreach ($lvrDetails as $lvrDetail) {
+            $detail = [] ;
+
+            $detail["id"] = $lvrDetail->getId() ;
+            $detail["type"] = $lvrDetail->getFactureDetail()->getActivite() ;
+            $detail["designation"] = $lvrDetail->getFactureDetail()->getDesignation() ;
+            $detail["quantite"] = $lvrDetail->getFactureDetail()->getQuantite() ;
+
+            array_push($details,$detail) ;
+        } 
+
+        return $this->render('livraison/detailsBonLivraison.html.twig', [
+            "filename" => "commande",
+            "titlePage" => "Bon de Livraison",
+            "with_foot" => true,
+            "livraison" => $livraison,
+            "details" => $details
+        ]) ;
     }
 }

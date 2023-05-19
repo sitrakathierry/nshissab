@@ -585,6 +585,7 @@ class AppService extends AbstractController
                 $element["remise"] = $factureDetail->getRemiseVal()." ".$typeRemise ;
                 $element["total"] = $total ;
                 $element["statut"] = $bonCommande->getStatut()->getNom() ;
+                $element["refStatut"] = $bonCommande->getStatut()->getreference() ;
                 $element["remiseG"] = $bonCommande->getFacture()->getRemiseVal()." ".$typeRemiseG ;
                 $element["totalTva"] = $bonCommande->getFacture()->getTvaVal() ;
                 $element["totalTtc"] = $bonCommande->getFacture()->getTotal() ;
@@ -614,6 +615,7 @@ class AppService extends AbstractController
             $element["id"] = $bonCommande->getId() ;
             $element["numBon"] = $bonCommande->getNumBonCmd() ;
             $element["client"] = $client ;
+            $element["statut"] = $bonCommande->getStatut()->getreference() ;
             $element["agence"] = $bonCommande->getAgence()->getId() ;
             array_push($elements,$element) ;
         }
@@ -803,7 +805,7 @@ class AppService extends AbstractController
             }
             
             $element = [] ;
-            $element["id"] = $lvrDetail->getId() ;
+            $element["id"] = $lvrDetail->getLivraison()->getId() ;
             $element["numBonLvr"] = $lvrDetail->getLivraison()->getNumLivraison() ;
             $element["client"] = $client ;
             $element["designation"] = $lvrDetail->getFactureDetail()->getDesignation() ;
@@ -812,6 +814,7 @@ class AppService extends AbstractController
             $element["date"] = $lvrDetail->getLivraison()->getDate()->format('d/m/Y') ;
             $element["lieu"] = $lvrDetail->getLivraison()->getLieu() ;
             $element["statut"] = $lvrDetail->getLivraison()->getStatut()->getNom() ;
+            $element["refStatut"] = $lvrDetail->getLivraison()->getStatut()->getreference() ;
             array_push($elements,$element) ;
         }
 
@@ -1041,5 +1044,16 @@ class AppService extends AbstractController
         if( substr($numberToLetter, strlen($numberToLetter)-12, 12 ) == "quatre-vingt" ) $numberToLetter .= "s";
 
         return $numberToLetter;
+    }
+
+    public function getFactureClient($facture)
+    {
+        $result = [] ;
+        if($facture->getClient()->getType()->getId() == 2)
+            $result["client"] = $facture->getClient()->getClient()->getNom() ;
+        else
+            $result["client"] = $facture->getClient()->getSociete()->getNom() ;
+
+        return $result ; 
     }
 }
