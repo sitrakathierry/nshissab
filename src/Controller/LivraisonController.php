@@ -170,6 +170,7 @@ class LivraisonController extends AbstractController
             $element["tva"] = ($tva == 0) ? "-" : $tva ;
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
+            $element["statut"] = "" ;
 
             $element["total"] = $total ;
             array_push($elements,$element) ;
