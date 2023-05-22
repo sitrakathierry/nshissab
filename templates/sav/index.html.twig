@@ -1,0 +1,81 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 py-3">
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-uppercase font-weight-bold active" id="pills-home-tab" data-toggle="pill" data-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Annulation</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-uppercase font-weight-bold" id="pills-profile-tab" data-toggle="pill" data-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Liste facture annulé</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-uppercase font-weight-bold" id="pills-contact-tab" data-toggle="pill" data-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Avoir/Credit</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="nom" class="font-weight-bold">Annulation</label>
+                        <div class="w-100 d-flex flex-row align-item-center" >
+                            <button class="btn btn-sm btn-outline-info text-uppercase">Simple</button>
+                            <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Totale</button>
+                            <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Partielle</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="nom" class="font-weight-bold">Spécification</label>
+                        <div class="w-100 d-flex flex-row align-item-center" >
+                            <button class="btn btn-sm btn-outline-primary text-uppercase">En Avoir</button>
+                            <button class="btn btn-sm ml-3 btn-outline-primary text-uppercase">avec Remboursement</button>
+                            {# <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Partielle</button> #}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="nom" class="font-weight-bold">Facture</label>
+                        <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                            <option value="">TOUS</option>
+                            {% for facture in factures %}
+                                <option value="{{facture.id}}">{{facture.numFact}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            
+            </div>
+            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            
+            </div>
+        </div>
+
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

@@ -14,7 +14,10 @@
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+        <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
+            {{titlePage}}
+            <a href="{{path('stock_general_excel_ticket')}}" class="btn-info btn-sm btn text-uppercase ml-auto font-smaller"><i class="fa fa-ticket"></i>&nbsp;Exporter tickets</a>
+        </h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <div class="row">
@@ -65,7 +68,6 @@
                             <td class="align-middle">{{stockGeneral.stock}}</td>
                             <td class="text-center align-middle">
                             <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                            <a href="{{path('stock_general_pdf_ticket',{'id':stockGeneral.id})}}" class="btn btn-sm ml-2 btn-outline-info font-smaller"><i class="fa fa-ticket"></i></a>
                             </td>
                         </tr>
                     {% endfor %}

@@ -15,6 +15,7 @@ use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\ExcelGenService;
 use App\Service\PdfGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Laminas\Diactoros\Response\RedirectResponse;
@@ -345,33 +346,29 @@ class StockController extends AbstractController
         ]);
     }
 
-    #[Route('/stock/general/ticket/pdf/{id}', name: 'stock_general_pdf_ticket', defaults: ["id" => null])]
-    public function stockPdfTicketStockGeneral(PdfGeneratorService $pdfGenerator, $id)
+    #[Route('/stock/general/ticket/excel', name: 'stock_general_excel_ticket')]
+    public function stockExcelTicketStockGeneral(ExcelGenService $excelgenerate)
     {
+        $entete = ["PRODUITS","PRIX"] ;
         $params = [] ;
-
-        $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
-
-        $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-            "produit" => $produit,
+        $produit = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
             "statut" => True
-        ]) ; 
-        
-        foreach ($variationPrix as $variationPrix) {
-            $param = [] ;
-
-            $param["code"] = $variationPrix->getProduit()->getCodeProduit() ;
-            $param["nom"] = $variationPrix->getProduit()->getNom() ;
-            $param["prix"] = $variationPrix->getPrixVente() ;
-
-            array_push($params,$param) ;
-        }
-
-        $content = $this->renderView('stock/pdf/pdfTicketStockGeneral.html.twig',[
-            "params" => $params
-        ]);
-
-        $pdfGenerator->generatePdf($content,'TICKETPRODUIT'.$id.'.pdf');
+        ]) ;
+        foreach ($produit as $produit) {
+            $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produit,
+                "statut" => True
+            ]) ; 
+            
+            foreach ($variationPrix as $variationPrix) {
+                $produitElem = $variationPrix->getProduit()->getCodeProduit()." | ".$variationPrix->getProduit()->getNom() ;
+                $prix = $variationPrix->getPrixVente() ;
+                array_push($params,[$produitElem,$prix]) ;
+            }
+        } 
+        $excelgenerate->generateExcelFile($entete,$params,'TICKET_PRODUITS.xlsx') ;
+        return new Response("") ;
     }
     
     #[Route('/stock/general/search', name: 'stock_search_stock_general')]

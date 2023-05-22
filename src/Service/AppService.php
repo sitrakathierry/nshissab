@@ -9,6 +9,7 @@ use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\Facture;
 use App\Entity\LvrDetails;
+use App\Entity\LvrLivraison;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
 use App\Entity\PrdCategories;
@@ -615,6 +616,7 @@ class AppService extends AbstractController
             $element["id"] = $bonCommande->getId() ;
             $element["numBon"] = $bonCommande->getNumBonCmd() ;
             $element["client"] = $client ;
+            $element["facture"] = $bonCommande->getFacture()->getId() ;
             $element["statut"] = $bonCommande->getStatut()->getreference() ;
             $element["agence"] = $bonCommande->getAgence()->getId() ;
             array_push($elements,$element) ;
@@ -726,7 +728,7 @@ class AppService extends AbstractController
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $agence
         ]) ; 
-        
+
         $elements = [] ;
 
         foreach ($factures as $facture) {
@@ -807,6 +809,8 @@ class AppService extends AbstractController
             $element = [] ;
             $element["id"] = $lvrDetail->getLivraison()->getId() ;
             $element["numBonLvr"] = $lvrDetail->getLivraison()->getNumLivraison() ;
+            $element["source"] = $lvrDetail->getLivraison()->getSource() ;
+            $element["typeSource"] = $lvrDetail->getLivraison()->getTypeSource() ;
             $element["client"] = $client ;
             $element["designation"] = $lvrDetail->getFactureDetail()->getDesignation() ;
             $element["quantite"] = $lvrDetail->getFactureDetail()->getQuantite() ;

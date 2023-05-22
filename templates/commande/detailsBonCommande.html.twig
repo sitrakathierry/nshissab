@@ -10,11 +10,24 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/consultation.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{facture.numBonCommande}}</span></h4>
+        <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
+        {{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{facture.numBonCommande}}</span>
+        {% if facture.refStatut == "ECR" %}
+                {% set statutClass = "text-warning" %}
+        {% else %}
+                {% set statutClass = "text-info" %}
+        {% endif %}
+        <span class="ml-auto {{statutClass}} font-weight-bold">{{facture.statut|upper}}</span>
+        {% if facture.refStatut == "ECR" %}
+            &nbsp;|&nbsp;
+            <button value="{{facture.id}}" class="btn btn-outline-info cmd_btn_check btn-sm font-smaller"><i class="fa fa-check"></i>&nbsp;Valider</button>
+        {% endif %}
+        </h4>
     </div>
     <div class="container-fluid px-3">   
         <div class="row"> 

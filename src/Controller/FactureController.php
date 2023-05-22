@@ -15,6 +15,7 @@ use App\Entity\FactType;
 use App\Entity\Facture;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\ExcelGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -73,7 +74,6 @@ class FactureController extends AbstractController
         
         $stockGenerales = json_decode(file_get_contents($filename)) ;
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
-
 
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",

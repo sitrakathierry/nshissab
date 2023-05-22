@@ -240,6 +240,12 @@ class LivraisonController extends AbstractController
     {
         $source = $request->request->get('source') ; 
         
+        // Chargement du bon de livraison
+        $filename = $this->filename."bonLivraison(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateBonLivraison($filename,$this->agence) ;
+        $bonLivraisons = json_decode(file_get_contents($filename)) ;
+
         if($source == "BonCommande") // Bon de commande
         {
             $filename = "files/systeme/commande/commande(agence)/".$this->nameAgence ;
@@ -272,7 +278,7 @@ class LivraisonController extends AbstractController
             $search = [
                 "numFact" => "DF"
             ] ;
-    
+                
             $factures = $this->appService->searchData($factures,$search) ;
 
             $response = $this->renderView("commande/listFacture.html.twig",[
@@ -394,6 +400,18 @@ class LivraisonController extends AbstractController
         $livraisons = json_decode(file_get_contents($filename)) ;
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
+
+        $groupedData = array();
+
+        foreach ($livraisons as $item) {
+            $key = $item->source . '|' . $item->typeSource;
+            if (!isset($groupedData[$key])) {
+                $groupedData[$key] = array();
+            }
+            $groupedData[$key][] = $item;
+        }
+
+        dd($groupedData) ;
 
         return $this->render('livraison/consultation.html.twig', [
             "filename" => "livraison",

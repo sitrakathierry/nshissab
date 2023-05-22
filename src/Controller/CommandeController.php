@@ -60,11 +60,39 @@ class CommandeController extends AbstractController
         $numBonCommande = !is_null($lastRecordBonCommande) ? ($lastRecordBonCommande->getId()+1) : 1 ;
         $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT);
 
+        $filename = "files/systeme/commande/commande(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+        if(!file_exists($filename))
+            $this->appService->generateCommande($filename,$this->agence) ;
+
+        $bonCommandes = json_decode(file_get_contents($filename)) ;
+
+        $dataFactures = [] ;
+
+        foreach($factures as $facture)
+        {
+            $passe = False ;
+            foreach($bonCommandes as $bonCommande)
+            {
+                if($bonCommande->facture == $facture->id)
+                {
+                    $passe = True ;
+                    break;
+                }
+            }
+
+            if(!$passe)
+            {
+                array_push($dataFactures,$facture) ;
+            }
+        }
+
         return $this->render('commande/creation.html.twig', [
             "filename" => "commande",
             "titlePage" => "Création bon de commande",
             "with_foot" => true,
-            "factures" => $factures,
+            "factures" => $dataFactures,
             "numBonCommande" => $numBonCommande
         ]);
     }
@@ -308,6 +336,9 @@ class CommandeController extends AbstractController
 
         $infoFacture["numBonCommande"] = $bonCommande->getNumBonCmd() ;
 
+        $infoFacture["id"] = $id ;
+        $infoFacture["statut"] = $bonCommande->getStatut()->getNom() ;
+        $infoFacture["refStatut"] = $bonCommande->getStatut()->getReference() ;
         $infoFacture["numFact"] = $facture->getNumFact() ;
         $infoFacture["modele"] = $facture->getModele()->getNom() ;
         $infoFacture["type"] = $facture->getType()->getNom() ;
@@ -424,7 +455,7 @@ class CommandeController extends AbstractController
         
         return $this->render('commande/detailsBonCommande.html.twig', [
             "filename" => "commande",
-            "titlePage" => "Détails Bon de Commande",
+            "titlePage" => "Bon de Commande",
             "with_foot" => true,
             "facture" => $infoFacture,
             "factureDetails" => $elements
