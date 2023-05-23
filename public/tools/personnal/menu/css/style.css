@@ -215,6 +215,19 @@ background-color: #ecb534 !important;
     height: 80px;
 }
 
+.btn-outline-purple
+{
+  color: var(--purple);
+  border-color: var(--purple);
+}
+
+.btn-outline-purple:hover
+{
+  color: #fff;
+  background-color: var(--purple) ;
+  border-color: var(--purple) ;
+}
+
 .btn-purple
 {
   color: white;

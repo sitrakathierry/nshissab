@@ -31,6 +31,16 @@
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                 <div class="row">
+                    <div class="col-md-3">
+                        <label for="sav_facture" class="font-weight-bold">Facture</label>
+                        <select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
+                            <option value="">-</option>
+                            {% for facture in factures %}
+                                <option value="{{facture.id}}">{{facture.numFact}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-1"></div>
                     <div class="col-md-4">
                         <label for="nom" class="font-weight-bold">Annulation</label>
                         <div class="w-100 d-flex flex-row align-item-center" >
@@ -47,33 +57,126 @@
                             {# <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Partielle</button> #}
                         </div>
                     </div>
+                </div>
+                <div class="row mt-3">
                     <div class="col-md-3">
-                        <label for="nom" class="font-weight-bold">Facture</label>
-                        <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
-                            <option value="">TOUS</option>
-                            {% for facture in factures %}
-                                <option value="{{facture.id}}">{{facture.numFact}}</option>
-                            {% endfor %}
+                        <label for="sav_motifs" class="font-weight-bold">Motifs</label>
+                        <select name="sav_motifs" class="custom-select chosen_select custom-select-sm" id="sav_motifs">
+                            <option value="">-</option>
+                            <option value="">{{"Erreur"|upper}}</option>
+                            <option value="">{{"Mécontentement"|upper}}</option>
+                            <option value="">...</option>
                         </select>
                     </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-4">
+                                <label for="nom" class="font-weight-bold">Pourcentage</label>
+                                <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div class="w-100 mt-3">
+                    <label for="nom" class="font-weight-bold text-uppercase">Explication</label>
+                    <textarea name="facture_editor" class="form-control sav_annule_editor" id="" cols="10" rows="5"></textarea>
+                </div>
+                <div class="container-fluid elem_sav_facture mt-4">
+            
+                </div>
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                        </div>
+                        <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+                    </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5"> 
+                        <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                            </div>
+                            <input type="text" class="form-control cmd_date" name="cmd_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="cmd_date">
+                        </div>
+                    </div>
+                </div>
+                {% if with_foot %}
+                    <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                        <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                        <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                    </div>
+                {% endif %} 
+            </div>
 
-            </div>
+            {# LISTE FACTURE ANNULEE #}
+
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-            
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Facture</th>
+                                <th>Annulation</th>
+                                <th>Specification</th>
+                                <th>Motif</th>
+                                <th>Pourcentage</th>
+                                <th>Lieu</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td class="text-center align-middle">
+                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {# AVOIR / CREDIT  #}
+
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-            
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Client</th>
+                                <th>Montant</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>-</td>
+                                <td>-</td>
+                                <td class="text-center align-middle">
+                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-            </div>
-        {% endif %} 
     </div>
 </div>
 {% endblock %}

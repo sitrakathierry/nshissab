@@ -58,6 +58,19 @@
     border-color: #179d82;
   }
 
+  .btn-outline-purple
+  {
+    color: var(--purple);
+    border-color: var(--purple);
+  }
+
+  .btn-outline-purple:hover
+  {
+    color: #fff;
+    background-color: var(--purple) ;
+    border-color: var(--purple) ;
+  }
+
   .btn-purple
   {
     color: white;
