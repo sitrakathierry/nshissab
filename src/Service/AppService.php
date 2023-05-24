@@ -55,8 +55,12 @@ class AppService extends AbstractController
         $this->encoder = $encoder ; 
         $this->urlGenerator = $urlGenerator ;
         $this->user = $this->session->get("user") ;
-        $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
-        $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
+        if(!is_null($this->user))
+        {
+            $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
+            $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
+        }
+            
     }
     
     public function getHappyMessage(): string
