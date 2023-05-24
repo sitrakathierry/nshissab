@@ -2,6 +2,7 @@ $(document).ready(function(){
     var cmd_creation_description = new LineEditor(".lvr_creation_description") ;
     var instance = new Loading(files.loading)
     $("#lvr_date").datepicker()
+    
     $("#lvr_val_source").chosen({
         no_results_text: "Aucun resultat trouvé : "
     }); 

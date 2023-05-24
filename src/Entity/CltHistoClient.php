@@ -42,9 +42,13 @@ class CltHistoClient
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Facture::class)]
     private Collection $factures;
 
+    #[ORM\OneToMany(mappedBy: 'client', targetEntity: SavAnnulation::class)]
+    private Collection $savAnnulations;
+
     public function __construct()
     {
         $this->factures = new ArrayCollection();
+        $this->savAnnulations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -172,6 +176,36 @@ class CltHistoClient
             // set the owning side to null (unless already changed)
             if ($facture->getClient() === $this) {
                 $facture->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavAnnulation>
+     */
+    public function getSavAnnulations(): Collection
+    {
+        return $this->savAnnulations;
+    }
+
+    public function addSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if (!$this->savAnnulations->contains($savAnnulation)) {
+            $this->savAnnulations->add($savAnnulation);
+            $savAnnulation->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if ($this->savAnnulations->removeElement($savAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($savAnnulation->getClient() === $this) {
+                $savAnnulation->setClient(null);
             }
         }
 

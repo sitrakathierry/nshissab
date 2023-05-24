@@ -79,11 +79,15 @@ class Facture
     #[ORM\ManyToOne(inversedBy: 'factures')]
     private ?Devise $devise = null;
 
+    #[ORM\OneToMany(mappedBy: 'facture', targetEntity: SavAnnulation::class)]
+    private Collection $savAnnulations;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
         $this->factDetails = new ArrayCollection();
         $this->cmdBonCommandes = new ArrayCollection();
+        $this->savAnnulations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -393,6 +397,36 @@ class Facture
     public function setDevise(?Devise $devise): self
     {
         $this->devise = $devise;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavAnnulation>
+     */
+    public function getSavAnnulations(): Collection
+    {
+        return $this->savAnnulations;
+    }
+
+    public function addSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if (!$this->savAnnulations->contains($savAnnulation)) {
+            $this->savAnnulations->add($savAnnulation);
+            $savAnnulation->setFacture($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if ($this->savAnnulations->removeElement($savAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($savAnnulation->getFacture() === $this) {
+                $savAnnulation->setFacture(null);
+            }
+        }
 
         return $this;
     }

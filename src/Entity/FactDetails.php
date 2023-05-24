@@ -48,9 +48,16 @@ class FactDetails
     #[ORM\OneToMany(mappedBy: 'factureDetail', targetEntity: LvrDetails::class)]
     private Collection $lvrDetails;
 
+    #[ORM\OneToMany(mappedBy: 'factureDetail', targetEntity: SavDetails::class)]
+    private Collection $savDetails;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $statut = null;
+
     public function __construct()
     {
         $this->lvrDetails = new ArrayCollection();
+        $this->savDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -204,6 +211,48 @@ class FactDetails
                 $lvrDetail->setFactureDetail(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavDetails>
+     */
+    public function getSavDetails(): Collection
+    {
+        return $this->savDetails;
+    }
+
+    public function addSavDetail(SavDetails $savDetail): self
+    {
+        if (!$this->savDetails->contains($savDetail)) {
+            $this->savDetails->add($savDetail);
+            $savDetail->setFactureDetail($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavDetail(SavDetails $savDetail): self
+    {
+        if ($this->savDetails->removeElement($savDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($savDetail->getFactureDetail() === $this) {
+                $savDetail->setFactureDetail(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isStatut(): ?bool
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?bool $statut): self
+    {
+        $this->statut = $statut;
 
         return $this;
     }

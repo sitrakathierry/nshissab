@@ -153,6 +153,7 @@ class LivraisonController extends AbstractController
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
         $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "statut" => True,
             "facture" => $facture
         ]) ;
         
@@ -411,7 +412,7 @@ class LivraisonController extends AbstractController
             $groupedData[$key][] = $item;
         }
 
-        dd($groupedData) ;
+        // dd($groupedData) ;
 
         return $this->render('livraison/consultation.html.twig', [
             "filename" => "livraison",

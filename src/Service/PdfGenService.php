@@ -2,7 +2,7 @@
 
 namespace App\Service;
 use Dompdf\Dompdf;
-class PdfGeneratorService
+class PdfGenService
 {
     private $pdf;
 

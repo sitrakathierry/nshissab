@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Agence;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\CmdBonCommande;
@@ -18,6 +19,9 @@ use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdPreferences;
 use App\Entity\Produit;
+use App\Entity\SavAnnulation;
+use App\Entity\SavDetails;
+use App\Entity\SavMotif;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,6 +43,9 @@ class AppService extends AbstractController
     private $session ;
     private $encoder ; 
     private $urlGenerator ;
+    private $user ;
+    private $agence ;
+    private $nameAgence ;
     public function __construct(SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder, UrlGeneratorInterface $urlGenerator)
     {
         $this->router = $router ;
@@ -47,6 +54,9 @@ class AppService extends AbstractController
         $this->session = $session ;
         $this->encoder = $encoder ; 
         $this->urlGenerator = $urlGenerator ;
+        $this->user = $this->session->get("user") ;
+        $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
+        $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
     }
     
     public function getHappyMessage(): string
@@ -540,6 +550,7 @@ class AppService extends AbstractController
 
         foreach ($bonCommandes as $bonCommande) {
             $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "statut" => True,
                 "facture" => $bonCommande->getFacture()
             ]) ;
 
@@ -726,6 +737,7 @@ class AppService extends AbstractController
     public function generateFacture($filename, $agence)
     {
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
+            "statut" => True,
             "agence" => $agence
         ]) ; 
 
@@ -819,6 +831,62 @@ class AppService extends AbstractController
             $element["lieu"] = $lvrDetail->getLivraison()->getLieu() ;
             $element["statut"] = $lvrDetail->getLivraison()->getStatut()->getNom() ;
             $element["refStatut"] = $lvrDetail->getLivraison()->getStatut()->getreference() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function genererSavMotif($filename, $agence)
+    {
+        $motifs = $this->entityManager->getRepository(SavMotif::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($motifs as $motif) {
+            $element = [] ;
+            $element["id"] = $motif->getId() ;
+            $element["agence"] = $motif->getAgence()->getId() ;
+            $element["nom"] = $motif->getNom() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateSavAnnulation($filename, $agence)
+    {
+        $annulations = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($annulations as $annulation) {
+
+            $facture = $annulation->getFacture() ;
+            $client = $this->getFactureClient($facture) ;
+
+            $element = [] ;
+            $element["id"] = $annulation->getId() ;
+            $element["agence"] = $annulation->getAgence()->getId() ;
+            $element["user"] = $annulation->getUser()->getId() ;
+            $element["date"] = $annulation->getDate()->format('d/m/Y') ;
+            $element["lieu"] = $annulation->getLieu() ;
+            $element["facture"] = $annulation->getNumFact() ;
+            $element["client"] = $client["client"] ;
+            $element["idC"] = $facture->getClient()->getId() ;
+            $element["type"] = $annulation->getType()->getNom() ;
+            $element["motif"] = $annulation->getMotif()->getNom()  ;
+            $element["spec"] = $annulation->getSpecification()->getNom() ;
+            $element["refSpec"] = $annulation->getSpecification()->getReference() ;
+            $element["pourcentage"] = $annulation->getPourcentage() ;
+            $element["montant"] = $annulation->getMontant() ;
+
             array_push($elements,$element) ;
         }
 
@@ -1048,6 +1116,52 @@ class AppService extends AbstractController
         if( substr($numberToLetter, strlen($numberToLetter)-12, 12 ) == "quatre-vingt" ) $numberToLetter .= "s";
 
         return $numberToLetter;
+    }
+
+    public function homeRefreshAllFiles($key)
+    {
+        $racine = "files/systeme/" ;
+
+        $files = [
+            "caisse" => [
+                "commande(agence)",
+                "panierCommande(agence)"
+            ],
+            "commande" => [
+                "bonCommande(agence)",
+                "commande(agence)"
+            ],
+            "facture" => [
+                "facture(agence)",
+                "factureParent"
+            ],
+            "livraison" => [
+                "bonLivraison(agence)"
+            ],
+            "parametres" => [
+                "general(agence)",
+                "produitTypeTva(agence)"
+            ],
+            "sav" => [
+                "annulation(agence)",
+                "motif(agence)"
+            ],
+            "stock" => [
+                "approvisionnement(agence)",
+                "categorie(agence)",
+                "entrepot(agence)",
+                "fournisseur(agence)",
+                "produit(agence)",
+                "stock_entrepot(agence)",
+                "stock_general(agence)"
+            ]
+        ];
+
+        foreach ($files[$key] as $file) {
+            $filename = $racine.$key."/".$file."/".$this->nameAgence ;
+            if(file_exists($filename))
+                unlink($filename) ;
+        }
     }
 
     public function getFactureClient($facture)

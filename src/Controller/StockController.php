@@ -775,7 +775,8 @@ class StockController extends AbstractController
 
         $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($id) ;
 
-        $this->entityManager->remove($entrepot);
+        $entrepot->setStatut(False) ;
+        // $this->entityManager->remove($entrepot);
         $this->entityManager->flush();
 
         $this->appService->generateStockEntrepot($this->filename."entrepot(agence)/".$this->nameAgence,$this->agence) ;

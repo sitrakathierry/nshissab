@@ -106,6 +106,15 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LvrDetails::class)]
     private Collection $lvrDetails;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: SavAnnulation::class)]
+    private Collection $savAnnulations;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: SavMotif::class)]
+    private Collection $savMotifs;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: SavDetails::class)]
+    private Collection $savDetails;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -126,6 +135,9 @@ class Agence
         $this->cmdBonCommandes = new ArrayCollection();
         $this->lvrLivraisons = new ArrayCollection();
         $this->lvrDetails = new ArrayCollection();
+        $this->savAnnulations = new ArrayCollection();
+        $this->savMotifs = new ArrayCollection();
+        $this->savDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -810,6 +822,96 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($lvrDetail->getAgence() === $this) {
                 $lvrDetail->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavAnnulation>
+     */
+    public function getSavAnnulations(): Collection
+    {
+        return $this->savAnnulations;
+    }
+
+    public function addSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if (!$this->savAnnulations->contains($savAnnulation)) {
+            $this->savAnnulations->add($savAnnulation);
+            $savAnnulation->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if ($this->savAnnulations->removeElement($savAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($savAnnulation->getAgence() === $this) {
+                $savAnnulation->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavMotif>
+     */
+    public function getSavMotifs(): Collection
+    {
+        return $this->savMotifs;
+    }
+
+    public function addSavMotif(SavMotif $savMotif): self
+    {
+        if (!$this->savMotifs->contains($savMotif)) {
+            $this->savMotifs->add($savMotif);
+            $savMotif->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavMotif(SavMotif $savMotif): self
+    {
+        if ($this->savMotifs->removeElement($savMotif)) {
+            // set the owning side to null (unless already changed)
+            if ($savMotif->getAgence() === $this) {
+                $savMotif->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavDetails>
+     */
+    public function getSavDetails(): Collection
+    {
+        return $this->savDetails;
+    }
+
+    public function addSavDetail(SavDetails $savDetail): self
+    {
+        if (!$this->savDetails->contains($savDetail)) {
+            $this->savDetails->add($savDetail);
+            $savDetail->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavDetail(SavDetails $savDetail): self
+    {
+        if ($this->savDetails->removeElement($savDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($savDetail->getAgence() === $this) {
+                $savDetail->setAgence(null);
             }
         }
 

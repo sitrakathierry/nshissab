@@ -23,13 +23,29 @@ $(document).ready(function(){
             dataType: 'json',
             success: function(resp){
                 realinstance.close()
-                var optionsPrix = '<option value=""></option>' ;
-                resp.forEach(elem => {
-                    optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
-                });
+                if(resp.produitPrix.length > 1)
+                {
+                    var optionsPrix = '<option value=""></option>' ;
+                    resp.produitPrix.forEach(elem => {
+                        optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
+                    });
+                    $("#caisse_search_prix").html(optionsPrix)
+                    $("#caisse_search_prix").trigger("chosen:updated"); 
+                }
+                else
+                {
+                    var optionsPrix = '<option value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
+                    $("#caisse_search_prix").html(optionsPrix)
+                    $("#caisse_search_prix").trigger("chosen:updated"); 
+                    $("#caisse_search_prix").change()
+                }
+
+                // var optionsPrix = '<option value=""></option>' ;
+                // resp.forEach(elem => {
+                //     optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
+                // });
                 
-                $("#caisse_search_prix").html(optionsPrix)
-                $("#caisse_search_prix").trigger("chosen:updated"); 
+                
 
             },
             error: function(resp){

@@ -153,6 +153,7 @@ class CommandeController extends AbstractController
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
         $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "statut" => True,
             "facture" => $facture
         ]) ;
         
@@ -386,6 +387,7 @@ class CommandeController extends AbstractController
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
         $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "statut" => True,
             "facture" => $facture
         ]) ;
         

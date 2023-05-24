@@ -36,7 +36,7 @@
                     <td>{{ factureDetail.valRemise }}</td>
                     <td>{{ factureDetail.total }}</td>
                     <td class="align-midlle text-center">
-                        <button class="btn btn-sm btn-outline-purple font-smaller"><i class="fa fa-hand-pointer"></i></button>
+                        <button type="button" value="{{factureDetail.id}}" class="btn btn-sm btn-outline-purple btn_anl_check font-smaller"><i class="fa fa-hand-pointer"></i></button>
                     </td>
                 </tr>
             {% endfor %}

@@ -30,91 +30,93 @@
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="sav_facture" class="font-weight-bold">Facture</label>
-                        <select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
-                            <option value="">-</option>
-                            {% for facture in factures %}
-                                <option value="{{facture.id}}">{{facture.numFact}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-md-4">
-                        <label for="nom" class="font-weight-bold">Annulation</label>
-                        <div class="w-100 d-flex flex-row align-item-center" >
-                            <button class="btn btn-sm btn-outline-info text-uppercase">Simple</button>
-                            <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Totale</button>
-                            <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Partielle</button>
+                <form id="formAnnulation" >
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="sav_facture" class="font-weight-bold">Facture</label>
+                            <select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
+                                <option value="">-</option>
+                                {% for facture in factures %}
+                                    <option value="{{facture.id}}">{{facture.numFact}}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="nom" class="font-weight-bold">Spécification</label>
-                        <div class="w-100 d-flex flex-row align-item-center" >
-                            <button class="btn btn-sm btn-outline-primary text-uppercase">En Avoir</button>
-                            <button class="btn btn-sm ml-3 btn-outline-primary text-uppercase">avec Remboursement</button>
-                            {# <button class="btn btn-sm ml-3 btn-outline-info text-uppercase">Partielle</button> #}
+                        <div class="col-md-1"></div>
+                        <div class="col-md-3">
+                            <label for="nom" class="font-weight-bold">Annulation</label>
+                            <div class="w-100 d-flex flex-row align-item-center" >
+                                {% for type in types %}
+                                    <button type="button" value="{{type.id}}" data-target="#sav_type_annule" data-reference="{{type.reference}}" data-class="btn-info" class="btn btn-sm ml-3 sav_btn_type btn-outline-info text-uppercase">{{type.nom|upper}}</button> 
+                                {% endfor %}
+                                <input type="hidden" id="sav_type_annule" name="sav_type_annule">
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-3">
-                        <label for="sav_motifs" class="font-weight-bold">Motifs</label>
-                        <select name="sav_motifs" class="custom-select chosen_select custom-select-sm" id="sav_motifs">
-                            <option value="">-</option>
-                            <option value="">{{"Erreur"|upper}}</option>
-                            <option value="">{{"Mécontentement"|upper}}</option>
-                            <option value="">...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <div class="col-md-1"></div>
-                            <div class="col-md-4">
-                                <label for="nom" class="font-weight-bold">Pourcentage</label>
-                                <input type="number" name="nom" id="nom" class="form-control" placeholder=". . .">
+                        <div class="col-md-5">
+                            <label for="nom" class="font-weight-bold">Spécification</label>
+                            <div class="w-100 d-flex flex-row align-item-center" >
+                                {% for spec in specs %}
+                                    <button type="button" value="{{spec.id}}" data-target="#sav_val_spec" data-reference="{{spec.reference}}" data-class="btn-primary"  class="btn btn-sm ml-3 sav_btn_spec btn-outline-primary text-uppercase">{{spec.nom|upper}}</button> 
+                                {% endfor %}
+                                <input type="hidden" id="sav_val_spec" name="sav_val_spec">
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="w-100 mt-3">
-                    <label for="nom" class="font-weight-bold text-uppercase">Explication</label>
-                    <textarea name="facture_editor" class="form-control sav_annule_editor" id="" cols="10" rows="5"></textarea>
-                </div>
-                <div class="container-fluid elem_sav_facture mt-4">
-            
-                </div>
-                <div class="row">
-                    <div class="col-md-7"></div>
-                    <div class="col-md-5"> 
-                    <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <label for="sav_motifs" class="font-weight-bold">Motifs</label>
+                            <select name="sav_motifs" class="custom-select chosen_select custom-select-sm" id="sav_motifs">
+                                <option value="">-</option>
+                                {% for motif in motifs %}
+                                    <option value="{{motif.id}}">{{motif.nom}}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-3">
+                            <div class="content_percent">
+                                <label for="sav_percent" class="font-weight-bold">Pourcentage</label>
+                                <input type="number" step="any" name="sav_percent" id="sav_percent" class="form-control" placeholder=". . .">
+                            </div>  
+                        </div>
                     </div>
+                    <div class="w-100 pt-3">
+                        <label for="sav_annule_editor" class="font-weight-bold text-uppercase">Explication</label>
+                        <textarea name="sav_annule_editor" class="form-control sav_annule_editor" cols="10" rows="5"></textarea>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-7"></div>
-                    <div class="col-md-5"> 
-                        <label for="nom" class="mt-1 font-weight-bold">Le,</label>
-                        <div class="input-group mb-3">
+                    <div class="container-fluid elem_sav_facture mt-4">
+                
+                    </div>
+                    <div class="row">
+                        <div class="col-md-7"></div>
+                        <div class="col-md-5"> 
+                        <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                        <div class="input-group mb-2">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
                             </div>
-                            <input type="text" class="form-control cmd_date" name="cmd_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="cmd_date">
+                            <input type="text" class="form-control sav_lieu" name="sav_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="sav_lieu">
+                        </div>
                         </div>
                     </div>
-                </div>
-                {% if with_foot %}
-                    <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                        <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                        <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                    <div class="row">
+                        <div class="col-md-7"></div>
+                        <div class="col-md-5"> 
+                            <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                                </div>
+                                <input type="text" class="form-control sav_date" name="sav_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="sav_date">
+                            </div>
+                        </div>
                     </div>
-                {% endif %} 
+                    {% if with_foot %}
+                        <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                            <button type="button" onclick="location.reload()" class="btn btn-sm btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                            <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                        </div>
+                    {% endif %} 
+                </form>
             </div>
 
             {# LISTE FACTURE ANNULEE #}
@@ -130,25 +132,29 @@
                                 <th>Annulation</th>
                                 <th>Specification</th>
                                 <th>Motif</th>
-                                <th>Pourcentage</th>
                                 <th>Lieu</th>
+                                <th>Pourcentage</th>
+                                <th>Montant</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
-                                </td>
-                            </tr>
+                            {% for annulation in annulations %}
+                                <tr>
+                                    <td>{{annulation.date}}</td>
+                                    <td>{{annulation.facture}}</td>
+                                    <td>{{annulation.client|upper}}</td>
+                                    <td>{{annulation.type|upper}}</td>
+                                    <td>{{annulation.spec|upper}}</td>
+                                    <td>{{annulation.motif}}</td>
+                                    <td>{{annulation.lieu}}</td>
+                                    <td>{{annulation.pourcentage}}</td>
+                                    <td>{{annulation.montant}}</td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -167,13 +173,15 @@
                             </tr>
                         </thead>
                         <tbody>
+                        {% for avoir in avoirs %}
                             <tr>
-                                <td>-</td>
-                                <td>-</td>
+                                <td>{{avoir.client|upper}}</td>
+                                <td>{{avoir.montant}}</td>
                                 <td class="text-center align-middle">
                                     <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
                                 </td>
                             </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

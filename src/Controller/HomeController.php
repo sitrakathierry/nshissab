@@ -40,4 +40,14 @@ class HomeController extends AbstractController
             
         ]);
     }
+
+    /**
+     * @Route("/home/refresh/{key}", name="home_refresh")
+     */
+    public function refreshFile($key)
+    {
+        $this->appService->homeRefreshAllFiles($key) ;
+
+        return $this->redirectToRoute('app_home');
+    }
 }
