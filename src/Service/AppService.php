@@ -875,6 +875,22 @@ class AppService extends AbstractController
             $facture = $annulation->getFacture() ;
             $client = $this->getFactureClient($facture) ;
 
+            $total = $annulation->getMontant() ;
+
+            $retenu = 0 ;
+            if($annulation->getPourcentage() == 0)
+            {
+                $retenu = "-" ;
+                $signe = "" ;
+                $remboursee = $annulation->getMontant() ;
+            }
+            else
+            {
+                $retenu = ($annulation->getMontant() * $annulation->getPourcentage()) / 100 ;
+                $signe = "(".$annulation->getPourcentage()."%)" ;
+                $remboursee = $annulation->getMontant() - $retenu ;
+            }
+
             $element = [] ;
             $element["id"] = $annulation->getId() ;
             $element["agence"] = $annulation->getAgence()->getId() ;
@@ -888,8 +904,10 @@ class AppService extends AbstractController
             $element["motif"] = $annulation->getMotif()->getNom()  ;
             $element["spec"] = $annulation->getSpecification()->getNom() ;
             $element["refSpec"] = $annulation->getSpecification()->getReference() ;
-            $element["pourcentage"] = $annulation->getPourcentage() ;
-            $element["montant"] = $annulation->getMontant() ;
+            $element["total"] = $total ;
+            $element["retenu"] = $retenu ;
+            $element["signe"] = $signe ;
+            $element["remboursee"] = $remboursee ;
 
             array_push($elements,$element) ;
         }
@@ -1006,7 +1024,7 @@ class AppService extends AbstractController
 
     // U est l'unité de la partie entière
     // D est l'unité de la partie décimale
-    public function NumberToLetter( $nombre, $U = null, $D = null) 
+    public function NumberToLetter($nombre, $U = null, $D = null) 
     {
         $toLetter = [
             0 => "zéro",

@@ -63,7 +63,8 @@ class SAVController extends AbstractController
         ] ;
             
         $factures = $this->appService->searchData($factures,$search) ;
-
+        
+        
         $types = $this->entityManager->getRepository(SavType::class)->findAll() ;
 
         $specs = $this->entityManager->getRepository(SavSpec::class)->findAll() ;
@@ -105,10 +106,10 @@ class SAVController extends AbstractController
         $avoirs = [] ;
         foreach ($tableauRegroupe as $key => $value) {
             $item = [] ;
-            $item["montant"] = 0 ;
+            $item["remboursee"] = 0 ;
             foreach ($tableauRegroupe[$key] as $element) {
                 $item["client"] = $element->client ;
-                $item["montant"] += $element->montant ;
+                $item["remboursee"] += floatval($element->remboursee) ;
             }
             array_push($avoirs,$item) ;
         } 
@@ -125,7 +126,7 @@ class SAVController extends AbstractController
             "avoirs" => $avoirs
         ]);
     }
-    
+     
     #[Route('/sav/creation/motif', name: 'sav_creation_motif')]
     public function savCreationMotif()
     {
@@ -403,15 +404,39 @@ class SAVController extends AbstractController
             "facture" => $facture
         ]);
 
-
-        $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
-        $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+        $specification = $this->entityManager->getRepository(SavSpec::class)->find($sav_val_spec) ;
         $numTrueFacture = explode("/",$facture->getNumFact()) ;
-        $numAnnulation = $numTrueFacture[0]."/".$numTrueFacture[1]."/ANL-".$numAnnulation ;
+        if($specification->getReference() == "RMB")
+        {
+            $numAnnulation = $numTrueFacture[0]."/".$numTrueFacture[1]."/RTN" ;
+        }
+        else
+        {
+            $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
+            $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+            $numAnnulation = $numTrueFacture[0]."/".$numTrueFacture[1]."/ANL-".$numAnnulation ;
+        }
+        
 
         $type = $this->entityManager->getRepository(SavType::class)->find($sav_type_annule) ;
         $motif = $this->entityManager->getRepository(SavMotif::class)->find($sav_motifs) ;
-        $specification = $this->entityManager->getRepository(SavSpec::class)->find($sav_val_spec) ;
+        
+
+        if($specification->getReference() == "RMB")
+        {
+            $data = [
+                $sav_percent,
+            ];
+
+            $dataMessage = [
+                "Pourcentage",
+            ] ;
+
+            $result = $this->appService->verificationElement($data,$dataMessage) ;
+            
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+        }
 
         $facture->setNumFact($numAnnulation) ;
         if($type->getreference() == "TOT")
@@ -520,4 +545,103 @@ class SAVController extends AbstractController
         return new JsonResponse($result) ;
     }
 
+    #[Route('/sav/annulation/details/{id}', name: 'sav_details_annulation')]
+    public function savDetailsAnnulation($id)
+    {
+        $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
+        $facture = $annulation->getFacture() ;
+        $client = ($this->appService->getFactureClient($facture))["client"] ;
+        $type = $annulation->getType()->getNom() ;
+        $spec = $annulation->getSpecification()->getNom() ;
+
+        $total = $annulation->getMontant() ;
+
+        $retenu = 0 ;
+        if($annulation->getPourcentage() == 0)
+        {
+            $retenu = "-" ;
+            $signe = "" ;
+            $remboursee = $annulation->getMontant() ;
+        }
+        else
+        {
+            $retenu = ($annulation->getMontant() * $annulation->getPourcentage()) / 100 ;
+            $signe = "(".$annulation->getPourcentage()."%)" ;
+            $remboursee = $annulation->getMontant() - $retenu ;
+        }
+        $donnee = [] ;
+
+        $donnee["numFacture"] = $annulation->getNumFact() ;
+        $donnee["spec"] = $spec ;
+        $donnee["refType"] = $annulation->getSpecification()->getReference() ;
+        $donnee["date"] = $annulation->getDate()->format('d/m/Y') ;
+        $donnee["lieu"] = $annulation->getLieu() ;
+        $donnee["client"] = $client ;
+        $donnee["total"] = $total ;
+        $donnee["retenu"] = $retenu ;
+        $donnee["signe"] = $signe ;
+        $donnee["remboursee"] = $remboursee ;
+       
+        
+        $annulationDetails = $this->entityManager->getRepository(SavDetails::class)->findBy([
+            "annulation" => $annulation
+        ]) ;
+
+        
+        $totalHt = 0 ;
+        $elements = [] ;
+        $totalTva = 0 ;
+
+        foreach ($annulationDetails as $annulationDetail) {
+
+            $factureDetail = $annulationDetail->getFactureDetail() ;
+            $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+            $totale = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+            if(!is_null($factureDetail->getRemiseType()))
+            {
+                if($factureDetail->getRemiseType()->getId() == 1)
+                {
+                    $remise = ($totale * $factureDetail->getRemiseVal()) / 100 ; 
+                }
+                else
+                {
+                    $remise = $factureDetail->getRemiseVal() ;
+                }
+            }
+            else
+            {
+                $remise = 0 ;
+            }
+            
+            $totale = $totale - $remise ;
+
+            $element = [] ;
+            $element["type"] = $factureDetail->getActivite() ;
+            $element["designation"] = $factureDetail->getDesignation() ;
+            $element["quantite"] = $factureDetail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $factureDetail->getPrix() ;
+            $element["tva"] = ($tva == 0) ? "-" : $tva ;
+            $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $factureDetail->getRemiseVal() ;
+            $element["total"] = $totale ;
+            array_push($elements,$element) ;
+
+            $totalHt += $totale ;
+            $totalTva += $tva ;
+        } 
+
+        $donnee["totalHt"] = $totalHt ;
+        $donnee["totalTva"] = $totalTva ;
+        $donnee["lettre"] = $this->appService->NumberToLetter($total) ;
+
+        return $this->render('sav/detailsItemAnnulation.html.twig', [
+            "filename" => "sav",
+            "titlePage" => "Annulation ".$type,
+            "with_foot" => true,
+            "factureDetails" => $elements,
+            "annulation" => $donnee
+        ]) ;
+    }
 }

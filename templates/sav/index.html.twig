@@ -133,12 +133,14 @@
                                 <th>Specification</th>
                                 <th>Motif</th>
                                 <th>Lieu</th>
-                                <th>Pourcentage</th>
-                                <th>Montant</th>
+                                <th>Total</th>
+                                <th>Retenu</th>
+                                <th>Avoir/Remboursé</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
+                        {% set totalRetenu = 0 %}
                             {% for annulation in annulations %}
                                 <tr>
                                     <td>{{annulation.date}}</td>
@@ -148,19 +150,30 @@
                                     <td>{{annulation.spec|upper}}</td>
                                     <td>{{annulation.motif}}</td>
                                     <td>{{annulation.lieu}}</td>
-                                    <td>{{annulation.pourcentage}}</td>
-                                    <td>{{annulation.montant}}</td>
+                                    <td>{{annulation.total}}</td>
+                                    <td>{{annulation.retenu}}{{annulation.signe}}</td>
+                                    <td>{{annulation.remboursee}}</td>
                                     <td class="text-center align-middle">
-                                        <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
+                                        <a href="{{path('sav_details_annulation',{'id':annulation.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></a>
                                     </td>
                                 </tr>
+                                {% if annulation.retenu != "-" %}
+                                    {% set totalRetenu = totalRetenu + annulation.retenu %} 
+                                {% endif %}
                             {% endfor %}
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="8">Total Retenu</th>
+                                <th class="bg-primary text-white">{{ totalRetenu }}</th>
+                                <td colspan="2" class="bg-primary"></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
 
-            {# AVOIR / CREDIT  #}
+            {# AVOIR / CREDIT 032 82 488 71 / 033 14 572 20 #}
 
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
                 <div class="table-responsive">
@@ -176,7 +189,7 @@
                         {% for avoir in avoirs %}
                             <tr>
                                 <td>{{avoir.client|upper}}</td>
-                                <td>{{avoir.montant}}</td>
+                                <td>{{avoir.remboursee}}</td>
                                 <td class="text-center align-middle">
                                     <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
                                 </td>
