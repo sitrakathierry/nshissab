@@ -664,7 +664,7 @@ class SAVController extends AbstractController
 
         $annulations = $this->appService->searchData($annulations,$search) ;
         
-        dd($annulations) ;
+        $annulations = array_values($annulations) ; 
 
         $nomClient = $annulations[0]->client ; 
 
