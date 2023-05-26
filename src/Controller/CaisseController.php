@@ -66,6 +66,7 @@ class CaisseController extends AbstractController
         $cs_mtn_recu = $request->request->get('cs_mtn_recu') ; 
         $csenr_total_general = $request->request->get('csenr_total_general') ; 
         $csenr_date_caisse = $request->request->get('csenr_date_caisse') ; 
+        $csenr_total_tva = $request->request->get('csenr_total_tva') ; 
         
         $lastRecordCommande = $this->entityManager->getRepository(CaisseCommande::class)->findOneBy([], ['id' => 'DESC']);
 
@@ -80,6 +81,7 @@ class CaisseController extends AbstractController
         $commande->setNumCommande($numCommande) ;
         $commande->setMontantRecu($cs_mtn_recu) ;
         $commande->setMontantPayee($csenr_total_general) ;
+        $commande->setTva($csenr_total_tva) ;
         $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $csenr_date_caisse);
         $commande->setDate($dateTime) ;
         $commande->setStatut(True) ;
@@ -93,6 +95,7 @@ class CaisseController extends AbstractController
         $csenr_prix = $request->request->get('csenr_prix') ; 
         $csenr_prixText = $request->request->get('csenr_prixText') ; 
         $csenr_quantite = $request->request->get('csenr_quantite') ; 
+        $csenr_tva = $request->request->get('csenr_tva') ; 
 
         foreach ($csenr_produit as $key => $value) {
             $panier = new CaissePanier() ;
@@ -103,6 +106,7 @@ class CaisseController extends AbstractController
             $panier->setHistoEntrepot($histoEntrepot) ;
             $panier->setPrix(intval($csenr_prixText[$key])) ;
             $panier->setQuantite($csenr_quantite[$key]) ;
+            $panier->setTva($csenr_tva[$key]) ;
             $panier->setStatut(True) ;
 
             $this->entityManager->persist($panier) ;

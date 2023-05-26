@@ -81,6 +81,7 @@
                         <th>Produit</th>
                         <th class="text-right">Qte</th>
                         <th class="text-right">Prix vente</th>
+                        <th class="text-right">Montant Tva</th>
                         <th class="text-right">Total</th>
                         <th></th>
                     </tr>
@@ -105,30 +106,41 @@
                             {% set elements = paniersCommande|filter(o => o.numCommande == premier) %}
                             {% set ligne = elements|length %}
                             {% if passe %}
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{ panierCommande.date }}</td>
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{ panierCommande.numCommande }}</td>
+                                <td rowspan="{{ligne + 3}}" class="align-middle">{{ panierCommande.date }}</td>
+                                <td rowspan="{{ligne + 3}}" class="align-middle">{{ panierCommande.numCommande }}</td>
                                 {% set passe = false %}
                             {% endif %}
+                            {% set totalPartiel = panierCommande.quantite * panierCommande.prix  %}
+                            {% set tvaVal = ((panierCommande.prix * panierCommande.tva) / 100) * panierCommande.quantite %}
+                            {% set tvaSigne = panierCommande.tva == 0 ? "" : "(" ~ panierCommande.tva ~"%)" %}
                             <td>{{panierCommande.codeProduit}} | {{panierCommande.nom}} | {{compteur}}</td>
-                            <td class="text-right">{{panierCommande.quantite}}</td>
-                            <td class="text-right">{{panierCommande.prix}}</td>
-                                {% set totalPartiel = panierCommande.quantite * panierCommande.prix  %}
-                            <td class="text-right">{{totalPartiel}}</td> 
+                            <td class="">{{panierCommande.quantite}}</td>
+                            <td class="">{{panierCommande.prix}}</td>
+                            <td class="">{{tvaVal}}{{tvaSigne}}</td> 
+                            <td class="">{{totalPartiel}}</td> 
                             {% set total = total + totalPartiel %}
                             {% if passeM %}
-                                <td rowspan="{{ligne + 1}}" class="text-center align-middle"><button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button></td>
+                                <td rowspan="{{ligne + 3}}" class="text-center align-middle"><button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button></td>
                                 {% set passeM = false %}
                             {% endif %}
                         </tr>
                         {% if compteur == ligne %}
                             <tr>
-                                <td colspan="3">Total Partiel</td>
-                                <th class="bg-secondary text-right text-white">{{ total }}</th>
+                                <th colspan="4">Total HT</th>
+                                <th class="bg-secondary text-white">{{ total }}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="4">Total Tva</th>
+                                <th class="bg-secondary text-white">{{ panierCommande.totalTva }}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="4">Total TTC</th>
+                                <th class="bg-primary text-white">{{ panierCommande.montantPayee + panierCommande.totalTva }}</th>
                             </tr>
                             <tr class="bg-light border_dark">
-                                <td colspan="7"></td>
+                                <td colspan="8"></td>
                             </tr>
-                            {% set totalGeneral = totalGeneral + total %}
+                            {% set totalGeneral = totalGeneral + (panierCommande.montantPayee + panierCommande.totalTva) %}
                         {% endif %}
                         
                         {% if panierCommande.numCommande == premier %}
@@ -140,9 +152,9 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="5">Total Géneral</th>
-                        <th class="bg-primary text-right text-white">{{ totalGeneral }}</th>
-                        <td class="bg-primary"></td>
+                        <th colspan="6">Total Géneral</th>
+                        <th class="bg-success text-white">{{ totalGeneral }}</th>
+                        <td class="bg-success"></td>
                     </tr>
                 </tfoot>
             </table>

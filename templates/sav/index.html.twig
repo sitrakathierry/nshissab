@@ -191,7 +191,7 @@
                                 <td>{{avoir.client|upper}}</td>
                                 <td>{{avoir.remboursee}}</td>
                                 <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></button>
+                                    <a href="{{path('sav_annulation_details_client',{'idC':avoir.idC})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-info-circle"></i></a>
                                 </td>
                             </tr>
                         {% endfor %}

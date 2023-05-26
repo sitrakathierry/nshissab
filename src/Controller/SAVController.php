@@ -111,6 +111,9 @@ class SAVController extends AbstractController
                 $item["client"] = $element->client ;
                 $item["remboursee"] += floatval($element->remboursee) ;
             }
+
+            $item["idC"] = $key ;
+
             array_push($avoirs,$item) ;
         } 
 
@@ -644,4 +647,33 @@ class SAVController extends AbstractController
             "annulation" => $donnee
         ]) ;
     }
+
+    #[Route('/sav/annulation/client/details/{idC}', name: 'sav_annulation_details_client')]
+    public function savDetailsAvoirClient($idC)
+    {
+        $filename = $this->filename."annulation(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateSavAnnulation($filename,$this->agence) ;
+        
+        $annulations = json_decode(file_get_contents($filename)) ;
+        
+        $search = [
+            "idC" => $idC,
+            "refSpec" => "AVR"
+        ] ;
+
+        $annulations = $this->appService->searchData($annulations,$search) ;
+
+        $nomClient = $annulations[0]->client ; 
+
+        return $this->render('sav/detailsAnnulationClient.html.twig', [
+            "filename" => "sav",
+            "titlePage" => "Avoir client : ",
+            "with_foot" => false,
+            "annulations" => $annulations,
+            "nomClient" => $nomClient
+        ]);
+    }
+
+
 }

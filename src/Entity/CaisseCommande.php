@@ -49,6 +49,9 @@ class CaisseCommande
     #[ORM\OneToMany(mappedBy: 'ticketCaisse', targetEntity: Facture::class)]
     private Collection $factures;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $tva = null;
+
     public function __construct()
     {
         $this->caissePaniers = new ArrayCollection();
@@ -224,6 +227,18 @@ class CaisseCommande
                 $facture->setTicketCaisse(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTva(): ?float
+    {
+        return $this->tva;
+    }
+
+    public function setTva(?float $tva): self
+    {
+        $this->tva = $tva;
 
         return $this;
     }

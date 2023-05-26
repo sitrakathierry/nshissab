@@ -731,6 +731,7 @@ class AppService extends AbstractController
             $element["numCommande"] = $commande->getNumCommande() ;
             $element["montantRecu"] = $commande->getMontantRecu() ;
             $element["montantPayee"] = $commande->getMontantPayee();
+            $element["totalTva"] = $commande->getTva();
             $element["date"] = $commande->getDate()->format('d/m/Y') ;
             array_push($elements,$element) ;
         }

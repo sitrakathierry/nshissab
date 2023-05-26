@@ -37,6 +37,7 @@
                                 <th>Code Produit</th>
                                 <th>Qte</th>
                                 <th>Prix Unitaire</th>
+                                <th>Montant Tva</th>
                                 <th>Montant Total</th>
                                 <th></th>
                             </tr>
@@ -46,7 +47,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="4" class="text-uppercase">Total</th>
+                                <th colspan="5" class="text-uppercase">Total HT</th>
                                 <th colspan="1" class="bg-light">
                                     <span class="cs_total_general"></span>
                                     <input type="hidden" class="csenr_total_general" name="csenr_total_general">
@@ -54,22 +55,36 @@
                                 <td class="bg-light"></td>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-uppercase align-middle">Montant reçu</th>
+                                <th colspan="5" class="text-uppercase align-middle">Montant reçu</th>
                                 <th colspan="1"class="bg-light align-middle">
                                     <input type="number" name="cs_mtn_recu" id="cs_mtn_recu" class="form-control cs_mtn_recu" placeholder=". . .">
                                 </th>
                                 <td class="bg-light"></td>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-uppercase">Montant à rembourser</th>
+                                <th colspan="5" class="text-uppercase">Montant à rembourser</th>
                                 <th colspan="1" class="bg-light"><span class="cs_mtn_rembourse"></span></th>
                                 <td class="bg-light"></td>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-uppercase">Total payée</th>
+                                <th colspan="5" class="text-uppercase">Total payée</th>
                                 <th colspan="1" class="bg-light"><span class="cs_total_pyee"></span></th>
                                 <td class="bg-light"></td>
                             </tr>
+                            <tr>
+                                <th colspan="5" class="text-uppercase">Total TVA</th>
+                                <th colspan="1" class="bg-light">
+                                    <span class="cs_mtn_tva"></span>
+                                    <input type="hidden" class="csenr_total_tva" name="csenr_total_tva">
+                                </th>
+                                <td class="bg-light"></td>
+                            </tr>
+                            <tr>
+                                <th colspan="5" class="text-uppercase">Total TTC</th>
+                                <th colspan="1" class="bg-light"><span class="cs_mtn_ttc"></span></th>
+                                <td class="bg-light"></td>
+                            </tr>
+                            
                         </tfoot>
                     </table>
                 </div>
@@ -94,15 +109,17 @@
                     {% endfor %}
                 </select>
                 {# <input type="text" name="caisse_search_produit" id="caisse_search_produit" class="form-control caisse_search_produit" placeholder="Rechercher un produit"> #}
+                <div class="mt-3 w-100">
+                    <select name="caisse_search_prix" class="custom-select chosen_select caisse_search_prix custom-select-sm" id="caisse_search_prix">  
+                        <option value=""></option>
+                    </select>
+                </div>
                 <div class="row mt-3">
-                    <div class="col-md-7">
-                        <select name="caisse_search_prix" class="custom-select chosen_select caisse_search_prix custom-select-sm" id="caisse_search_prix">  
-                            <option value=""></option>
-                        </select>
-                        {# <input type="text" name="caisse_search_prix" id="caisse_search_prix" class="form-control caisse_search_prix" placeholder="Prix"> #}
-                    </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <input type="number" name="caisse_search_quantite" id="caisse_search_quantite" class="form-control caisse_search_quantite" placeholder="Quantité">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="number" name="caisse_search_tva" id="caisse_search_tva" class="form-control caisse_search_tva" placeholder="Tva">
                     </div>
                 </div>
                 <div class="w-100 text-right mt-2">

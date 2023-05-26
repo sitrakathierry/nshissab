@@ -44,7 +44,7 @@ class CaissePanierRepository extends ServiceEntityRepository
         $sql = "
         SELECT date_format(cc.date, '%d/%m/%Y') as date, cc.num_commande as numCommande, 
         p.code_produit as codeProduit, p.nom, cp.quantite, 
-        cp.prix, p.id as idP , cc.montant_recu as montantRecu, 
+        cp.prix, p.id as idP, cp.tva as tva, cc.tva as totalTva , cc.montant_recu as montantRecu, 
         cc.montant_payee as montantPayee, cc.user_id as user, phe.indice
         FROM `caisse_panier` cp 
         INNER JOIN caisse_commande as cc ON cp.commande_id = cc.id 

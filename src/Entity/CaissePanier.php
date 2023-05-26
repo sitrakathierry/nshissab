@@ -28,6 +28,9 @@ class CaissePanier
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $tva = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +92,18 @@ class CaissePanier
     public function setStatut(?bool $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getTva(): ?float
+    {
+        return $this->tva;
+    }
+
+    public function setTva(?float $tva): self
+    {
+        $this->tva = $tva;
 
         return $this;
     }

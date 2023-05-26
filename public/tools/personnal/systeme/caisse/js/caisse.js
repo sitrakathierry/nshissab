@@ -40,13 +40,22 @@ $(document).ready(function(){
                     $("#caisse_search_prix").change()
                 }
 
+                if(resp.tva != "")
+                {
+                    $("#caisse_search_tva").attr("readonly",true)
+                    $("#caisse_search_tva").val(resp.tva)
+                }
+                else
+                {
+                    $("#caisse_search_tva").removeAttr("readonly")
+                    $("#caisse_search_tva").val("")
+                }
+
                 // var optionsPrix = '<option value=""></option>' ;
                 // resp.forEach(elem => {
                 //     optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
                 // });
                 
-                
-
             },
             error: function(resp){
                 realinstance.close()
@@ -61,15 +70,24 @@ $(document).ready(function(){
         prixText = selectedText ;
       })
     var totalGeneral = 0
-
+    var totalTva = 0
     function removeLigneCaisse()
     {
         $(".remove_ligne_caisse").click(function(){
             if(!$(this).attr("disabled"))
             {
-                var totalPartiel = $(this).closest('tr').find(".csenr_total_partiel").text()
-                totalGeneral = parseFloat(totalGeneral) - parseFloat(totalPartiel)
+                var totalPartiel = $(this).closest('tr').find(".csenr_total_partiel").text() ;
+                totalGeneral = parseFloat(totalGeneral) - parseFloat(totalPartiel) ;
+                
+                var valeur_tva =  $(this).closest('tr').find(".csenr_tva").val() ;
+                totalTva = parseFloat(totalTva) - parseFloat(valeur_tva) ;
+
                 $(".cs_total_general").text(totalGeneral)
+                $(".csenr_total_general").val(totalGeneral)
+                
+                $(".cs_mtn_tva").text(totalTva)
+                $(".csenr_total_tva").val(totalTva)
+
                 $(".cs_mtn_recu").keyup()
             }
             $(this).prop("disabled", true);
@@ -81,7 +99,7 @@ $(document).ready(function(){
         var caisse_prix = $("#caisse_search_prix").val()
         var caisse_produit = $("#caisse_search_produit").val()
         var caisse_quantite = $("#caisse_search_quantite").val()
-        var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
+        var caisse_tva = $("#caisse_search_tva").val()
 
         var elemSearch = [
             $("#caisse_search_produit"),
@@ -171,7 +189,14 @@ $(document).ready(function(){
             })
             return 
         }
-
+        var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
+        var tvaVal = 0 
+        if(caisse_tva != "")
+        {
+            tvaVal = ((parseFloat(prixText.split(" | ")[0]) * parseFloat(caisse_tva)) / 100) * caisse_quantite ;
+        }
+        
+        
         var item = `
         <tr>
             <td class="align-middle">
@@ -182,13 +207,17 @@ $(document).ready(function(){
                 code
             </td>
             <td class="align-middle">
+                `+caisse_quantite+`
+                <input type="hidden" name="csenr_quantite[]" value="`+caisse_quantite+`">
+            </td>
+            <td class="align-middle">
                 `+prixText+`
                 <input type="hidden" class="csenr_prix" name="csenr_prix[]" value="`+caisse_prix+`">
                 <input type="hidden" name="csenr_prixText[]" value="`+prixText+`">
             </td>
             <td class="align-middle">
-                `+caisse_quantite+`
-                <input type="hidden" name="csenr_quantite[]" value="`+caisse_quantite+`">
+                `+(tvaVal != 0 ? tvaVal : "-")+`
+                <input type="hidden"  name="csenr_tva[]" class="csenr_tva" value="`+(caisse_tva == "" ? 0 : caisse_tva)+`">
             </td>
             <td class="align-middle csenr_total_partiel">`+totalPartiel+`</td>
             <td class="text-center align-middle">
@@ -203,8 +232,13 @@ $(document).ready(function(){
             elem.trigger("chosen:updated"); 
         })
         totalGeneral += totalPartiel
+        totalTva += tvaVal
         $(".cs_total_general").text(totalGeneral)
         $(".csenr_total_general").val(totalGeneral)
+
+        $(".cs_mtn_tva").text(totalTva)
+        $(".csenr_total_tva").val(totalTva)
+
         removeLigneCaisse()
         $(".cs_mtn_recu").keyup()
     })
@@ -222,10 +256,15 @@ $(document).ready(function(){
             $(".cs_mtn_rembourse").addClass("text-success")
             $(".cs_mtn_rembourse").removeClass("text-danger")
         }
+
         $(".cs_mtn_rembourse").text(a_rembourser)
-        $(".cs_total_pyee").addClass("text-primary")
+        $(".cs_total_pyee").addClass("text-warning")
+        $(".cs_mtn_ttc").addClass("text-primary")
         var rembourse = a_rembourser < 0 ? 0 : a_rembourser ;
-        $(".cs_total_pyee").text(parseFloat(selection.val()) - parseFloat(rembourse))
+        var totalPayee = parseFloat(selection.val()) - parseFloat(rembourse) ;
+        totalPayee = totalPayee + totalTva
+        $(".cs_total_pyee").text(totalPayee)
+        $(".cs_mtn_ttc").text(totalPayee)
     }
 
     $(".cs_mtn_recu").keyup(function(){
@@ -289,7 +328,8 @@ $(document).ready(function(){
     var elementTo = ''
     var arrayElem = [
         $("#caisse_search_quantite"),
-        $(".cs_mtn_recu")
+        $(".cs_mtn_recu"),
+        $("#caisse_search_quantite")
     ]
 
     arrayElem.forEach(elem => {
