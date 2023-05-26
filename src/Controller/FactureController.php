@@ -423,7 +423,7 @@ class FactureController extends AbstractController
             $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
             $factDetail->setPrix($fact_enr_text_prix[$key]) ;
             $factDetail->setTvaVal($dtlsTvaVal) ;
-
+            $factDetail->setStatut(True) ;
             $this->entityManager->persist($factDetail) ;
             $this->entityManager->flush() ; 
         } 
