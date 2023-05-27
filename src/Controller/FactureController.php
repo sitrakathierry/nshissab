@@ -99,6 +99,22 @@ class FactureController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
+        $search = 
+        [
+            "specification" => "NONE"
+            ] ;
+        
+        $item1 = $this->appService->searchData($factures, $search) ;
+
+        $search = 
+        [
+            "specification" => "AVR"
+        ] ;
+        
+        $item2 = $this->appService->searchData($factures, $search) ;
+
+        $factures = array_merge($item1, $item2);
+
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
 
@@ -111,6 +127,44 @@ class FactureController extends AbstractController
         return $this->render('facture/consultation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Consultation Facture",
+            "with_foot" => false,
+            "factures" => $factures,
+            "modeles" => $modeles,
+            "types" => $types,
+            "clients" => $clients,
+            "critereDates" => $critereDates
+        ]);
+    }
+
+    #[Route('/facture/retenu/consultation', name: 'ftr_retenu_consultation')]
+    public function factureRetenusConsultation(): Response
+    { 
+        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateFacture($filename, $this->agence) ;
+
+        $factures = json_decode(file_get_contents($filename)) ;
+
+        $search = 
+        [
+            "specification" => "RMB"
+        ] ;
+        
+        $factures = $this->appService->searchData($factures, $search) ;
+
+        $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
+        $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
+
+        $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
+            "agence" => $this->agence 
+        ]) ; 
+
+        $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
+
+        return $this->render('facture/consultationFactRetenu.html.twig', [
+            "filename" => "facture",
+            "titlePage" => "Facture Retenus",
             "with_foot" => false,
             "factures" => $factures,
             "modeles" => $modeles,
@@ -174,9 +228,8 @@ class FactureController extends AbstractController
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
         $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-            "statut" => True,
             "facture" => $facture
-        ]) ;
+        ],["statut" => "DESC"]) ;
         
         $totalHt = 0 ;
         $elements = [] ;
@@ -211,12 +264,16 @@ class FactureController extends AbstractController
             $element["tva"] = ($tva == 0) ? "-" : $tva ;
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
+            $element["statut"] = $factureDetail->isStatut();
             $element["total"] = $total ;
             array_push($elements,$element) ;
-
-            $totalHt += $total ;
+            if($factureDetail->isStatut())
+            {
+                $totalHt += $total ;
+            }
         } 
 
+        // dd($elements) ;
         $infoFacture["totalHt"] = $totalHt ;
 
         if(!is_null($facture->getRemiseType()))
@@ -484,4 +541,6 @@ class FactureController extends AbstractController
 
         return new Response($response) ; 
     }
+
+    
 }

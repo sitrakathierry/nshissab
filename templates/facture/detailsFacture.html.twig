@@ -53,11 +53,19 @@
                         <th>Type Remise</th>
                         <th>Valeur Remise</th>
                         <th>Montant Total</th>
+                        <th>Statut</th>
                     </tr>
                 </thead>
                 <tbody> 
+                    
                     {% for factureDetail in factureDetails %}
-                        <tr>
+                        {% set background = "" %}
+                        {% set annulee = "Actif" %}
+                        {% if factureDetail.statut == false %}
+                           {% set background = "bg-secondary" %} 
+                           {% set annulee = "Annulé" %}
+                        {% endif %}
+                        <tr class="{{background}}">
                             <td>{{ factureDetail.type|upper }}</td>
                             <td>{{ factureDetail.designation }}</td>
                             <td>{{ factureDetail.quantite }}</td>
@@ -67,30 +75,31 @@
                             <td>{{ factureDetail.typeRemise }}</td>
                             <td>{{ factureDetail.valRemise }}</td>
                             <td>{{ factureDetail.total }}</td>
+                            <th>{{ annulee }}</th>
                         </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="8">Total HT</th>
-                        <th class="bg-light">{{facture.totalHt}}</th>
+                        <th colspan="2" class="bg-light">{{facture.totalHt}}</th>
                     </tr>
                     <tr>
                         <th colspan="8">Remise</th>
-                        <th class="bg-light">{{facture.remise}}</th>
+                        <th colspan="2" class="bg-light">{{facture.remise}}</th>
                     </tr>
                     <tr>
                         <th colspan="8">Total TVA</th>
-                        <th class="bg-light">{{facture.totalTva}}</th> 
+                        <th colspan="2" class="bg-light">{{facture.totalTva}}</th> 
                     </tr>
                     <tr>
                         <th colspan="8">Total TTC</th>
-                        <th class="bg-primary text-white">{{facture.totalTtc}}</th>
+                        <th colspan="2" class="bg-primary text-white">{{facture.totalTtc}}</th>
                     </tr>
                     {% if facture.devise %}
                         <tr>
                             <th colspan="8">Montant en {{facture.deviseCaption}}</th>
-                            <th class="bg-light">{{facture.deviseValue}}</th>
+                            <th colspan="2" class="bg-light">{{facture.deviseValue}}</th>
                         </tr>
                     {% endif %}
                 </tfoot>

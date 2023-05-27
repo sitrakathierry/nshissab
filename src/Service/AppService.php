@@ -742,7 +742,6 @@ class AppService extends AbstractController
     public function generateFacture($filename, $agence)
     {
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
-            "statut" => True,
             "agence" => $agence
         ]) ; 
 
@@ -750,6 +749,15 @@ class AppService extends AbstractController
 
         foreach ($factures as $facture) {
             $element = [] ;
+            $specification = "NONE" ; 
+            $annulation = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+                "facture" => $facture
+            ]) ; 
+
+            if(!is_null($annulation))
+            {
+                $specification = $annulation->getSpecification()->getReference() ;
+            }
             $element["id"] = $facture->getId() ;
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
@@ -768,6 +776,8 @@ class AppService extends AbstractController
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
             $element["client"] = $facture->getClient()->getClient()->getNom() ;
             $element["total"] = $facture->getTotal();
+            $element["specification"] = $specification;
+
             array_push($elements,$element) ;
         }
 
