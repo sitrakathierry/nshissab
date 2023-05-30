@@ -403,28 +403,35 @@ class SAVController extends AbstractController
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($sav_facture) ;
 
+        $specification = $this->entityManager->getRepository(SavSpec::class)->find($sav_val_spec) ;
         $recordAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+            "specification" => $specification,
             "facture" => $facture
         ]);
 
-        $specification = $this->entityManager->getRepository(SavSpec::class)->find($sav_val_spec) ;
-        $numTrueFacture = explode("/",$facture->getNumFact()) ;
-        if($specification->getReference() == "RMB")
+        $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
+        if($numAnnulation == 1)
         {
-            $numAnnulation = $numTrueFacture[0]."/".$numTrueFacture[1]."/RTN" ;
+            $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+            if($specification->getReference() == "RMB")
+                $numAnnulation = $facture->getNumFact()."/RTN" ;
+            else
+                $numAnnulation = $facture->getNumFact()."/ANL" ;
         }
         else
         {
-            $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
+            $firstAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+                "specification" => $specification,
+                "facture" => $facture
+            ],["id" => "ASC"]);
+            $numAnnulation -= 1 ;
             $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
-            $numAnnulation = $numTrueFacture[0]."/".$numTrueFacture[1]."/ANL-".$numAnnulation ;
+            $numAnnulation = $firstAnnuation->getNumFact()."/BIS-".$numAnnulation ;
         }
         
-
         $type = $this->entityManager->getRepository(SavType::class)->find($sav_type_annule) ;
         $motif = $this->entityManager->getRepository(SavMotif::class)->find($sav_motifs) ;
         
-
         if($specification->getReference() == "RMB")
         {
             $data = [
@@ -441,24 +448,6 @@ class SAVController extends AbstractController
                 return new JsonResponse($result) ;
         }
 
-        $facture->setNumFact($numAnnulation) ;
-        if($type->getreference() == "TOT")
-        {
-            $facture->setStatut(False) ;
-        }
-        else
-        {
-            $allfactureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-                "statut" => True,
-                "facture" => $facture
-            ]) ;
-
-            if(count($allfactureDetails) == count($sav_facture_detail))
-            {
-                $facture->setStatut(False) ;
-            }
-        }
-        
         $this->entityManager->flush() ;
 
         $annulation = new SavAnnulation() ;
@@ -600,23 +589,7 @@ class SAVController extends AbstractController
             $factureDetail = $annulationDetail->getFactureDetail() ;
             $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
             $totale = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
-
-            if(!is_null($factureDetail->getRemiseType()))
-            {
-                if($factureDetail->getRemiseType()->getId() == 1)
-                {
-                    $remise = ($totale * $factureDetail->getRemiseVal()) / 100 ; 
-                }
-                else
-                {
-                    $remise = $factureDetail->getRemiseVal() ;
-                }
-            }
-            else
-            {
-                $remise = 0 ;
-            }
-            
+            $remise = $this->appService->getFactureRemise($factureDetail,$totalHt) ; 
             $totale = $totale - $remise ;
 
             $element = [] ;

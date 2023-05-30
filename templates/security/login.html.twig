@@ -5,6 +5,10 @@
     {{ parent() }}
     <link rel="stylesheet" href="{{asset('tools/personnal/stylesheets/login/style.css')}}">
 {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/javascript/login/main.js')}}"></script>
+{% endblock %}
 {% block body %}
 <div class="parent_base w-100">
     <div class="main_login p-4 rounded">
@@ -23,10 +27,16 @@
             
             <input type="password" name="password" id="password" class="form-control mt-3" autocomplete="" required placeholder="Mot de passe">
             
+            <div class="w-100 d-flex mt-3 flex-row align-items-center">
+                <input type="checkbox" class="form-input-check" id="loginTogglePass">
+                <span class="font-smaller ml-2" id="labelToggle">Afficher le mot de passe</span>
+            </div>
+            
+
             <input type="hidden" name="_csrf_token"
                 value="{{ csrf_token('authenticate') }}"
             >
-            <button class="btn btn-sm btn-perso-one btn-block mt-4" type="submit">
+            <button class="btn btn-sm btn-perso-one btn-block mt-3" type="submit">
             Se connecter
             </button>
             <div class="w-100 text-center mt-3">

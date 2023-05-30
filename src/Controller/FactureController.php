@@ -13,6 +13,8 @@ use App\Entity\FactPaiement;
 use App\Entity\FactRemiseType;
 use App\Entity\FactType;
 use App\Entity\Facture;
+use App\Entity\SavAnnulation;
+use App\Entity\SavDetails;
 use App\Entity\User;
 use App\Service\AppService;
 use App\Service\ExcelGenService;
@@ -113,7 +115,23 @@ class FactureController extends AbstractController
         
         $item2 = $this->appService->searchData($factures, $search) ;
 
-        $factures = array_merge($item1, $item2);
+        $filename = "files/systeme/sav/annulation(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateSavAnnulation($filename,$this->agence) ;
+        
+        $annulations = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refSpec" => "AVR"
+        ] ;
+
+        $annulations = $this->appService->searchData($annulations,$search) ;
+        
+        $item3 = $this->appService->formatAnnulationToFacture($annulations) ;
+
+        $factures = array_merge($item1, $item2, $item3);
+        
+        // dd($factures) ;
 
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
@@ -149,9 +167,25 @@ class FactureController extends AbstractController
         $search = 
         [
             "specification" => "RMB"
-        ] ;
+            ] ;
         
-        $factures = $this->appService->searchData($factures, $search) ;
+        $item1 = $this->appService->searchData($factures, $search) ;
+
+        $filename = "files/systeme/sav/annulation(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateSavAnnulation($filename,$this->agence) ;
+        
+        $annulations = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refSpec" => "RMB"
+        ] ;
+
+        $annulations = $this->appService->searchData($annulations,$search) ;
+        
+        $item2 = $this->appService->formatAnnulationToFacture($annulations) ;
+
+        $factures = array_merge($item1, $item2);
 
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
@@ -174,10 +208,19 @@ class FactureController extends AbstractController
         ]);
     }
 
-    #[Route('/facture/activite/details/{id}', name: 'ftr_details_activite' , defaults : ["id" => null])]
-    public function factureDetailsActivites($id)
+    #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
+    public function factureDetailsActivites($id,$nature)
     {
-        $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
+        if ($nature == "ANL")
+        {
+            $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
+            $facture = $annulation->getFacture() ;
+        }
+        else
+        {
+            $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
+        }
+        
 
         $infoFacture = [] ;
 
@@ -227,34 +270,39 @@ class FactureController extends AbstractController
         $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ? "-" : $facture->getTvaVal();
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
-        $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-            "facture" => $facture
-        ],["statut" => "DESC"]) ;
+        if($nature == "FACTURE")
+        {
+            $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "facture" => $facture
+            ],["statut" => "DESC"]) ;
+        }
+        else
+        {
+            $annulationDetails = $this->entityManager->getRepository(SavDetails::class)->findBy([
+                "annulation" => $annulation
+            ]) ;
+
+            $factureDetails = [] ;
+
+            foreach ($annulationDetails as $annulationDetail) {
+               array_push($factureDetails,$annulationDetail->getFactureDetail()) ;
+            }
+            // $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            //     "statut" => false,
+            //     "facture" => $facture
+            // ]) ;
+        }
+        
         
         $totalHt = 0 ;
+        $totalTva = 0 ; 
         $elements = [] ;
         foreach ($factureDetails as $factureDetail) {
             $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
             $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
-
-            if(!is_null($factureDetail->getRemiseType()))
-            {
-                if($factureDetail->getRemiseType()->getId() == 1)
-                {
-                    $remise = ($total * $factureDetail->getRemiseVal()) / 100 ; 
-                }
-                else
-                {
-                    $remise = $factureDetail->getRemiseVal() ;
-                }
-            }
-            else
-            {
-                $remise = 0 ;
-            }
-            
+            $remise = $this->appService->getFactureRemise($factureDetail,$totalHt) ; 
             $total = $total - $remise ;
-
+            
             $element = [] ;
             $element["type"] = $factureDetail->getActivite() ;
             $element["designation"] = $factureDetail->getDesignation() ;
@@ -267,39 +315,60 @@ class FactureController extends AbstractController
             $element["statut"] = $factureDetail->isStatut();
             $element["total"] = $total ;
             array_push($elements,$element) ;
-            if($factureDetail->isStatut())
+
+            if($factureDetail->isStatut() && $nature == "FACTURE")
             {
                 $totalHt += $total ;
             }
+            else if($nature == "ANL")
+            {
+                $totalHt += $total ;
+                $totalTva += $tva ;
+            }
         } 
 
-        // dd($elements) ;
         $infoFacture["totalHt"] = $totalHt ;
 
-        if(!is_null($facture->getRemiseType()))
-        {
-            if($facture->getRemiseType()->getId() == 1)
-            {
-                $remiseG = ($totalHt * $facture->getRemiseVal()) / 100 ; 
-            }
-            else
-            {
-                $remiseG = $facture->getRemiseVal() ;
-            }
-        }
-        else
-        {
-            $remiseG = 0 ;
-        }
+        $remiseG = $this->appService->getFactureRemise($facture,$totalHt) ; 
+
         $infoFacture["remise"] = $remiseG ;
         $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
         
+
+        if ($nature == "ANL") {
+            $total = $annulation->getMontant() ;
+
+            $retenu = 0 ;
+
+            if($annulation->getPourcentage() == 0)
+            {
+                $retenu = "-" ;
+                $signe = "" ;
+                $avoir = $annulation->getMontant() ;
+            }
+            else
+            {
+                $retenu = ($annulation->getMontant() * $annulation->getPourcentage()) / 100 ;
+                $signe = "(".$annulation->getPourcentage()."%)" ;
+                $avoir = $annulation->getMontant() - $retenu ;
+            }
+            $infoFacture["numFact"] = $annulation->getNumFact() ;
+            $infoFacture["totalTva"] = $totalTva ;
+            $infoFacture["total"] = $total ;
+            $infoFacture["retenu"] = $retenu ;
+            $infoFacture["signe"] = $signe ;
+            $infoFacture["avoir"] = $avoir ;
+            $infoFacture["specs"] = $annulation->getSpecification()->getReference() ;
+            $infoFacture["lettre"] = $this->appService->NumberToLetter($total) ;
+        }
+
         return $this->render('facture/detailsFacture.html.twig', [
             "filename" => "facture",
             "titlePage" => "Détails Facture",
             "with_foot" => true,
             "facture" => $infoFacture,
-            "factureDetails" => $elements
+            "factureDetails" => $elements,
+            "nature" => $nature
         ]) ;
     }
 

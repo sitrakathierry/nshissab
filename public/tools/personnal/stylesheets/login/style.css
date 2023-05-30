@@ -44,3 +44,13 @@
 {
     padding: 0.5em 0.5em !important;
 }
+
+.font-smaller
+{
+    font-size: smaller !important;
+}
+
+.font-medium
+{
+    font-size:medium !important;
+}

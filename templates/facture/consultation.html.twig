@@ -104,7 +104,7 @@
                             <td>{{ facture.dateFacture }}</td>
                             <td>{{ facture.client }}</td>
                             <td>{{ facture.total }}</td>
-                            <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
+                            <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id,'nature':facture.nature})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
                         </tr>  
                         {% set totalGeneral = totalGeneral + facture.total %}
                     {% endfor %}

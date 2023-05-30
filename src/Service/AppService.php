@@ -774,9 +774,10 @@ class AppService extends AbstractController
             $element["type"] = $facture->getType()->getNom() ;
             $element["dateCreation"] = $facture->getCreatedAt()->format('d/m/Y')  ;
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
-            $element["client"] = $facture->getClient()->getClient()->getNom() ;
+            $element["client"] = $this->getFactureClient($facture)["client"] ;
             $element["total"] = $facture->getTotal();
             $element["specification"] = $specification;
+            $element["nature"] = "FACTURE";
 
             array_push($elements,$element) ;
         }
@@ -911,6 +912,7 @@ class AppService extends AbstractController
             $element["facture"] = $annulation->getNumFact() ;
             $element["client"] = $client["client"] ;
             $element["idC"] = $facture->getClient()->getId() ;
+            $element["idF"] = $facture->getId() ;
             $element["type"] = $annulation->getType()->getNom() ;
             $element["motif"] = $annulation->getMotif()->getNom()  ;
             $element["spec"] = $annulation->getSpecification()->getNom() ;
@@ -975,6 +977,7 @@ class AppService extends AbstractController
         //     return strpos($item->$key, $search[$key]) !== false;
         // }
     } 
+
     public function searchData($data, $search = [])
     {
         $resultats = array_filter($data, function($item) use($search) {
@@ -1206,5 +1209,61 @@ class AppService extends AbstractController
             $result["client"] = $facture->getClient()->getSociete()->getNom() ;
 
         return $result ; 
+    }
+
+    public function getFactureRemise($facture,$totalHt)
+    {
+        if(!is_null($facture->getRemiseType()))
+        {
+            if($facture->getRemiseType()->getId() == 1)
+            {
+                $remiseG = ($totalHt * $facture->getRemiseVal()) / 100 ; 
+            }
+            else
+            {
+                $remiseG = $facture->getRemiseVal() ;
+            }
+        }
+        else
+        {
+            $remiseG = 0 ;
+        }
+        return $remiseG ;
+    }
+
+    public function formatAnnulationToFacture($annulations)
+    {
+        $elements = [] ;
+
+        foreach ($annulations as $annulation) {
+            $element = [] ;
+ 
+            $facture = $this->entityManager->getRepository(Facture::class)->find($annulation->idF) ; 
+ 
+            $element["id"] = $annulation->id ;
+            $element["idC"] = $facture->getClient()->getId() ;
+            $element["idT"] = $facture->getType()->getId() ;
+            $element["idM"] = $facture->getModele()->getId()  ;
+            $element["mois"] = $facture->getDate()->format('m')   ;
+            $element["annee"] = $facture->getDate()->format('Y')   ;
+            $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
+            $element["dateDebut"] = $facture->getDate()->format('d/m/Y')   ;
+            $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
+            $element["agence"] = $facture->getAgence()->getId() ;
+            $element["user"] = $facture->getUser()->getId() ;
+            $element["numFact"] = $annulation->facture;
+            $element["modele"] = $facture->getModele()->getNom() ;
+            $element["type"] = $facture->getType()->getNom() ;
+            $element["dateCreation"] = $annulation->date  ;
+            $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
+            $element["client"] = $this->getFactureClient($facture)["client"] ;
+            $element["total"] = $annulation->total;
+            $element["specification"] = $annulation->refSpec;;
+            $element["nature"] = "ANL" ; 
+
+            array_push($elements,$element) ;
+        }
+
+        return $elements ;
     }
 }

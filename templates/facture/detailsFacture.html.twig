@@ -19,23 +19,25 @@
     <div class="container-fluid px-3">
         <form id="formDetailsFacture">
         <div class="row">
-            <div class="col-md-3 mt-3">
-                <h5 class="font-medium" >Modèle : <span class="text-primary">{{facture.modele|upper}}</span></h5>
-            </div>
-            <div class="col-md-3 mt-3">
-                <h5 class="font-medium" >Type : <span class="text-primary">{{facture.type|upper}}</span></h5>
-            </div>
-            <div class="col-md-3 mt-3">
-                <h5 class="font-medium" >Paiement : <span class="text-primary">{{facture.paiement|upper}}</span></h5>
-            </div>
-            {% if facture.infoSup %}
-                <div class="col-md-3 d-flex flex-row flex-wrap mt-3">
-                    <h5 class="font-medium" >{{facture.libelleCaption}} : <span class="text-primary">{{facture.libelleValue}}</span></h5>
+            {% if nature == "FACTURE" %}
+                <div class="col-md-3 mt-3">
+                    <h5 class="font-medium" >Modèle : <span class="text-primary">{{facture.modele|upper}}</span></h5>
                 </div>
-                <div class="col-md-3 d-flex flex-row flex-wrap mt-3">
-                    <h5 class="font-medium" >{{facture.numeroCaption}} : <span class="text-primary">{{facture.numerovalue}}</span></h5>
+                <div class="col-md-3 mt-3">
+                    <h5 class="font-medium" >Type : <span class="text-primary">{{facture.type|upper}}</span></h5>
                 </div>
-            {% endif %}  
+                <div class="col-md-3 mt-3">
+                    <h5 class="font-medium" >Paiement : <span class="text-primary">{{facture.paiement|upper}}</span></h5>
+                </div>
+                {% if facture.infoSup %}
+                    <div class="col-md-3 d-flex flex-row flex-wrap mt-3">
+                        <h5 class="font-medium" >{{facture.libelleCaption}} : <span class="text-primary">{{facture.libelleValue}}</span></h5>
+                    </div>
+                    <div class="col-md-3 d-flex flex-row flex-wrap mt-3">
+                        <h5 class="font-medium" >{{facture.numeroCaption}} : <span class="text-primary">{{facture.numerovalue}}</span></h5>
+                    </div>
+                {% endif %}  
+            {% endif %}
             <div class="col-md-3 mt-3">
                 <h5 class="font-medium" >Client : <span class="text-primary">{{facture.client|upper}}</span></h5>
             </div>
@@ -62,7 +64,7 @@
                         {% set background = "" %}
                         {% set annulee = "Actif" %}
                         {% if factureDetail.statut == false %}
-                           {% set background = "bg-secondary" %} 
+                           {% set background = nature == "FACTURE" ? "bg-secondary" : "" %} 
                            {% set annulee = "Annulé" %}
                         {% endif %}
                         <tr class="{{background}}">
@@ -79,30 +81,61 @@
                         </tr>
                     {% endfor %}
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="8">Total HT</th>
-                        <th colspan="2" class="bg-light">{{facture.totalHt}}</th>
-                    </tr>
-                    <tr>
-                        <th colspan="8">Remise</th>
-                        <th colspan="2" class="bg-light">{{facture.remise}}</th>
-                    </tr>
-                    <tr>
-                        <th colspan="8">Total TVA</th>
-                        <th colspan="2" class="bg-light">{{facture.totalTva}}</th> 
-                    </tr>
-                    <tr>
-                        <th colspan="8">Total TTC</th>
-                        <th colspan="2" class="bg-primary text-white">{{facture.totalTtc}}</th>
-                    </tr>
-                    {% if facture.devise %}
-                        <tr>
-                            <th colspan="8">Montant en {{facture.deviseCaption}}</th>
-                            <th colspan="2" class="bg-light">{{facture.deviseValue}}</th>
-                        </tr>
+                    {% if nature == "FACTURE" %}
+                        <tfoot>
+                            <tr>
+                                <th colspan="8">Total HT</th>
+                                <th colspan="2" class="bg-light">{{facture.totalHt}}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="8">Remise</th>
+                                <th colspan="2" class="bg-light">{{facture.remise}}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="8">Total TVA</th>
+                                <th colspan="2" class="bg-light">{{facture.totalTva}}</th> 
+                            </tr>
+                            <tr>
+                                <th colspan="8">Total TTC</th>
+                                <th colspan="2" class="bg-primary text-white">{{facture.totalTtc}}</th>
+                            </tr>
+                            {% if facture.devise %}
+                                <tr>
+                                    <th colspan="8">Montant en {{facture.deviseCaption}}</th>
+                                    <th colspan="2" class="bg-light">{{facture.deviseValue}}</th>
+                                </tr>
+                            {% endif %}
+                        </tfoot>
+                    {% else %}
+                        <tfoot>
+                            <tr>
+                                <th colspan="8">Total</th>
+                                <th colspan="2" class="bg-light">{{facture.totalHt}}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="8">Total TVA</th>
+                                <th colspan="2" class="bg-light">{{facture.totalTva}}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="8">Total Facture Annulé</th>
+                                <th colspan="2" class="bg-secondary text-white">{{facture.total}}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="8">Total Retenu</th>
+                                <th colspan="2" class="bg-success text-white">{{facture.retenu}}{{facture.signe}}</th>
+                            </tr>
+                            <tr>
+                                {% set caption = "" %}
+                                {% if facture.specs == "RMB" %}
+                                    {% set caption = "Remboursée" %}
+                                {% else %}
+                                    {% set caption = "Avoir" %}
+                                {% endif %}
+                                <th colspan="8">Total {{caption}}</th>
+                                <th colspan="2" class="bg-primary text-white">{{facture.avoir}}</th> 
+                            </tr>
+                        </tfoot>
                     {% endif %}
-                </tfoot>
             </table>
             <div class="w-100">
                 Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> Francs Comorien
