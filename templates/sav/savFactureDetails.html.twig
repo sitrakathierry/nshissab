@@ -36,7 +36,11 @@
                     <td>{{ factureDetail.valRemise }}</td>
                     <td>{{ factureDetail.total }}</td>
                     <td class="align-midlle text-center">
-                        <button type="button" value="{{factureDetail.id}}" class="btn btn-sm btn-outline-purple btn_anl_check font-smaller"><i class="fa fa-hand-pointer"></i></button>
+                        {% if factureDetail.statut %}
+                            <button type="button" value="{{factureDetail.id}}" class="btn btn-sm btn-outline-purple btn_anl_check font-smaller"><i class="fa fa-hand-pointer"></i></button>
+                        {% else %}
+                            <span class="text-danger text-uppercase font-weight-bold">Annulé</span>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

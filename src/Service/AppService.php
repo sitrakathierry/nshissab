@@ -750,14 +750,6 @@ class AppService extends AbstractController
         foreach ($factures as $facture) {
             $element = [] ;
             $specification = "NONE" ; 
-            $annulation = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
-                "facture" => $facture
-            ]) ; 
-
-            if(!is_null($annulation))
-            {
-                $specification = $annulation->getSpecification()->getReference() ;
-            }
             $element["id"] = $facture->getId() ;
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;

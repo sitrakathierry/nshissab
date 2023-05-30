@@ -283,7 +283,6 @@ class SAVController extends AbstractController
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
         $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-            "statut" => True,
             "facture" => $facture
         ]) ;
         
@@ -323,9 +322,10 @@ class SAVController extends AbstractController
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
             $element["total"] = $total ;
+            $element["statut"] = $factureDetail->isStatut() ;
             array_push($elements,$element) ;
-
-            $totalHt += $total ;
+            if($factureDetail->isStatut())
+                $totalHt += $total ;
         } 
 
         $infoFacture["totalHt"] = $totalHt ;
