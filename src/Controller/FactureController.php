@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\CltHistoClient;
+use App\Entity\CrdDetails;
+use App\Entity\CrdFinance;
+use App\Entity\CrdStatut;
 use App\Entity\Devise;
 use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
@@ -60,7 +63,7 @@ class FactureController extends AbstractController
     {
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
-        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findAll() ; 
+        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
 
         $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
             "agence" => $this->agence 
@@ -70,6 +73,7 @@ class FactureController extends AbstractController
             "agence" => $this->agence,
             "statut" => True
         ]) ; 
+
         $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
@@ -101,20 +105,12 @@ class FactureController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
-        $search = 
-        [
+        $search = [
             "specification" => "NONE"
-            ] ;
-        
-        $item1 = $this->appService->searchData($factures, $search) ;
-
-        $search = 
-        [
-            "specification" => "AVR"
         ] ;
         
-        $item2 = $this->appService->searchData($factures, $search) ;
-
+        $item1 = $this->appService->searchData($factures, $search) ;
+        
         $filename = "files/systeme/sav/annulation(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateSavAnnulation($filename,$this->agence) ;
@@ -125,15 +121,22 @@ class FactureController extends AbstractController
             "refSpec" => "AVR"
         ] ;
 
-        $annulations = $this->appService->searchData($annulations,$search) ;
+        $item2 = $this->appService->searchData($annulations,$search) ;
         
-        $item3 = $this->appService->formatAnnulationToFacture($annulations) ;
+        $item2 = $this->appService->formatAnnulationToFacture($item2) ;
+
+        $search = [
+            "refSpec" => "ACN"
+        ] ;
+
+        $item3 = $this->appService->searchData($annulations,$search) ;
+        
+        $item3 = $this->appService->formatAnnulationToFacture($item3) ;
 
         $factures = array_merge($item1, $item2, $item3);
-        
-        // dd($factures) ;
 
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
+
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
 
         $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
@@ -229,6 +232,7 @@ class FactureController extends AbstractController
         $infoFacture["type"] = $facture->getType()->getNom() ;
         $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
         $infoFacture["lieu"] = $facture->getLieu() ;
+        $infoFacture["refType"] = $facture->getType()->getReference() ;
 
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 
@@ -287,10 +291,6 @@ class FactureController extends AbstractController
             foreach ($annulationDetails as $annulationDetail) {
                array_push($factureDetails,$annulationDetail->getFactureDetail()) ;
             }
-            // $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-            //     "statut" => false,
-            //     "facture" => $facture
-            // ]) ;
         }
         
         
@@ -357,6 +357,8 @@ class FactureController extends AbstractController
             $infoFacture["total"] = $total ;
             $infoFacture["retenu"] = $retenu ;
             $infoFacture["signe"] = $signe ;
+            $infoFacture["specification"] = $annulation->getSpecification()->getNom() ;
+            $infoFacture["motif"] = $annulation->getMotif()->getNom() ;
             $infoFacture["avoir"] = $avoir ;
             $infoFacture["specs"] = $annulation->getSpecification()->getReference() ;
             $infoFacture["lettre"] = $this->appService->NumberToLetter($total) ;
@@ -375,7 +377,6 @@ class FactureController extends AbstractController
     #[Route('/facture/creation/save', name: 'fact_save_activites')]
     public function factSaveActivities(Request $request)
     {
-        // dd($request->request) ; 
         $fact_modele = $request->request->get('fact_modele') ; 
         $fact_type = $request->request->get('fact_type') ; 
         $fact_paiement = $request->request->get('fact_paiement') ; 
@@ -386,7 +387,6 @@ class FactureController extends AbstractController
         $fact_num = $request->request->get('fact_num') ;
         $fact_libelle = $request->request->get('fact_libelle') ;
 
-        // dd($fact_libelle) ;
         $fact_enr_total_general = $request->request->get('fact_enr_total_general') ;
 
         $data = [
@@ -412,25 +412,27 @@ class FactureController extends AbstractController
 
         if(!is_null($paiement))
         {
-            if(!is_null($paiement->getLibelleCaption()))
+            if($paiement->getReference() != "CR" || $paiement->getReference() != "AC")
             {
-                array_push($data,$fact_libelle) ;
-                array_push($dataMessage,$paiement->getLibelleCaption()) ;
-            }
-
-            if(!is_null($paiement->getNumCaption()))
-            {
-                array_push($data,$fact_num) ;
-                array_push($dataMessage,$paiement->getNumCaption()) ;
+                if(!is_null($paiement->getLibelleCaption()))
+                {
+                    array_push($data,$fact_libelle) ;
+                    array_push($dataMessage,$paiement->getLibelleCaption()) ;
+                }
+    
+                if(!is_null($paiement->getNumCaption()))
+                {
+                    array_push($data,$fact_num) ;
+                    array_push($dataMessage,$paiement->getNumCaption()) ;
+                }
             }
         }
-        
 
         $result = $this->appService->verificationElement($data, $dataMessage) ;
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
-
+        
         $fact_enr_prod_type = (array)$request->request->get('fact_enr_prod_type') ;
         if(empty($fact_enr_prod_type))
         {
@@ -438,6 +440,20 @@ class FactureController extends AbstractController
             $result["message"] = "Veuiller insérer un élément" ;
             return new JsonResponse($result) ;
         }
+
+        $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
+
+        if(!is_null($fact_libelle) && ($paiement->getReference() == "CR" || $paiement->getReference() == "AC"))
+        {
+            if(!is_numeric($fact_libelle))
+            {
+                $result["type"] = "orange" ;
+                $result["message"] = "Le montant payé n'est pas valide" ;
+                return new JsonResponse($result) ;
+            }
+        }
+
+        // DEBUT D'INSERTION DE DONNEE
 
         $fact_type_remise_prod_general = !empty($request->request->get('fact_type_remise_prod_general')) ? $this->entityManager->getRepository(FactRemiseType::class)->find($request->request->get('fact_type_remise_prod_general')) : null ; 
         if(!is_null($fact_type_remise_prod_general))
@@ -497,12 +513,13 @@ class FactureController extends AbstractController
                 break;
             case 'PR':
                 $statutPaiement = "En_cours" ;
+                break;
             default:
                 $statutPaiement = "En_attente" ;
                 break;
         }
 
-        $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
+        // $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
         $fact_num = empty($fact_num) ? null : $fact_num ;
         
         $histoPaiement->setLibelle($fact_libelle) ;
@@ -554,10 +571,66 @@ class FactureController extends AbstractController
             $this->entityManager->flush() ; 
         } 
 
+        // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
+
+        if($paiement->getReference() == "CR" || $paiement->getReference() == "AC")
+        {
+            $lastRecordFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([], ['id' => 'DESC']);
+            $numFinance = !is_null($lastRecordFinance) ? ($lastRecordFinance->getId()+1) : 1 ;
+            $numFinance = str_pad($numFinance, 5, "0", STR_PAD_LEFT);
+            $refFncStatut = "ATN" ;
+            if(!is_null($fact_libelle))
+            {
+                $refFncStatut = "ECR" ; 
+            }
+            $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
+                    "reference" => $refFncStatut
+                ]) ;
+
+            $finance = new CrdFinance() ;
+
+            $finance->setAgence($this->agence) ;
+            $finance->setFacture($facture) ;
+            $finance->setPaiement($paiement) ;
+            $finance->setNumFnc($numFinance) ;
+            $finance->setStatut($crdStatut) ; 
+            $finance->setCreatedAt(new \DateTimeImmutable) ; 
+            $finance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+            $this->entityManager->persist($finance) ;
+            $this->entityManager->flush() ; 
+
+            if(!is_null($fact_libelle))
+            {
+                $crdDetail = new CrdDetails() ;
+
+                $crdDetail->setFinance($finance) ; 
+                $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$fact_date)) ;
+                $crdDetail->setMontant(floatval($fact_libelle)) ;
+                $crdDetail->setAgence($this->agence) ;
+
+                $this->entityManager->persist($crdDetail) ;
+                $this->entityManager->flush() ; 
+            }
+        }
+        
+        // gestion des fichiers 
+
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
-        unlink($filename);
+        if(file_exists($filename))
+            unlink($filename);
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
+        
+        if($paiement->getReference() == "AC")
+            $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+        else
+            $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+            
+        if(file_exists($filename))
+            unlink($filename);
+            
+        
         return new JsonResponse($result) ;
     }
 

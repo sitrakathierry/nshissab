@@ -67,7 +67,7 @@ class SAVController extends AbstractController
         
         $types = $this->entityManager->getRepository(SavType::class)->findAll() ;
 
-        $specs = $this->entityManager->getRepository(SavSpec::class)->findAll() ;
+        $specs = $this->entityManager->getRepository(SavSpec::class)->findBy([],["rang" => "ASC"]) ;
 
         $filename = $this->filename."motif(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -415,8 +415,10 @@ class SAVController extends AbstractController
             $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
             if($specification->getReference() == "RMB")
                 $numAnnulation = $facture->getNumFact()."/RTN" ;
-            else
+            else if($specification->getReference() == "AVR")
                 $numAnnulation = $facture->getNumFact()."/ANL" ;
+            else
+                $numAnnulation = $facture->getNumFact()."/ANL-ACN" ;
         }
         else
         {
@@ -562,13 +564,15 @@ class SAVController extends AbstractController
             $remboursee = $annulation->getMontant() - $retenu ;
         }
         $donnee = [] ;
-
+  
         $donnee["numFacture"] = $annulation->getNumFact() ;
         $donnee["spec"] = $spec ;
-        $donnee["refType"] = $annulation->getSpecification()->getReference() ;
+        $donnee["refSpec"] = $annulation->getSpecification()->getReference() ;
+        $donnee["refType"] = $annulation->getType()->getReference() ;
         $donnee["date"] = $annulation->getDate()->format('d/m/Y') ;
         $donnee["lieu"] = $annulation->getLieu() ;
         $donnee["client"] = $client ;
+        $donnee["motif"] = $annulation->getMotif()->getNom() ;
         $donnee["total"] = $total ;
         $donnee["retenu"] = $retenu ;
         $donnee["signe"] = $signe ;

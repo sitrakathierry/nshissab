@@ -82,12 +82,16 @@ class Facture
     #[ORM\OneToMany(mappedBy: 'facture', targetEntity: SavAnnulation::class)]
     private Collection $savAnnulations;
 
+    #[ORM\OneToMany(mappedBy: 'facture', targetEntity: CrdFinance::class)]
+    private Collection $crdFinances;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
         $this->factDetails = new ArrayCollection();
         $this->cmdBonCommandes = new ArrayCollection();
         $this->savAnnulations = new ArrayCollection();
+        $this->crdFinances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -425,6 +429,36 @@ class Facture
             // set the owning side to null (unless already changed)
             if ($savAnnulation->getFacture() === $this) {
                 $savAnnulation->setFacture(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CrdFinance>
+     */
+    public function getCrdFinances(): Collection
+    {
+        return $this->crdFinances;
+    }
+
+    public function addCrdFinance(CrdFinance $crdFinance): self
+    {
+        if (!$this->crdFinances->contains($crdFinance)) {
+            $this->crdFinances->add($crdFinance);
+            $crdFinance->setFacture($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrdFinance(CrdFinance $crdFinance): self
+    {
+        if ($this->crdFinances->removeElement($crdFinance)) {
+            // set the owning side to null (unless already changed)
+            if ($crdFinance->getFacture() === $this) {
+                $crdFinance->setFacture(null);
             }
         }
 

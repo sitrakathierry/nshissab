@@ -24,6 +24,9 @@ class SavSpec
     #[ORM\OneToMany(mappedBy: 'specification', targetEntity: SavAnnulation::class)]
     private Collection $savAnnulations;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $rang = null;
+
     public function __construct()
     {
         $this->savAnnulations = new ArrayCollection();
@@ -84,6 +87,18 @@ class SavSpec
                 $savAnnulation->setSpecification(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRang(): ?int
+    {
+        return $this->rang;
+    }
+
+    public function setRang(?int $rang): self
+    {
+        $this->rang = $rang;
 
         return $this;
     }

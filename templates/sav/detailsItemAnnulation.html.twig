@@ -22,6 +22,7 @@
         <div class="w-100 mt-3 d-flex flex-row align-items-center text-left flex-wrap">
             <h5 class="font-medium" >Client : <span class="text-primary">{{annulation.client|upper}}</span></h5>
             <h5 class="font-medium ml-3" >Specification : <span class="text-primary">{{annulation.spec|upper}}</span></h5>
+            <h5 class="font-medium ml-3" >Motif : <span class="text-primary">{{annulation.motif|upper}}</span></h5>
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-bordered table-sm">
@@ -66,19 +67,21 @@
                         <th colspan="8">Total Facture Annulé</th>
                         <th class="bg-secondary text-white">{{annulation.total}}</th>
                     </tr>
-                    <tr>
-                        <th colspan="8">Total Retenu</th>
-                        <th class="bg-success text-white">{{annulation.retenu}}{{annulation.signe}}</th>
-                    </tr>
-                    <tr>
-                        <th colspan="8">Total {% if annulation.refType == "AVR" %}
-                                            Avoir
-                                        {% else %} 
-                                            Remboursé
-                                        {% endif %}
-                        </th>
-                        <th class="bg-primary text-white">{{annulation.remboursee}}</th> 
-                    </tr>
+                    {% if annulation.refSpec != "ACN" %}
+                        <tr>
+                            <th colspan="8">Total Retenu</th>
+                            <th class="bg-success text-white">{{annulation.retenu}}{{annulation.signe}}</th>
+                        </tr>
+                        <tr>
+                            <th colspan="8">Total {% if annulation.refSpec == "AVR" %}
+                                                Avoir
+                                            {% else %} 
+                                                Remboursé
+                                            {% endif %}
+                            </th>
+                            <th class="bg-primary text-white">{{annulation.remboursee}}</th> 
+                        </tr>
+                    {% endif %}
                 </tfoot>
             </table>
             <div class="w-100">
@@ -93,7 +96,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
                     </div>
-                    <input type="text" class="form-control sav_anl_lieu" name="sav_anl_lieu" value="{{ annulation.lieu }}" placeholder=". . ." aria-label="Lieu Facture" id="sav_anl_lieu">
+                    <input type="text" class="form-control sav_anl_lieu" readonly name="sav_anl_lieu" value="{{ annulation.lieu }}" placeholder=". . ." aria-label="Lieu Facture" id="sav_anl_lieu">
                 </div>
             </div>
         </div>
@@ -105,16 +108,16 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
                     </div>
-                    <input type="text" class="form-control sav_anl_date" name="sav_anl_date" value="{{ annulation.date }}" placeholder=". . ." aria-label="Date Facture" id="sav_anl_date">
+                    <input type="text" class="form-control sav_anl_date" readonly name="sav_anl_date" value="{{ annulation.date }}" placeholder=". . ." aria-label="Date Facture" id="sav_anl_date">
                 </div>
             </div>
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button onclick="history.back()" class="btn btn-sm ml-2 btn-secondary text-white"><i class="fa fa-arrow-left"></i>&nbsp;Retour</button>
-                <button type="button" class="btn btn-sm ml-2 btn-danger text-white"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
+                {# <button onclick="history.back()" class="btn btn-sm ml-2 btn-secondary text-white"><i class="fa fa-arrow-left"></i>&nbsp;Retour</button> #}
+                {# <button type="button" class="btn btn-sm ml-2 btn-danger text-white"><i class="fa fa-trash"></i>&nbsp;Supprimer</button> #}
                 <button type="button" class="btn btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
-                <button type="submit" class="btn btn-sm ml-2 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
+                {# <button type="submit" class="btn btn-sm ml-2 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button> #}
             </div>
         {% endif %} 
         </form>

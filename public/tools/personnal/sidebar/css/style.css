@@ -3467,7 +3467,7 @@ input[type="button"].btn-block {
   padding-left: 0;
   margin-bottom: 0;
   list-style: none; 
-  justify-content: right;
+  /* justify-content: right; */
 }
   .navbar-nav .nav-link {
     padding-right: 0;

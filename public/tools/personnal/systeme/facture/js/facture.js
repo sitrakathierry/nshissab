@@ -500,7 +500,7 @@ $(document).ready(function(){
             var btnText = $(this).data("text")
             $(target).val(inputValue) ;
 
-            var paiementArray = ["ES","VR","CH","CB","MN","AC"]
+            var paiementArray = ["ES","VR","CH","CB","MN","CR","AC"]
 
             var modePaiement = $(this).data('mode').split(",")
             

@@ -6,8 +6,11 @@ use App\Entity\Agence;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\CmdBonCommande;
+use App\Entity\CrdDetails;
+use App\Entity\CrdFinance;
 use App\Entity\Devise;
 use App\Entity\FactDetails;
+use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
@@ -568,21 +571,8 @@ class AppService extends AbstractController
                 $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite() ;
                 $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
 
-                if(!is_null($factureDetail->getRemiseType()))
-                {
-                    if($factureDetail->getRemiseType()->getId() == 1)
-                    {
-                        $remiseVal = ($total * $factureDetail->getRemiseVal()) / 100 ; 
-                    }
-                    else
-                    {
-                        $remiseVal = $factureDetail->getRemiseVal() ;
-                    }
-                }
-                else
-                {
-                    $remiseVal = 0 ;
-                }
+                $remiseVal = $this->getFactureRemise($factureDetail,$total) ;
+
                 $total = $total - $remiseVal ;
 
                 $typeRemise = is_null($factureDetail->getRemiseType()) ? "" : $factureDetail->getRemiseType()->getNotation() ;
@@ -920,6 +910,68 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateCredit($filename, $agence,$refPaiement)
+    {
+        $paiement = $this->entityManager->getRepository(FactPaiement::class)->findOneBy([
+            "reference" => $refPaiement
+            ]) ;
+
+        $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
+                "agence" => $agence,
+                "paiement" => $paiement
+            ]) ;
+
+        $elements = [] ;
+        foreach ($finances as $finance) {
+            $client = $this->getFactureClient($finance->getFacture())["client"] ;
+
+            $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;
+
+            $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "statut" => True,
+                "facture" => $finance->getFacture()
+            ]) ;
+
+            foreach ($factureDetails as $factureDetail) {
+                $element = [] ;
+
+                $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite() ;
+                $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+                $remiseVal = $this->getFactureRemise($factureDetail,$total) ;
+                
+                $total = $total - $remiseVal ;
+
+                $typeRemise = is_null($factureDetail->getRemiseType()) ? "" : $factureDetail->getRemiseType()->getNotation() ;
+                $typeRemise = ($typeRemise == "%") ? $typeRemise : "" ;
+                $typeRemiseG = is_null($finance->getFacture()->getRemiseType()) ? "" : $finance->getFacture()->getRemiseType()->getNotation() ;
+                $typeRemiseG = ($typeRemiseG == "%") ? $typeRemiseG : "" ;
+                $element["id"] = $finance->getId() ;
+                $element["agence"] = $finance->getAgence()->getId() ;
+                $element["date"] = $finance->getFacture()->getDate()->format('d/m/Y') ;
+                $element["numFnc"] = $finance->getNumFnc() ;
+                $element["client"] = $client ;
+                $element["designation"] = $factureDetail->getDesignation() ;
+                $element["qte"] = $factureDetail->getQuantite() ;
+                $element["prix"] = $factureDetail->getPrix() ;
+                $element["tva"] = ($tva == 0) ? "-" : $tva ; ;
+                $element["remise"] = $factureDetail->getRemiseVal()." ".$typeRemise ;
+                $element["total"] = $total ;
+                $element["statut"] = $finance->getStatut()->getNom() ;
+                $element["refStatut"] = $finance->getStatut()->getreference() ;
+                $element["remiseG"] = $finance->getFacture()->getRemiseVal()." ".$typeRemiseG ;
+                $element["totalTva"] = $finance->getFacture()->getTvaVal() ;
+                $element["totalTtc"] = $finance->getFacture()->getTotal() ;
+                $element["totalPayee"] = $totalPayee["total"] ;
+
+                array_push($elements,$element) ;
+            }
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+        
+    }
+
     public function recherche($item, $search = []) {
         // if (count($search) > 1) {
             $condition = true ;
@@ -1185,11 +1237,27 @@ class AppService extends AbstractController
             ]
         ];
 
-        foreach ($files[$key] as $file) {
-            $filename = $racine.$key."/".$file."/".$this->nameAgence ;
-            if(file_exists($filename))
-                unlink($filename) ;
+        if($key != "all")
+        {
+            foreach ($files[$key] as $file) {
+                $filename = $racine.$key."/".$file."/".$this->nameAgence ;
+                if(file_exists($filename))
+                    unlink($filename) ;
+            }
         }
+        else
+        {
+            foreach($files as $indice => $value)
+            {
+                foreach ($files[$indice] as $file) {
+                    $filename = $racine.$indice."/".$file."/".$this->nameAgence ;
+                    if(file_exists($filename))
+                        unlink($filename) ;
+                }
+            }
+        }
+
+        
     }
 
     public function getFactureClient($facture)

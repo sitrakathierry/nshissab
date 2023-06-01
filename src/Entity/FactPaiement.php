@@ -30,9 +30,16 @@ class FactPaiement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $libelleCaption = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $rang = null;
+
+    #[ORM\OneToMany(mappedBy: 'paiement', targetEntity: CrdFinance::class)]
+    private Collection $crdFinances;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
+        $this->crdFinances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,6 +121,48 @@ class FactPaiement
     public function setLibelleCaption(?string $libelleCaption): self
     {
         $this->libelleCaption = $libelleCaption;
+
+        return $this;
+    }
+
+    public function getRang(): ?int
+    {
+        return $this->rang;
+    }
+
+    public function setRang(?int $rang): self
+    {
+        $this->rang = $rang;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CrdFinance>
+     */
+    public function getCrdFinances(): Collection
+    {
+        return $this->crdFinances;
+    }
+
+    public function addCrdFinance(CrdFinance $crdFinance): self
+    {
+        if (!$this->crdFinances->contains($crdFinance)) {
+            $this->crdFinances->add($crdFinance);
+            $crdFinance->setPaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrdFinance(CrdFinance $crdFinance): self
+    {
+        if ($this->crdFinances->removeElement($crdFinance)) {
+            // set the owning side to null (unless already changed)
+            if ($crdFinance->getPaiement() === $this) {
+                $crdFinance->setPaiement(null);
+            }
+        }
 
         return $this;
     }

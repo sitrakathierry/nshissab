@@ -115,6 +115,12 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: SavDetails::class)]
     private Collection $savDetails;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CrdFinance::class)]
+    private Collection $crdFinances;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CrdDetails::class)]
+    private Collection $crdDetails;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -138,6 +144,8 @@ class Agence
         $this->savAnnulations = new ArrayCollection();
         $this->savMotifs = new ArrayCollection();
         $this->savDetails = new ArrayCollection();
+        $this->crdFinances = new ArrayCollection();
+        $this->crdDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -912,6 +920,66 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($savDetail->getAgence() === $this) {
                 $savDetail->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CrdFinance>
+     */
+    public function getCrdFinances(): Collection
+    {
+        return $this->crdFinances;
+    }
+
+    public function addCrdFinance(CrdFinance $crdFinance): self
+    {
+        if (!$this->crdFinances->contains($crdFinance)) {
+            $this->crdFinances->add($crdFinance);
+            $crdFinance->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrdFinance(CrdFinance $crdFinance): self
+    {
+        if ($this->crdFinances->removeElement($crdFinance)) {
+            // set the owning side to null (unless already changed)
+            if ($crdFinance->getAgence() === $this) {
+                $crdFinance->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CrdDetails>
+     */
+    public function getCrdDetails(): Collection
+    {
+        return $this->crdDetails;
+    }
+
+    public function addCrdDetail(CrdDetails $crdDetail): self
+    {
+        if (!$this->crdDetails->contains($crdDetail)) {
+            $this->crdDetails->add($crdDetail);
+            $crdDetail->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrdDetail(CrdDetails $crdDetail): self
+    {
+        if ($this->crdDetails->removeElement($crdDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($crdDetail->getAgence() === $this) {
+                $crdDetail->setAgence(null);
             }
         }
 

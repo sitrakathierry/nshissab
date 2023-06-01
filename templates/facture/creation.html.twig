@@ -21,7 +21,7 @@
         <div class="d-flex flex-row align-items-center justify-content-left">
             {% for type in types %}
                 <button type="button" data-reference="{{type.reference}}" data-mode="{{type.modePaiement}}" data-text="{{type.nom|upper}}" data-class="btn-primary" data-target="#fact_type" value="{{type.id}}" class="btn fact_btn_type btn-sm btn-outline-primary mx-2">{{type.nom|upper}}</button>
-            {% endfor %}
+            {% endfor %}  
             <input type="hidden" class="fact_type" id="fact_type" name="fact_type" >
         </div>
         <div class="d-flex flex-row align-items-center fact_content_paiement justify-content-left mt-3">
@@ -199,7 +199,7 @@
                             <span id="fact_total_tva"></span>
                             <input type="hidden" class="fact_enr_total_tva" name="fact_enr_total_tva">   
                         </th>
-                        <td></td>
+                        <td class="bg-light"></td>
                     </tr>
                     <tr>
                         <th colspan="7" class="fact_caption_total_general">Total TTC</th>
