@@ -55,7 +55,6 @@ $(document).ready(function(){
     $("#fact_search_date").change(function(){
         var option = $(this).find("option:selected") ;
         var critere = option.data("critere") ;
-
         if(critere == "")
         {
             $(".elem_date").html("")
@@ -99,7 +98,6 @@ $(document).ready(function(){
             
         }
         searchFacture()
-
     })
 
     function searchFacture()

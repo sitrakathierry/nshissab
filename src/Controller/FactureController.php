@@ -412,7 +412,7 @@ class FactureController extends AbstractController
 
         if(!is_null($paiement))
         {
-            if($paiement->getReference() != "CR" || $paiement->getReference() != "AC")
+            if($paiement->getReference() != "CR" && $paiement->getReference() != "AC")
             {
                 if(!is_null($paiement->getLibelleCaption()))
                 {
@@ -457,7 +457,7 @@ class FactureController extends AbstractController
 
         $fact_type_remise_prod_general = !empty($request->request->get('fact_type_remise_prod_general')) ? $this->entityManager->getRepository(FactRemiseType::class)->find($request->request->get('fact_type_remise_prod_general')) : null ; 
         if(!is_null($fact_type_remise_prod_general))
-            $fact_remise_prod_general = !empty($request->request->get('fact_remise_prod_general')) ? $request->request->get('fact_type_remise_prod_general') : null ; 
+            $fact_remise_prod_general = !empty($request->request->get('fact_remise_prod_general')) ? $request->request->get('fact_remise_prod_general') : null ; 
         else
             $fact_remise_prod_general = null ;
         
@@ -578,11 +578,8 @@ class FactureController extends AbstractController
             $lastRecordFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([], ['id' => 'DESC']);
             $numFinance = !is_null($lastRecordFinance) ? ($lastRecordFinance->getId()+1) : 1 ;
             $numFinance = str_pad($numFinance, 5, "0", STR_PAD_LEFT);
-            $refFncStatut = "ATN" ;
-            if(!is_null($fact_libelle))
-            {
-                $refFncStatut = "ECR" ; 
-            }
+            $refFncStatut = "ECR" ; 
+            
             $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
                     "reference" => $refFncStatut
                 ]) ;

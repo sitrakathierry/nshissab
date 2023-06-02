@@ -6,6 +6,7 @@ use App\Entity\Agence;
 use App\Entity\CltHistoClient;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
+use App\Entity\CrdStatut;
 use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
@@ -61,21 +62,39 @@ class CreditController extends AbstractController
         
         $credits = json_decode(file_get_contents($filename)) ;
 
+        $crdStatuts =  $this->entityManager->getRepository(CrdStatut::class)->findBy([
+            "classement" => "CR"
+        ],["rang" => "ASC"]) ;
+
         return $this->render('credit/consultationCredit.html.twig', [
             "filename" => "credit",
             "titlePage" => "Consultation Credit",
             "with_foot" => false,
             "clients" => $clients,
             "critereDates" => $critereDates,
-            "credits" => $credits
+            "credits" => $credits,
+            "crdStatuts" => $crdStatuts,
+            "refPaiement" => "CR"
         ]);
     }
 
-    #[Route('/credit/details/{id}', name: 'crd_details_credit', defaults: ["id" => null] )]
-    public function crdDetailsCredit($id)
+    #[Route('/credit/details/{id}/{updated}', name: 'crd_details_credit', defaults: ["id" => null,"updated" => false] )]
+    public function crdDetailsCredit($id,$updated)
     {
         $finance = $this->entityManager->getRepository(CrdFinance::class)->find($id) ;
-        
+        $this->appService->updateStatutFinance($finance) ;
+
+        if($updated)
+        {
+            if($finance->getPaiement()->getReference() == "AC")
+            $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+            else
+                $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+                
+            if(file_exists($filename))
+                unlink($filename);
+        }
+
         $facture = $finance->getFacture() ;
         
         $infoFacture = [] ;
@@ -116,7 +135,6 @@ class CreditController extends AbstractController
                 $infoFacture["libelleCaption"] =  $histoPaiement->getPaiement()->getLibelleCaption() ;
                 $infoFacture["libelleValue"] = $histoPaiement->getLibelle() ;
             }
-
         }
         else
         {
@@ -181,7 +199,8 @@ class CreditController extends AbstractController
             "with_foot" => true,
             "facture" => $infoFacture,
             "factureDetails" => $elements,
-            "financeDetails" => $financeDetails
+            "financeDetails" => $financeDetails,
+            "refPaiement" => $refPaiement
         ]) ;
 
     }
@@ -192,6 +211,8 @@ class CreditController extends AbstractController
         $crd_paiement_date = $request->request->get('crd_paiement_date') ;
         $crd_paiement_montant = $request->request->get('crd_paiement_montant') ;
         $crd_id_finance = $request->request->get('crd_paiement_id') ;
+
+        $finance = $this->entityManager->getRepository(CrdFinance::class)->find($crd_id_finance) ;
 
         $data = [
             $crd_paiement_date,
@@ -208,7 +229,20 @@ class CreditController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
         
-        $finance = $this->entityManager->getRepository(CrdFinance::class)->find($crd_id_finance) ;
+        $totalFacture = $finance->getFacture()->getTotal() ; 
+        $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($crd_id_finance) ; 
+
+        $ttcRestant = $totalFacture - $totalPayee["total"] ;
+        $ttcRestant = $ttcRestant - $crd_paiement_montant ; 
+
+        if($ttcRestant < 0)
+        {
+            $crd_paiement_montant = $crd_paiement_montant - abs($ttcRestant) ;
+            $result["type"] = "green";
+            $result["message"] = "Enregistrement effectué. Le montant dépasse de ".abs($ttcRestant) ; 
+        }
+
+        // DEBUT INSERTION
 
         $crdDetail = new CrdDetails() ;
 
@@ -220,6 +254,8 @@ class CreditController extends AbstractController
         $this->entityManager->persist($crdDetail) ;
         $this->entityManager->flush() ; 
         $refPaiement = $finance->getPaiement()->getReference() ; 
+
+        $this->appService->updateStatutFinance($finance) ;
 
         if($refPaiement == "AC")
             $filename = $this->filename."acompte(agence)/".$this->nameAgence ;
@@ -233,7 +269,6 @@ class CreditController extends AbstractController
             
             $this->appService->generateCredit($filename,$this->agence,$refPaiement) ;
         }
-            
 
         return new JsonResponse($result) ;
     }
@@ -252,6 +287,10 @@ class CreditController extends AbstractController
             $this->appService->generateCredit($filename,$this->agence,"AC") ;
         
         $credits = json_decode(file_get_contents($filename)) ;
+        
+        $crdStatuts =  $this->entityManager->getRepository(CrdStatut::class)->findBy([
+            "classement" => "AC"
+        ],["rang" => "ASC"]) ;
 
         return $this->render('credit/consultationCredit.html.twig', [
             "filename" => "credit",
@@ -259,7 +298,91 @@ class CreditController extends AbstractController
             "with_foot" => false,
             "clients" => $clients,
             "critereDates" => $critereDates,
-            "credits" => $credits
+            "credits" => $credits,
+            "crdStatuts" => $crdStatuts,
+            "refPaiement" => "AC"
         ]);
     }
+
+    #[Route('/credit/acompte/annuler', name: 'crd_acompte_annule')]
+    public function crdAnnulerAcompte(Request $request)
+    {
+        $idFnc = $request->request->get('id') ;
+
+        $finance = $this->entityManager->getRepository(CrdFinance::class)->find($idFnc);
+
+        $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
+                "reference" => "ANL"
+            ]) ;
+
+        $finance->setStatut($crdStatut) ;
+        $this->entityManager->flush() ;
+
+        if($finance->getPaiement()->getReference() == "AC")
+        $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+        else
+            $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+            
+        if(file_exists($filename))
+            unlink($filename);
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Annulation effectué"
+            ]) ;
+    }
+
+    #[Route('/credit/finance/items/search', name: 'crd_acompte_credit_search_items')]
+    public function crdSearchCreditAcompte(Request $request)
+    {
+        $refPaiement = $request->request->get('refPaiement') ;
+
+        if($refPaiement == "AC")
+            $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+        else
+            $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+        
+        if(!file_exists($filename))
+            $this->appService->generateCredit($filename,$this->agence,$refPaiement) ;
+        
+        $credits = json_decode(file_get_contents($filename)) ;
+
+        $statut = $request->request->get('statut') ;
+        $idC = $request->request->get('idC') ;
+        $currentDate = $request->request->get('currentDate') ;
+        $dateFacture = $request->request->get('dateFacture') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $annee = $request->request->get('annee') ;
+        $mois = $request->request->get('mois') ;
+
+        $search = [
+            "refPaiement" => $refPaiement,
+            "idStatut" => $statut,
+            "idC" => $idC,
+            "currentDate" => $currentDate,
+            "dateFacture" => $dateFacture,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
+        ] ;
+
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
+        } 
+
+        $credits = $this->appService->searchData($credits,$search) ;
+        $credits = array_values($credits) ; 
+        $response = $this->renderView("credit/searchFinance.html.twig", [
+            "credits" => $credits,
+            "refPaiement" => $refPaiement
+        ]) ;
+
+        return new Response($response) ; 
+    }
+
 }

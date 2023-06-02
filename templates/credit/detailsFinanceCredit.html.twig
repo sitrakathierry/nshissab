@@ -10,19 +10,28 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/consultation.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
         {{titlePage}} N° :&nbsp;<span class="text-white px-2 py-1 rounded badge-warning">{{facture.numFnc}}</span>
-            {% if facture.refStatut == "ATN" %}
-                {% set statutClass = "text-secondary" %}
-            {% elseif facture.refStatut == "ECR"  %}
-                {% set statutClass = "text-info" %}
+            {% if refPaiement == "CR" %}
+                {% if facture.refStatut == "ECR"  %}
+                    {% set statutClass = "text-info" %}
+                {% else %}
+                    {% set statutClass = "text-success" %}
+                {% endif %}
             {% else %}
-                {% set statutClass = "text-success" %}
+                {% if facture.refStatut == "ECR"  %}
+                    {% set statutClass = "text-info" %}
+                {% elseif facture.refStatut == "TRM" %}
+                    {% set statutClass = "text-success" %}
+                {% elseif facture.refStatut == "ANL" %}
+                    {% set statutClass = "text-secondary" %}
+                {% else %}
+                    {% set statutClass = "text-danger" %}
+                {% endif %}
             {% endif %}
         <span class="ml-auto {{statutClass}} font-weight-bold">{{facture.statut|upper}}</span>
         {% if facture.refStatut == "ATN" %}
@@ -104,10 +113,11 @@
                 <button type="button" class="btn btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
             <div class="barre_dashed w-100"></div>
-            <div class="row mt-3">
+            <div class="row">
                 <div class="col-md-9">
                     {% if facture.refStatut == "ECR" %}
                         <form id="formPaiementCredit">
+                            <h5 class="title_form mt-3 text-black text-uppercase">Enregistrement {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</h5>
                             <div class="row mb-2">
                                 <div class="col-md-4">
                                     <label for="crd_paiement_date" class="font-weight-bold">Date</label>
@@ -120,17 +130,18 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="nom" class="font-weight-bold">&nbsp;</label>
-                                    <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;Payée</button>
+                                    <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;{{ refPaiement == "CR" ? "Payé" : "Déposé"}}</button>
                                 </div>
                             </div>
                         </form>
                     {% endif %}
+                    <h5 class="title_form mt-3 text-black text-uppercase">Liste des {{ refPaiement == "CR" ? "Paiements" : "Dépôts"}}</h5>
                     <div class="table-responsive">
                         <table class="table-sm table table-bordered">
                             <thead class="text-uppercase thead-dark">
                                 <tr>
-                                    <th>Date de paiement</th>
-                                    <th>Montant Payée</th>
+                                    <th>Date de {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</th>
+                                    <th>Montant {{ refPaiement == "CR" ? "Payé" : "Déposé"}}</th>
                                 </tr>
                             </thead>
                             <tbody>

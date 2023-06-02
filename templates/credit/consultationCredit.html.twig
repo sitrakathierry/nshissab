@@ -25,10 +25,11 @@
                 <label for="nom" class="font-weight-bold ml-1 text-uppercase">Statut</label>
                 <div class="w-100 d-flex flex-wrap flex-row align-items-center justify-content-left">
                     <button type="button" data-text="" data-class="btn-info" data-target="#crd_statut" value="" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info mx-1">TOUS</button>
-                    <button type="button" data-class="btn-info" data-target="#crd_statut" value="{{"modele.id"}}" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info text-uppercase mx-1">En Attente</button>
-                    <button type="button" data-class="btn-info" data-target="#crd_statut" value="{{"modele.id"}}" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info text-uppercase mx-1">En Cours</button>
-                    <button type="button" data-class="btn-info" data-target="#crd_statut" value="{{"modele.id"}}" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info text-uppercase mx-1" >Soldé</button>
-                    <input type="hidden" id="fact_search_modele" name="fact_search_modele">
+                    {% for crdStatut in crdStatuts %}
+                        <button type="button" data-class="btn-info" data-target="#crd_statut" value="{{crdStatut.id}}" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info text-uppercase mx-1">{{ crdStatut.nom|upper }}</button>
+                    {% endfor %}
+                    <input type="hidden" id="crd_statut" name="crd_statut">
+                    <input type="hidden" id="refPaiement" name="refPaiement" value="{{refPaiement}}">
                 </div>
             </div>
         </div>
@@ -60,8 +61,9 @@
                 <button class="btn btn-block btn-danger btn-sm"><i class="fa fa-file-pdf"></i>&nbsp;Exporter Pdf</button>
             </div>
         </div>
+        <div class="row mt-2 elem_date"></div>
         <div class="table-responsive mt-4">
-            <table class="table table-sm table-bordered table-hover">
+            <table class="table table-sm table-bordered">
                 <thead class="thead-light text-uppercase">
                     <tr>
                         <th>Date</th>
@@ -77,7 +79,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_finance">
                     {% set premier = (credits is not empty) ? credits[0].numFnc : "" %}
                     {% set passe = true %}
                     {% set passeM = true %}
@@ -110,19 +112,44 @@
                         <td>{{credit.total}}</td>
                         {% set totalHT = totalHT + credit.total %}
                         {% if passeM %}
-                            {% if credit.refStatut == "ATN" %}
-                                {% set statutClass = "text-secondary" %}
-                            {% elseif credit.refStatut == "ECR"  %}
-                                {% set statutClass = "text-info" %}
+                            {% if refPaiement == "CR" %}
+                                {% if credit.refStatut == "ECR"  %}
+                                    {% set statutClass = "text-info" %}
+                                {% else %}
+                                    {% set statutClass = "text-success" %}
+                                {% endif %}
                             {% else %}
-                                {% set statutClass = "text-success" %}
+                                {% if credit.refStatut == "ECR"  %}
+                                    {% set statutClass = "text-info" %}
+                                {% elseif credit.refStatut == "TRM" %}
+                                    {% set statutClass = "text-success" %}
+                                {% elseif credit.refStatut == "ANL" %}
+                                    {% set statutClass = "text-secondary" %}
+                                {% else %}
+                                    {% set statutClass = "text-danger" %}
+                                {% endif %}
                             {% endif %}
                             <td rowspan="{{ligne + 6}}" class="align-middle {{statutClass}} font-weight-bold text-center">{{credit.statut|upper}}</td>
                             <td rowspan="{{ligne + 6}}" class="align-middle text-center">
                                 <div class="d-flex flex-column align-items-center justify-content-center">
-                                    <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
-                                    {% if credit.refStatut == "ATN" %}
-                                        <button value="{{credit.id}}" class="btn m-1 btn-outline-info crd_btn_check btn-sm font-smaller"><i class="fa fa-check"></i></button>
+                                    {% if refPaiement == "CR" %}
+                                        {% if credit.refStatut == "ECR" %}
+                                            <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-success btn-sm font-smaller"><i class="fa fa-dollar"></i></a>  
+                                        {% else %}
+                                            <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if credit.refStatut == "ECR"  %}
+                                            <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-success btn-sm font-smaller"><i class="fa fa-dollar"></i></a>
+                                            <button value="{{ credit.id }}" class="btn m-1 btn-outline-secondary crd_btn_annule_acompte btn-sm font-smaller"><i class="fa fa-times"></i></button>   
+                                        {% elseif credit.refStatut == "TRM" %}
+                                            <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                            <button class="btn m-1 btn-outline-info btn-sm font-smaller font-weight-bold">DF</button>
+                                        {% elseif credit.refStatut == "ANL" %}
+                                            <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-purple annule btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                        {% else %}
+                                            <button class="btn m-1 btn-outline-danger btn-sm font-smaller"><i class="fa fa-warning"></i></button>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </td>

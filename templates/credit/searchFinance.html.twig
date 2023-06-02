@@ -1,0 +1,110 @@
+{% set premier = (credits is not empty) ? credits[0].numFnc : "" %}
+{% set passe = true %}
+{% set passeM = true %}
+{% set compteur = 1 %}
+{% set totalHT = 0 %}
+{% set totalGeneral = 0 %}
+{% for credit in credits %}
+    {% if credit.numFnc != premier %}
+        {% set premier = credit.numFnc %}
+        {% set passe = true %}
+        {% set passeM = true %}
+        {% set compteur = 1 %}
+        {% set totalHT = 0 %}
+    {% endif %}
+<tr>
+    {% set elements = credits|filter(o => o.numFnc == premier) %}
+    {% set ligne = elements|length %}
+    
+    {% if passe %}
+        <td rowspan="{{ligne + 6}}" class="align-middle">{{credit.date}}</td>
+        <td rowspan="{{ligne + 6}}" class="align-middle">{{credit.numFnc}}</td>
+        <td rowspan="{{ligne + 6}}" class="align-middle">{{credit.client|upper}}</td>
+        {% set passe = false %}
+    {% endif %}
+    <td>{{credit.designation}}</td>
+    <td>{{credit.qte}}</td>
+    <td>{{credit.prix}}</td>
+    <td>{{credit.tva}}</td>
+    <td>{{credit.remise}}</td>
+    <td>{{credit.total}}</td>
+    {% set totalHT = totalHT + credit.total %}
+    {% if passeM %}
+        {% if refPaiement == "CR" %}
+            {% if credit.refStatut == "ECR"  %}
+                {% set statutClass = "text-info" %}
+            {% else %}
+                {% set statutClass = "text-success" %}
+            {% endif %}
+        {% else %}
+            {% if credit.refStatut == "ECR"  %}
+                {% set statutClass = "text-info" %}
+            {% elseif credit.refStatut == "TRM" %}
+                {% set statutClass = "text-success" %}
+            {% elseif credit.refStatut == "ANL" %}
+                {% set statutClass = "text-secondary" %}
+            {% else %}
+                {% set statutClass = "text-danger" %}
+            {% endif %}
+        {% endif %}
+        <td rowspan="{{ligne + 6}}" class="align-middle {{statutClass}} font-weight-bold text-center">{{credit.statut|upper}}</td>
+        <td rowspan="{{ligne + 6}}" class="align-middle text-center">
+            <div class="d-flex flex-column align-items-center justify-content-center">
+                {% if refPaiement == "CR" %}
+                    {% if credit.refStatut == "ECR" %}
+                        <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-success btn-sm font-smaller"><i class="fa fa-dollar"></i></a>  
+                    {% else %}
+                        <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                    {% endif %}
+                {% else %}
+                    {% if credit.refStatut == "ECR"  %}
+                        <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-success btn-sm font-smaller"><i class="fa fa-dollar"></i></a>
+                        <button value="{{ credit.id }}" class="btn m-1 btn-outline-secondary crd_btn_annule_acompte btn-sm font-smaller"><i class="fa fa-times"></i></button>   
+                    {% elseif credit.refStatut == "TRM" %}
+                        <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                        <button class="btn m-1 btn-outline-info btn-sm font-smaller font-weight-bold">DF</button>
+                    {% elseif credit.refStatut == "ANL" %}
+                        <a href="{{path('crd_details_credit',{'id':credit.id})}}" class="btn m-1 btn-outline-purple annule btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                    {% else %}
+                        <button class="btn m-1 btn-outline-danger btn-sm font-smaller"><i class="fa fa-warning"></i></button>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </td>
+        {% set passeM = false %}
+    {% endif %}
+</tr>
+    {% if compteur == ligne %}
+        <tr>
+            <th colspan="5">Total HT</th>
+            <td class="bg-light">{{totalHT}}</td>
+        </tr>
+        <tr>
+            <th colspan="5">Remise</th>
+            <td class="bg-light">{{credit.remiseG}}</td>
+        </tr>
+        <tr>
+            <th colspan="5">Total TVA</th>
+            <td class="bg-light">{{credit.totalTva}}</td>
+        </tr>
+        <tr>
+            <th colspan="5">Total TTC</th>
+            <th class="bg-dark text-white">{{credit.totalTtc}}</th>
+        </tr>
+        <tr>
+            <th colspan="5">Total Payée</th>
+            <th class="bg-success text-white">{{(credit.totalPayee == 0) ? "-" : credit.totalPayee}}</th>
+        </tr>
+        <tr>
+            <th colspan="5">TTC Restant</th>
+            <th class="bg-info text-white">{{credit.totalTtc - credit.totalPayee}}</th>
+        </tr>
+        <tr class="bg-light border_dark">
+            <td colspan="11"></td>
+        </tr>
+        {% set totalGeneral = totalGeneral + credit.totalTtc %}
+    {% endif %}
+    {% if credit.numFnc == premier %}
+        {% set compteur = compteur + 1 %}
+    {% endif %}
+{% endfor %}

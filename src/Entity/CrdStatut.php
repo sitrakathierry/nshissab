@@ -24,6 +24,12 @@ class CrdStatut
     #[ORM\OneToMany(mappedBy: 'statut', targetEntity: CrdFinance::class)]
     private Collection $crdFinances;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $classement = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rang = null;
+
     public function __construct()
     {
         $this->crdFinances = new ArrayCollection();
@@ -84,6 +90,30 @@ class CrdStatut
                 $crdFinance->setStatut(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getClassement(): ?string
+    {
+        return $this->classement;
+    }
+
+    public function setClassement(?string $classement): self
+    {
+        $this->classement = $classement;
+
+        return $this;
+    }
+
+    public function getRang(): ?int
+    {
+        return $this->rang;
+    }
+
+    public function setRang(?int $rang): self
+    {
+        $this->rang = $rang;
 
         return $this;
     }

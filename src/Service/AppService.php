@@ -8,6 +8,7 @@ use App\Entity\CaissePanier;
 use App\Entity\CmdBonCommande;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
+use App\Entity\CrdStatut;
 use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\FactPaiement;
@@ -919,12 +920,12 @@ class AppService extends AbstractController
         $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
                 "agence" => $agence,
                 "paiement" => $paiement
-            ]) ;
+        ],["id" => "DESC"]) ;
 
         $elements = [] ;
         foreach ($finances as $finance) {
             $client = $this->getFactureClient($finance->getFacture())["client"] ;
-
+            $facture = $finance->getFacture() ;
             $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;
 
             $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
@@ -947,6 +948,15 @@ class AppService extends AbstractController
                 $typeRemiseG = is_null($finance->getFacture()->getRemiseType()) ? "" : $finance->getFacture()->getRemiseType()->getNotation() ;
                 $typeRemiseG = ($typeRemiseG == "%") ? $typeRemiseG : "" ;
                 $element["id"] = $finance->getId() ;
+                $element["idStatut"] = $finance->getStatut()->getId() ;
+                $element["refPaiement"] = $finance->getPaiement()->getReference() ;
+                $element["idC"] = $facture->getClient()->getId() ;
+                $element["mois"] = $facture->getDate()->format('m')   ;
+                $element["annee"] = $facture->getDate()->format('Y')   ;
+                $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
+                $element["dateDebut"] = $facture->getDate()->format('d/m/Y')   ;
+                $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
+                $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
                 $element["agence"] = $finance->getAgence()->getId() ;
                 $element["date"] = $finance->getFacture()->getDate()->format('d/m/Y') ;
                 $element["numFnc"] = $finance->getNumFnc() ;
@@ -970,6 +980,30 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($elements)) ;
         
+    }
+
+    public function updateStatutFinance($finance)
+    {
+        $totalFacture = $finance->getFacture()->getTotal() ; 
+
+        $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ; 
+
+        if($totalFacture == $totalPayee["total"])
+        {
+            $paiement = $finance->getPaiement()->getReference() ;
+            if($paiement == "CR")
+                $statut = "SLD" ;
+            else
+                $statut = "TRM" ;
+
+            $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
+                    "reference" => $statut
+                ]) ;
+
+            $finance->setStatut($crdStatut) ;
+            $this->entityManager->flush() ;
+        }
+
     }
 
     public function recherche($item, $search = []) {
@@ -1234,6 +1268,10 @@ class AppService extends AbstractController
                 "produit(agence)",
                 "stock_entrepot(agence)",
                 "stock_general(agence)"
+            ],
+            "credit" => [
+                "credit(agence)",
+                "acompte(agence)"
             ]
         ];
 
