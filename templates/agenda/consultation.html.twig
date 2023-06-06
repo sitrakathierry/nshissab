@@ -16,68 +16,39 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 py-3">
         <div class="row">
-            <div class="col-md-3">
-                <label for="nom" class="w-100 font-weight-bold text-uppercase">Type</label>
-                <button class="btn btn-outline-info btn-sm text-uppercase">Credit</button>
-                <button class="btn btn-outline-info ml-3 btn-sm text-uppercase">Acompte</button>
+            <div class="col-md-6">
+                <div id="monCalendrier" class="table-responsive"></div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold text-uppercase">Client</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            <div class="col-md-6">
+                <h5 class="text-black font-weight-bold text-center text-uppercase" id="dispDate">Aujourd'hui, Mardi 06 Juin 2023</h5>
+                <div class="border rounded p-2 m-2 bg-outline-danger d-flex flex-row align-items-center">
+                    <i class="fa fa-warning"></i><span class="ml-3 lh-2">Loyer en retard;Acompte/credit en souffrance, du client <b>AMADA</b>, Facture N° <b>DF-001/23</b>, Montant <b>25000</b> </span>
+                </div>
+                <div class="border rounded p-2 m-2 bg-outline-success d-flex flex-row align-items-center">
+                    <i class="fa fa-check"></i><span class="ml-3 lh-2">Loyer en payé;Acompte/cedit payé, par le client  <b>IBRAHIM</b>, Facture N° <b>PR-006/23</b>, Montant <b>102400</b></span>
+                </div>
+                <div class="border rounded p-2 m-2 bg-outline-warning d-flex flex-row align-items-center">
+                    <i class="fa fa-info"></i><span class="ml-3 lh-2"><span id="identityDate">Aujourd'hui, Mardi 06 Juin 2023</span> : <b>Aucune information à signaler</b></span>
+                </div>
+                <div class="border rounded p-2 m-2 bg-outline-purple d-flex flex-row align-items-center">
+                    <i class="fa fa-star"></i><span class="ml-3 lh-2">Evènements : Rendez-vous avec <b>SARAH</b> à <b>15h</b></span>
+                </div>
+                <div class="border rounded p-2 m-2 bg-outline-primary d-flex flex-row align-items-center">
+                    <i class="fa fa-spinner"></i><span class="ml-3 lh-2">Limite Loyer du mois;Acompte/credit à venir, avec le client <b>ASHMAN</b>, Facture N° <b>DF-010/23</b>, Montant <b>87300</b></span>
+                </div>
+                <div class="border rounded p-2 m-2 bg-outline-dark d-flex flex-row align-items-center">
+                    <i class="fa fa-cubes"></i><span class="ml-3 lh-2">Tâches : Livraison de produit, Facture N° <b>DF-542/23</b></span>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold text-uppercase">Facture</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold text-uppercase">Date Facture</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold mt-3 text-uppercase">échéance*</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-        </div>
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered table-sm">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Date Facture</th>
-                        <th>Echéance</th>
-                        <th>N° facture</th>
-                        <th>Client</th>
-                        <th>Montant Facture</th>
-                        <th>Montant Payé</th>
-                        <th>Montant Restant</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="5" class="">Total General</th>
-                        <th colspan="2" class="bg-primary text-white">-</th>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                 <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
                 <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
-        {% endif %} 
+        {% endif %}
     </div>
 </div>
 {% endblock %}

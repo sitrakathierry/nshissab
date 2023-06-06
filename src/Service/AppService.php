@@ -26,6 +26,7 @@ use App\Entity\Produit;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\SavMotif;
+use App\Entity\Service;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -980,6 +981,27 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($elements)) ;
         
+    }
+
+    public function generatePrestationService($filename, $agence)
+    {
+        $services = $this->entityManager->getRepository(Service::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($services as $service) {
+            $element = [] ;
+            $element["id"] = $service->getId() ;
+            $element["agence"] = $service->getAgence()->getId() ;
+            $element["nom"] = $service->getNom() ;
+            $element["description"] = $service->getDescription() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
     }
 
     public function updateStatutFinance($finance)

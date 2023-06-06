@@ -204,6 +204,43 @@ background-color: #ecb534 !important;
 {
     font-size:medium !important;
 }
+.alert-purple {
+    color: #4b0485;
+    background-color: #edacf3;
+    border-color: #edacf3; }
+
+.bg-outline-danger
+{
+    border-color: var(--danger)!important ;
+    color: var(--danger) !important ;
+}
+.bg-outline-success
+{
+    border-color: var(--success)!important ;
+    color: var(--success) !important ;
+}
+.bg-outline-warning
+{
+    border-color: var(--warning)!important ;
+    color: var(--warning) !important ;
+}
+.bg-outline-purple
+{
+    border-color: var(--purple) !important;
+    color: var(--purple) !important ;
+}
+.bg-outline-primary
+{
+    border-color: var(--primary)!important ;
+    color: var(--primary) !important ;
+}
+.bg-outline-dark
+{
+    border-color: var(--dark)!important ;
+    color: var(--dark) !important ;
+}  
+.bg-purple {
+    background-color: var(--purple) !important; }
 
 .limit_tbody
 {

@@ -1,0 +1,15 @@
+table.lightgrey-weekends tbody td:nth-child(1){
+    background-color: #ecb534;
+  }
+  table.lightgrey-weekends tbody td:nth-child(1):hover{
+    color: var(--dark) ; 
+  }
+  .zabuto-calendar.table thead th {
+    background-color: var(--dark);
+    color: var(--white);
+  }
+
+.lh-2
+{
+    line-height: 25px !important;
+}

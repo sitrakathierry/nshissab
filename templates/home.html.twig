@@ -25,6 +25,7 @@
 			<link rel="stylesheet" href="{{asset('tools/linecontrol/editor.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/datePicker/datePicker.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/tagsInput/tagsinput.css')}}">
+			<link rel="stylesheet" href="{{asset('tools/calendar/zabuto_calendar.css')}}">
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
 		<script src="{{asset('tools/numToLetter/NumberToLetter.js')}}"></script>
@@ -52,7 +53,7 @@
 			<script src="{{asset('tools/datePicker/datePicker.js')}}"></script>
 			<script src="{{asset('tools/datePicker/jquery.ui.datepicker-fr.js')}}"></script>
 			<script src="{{asset('tools/tagsInput/tagsinput.js')}}"></script>
-			
+			<script src="{{asset('tools/calendar/zabuto_calendar.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
@@ -152,9 +153,17 @@
 					crd_acompte_annule:"{{path('crd_acompte_annule')}}",
 					crd_acompte_credit_search_items:"{{path('crd_acompte_credit_search_items')}}",
 					agd_agenda_creation:"{{ path('agd_agenda_creation') }}",
-					agd_agenda_consultation:"{{ path('agd_agenda_consultation') }}"
+					agd_agenda_consultation:"{{ path('agd_agenda_consultation') }}",
+					prest_creation_prestation:"{{ path('prest_creation_prestation') }}",
+					prest_consultation_prestation:"{{ path('prest_consultation_prestation') }}",
+					prest_service_save:"{{ path('prest_service_save') }}",
+					prest_batiment_creation:"{{ path('prest_batiment_creation') }}",
+					prest_batiment_consultation:"{{ path('prest_batiment_consultation') }}",
+					prest_location_creation:"{{ path('prest_location_creation') }}",
+					prest_location_consultation:"{{ path('prest_location_consultation') }}",
 				};  
-				const files = {
+
+				const files = { 
 					loading : "{{asset('data/images/loading.svg')}}",
 					search : "{{asset('data/images/search.svg')}}"
 				}	

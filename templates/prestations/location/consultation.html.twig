@@ -17,31 +17,29 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <div class="row">
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">Nom</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-        </div>
-        <div class="table-responsive mt-2">
+        <div class="table-responsive">
             <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                     <tr>
-                        <th>Nom</th>
-                        <th>Description</th>
+                        <th>N° Contrat</th>
+                        <th>Nom Client</th>
+                        <th>Nom Bailleur</th>
+                        <th>Date Paiement</th>
+                        <th>Statut</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for service in services %}
-                        <tr>
-                            <td>{{service.nom|upper}}</td>
-                            <td>{{service.description|raw}}</td>
-                            <td class="align-middle text-center">
-                                <a href="{{path('prest_details_service',{'id':service.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td class="align-middle text-center">
+                            <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
