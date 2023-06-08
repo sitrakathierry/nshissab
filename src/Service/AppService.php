@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Agence;
+use App\Entity\Agenda;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\CmdBonCommande;
@@ -1002,6 +1003,46 @@ class AppService extends AbstractController
         }
 
         file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateAgenda($filename, $agence)
+    {
+        $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+            ]) ;
+
+        $elements = [] ;
+
+        foreach ($agendas as $agenda) {
+            $element = [] ;
+            $element["date"] = $agenda->getDate()->format('Y-m-d') ;
+            $markup = '' ;
+            $refType = $agenda->getType()->getReference() ;
+            if($refType == "EVT")
+            {
+                $markup = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+                    <b>[day]</b>
+                    <span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-star\"></i></span>
+                    </div>
+                </div>
+                " ;
+            }
+            else
+            {
+                $markup = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+                    <b>[day]</b>
+                    <span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-clock\"></i></span>
+                    </div>
+                </div>
+                ";
+            }
+            $element["markup"] = $markup ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+
     }
 
     public function updateStatutFinance($finance)

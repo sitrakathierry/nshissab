@@ -522,6 +522,10 @@ class StockController extends AbstractController
     public function stockPreferences(): Response
     {
         $filename = $this->filename."categorie(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+        {   
+            $this->appService->generateStockCategorie($filename, $this->agence) ;
+        }
         $categories = json_decode(file_get_contents($filename)) ;
 
         $preferences = $this->appService->filterProdPreferences($this->filename,$this->nameAgence,$this->nameUser,$this->userObj) ;

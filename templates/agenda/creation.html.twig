@@ -17,70 +17,46 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <div class="row">
-            <div class="col-md-3">
-                <label for="nom" class="w-100 font-weight-bold text-uppercase">Type</label>
-                <button class="btn btn-outline-purple btn-sm text-uppercase">Credit</button>
-                <button class="btn btn-outline-purple ml-3 btn-sm text-uppercase">Acompte</button>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold text-uppercase">Client</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold text-uppercase">Facture</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold text-uppercase">échéance*</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-        </div>
-        <div class="w-100 barre_dashed my-3 p-2">
-            <h5 class="title_form text-black text-uppercase">Details Facture (SOUS ...)</h5>
-            <div class="row mt-2">
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Date Facture</label>
-                    <input type="text" name="nom" readonly id="nom" value="02/06/2023" class="form-control" placeholder=". . .">
+        <form id="formAgenda" >
+            <div class="row px-2">
+                <div class="col-md-2">
+                    <label for="agd_type" class="w-100 font-weight-bold text-uppercase">Type</label>
+                    <select name="agd_type" class="custom-select chosen_select custom-select-sm" id="agd_type">
+                        <option value="" data-libelle="-" data-reference="-">-</option>
+                        {% for agdType in agdTypes %}
+                            <option value="{{agdType.id}}" data-libelle="{{agdType.designation}}" data-reference="{{agdType.reference}}">{{agdType.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="agd_nom" id="agd_nom">
                 </div>
                 <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Numero Facture</label>
-                    <input type="text" name="nom" id="nom" readonly value="DF-001/23" class="form-control" placeholder=". . .">
+                    <label for="agd_client" class="font-weight-bold text-uppercase agdDesignation">-</label>
+                    <input type="text" name="agd_client" oninput="this.value = this.value.toUpperCase();" id="agd_client" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-2">
+                    <label for="agd_date" class="font-weight-bold text-uppercase">Date</label>
+                    <input type="text" name="agd_date" id="agd_date" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-2">
+                    <label for="agd_heure" class="font-weight-bold text-uppercase">Heure</label>
+                    <input type="time" name="agd_heure" id="agd_heure" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Client</label>
-                    <input type="text" name="nom" readonly id="nom" value="SARAH" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Modèle</label>
-                    <input type="text" name="nom" id="nom" readonly value="PRODUIT" class="form-control" placeholder=". . .">
+                    <label for="agd_lieu" class="font-weight-bold text-uppercase">Lieu</label>
+                    <input type="text" name="agd_lieu" id="agd_lieu" class="form-control" placeholder=". . .">
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Type</label>
-                    <input type="text" name="nom" id="nom" readonly value="DEFINITIVE" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Montant Facture</label>
-                    <input type="text" name="nom" id="nom" readonly value="15600" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Montant Payé</label>
-                    <input type="text" name="nom" id="nom" readonly value="5600" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Montant Restant</label>
-                    <input type="text" name="nom" id="nom" readonly value="10000" class="form-control" placeholder=". . .">
-                </div>
+            <div class="w-100 px-2">
+                <label for="agenda_editor" class="mt-2 font-weight-bold text-uppercase">Description</label>
+                <textarea name="agenda_editor" class="form-control agenda_editor" id="" cols="10" rows="5"></textarea>
             </div>
-        </div>
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-            </div>
-        {% endif %} 
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                    <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}

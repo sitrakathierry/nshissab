@@ -124,6 +124,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Service::class)]
     private Collection $services;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Agenda::class)]
+    private Collection $agendas;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -150,6 +153,7 @@ class Agence
         $this->crdFinances = new ArrayCollection();
         $this->crdDetails = new ArrayCollection();
         $this->services = new ArrayCollection();
+        $this->agendas = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1014,6 +1018,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($service->getAgence() === $this) {
                 $service->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Agenda>
+     */
+    public function getAgendas(): Collection
+    {
+        return $this->agendas;
+    }
+
+    public function addAgenda(Agenda $agenda): self
+    {
+        if (!$this->agendas->contains($agenda)) {
+            $this->agendas->add($agenda);
+            $agenda->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgenda(Agenda $agenda): self
+    {
+        if ($this->agendas->removeElement($agenda)) {
+            // set the owning side to null (unless already changed)
+            if ($agenda->getAgence() === $this) {
+                $agenda->setAgence(null);
             }
         }
 

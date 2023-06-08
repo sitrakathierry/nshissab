@@ -16,31 +16,94 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 py-3">
-        <div class="row">
-            <div class="col-md-6">
-                <div id="monCalendrier" class="table-responsive"></div>
+    <div class="container-fluid px-3 pt-2 pb-3">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold">Date</label>
+                <div class="input-group">
+                    <input type="text" name="rch_nom" id="rch_nom" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#rch_nom').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <h5 class="text-black font-weight-bold text-center text-uppercase" id="dispDate">Aujourd'hui, Mardi 06 Juin 2023</h5>
-                <div class="border rounded p-2 m-2 bg-outline-danger d-flex flex-row align-items-center">
-                    <i class="fa fa-warning"></i><span class="ml-3 lh-2">Loyer en retard;Acompte/credit en souffrance, du client <b>AMADA</b>, Facture N° <b>DF-001/23</b>, Montant <b>25000</b> </span>
+        </div>
+        <label for="nom" class="font-weight-bold">Agenda</label>
+        <div class="w-100 d-flex flex-row align-items-center flex-wrap">
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Tous</button>
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Crédit</button>
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Acompte</button>
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Loyer</button>
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Evènement</button>
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Rendez-vous</button>
+        </div>
+        <label for="nom" class="font-weight-bold mt-3">Status</label>
+        <div class="w-100 d-flex flex-row align-items-center mb-4 flex-wrap">
+            <button class="btn btn-outline-dark mx-2 text-uppercase px-3 btn-sm">Tous</button>
+            <button class="btn btn-outline-success mx-2 text-uppercase px-3 btn-sm">Payé/Terminé</button>
+            <button class="btn btn-outline-info mx-2 text-uppercase px-3 btn-sm">Echéance/En avance</button>
+            <button class="btn btn-outline-danger mx-2 text-uppercase px-3 btn-sm">En souffrance</button>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <input type="hidden" id="calendarPath" value="{{asset(calendarFile)}}">
+                <button class="btn btn-sm btn-warning font-weight-bold font-smaller text-uppercase" data-toggle="collapse" data-target="#agd_indication" role="button" aria-expanded="false" aria-controls="myprofile"><i class="fa fa-info-circle"></i>&nbsp;Voir les indications</button>
+                <div id="agd_indication" class="collapse">
+                    <h5 class="title_form text-black text-uppercase mt-2">Indications</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <tr class="text-center">
+                                <th class="bg-dark text-white"></th>
+                                <th class="bg-dark text-white">Crédit</th>
+                                <th class="bg-dark text-white">Acompte</th>
+                                <th class="bg-dark text-white">Loyer</th>
+                                <th class="bg-dark text-white">Evènement</th>
+                                <th class="bg-dark text-white">Rendez-vous</th>
+                            </tr>
+                            <tr>
+                                <th class="bg-dark text-white">Payé/Terminé</th>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-success p-1 text-white"><i class="fa fa-percent"></i></span></td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-success p-1 text-white"><i class="fa fa-layer-group"></i></span></td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-success p-1 text-white"><i class="fa fa-house"></i></span></td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-dark text-white">Echéance/En avance</th>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-info p-1 text-white"><i class="fa fa-percent"></i></span></td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-info p-1 text-white"><i class="fa fa-layer-group"></i></span></td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-info p-1 text-white"><i class="fa fa-house"></i></span></td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-dark text-white">En souffrance/Impayé</th>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-danger p-1 text-white"><i class="fa fa-percent"></i></span></td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-danger p-1 text-white"><i class="fa fa-house"></i></span></td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-dark text-white">Evènement</th>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-purple p-1 text-white"><i class="fa fa-star"></i></span></td>
+                                <td class="text-warning align-middle text-center">-</span></td>
+                            </tr>
+                            <tr>
+                                <th class="bg-dark text-white">Rendez-vous</th>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center">-</td>
+                                <td class="text-warning align-middle text-center"><span class="badge bg-purple p-1 text-white"><i class="fa fa-clock"></i></span></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-                <div class="border rounded p-2 m-2 bg-outline-success d-flex flex-row align-items-center">
-                    <i class="fa fa-check"></i><span class="ml-3 lh-2">Loyer en payé;Acompte/cedit payé, par le client  <b>IBRAHIM</b>, Facture N° <b>PR-006/23</b>, Montant <b>102400</b></span>
-                </div>
-                <div class="border rounded p-2 m-2 bg-outline-warning d-flex flex-row align-items-center">
-                    <i class="fa fa-info"></i><span class="ml-3 lh-2"><span id="identityDate">Aujourd'hui, Mardi 06 Juin 2023</span> : <b>Aucune information à signaler</b></span>
-                </div>
-                <div class="border rounded p-2 m-2 bg-outline-purple d-flex flex-row align-items-center">
-                    <i class="fa fa-star"></i><span class="ml-3 lh-2">Evènements : Rendez-vous avec <b>SARAH</b> à <b>15h</b></span>
-                </div>
-                <div class="border rounded p-2 m-2 bg-outline-primary d-flex flex-row align-items-center">
-                    <i class="fa fa-spinner"></i><span class="ml-3 lh-2">Limite Loyer du mois;Acompte/credit à venir, avec le client <b>ASHMAN</b>, Facture N° <b>DF-010/23</b>, Montant <b>87300</b></span>
-                </div>
-                <div class="border rounded p-2 m-2 bg-outline-dark d-flex flex-row align-items-center">
-                    <i class="fa fa-cubes"></i><span class="ml-3 lh-2">Tâches : Livraison de produit, Facture N° <b>DF-542/23</b></span>
-                </div>
+                <div id="monCalendrier" class="table-responsive"></div>
             </div>
         </div>
         {% if with_foot %}
