@@ -1011,7 +1011,6 @@ class AppService extends AbstractController
             "agence" => $agence,
             "statut" => True
             ]) ;
-
         $elements = [] ;
 
         foreach ($agendas as $agenda) {
@@ -1021,27 +1020,47 @@ class AppService extends AbstractController
             $refType = $agenda->getType()->getReference() ;
             if($refType == "EVT")
             {
-                $markup = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
-                    <b>[day]</b>
-                    <span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-star\"></i></span>
-                    </div>
-                </div>
-                " ;
+                $markup = "<span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-star\"></i></span>" ;
             }
             else
             {
-                $markup = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
-                    <b>[day]</b>
-                    <span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-clock\"></i></span>
-                    </div>
-                </div>
-                ";
+                $markup = "<span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-clock\"></i></span>" ;
+
             }
             $element["markup"] = $markup ;
             array_push($elements,$element) ;
         }
 
-        file_put_contents($filename,json_encode($elements)) ;
+        $items = $elements ;
+
+        // Group the markup by date using array_reduce
+        $mergedMarkup = array_reduce($items, function ($result, $item) {
+            $date = $item['date'];
+            $markup = $item['markup'];
+
+            if (isset($result[$date])) {
+                $result[$date]['markup'] .= $markup;
+            } else {
+                $result[$date] = $item;
+            }
+
+            return $result;
+        }, []);
+
+        $agendaResult = [] ;
+        foreach ($mergedMarkup as $mark) {
+            $newMarkUp = [] ;
+            $newMarkUp['date'] = $mark['date'] ;
+            $newMarkUp['markup'] = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+                <b>[day]</b>
+                <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
+                    ".$mark['markup']."
+                </div>
+            </div>" ;
+            array_push($agendaResult,$newMarkUp) ;
+        }   
+
+        file_put_contents($filename,json_encode($agendaResult)) ;
 
     }
 

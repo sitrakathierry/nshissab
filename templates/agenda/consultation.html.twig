@@ -17,32 +17,35 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-2 pb-3">
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">Date</label>
-                <div class="input-group">
-                    <input type="text" name="rch_nom" id="rch_nom" class="form-control" placeholder=". . .">
-                    <div class="input-group-append">
-                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#rch_nom').value=''"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
         <label for="nom" class="font-weight-bold">Agenda</label>
         <div class="w-100 d-flex flex-row align-items-center flex-wrap">
             <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Tous</button>
-            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Crédit</button>
-            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Acompte</button>
-            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Loyer</button>
+            <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Agenda financier</button>
             <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Evènement</button>
             <button class="btn btn-outline-primary mx-2 text-uppercase px-3 btn-sm">Rendez-vous</button>
         </div>
-        <label for="nom" class="font-weight-bold mt-3">Status</label>
+        {# <label for="nom" class="font-weight-bold mt-3">Status</label>
         <div class="w-100 d-flex flex-row align-items-center mb-4 flex-wrap">
             <button class="btn btn-outline-dark mx-2 text-uppercase px-3 btn-sm">Tous</button>
             <button class="btn btn-outline-success mx-2 text-uppercase px-3 btn-sm">Payé/Terminé</button>
             <button class="btn btn-outline-info mx-2 text-uppercase px-3 btn-sm">Echéance/En avance</button>
             <button class="btn btn-outline-danger mx-2 text-uppercase px-3 btn-sm">En souffrance</button>
+        </div> #}
+        <div class="row mb-3 mt-3"> 
+            <div class="col-md-3">
+                <label for="agd_search_mois" class="font-weight-bold">Mois</label>
+                {% set unmois = 'now'|date('m')  %}
+                <select name="agd_search_mois" class="custom-select chosen_select custom-select-sm" id="agd_search_mois">
+                    <option value="" >-</option>
+                    {% for key,value in mois %}
+                        <option value="{{key}}" {{ unmois == key ? "selected" : "" }} >{{value|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="agd_search_annee" class="font-weight-bold">Année</label>
+                <input type="number" name="agd_search_annee" id="agd_search_annee" value="{{'now'|date('Y') }}" class="form-control" placeholder=". . .">
+            </div>
         </div>
         <div class="row mt-2">
             <div class="col-md-12">

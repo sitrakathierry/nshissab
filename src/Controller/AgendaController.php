@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdCommentaire;
 use App\Entity\AgdTypes;
 use App\Entity\Agence;
 use App\Entity\Agenda;
@@ -66,11 +67,27 @@ class AgendaController extends AbstractController
         }
         // $agendas = json_decode(file_get_contents($filename)) ;
 
+        $mois = [
+            1 =>  "Janvier",
+            2 =>  "Février",
+            3 =>  "Mars",
+            4 =>  "Avril",
+            5 =>  "Mai",
+            6 =>  "Juin",
+            7 =>  "Juillet",
+            8 =>  "Août",
+            9 =>  "Septembre",
+            10 =>  "Octobre",
+            11 =>  "Novembre",
+            12 =>  "Décembre",
+            ] ;
+
         return $this->render('agenda/consultation.html.twig', [
             "filename" => "agenda",
             "titlePage" => "Consultation agenda",
             "with_foot" => false,
-            "calendarFile" => $filename
+            "calendarFile" => $filename,
+            "mois" => $mois
         ]);
     }
 
@@ -86,10 +103,13 @@ class AgendaController extends AbstractController
         $agd_lieu = $request->request->get("agd_lieu") ;
         $agenda_editor = $request->request->get("agenda_editor") ;
         $agd_nom = $request->request->get("agd_nom") ;
+        $agd_objet = $request->request->get("agd_objet") ;
+        $agd_refobjet = $request->request->get("agd_refobjet") ;
 
         $data = [
             $agd_type,
             $agd_client,
+            $agd_objet,
             $agd_date,
             $agd_heure,
             $agd_lieu,
@@ -98,6 +118,7 @@ class AgendaController extends AbstractController
         $dataMessage = [
             "Type Agenda",
             $agd_nom,
+            $agd_refobjet,
             "Date",
             "Heure",
             "Lieu",
@@ -118,6 +139,7 @@ class AgendaController extends AbstractController
         $agenda->setHeure($agd_heure) ;
         $agenda->setLieu($agd_lieu) ; 
         $agenda->setType($type) ;
+        $agenda->setObjet($agd_objet) ;
         $agenda->setDescription($agenda_editor) ;
         $agenda->setStatut(True) ;
         $agenda->setCreatedAt(new \DateTimeImmutable) ;
@@ -155,11 +177,50 @@ class AgendaController extends AbstractController
     {
         $agenda = $this->entityManager->getRepository(Agenda::class)->find($id) ;
         
+        $commentaires = $this->entityManager->getRepository(AgdCommentaire::class)->findBy([
+            "agenda" => $agenda
+            ]) ;
+
         return $this->render('agenda/detailAgenda.html.twig', [
             "filename" => "agenda",
             "titlePage" => "Detail ",
             "with_foot" => false,
-            "agenda" => $agenda
+            "agenda" => $agenda,
+            "commentaires" => $commentaires
         ]);
+    }
+
+    #[Route('/agenda/commentaire/save', name: 'agd_commenataire_save')]
+    public function agsSaveCommentaire(Request $request)
+    {
+        $agd_agenda = $request->request->get("agd_agenda") ;
+        $adg_content_comment = $request->request->get("adg_content_comment") ;
+
+        $data = [
+            $adg_content_comment
+        ] ;
+
+        $dataMessage = [
+            "Commentaire"
+        ] ;
+
+        $result = $this->appService->verificationElement($data, $dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $agenda = $this->entityManager->getRepository(Agenda::class)->find($agd_agenda) ;
+
+        $commentaire = new AgdCommentaire() ;
+
+        $commentaire->setAgenda($agenda) ;
+        $commentaire->setContenu($adg_content_comment) ;
+        $commentaire->setCreatedAt(new \DateTimeImmutable) ;
+        $commentaire->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($commentaire) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
     }
 }

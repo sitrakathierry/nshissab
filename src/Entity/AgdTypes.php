@@ -27,6 +27,9 @@ class AgdTypes
     #[ORM\OneToMany(mappedBy: 'type', targetEntity: Agenda::class)]
     private Collection $agendas;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $objet = null;
+
     public function __construct()
     {
         $this->agendas = new ArrayCollection();
@@ -99,6 +102,18 @@ class AgdTypes
                 $agenda->setType(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getObjet(): ?string
+    {
+        return $this->objet;
+    }
+
+    public function setObjet(?string $objet): self
+    {
+        $this->objet = $objet;
 
         return $this;
     }

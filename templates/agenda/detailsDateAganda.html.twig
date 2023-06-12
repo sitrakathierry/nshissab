@@ -3,7 +3,7 @@
         {% set icone = agenda.type.reference == "EVT" ? "fa-star" : "fa-clock" %}
         {% set caption = agenda.type.reference == "EVT" ? "Evènement" : "Rendez-vous" %}
         <div class="border rounded py-2 px-3 m-2 bg-outline-purple d-flex flex-row align-items-center">
-            <i class="fa {{icone}}"></i><span class="ml-3 lh-2"><b>{{caption}}</b> : {{agenda.type.designation}}: <b>{{agenda.clientNom}}</b>, Lieu: <b>{{agenda.lieu}}</b> à {{agenda.heure}} &emsp;<a href="{{path('agd_detail_agenda',{'id':agenda.id})}}" class="btn btn-sm ml-auto btn-info px-3"><i class="fa fa-info"></i>&nbsp;Détails</a> </span>
+            <i class="fa {{icone}}"></i><span class="ml-3 lh-2"><b>{{caption}}</b> - {{agenda.type.designation}} : <b>{{agenda.clientNom|upper}}</b> - {{agenda.type.objet}} : <b>{{ agenda.objet is not empty ? agenda.objet|upper : "AUCUN"}}</b> - Lieu : <b>{{agenda.lieu}}</b> à {{agenda.heure}} &emsp;<a href="{{path('agd_detail_agenda',{'id':agenda.id})}}" class="btn btn-sm ml-auto btn-info px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a> </span>
         </div>
     {% endfor %}
 {% else %}

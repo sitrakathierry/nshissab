@@ -4,6 +4,8 @@ $(document).ready(function(){
     var instance = new Loading(files.loading)
     $("#agd_date").datepicker() ; 
 
+    var commentaireEditor = new LineEditor("#commentaireEditor") ;
+
     $("#formAgenda").submit(function(){
         var self = $(this);
         $(".agenda_editor").val(agenda_editor.getEditorText('.agenda_editor'))
@@ -67,9 +69,12 @@ $(document).ready(function(){
     $("#agd_type").change(function(){
         var selectedOption = $(this).find("option:selected") ;
         var libelle = selectedOption.data('libelle') ;
+        var objet = selectedOption.data('objet') ;
 
         $("#agd_nom").val(libelle) ;
+        $("#agd_refobjet").val(objet) ;
         $(".agdDesignation").text(libelle.toUpperCase()) ;
+        $("#agdCaptionObjet").text(objet.toUpperCase())
     }) ;
 
     $.getJSON($("#calendarPath").val(), function(json) {
@@ -86,9 +91,7 @@ $(document).ready(function(){
           language: 'fr',
           events : json
       });
-
     });
-    
    
     $("#monCalendrier").on('zabuto:calendar:day', function (e) {
         var semaines = [
@@ -169,4 +172,97 @@ $(document).ready(function(){
         })
         // console.log(e.element)
     });
+
+    $("#formAgendaComment").submit(function(){
+      var self = $(this);
+      $("#commentaireEditor").val(commentaireEditor.getEditorText('#commentaireEditor'))
+      $.confirm({
+        title: "Confirmation",
+        content: "Etes-vous sûre de vouloir enregistrer ?",
+        type: "blue",
+        theme: "modern",
+        buttons: {
+          btn1: {
+            text: "Non",
+            action: function () {
+            },
+          },
+          btn2: {
+            text: "Oui",
+            btnClass: "btn-blue",
+            keys: ["enter", "shift"],
+            action: function () {
+              var data = self.serialize();
+              var realinstance = instance.loading();
+              $.ajax({
+                url: routes.agd_commenataire_save,
+                type: "post",
+                data: data,
+                dataType: "json",
+                success: function (json) {
+                  realinstance.close();
+                  $.alert({
+                    title: "Message",
+                    content: json.message,
+                    type: json.type,
+                    buttons: {
+                      OK: function () {
+                        if (json.type == "green") {
+                          agenda_editor.setEditorText("")
+                          location.reload();
+                        }
+                      },
+                    },
+                  });
+                },
+                error: function (resp) {
+                  realinstance.close();
+                  $.alert(JSON.stringify(resp));
+                },
+              });
+            },
+          },
+        },
+      });
+        return false;
+    });
+
+    function formatCalendrier(mois,annee)
+    {
+      $('#monCalendrier').zabuto_calendar('destroy');
+      var myInstance = new Loading(files.search) ;
+      // Reinitialize the calendar
+      
+      $("#monCalendrier").html(myInstance.otherSearch()) ;
+
+      $.getJSON($("#calendarPath").val(), function(json) {
+        $("#monCalendrier").zabuto_calendar({
+          year: parseInt(annee),
+          month: parseInt(mois),
+          classname: 'table table-bordered lightgrey-weekends clickable',
+          // header_format: '[year] // [month]',
+          week_starts: 'sunday',
+          show_days: true,
+          today_markup: '<span class="font-weight-bold text-info">[day]</span>',
+          navigation_markup: {
+              prev: '<i class="fas fa-chevron-circle-left"></i>',
+              next: '<i class="fas fa-chevron-circle-right"></i>'
+            },
+            language: 'fr',
+            events : json
+        });
+      });
+    }
+
+    $("#agd_search_mois").change(function(){
+      formatCalendrier($(this).val(),$("#agd_search_annee").val())
+    })
+
+    $("#agd_search_annee").keyup(function(){
+      formatCalendrier($("#agd_search_mois").val(),$(this).val())
+    })
+
+    $("#agd_search_annee").change(function(){
+      formatCalendrier($("#agd_search_mois").val(),$(this).val())
+    })
 })

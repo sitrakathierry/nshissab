@@ -40,7 +40,16 @@ class Loading
             </td>
         </tr>
         `
+        return element ; 
+    }
 
+    otherSearch()
+    {
+        var element = `
+        <div class="text-center">
+            <img src="`+files.search+`" class="img img-fluid load_search" alt="">
+        </div>
+        `
         return element ; 
     }
 }

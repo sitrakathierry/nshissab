@@ -14,10 +14,53 @@
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}} {{agenda.type.reference == "EVT" ? "Evènement" : "Rendez-vous" }}</h4>
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}&nbsp;{{agenda.type.reference == "EVT" ? "Evènement" : "Rendez-vous " }}&nbsp;: <span class="text-white px-2 py-1 rounded badge-warning">{{agenda.clientNom}}</span></h4>
     </div>
     <div class="container-fluid px-3 py-3">
-        <h5 class="title_form text-black text-center text-uppercase">Date : {{agenda.date|date('d/m/Y')}}</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold">{{agenda.type.designation|upper}}</label>
+                <input type="text" readonly name="nom" id="nom" value="{{agenda.clientNom}}" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold">Date</label>
+                <input type="text" readonly name="nom" id="nom" value="{{agenda.date|date('d/m/Y')}}" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold">Heure</label>
+                <input type="time" readonly name="nom" id="nom" value="{{agenda.heure}}" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold">Lieu</label>
+                <input type="text" readonly name="nom" value="{{agenda.lieu}}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold mt-3">{{agenda.type.objet|upper}}</label>
+                <input type="text" readonly name="nom" id="nom" value="{{agenda.objet}}" class="form-control" placeholder=". . .">
+            </div>
+        </div>
+        <div class="barre_dashed p-3 mt-4">
+            <form id="formAgendaComment">
+                <h5 class="title_form text-black text-uppercase">Ajouter un Commentaire </h5>
+                <input type="hidden" name="agd_agenda" value="{{agenda.id}}">
+                <textarea name="adg_content_comment" id="commentaireEditor" class="form-control" cols="30" rows="10" ></textarea>
+                <div class="w-100 text-right mt-3">
+                    <button type="submit" class="btn btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        <div class="barre_dashed p-3">
+            <h5 class="title_form text-black text-uppercase">Liste des Commentaires </h5>
+            {% for commentaire in commentaires %}
+                <div class="alert alert-dark">
+                    <label for="" class="font-italic">Date : {{commentaire.createdAt|date('d/m/Y')}}</label>
+                    <div class="w-100">
+                        {{commentaire.contenu|raw}}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

@@ -22,9 +22,9 @@
                 <div class="col-md-2">
                     <label for="agd_type" class="w-100 font-weight-bold text-uppercase">Type</label>
                     <select name="agd_type" class="custom-select chosen_select custom-select-sm" id="agd_type">
-                        <option value="" data-libelle="-" data-reference="-">-</option>
+                        <option value="" data-libelle="-" data-objet="-" data-reference="-">-</option>
                         {% for agdType in agdTypes %}
-                            <option value="{{agdType.id}}" data-libelle="{{agdType.designation}}" data-reference="{{agdType.reference}}">{{agdType.nom|upper}}</option>
+                            <option value="{{agdType.id}}" data-libelle="{{agdType.designation}}" data-objet="{{agdType.objet}}" data-reference="{{agdType.reference}}">{{agdType.nom|upper}}</option>
                         {% endfor %}
                     </select>
                     <input type="hidden" name="agd_nom" id="agd_nom">
@@ -44,6 +44,11 @@
                 <div class="col-md-3">
                     <label for="agd_lieu" class="font-weight-bold text-uppercase">Lieu</label>
                     <input type="text" name="agd_lieu" id="agd_lieu" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="agd_objet" class="font-weight-bold text-uppercase mt-2" id="agdCaptionObjet">-</label>
+                    <input type="text" name="agd_objet" id="agd_objet" class="form-control" placeholder=". . .">
+                    <input type="hidden" name="agd_refobjet" id="agd_refobjet">
                 </div>
             </div>
             <div class="w-100 px-2">

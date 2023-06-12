@@ -49,6 +49,9 @@ class Agenda
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $objet = null;
+
     public function __construct()
     {
         $this->agdCommentaires = new ArrayCollection();
@@ -205,6 +208,18 @@ class Agenda
     public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getObjet(): ?string
+    {
+        return $this->objet;
+    }
+
+    public function setObjet(?string $objet): self
+    {
+        $this->objet = $objet;
 
         return $this;
     }
