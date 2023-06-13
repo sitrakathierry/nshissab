@@ -149,7 +149,7 @@ $(document).ready(function(){
             dataType: 'html',
             processData: false,
             contentType: false,
-            success: function(resp){
+            success: function(resp){  
               realinstance.close()
               $.confirm({
                 title: '<h5 class="text-black font-weight-bold text-center text-uppercase" >'+captionDate+'</h5>',

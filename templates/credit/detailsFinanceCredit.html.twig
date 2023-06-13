@@ -114,21 +114,33 @@
             </div>
             <div class="barre_dashed w-100"></div>
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-12">
                     {% if facture.refStatut == "ECR" %}
                         <form id="formPaiementCredit">
                             <h5 class="title_form mt-3 text-black text-uppercase">Enregistrement {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</h5>
                             <div class="row mb-2">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="crd_paiement_date" class="font-weight-bold">Date</label>
                                     <input type="text" name="crd_paiement_date" id="crd_paiement_date" class="form-control crd_paiement_date" placeholder=". . .">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="crd_paiement_montant" class="font-weight-bold">Montant</label>
                                     <input type="number" name="crd_paiement_montant" id="crd_paiement_montant" class="form-control crd_paiement_montant" placeholder=". . .">
                                     <input type="hidden" name="crd_paiement_id" value="{{facture.id}}">
                                 </div>
-                                <div class="col-md-4">
+                                {% if refPaiement == "CR" %}
+                                    <div class="col-md-3">
+                                        <label for="crd_type" class="font-weight-bold">Type</label>
+                                        <select name="crd_type" id="crd_type" class="custom-select custom-select-sm chosen_select">
+                                            <option value="">-</option>
+                                            <option value="DIRECT">{{ refPaiement == "CR" ? "Paiement"|upper : "Dépot"|upper }}</option>
+                                            <option value="ECHEANCE">{{"échéance"|upper}}</option>
+                                        </select>
+                                    </div>
+                                {% else %}
+                                    <input type="hidden" name="crd_type" value="DIRECT">
+                                {% endif %}
+                                <div class="col-md-3">
                                     <label for="nom" class="font-weight-bold">&nbsp;</label>
                                     <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;{{ refPaiement == "CR" ? "Payé" : "Déposé"}}</button>
                                 </div>
@@ -136,12 +148,18 @@
                         </form>
                     {% endif %}
                     <h5 class="title_form mt-3 text-black text-uppercase">Liste des {{ refPaiement == "CR" ? "Paiements" : "Dépôts"}}</h5>
-                    <div class="table-responsive">
+                    <div class="table-responsive {{ refPaiement == "CR" ? "w-100" : "w-75"}}">
                         <table class="table-sm table table-bordered">
                             <thead class="text-uppercase thead-dark">
                                 <tr>
                                     <th>Date de {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</th>
+                                    {% if refPaiement == "CR" %}
+                                        <th class="text-center">Type</th>
+                                    {% endif %}
                                     <th>Montant {{ refPaiement == "CR" ? "Payé" : "Déposé"}}</th>
+                                    {% if refPaiement == "CR" %}
+                                        <th></th>
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
@@ -149,19 +167,43 @@
                                 {% for financeDetail in financeDetails %}
                                     <tr>
                                         <td>{{ financeDetail.date|date('d/m/Y') }}</td>
+                                        {% if refPaiement == "CR" %}
+                                            <td class="align-middle text-center">
+                                                <b class="text-uppercase">Paiement</b>
+                                            </td>
+                                        {% endif %}
                                         <td>{{ financeDetail.montant }}</td>
+                                        {% if refPaiement == "CR" %}
+                                            <td class="align-middle text-center">
+                                                <label for="" class="font-weight-bold text-success text-uppercase">OK</label>
+                                            </td>
+                                        {% endif %}
                                     </tr>
                                     {% set totalPayee = totalPayee + financeDetail.montant %}
                                 {% endfor %}
+                                {% if refPaiement == "CR" %}
+                                    {% for echeance in echeances %}
+                                        <tr class="bg-info text-white" >
+                                            <td>{{ echeance.date|date('d/m/Y') }}</td>
+                                            <td class="align-middle text-center">
+                                                <b class="text-uppercase" >Echéance</b>
+                                            </td>
+                                            <td>{{ echeance.montant }}</td>
+                                            <td class="align-middle text-center">
+                                                <button value="{{echeance.id}}" class="btn btn-sm agd_btn_valid_check btn-purple font-smaller"><i class="fa fa-check"></i>&nbsp;{{"Payé"|upper}}</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
                             </tbody>
                             <tfoot class="text-uppercase">
                                 <tr>
-                                    <th>Total Payée</th>
-                                    <th class="bg-success text-white">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
+                                    <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Payée</th>
+                                    <th colspan="2" class="bg-success text-white">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Total Restant</th>
-                                    <th class="bg-primary text-white">{{ facture.totalTtc - totalPayee }}</th>
+                                    <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Restant</th>
+                                    <th colspan="2" class="bg-primary text-white">{{ facture.totalTtc - totalPayee }}</th>
                                 </tr>
                             </tfoot>
                         </table>

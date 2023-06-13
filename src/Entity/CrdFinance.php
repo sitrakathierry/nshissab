@@ -39,9 +39,13 @@ class CrdFinance
     #[ORM\OneToMany(mappedBy: 'finance', targetEntity: CrdDetails::class)]
     private Collection $crdDetails;
 
+    #[ORM\OneToMany(mappedBy: 'catTable', targetEntity: AgdEcheance::class)]
+    private Collection $agdEcheances;
+
     public function __construct()
     {
         $this->crdDetails = new ArrayCollection();
+        $this->agdEcheances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -157,6 +161,36 @@ class CrdFinance
             // set the owning side to null (unless already changed)
             if ($crdDetail->getFinance() === $this) {
                 $crdDetail->setFinance(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AgdEcheance>
+     */
+    public function getAgdEcheances(): Collection
+    {
+        return $this->agdEcheances;
+    }
+
+    public function addAgdEcheance(AgdEcheance $agdEcheance): self
+    {
+        if (!$this->agdEcheances->contains($agdEcheance)) {
+            $this->agdEcheances->add($agdEcheance);
+            $agdEcheance->setCatTable($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgdEcheance(AgdEcheance $agdEcheance): self
+    {
+        if ($this->agdEcheances->removeElement($agdEcheance)) {
+            // set the owning side to null (unless already changed)
+            if ($agdEcheance->getCatTable() === $this) {
+                $agdEcheance->setCatTable(null);
             }
         }
 

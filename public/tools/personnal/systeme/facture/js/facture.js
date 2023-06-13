@@ -3,6 +3,8 @@ $(document).ready(function(){
    var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
     $("#fact_date").datepicker() ;
+    $("#agd_ech_date").datepicker() ;
+    
    $("#formFacture").submit(function(event){
     event.preventDefault()
     var self = $(this)
@@ -472,15 +474,6 @@ $(document).ready(function(){
         }
     })
 
-//    $("#fact_prod_tva").keyup(function(){
-//         var currentVal = parseFloat($("#fact_total_apres_deduction").text())
-//         var newVal = 0
-//         var tva = $(this).val() != "" ? (currentVal * $(this).val()) / 100 : 0
-//         newVal = currentVal + tva
-//         $("#fact_total_general").text(newVal)
-//         $(".fact_enr_total_general").val(newVal)
-//    })
-
    $("#fact_type_remise_prod_general").change(function(){
         $("#fact_remise_prod_general").keyup()
    })
@@ -491,118 +484,131 @@ $(document).ready(function(){
         $(".fact_table_client").text(selectedText)
    })
 
-        $(".fact_btn_type").click(function(){
-            var btnClass = $(this).data("class")
-            var target = $(this).data("target")
-            var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
-            var inputValue = $(this).attr("value")
-            var self = $(this)
-            var btnText = $(this).data("text")
-            $(target).val(inputValue) ;
+    $(".fact_btn_type").click(function(){
+        var btnClass = $(this).data("class")
+        var target = $(this).data("target")
+        var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
+        var inputValue = $(this).attr("value")
+        var self = $(this)
+        var btnText = $(this).data("text")
+        $(target).val(inputValue) ;
 
-            var paiementArray = ["ES","VR","CH","CB","MN","CR","AC"]
+        var paiementArray = ["ES","VR","CH","CB","MN","CR","AC"]
 
-            var modePaiement = $(this).data('mode').split(",")
-            
-            paiementArray.forEach(elem => {
-                $(".fact_btn_paiement").filter("." + elem).prop("disabled", true);
-                $(".fact_btn_paiement").filter("." + elem).addClass("btn-outline-info") ; 
-                $(".fact_btn_paiement").filter("." + elem).removeClass("btn-info");
-            })
-            $("#fact_paiement").val("")
-            $(".fact_table_paiement").text("")
-            modePaiement.forEach(elem => {
-                $(".fact_btn_paiement" + "." + elem).removeAttr("disabled");
-            })
-
-            var reference = $(this).data("reference")
-
-            if(reference != "DF")
-            {
-                $("#fact_libelle").hide();
-                $(".fact_libelle_caption").text("")
-
-                $("#fact_num").hide();
-                $(".fact_num_caption").text("")
-            }
-
-            $(this).addClass(btnClass)
-            $(this).removeClass(currentbtnClass)
-            $(".fact_table_type").text(btnText)
-            $(".fact_btn_type").each(function(){
-                if (!self.is($(this))) {
-                    $(this).addClass(currentbtnClass) ; 
-                    $(this).removeClass(btnClass);
-                }
-            })
+        var modePaiement = $(this).data('mode').split(",")
+        
+        paiementArray.forEach(elem => {
+            $(".fact_btn_paiement").filter("." + elem).prop("disabled", true);
+            $(".fact_btn_paiement").filter("." + elem).addClass("btn-outline-info") ; 
+            $(".fact_btn_paiement").filter("." + elem).removeClass("btn-info");
+        })
+        $("#fact_paiement").val("")
+        $(".fact_table_paiement").text("")
+        modePaiement.forEach(elem => {
+            $(".fact_btn_paiement" + "." + elem).removeAttr("disabled");
         })
 
-        $(".fact_btn_paiement").click(function(){
-            var btnClass = $(this).data("class")
-            var target = $(this).data("target")
-            var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
-            var inputValue = $(this).attr("value")
-            var btnText = $(this).data("text")
-            var self = $(this)
-            var numCaption = $(this).data('numcaption')
-            var libelleCaption = $(this).data('libelle')
+        var reference = $(this).data("reference")
 
-            $(target).val(inputValue) ;
-            $(".fact_table_paiement").text(btnText)
+        if(reference != "DF")
+        {
+            $("#fact_libelle").hide();
+            $(".fact_libelle_caption").text("")
 
-            if(libelleCaption != "")
-            {
-                $("#fact_libelle").show();
-                $(".fact_libelle_caption").text(libelleCaption)
+            $("#fact_num").hide();
+            $(".fact_num_caption").text("")
+        }
+
+        $(this).addClass(btnClass)
+        $(this).removeClass(currentbtnClass)
+        $(".fact_table_type").text(btnText)
+        $(".fact_btn_type").each(function(){
+            if (!self.is($(this))) {
+                $(this).addClass(currentbtnClass) ; 
+                $(this).removeClass(btnClass);
             }
-            else
-            {
-                $("#fact_libelle").hide();
-                $(".fact_libelle_caption").text("")
-            }   
+        })
+    })
 
-            if(numCaption != "")
-            {
-                $("#fact_num").show();
-                $(".fact_num_caption").text(numCaption)
-            }
-            else
-            {
-                $("#fact_num").hide();
-                $(".fact_num_caption").text("")
-            }
+    $(".fact_btn_paiement").click(function(){
+        var btnClass = $(this).data("class")
+        var target = $(this).data("target")
+        var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
+        var inputValue = $(this).attr("value")
+        var btnText = $(this).data("text")
+        var self = $(this)
+        var numCaption = $(this).data('numcaption')
+        var libelleCaption = $(this).data('libelle')
 
-            $(this).addClass(btnClass)
-            $(this).removeClass(currentbtnClass)
-            $(".fact_btn_paiement").each(function(){
-                if (!self.is($(this))) {
-                    $(this).addClass(currentbtnClass) ; 
-                    $(this).removeClass(btnClass);
-                }
-            })
+        $(target).val(inputValue) ;
+
+        $(".fact_table_paiement").text(btnText)
+
+        if(libelleCaption != "")
+        {
+            $("#fact_libelle").show();
+            $(".fact_libelle_caption").text(libelleCaption)
+        }
+        else
+        {
+            $("#fact_libelle").hide();
+            $(".fact_libelle_caption").text("")
+        }   
+
+        if(numCaption != "")
+        {
+            $("#fact_num").show();
+            $(".fact_num_caption").text(numCaption)
+        }
+        else
+        {
+            $("#fact_num").hide();
+            $(".fact_num_caption").text("")
+        }
+
+        $(this).addClass(btnClass)
+        $(this).removeClass(currentbtnClass)
+        $(".fact_btn_paiement").each(function(){
+            if (!self.is($(this))) {
+                $(this).addClass(currentbtnClass) ; 
+                $(this).removeClass(btnClass);
+            }
         })
 
-        $(".fact_btn_modele").click(function(){
-            var btnClass = $(this).data("class")
-            var target = $(this).data("target")
-            var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
-            var inputValue = $(this).attr("value")
-            var self = $(this)
-            var btnText = $(this).data("text")
+        // AGENDA
 
-            $(target).val(inputValue) ;
+        if ($(this).hasClass('CR')) {
+            $("#agd_echance").show()
+        }
+        else
+        {
+            $("#agd_echance").hide()
+        }
+    })
 
-            $(this).addClass(btnClass)
-            $(this).removeClass(currentbtnClass)
+    $(".fact_btn_modele").click(function(){
+        var btnClass = $(this).data("class")
+        var target = $(this).data("target")
+        var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
+        var inputValue = $(this).attr("value")
+        var self = $(this)
+        var btnText = $(this).data("text")
 
-            $(".fact_title_modele").text(btnText)
-            $(".fact_caption_total_general").text("TOTAL "+btnText)
+        $(target).val(inputValue) ;
 
-            $(".fact_btn_modele").each(function(){
-                if (!self.is($(this))) {
-                    $(this).addClass(currentbtnClass) ; 
-                    $(this).removeClass(btnClass);
-                }
-            })
+        $(this).addClass(btnClass)
+        $(this).removeClass(currentbtnClass)
+
+        $(".fact_title_modele").text(btnText)
+        // $(".fact_caption_total_general").text("TOTAL "+btnText)
+
+        $(".fact_btn_modele").each(function(){
+            if (!self.is($(this))) {
+                $(this).addClass(currentbtnClass) ; 
+                $(this).removeClass(btnClass);
+            }
         })
+    })
+
+
 })

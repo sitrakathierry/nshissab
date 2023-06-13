@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\AgdCategorie;
+use App\Entity\AgdEcheance;
 use App\Entity\Agence;
 use App\Entity\Agenda;
 use App\Entity\CaisseCommande;
@@ -1008,9 +1010,12 @@ class AppService extends AbstractController
     public function generateAgenda($filename, $agence)
     {
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
-            "agence" => $agence,
-            "statut" => True
+            "agence" => $agence
             ]) ;
+        // Statut de l'agenda sur evènement et rendez-vous
+            // -   En cours : 1
+            // -   Terminé : 0
+
         $elements = [] ;
 
         foreach ($agendas as $agenda) {
@@ -1018,18 +1023,62 @@ class AppService extends AbstractController
             $element["date"] = $agenda->getDate()->format('Y-m-d') ;
             $markup = '' ;
             $refType = $agenda->getType()->getReference() ;
-            if($refType == "EVT")
+            $statut = $agenda->isStatut() ;
+            $icone = $refType == "EVT" ? "fa-star" : "fa-clock" ;
+            if($statut)
             {
-                $markup = "<span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-star\"></i></span>" ;
+                $markup = "<span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa $icone\"></i></span>" ;
             }
             else
             {
-                $markup = "<span class=\"badge bg-purple m-1 font-smaller p-1 text-white\"><i class=\"fa fa-clock\"></i></span>" ;
+                $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa $icone\"></i></span>" ;
 
             }
             $element["markup"] = $markup ;
             array_push($elements,$element) ;
         }
+
+        // AGENDA FINANCIERE : CREDIT, ACOMPTE, ...
+
+        $refCategorie = "CRD" ;
+
+        $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
+            "reference" => $refCategorie
+            ]) ;
+
+        $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
+            "agence" => $this->agence,
+            "categorie" => $categorie
+            ]) ;
+        
+        foreach ($echeances as $echeance) {
+            $element = [] ;
+            $element["date"] = $echeance->getDate()->format('Y-m-d') ;
+            $markup = '' ;
+
+            // Tous les statut sont : 
+            //     - En cours : 1
+            //     - Soldé : 0
+            //     - En souffrance : NULL
+
+            $statutEcheance = $echeance->isStatut() ;
+
+            if($statutEcheance)
+            {
+                $markup = "<span class=\"badge bg-info m-1 font-smaller p-1 text-white\"><i class=\"fa fa-percent\"></i></span>" ;
+            }
+            else if(is_null($statutEcheance))
+            {
+                $markup = "<span class=\"badge bg-danger m-1 font-smaller p-1 text-white\"><i class=\"fa fa-percent\"></i></span>" ;
+            }
+            else
+            {
+                $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-percent\"></i></span>" ;
+            }
+            $element["markup"] = $markup ;
+            array_push($elements,$element) ;
+        }
+
 
         $items = $elements ;
 
@@ -1446,4 +1495,64 @@ class AppService extends AbstractController
 
         return $elements ;
     }
+
+    public function compareDates($date1, $date2, $condition) {
+        $date1Obj = \DateTime::createFromFormat('d/m/Y', $date1) ;
+        $date2Obj = \DateTime::createFromFormat('d/m/Y', $date2) ;
+        
+        switch ($condition) {
+            case 'G':  // cas où la date1 est supérieure à la date2
+                return $date1Obj > $date2Obj;
+            case 'P': // cas où la date1 est inférieure à la date2
+                return $date1Obj < $date2Obj;
+            case 'E': // cas où la date1 est égale à la date2
+                return $date1Obj == $date2Obj;
+            default:
+                return false;
+        }
+    }
+
+    public function checkAllDateAgenda()
+    {
+        $dateActuel = date('d/m/Y') ;
+
+        $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
+            "agence" => $this->agence
+        ]) ;
+        
+        foreach ($agendas as $agenda) {
+            $dateAgenda = $agenda->getDate()->format('d/m/Y') ; 
+
+            $compareInf = $this->compareDates($dateAgenda,$dateActuel,"P") ;
+
+            if($compareInf)
+            {
+                if($agenda->isStatut())
+                {
+                    $agenda->setStatut(NULL) ;
+                    $this->entityManager->flush() ;
+                }
+            }
+        }
+
+        $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
+            "agence" => $this->agence
+        ]) ;
+
+        foreach ($echeances as $echeance) {
+            $dateEcheance = $echeance->getDate()->format('d/m/Y') ; 
+
+            $compareInf = $this->compareDates($dateEcheance,$dateActuel,"P") ;
+
+            if($compareInf)
+            {
+                if($echeance->isStatut())
+                {
+                    $echeance->setStatut(NULL) ;
+                    $this->entityManager->flush() ;
+                }
+            }
+        }
+    }
+
 }

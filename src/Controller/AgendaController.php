@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\AgdCommentaire;
+use App\Entity\AgdEcheance;
 use App\Entity\AgdTypes;
 use App\Entity\Agence;
 use App\Entity\Agenda;
+use App\Entity\CrdDetails;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -49,7 +51,6 @@ class AgendaController extends AbstractController
     {
         $agdTypes = $this->entityManager->getRepository(AgdTypes::class)->findAll() ;
 
-
         return $this->render('agenda/creation.html.twig', [
             "filename" => "agenda",
             "titlePage" => "Creation agenda",
@@ -63,9 +64,9 @@ class AgendaController extends AbstractController
     {
         $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
         if (!file_exists($filename)) {
+            $this->appService->checkAllDateAgenda() ;
             $this->appService->generateAgenda($filename, $this->agence) ;
         }
-        // $agendas = json_decode(file_get_contents($filename)) ;
 
         $mois = [
             1 =>  "Janvier",
@@ -163,10 +164,48 @@ class AgendaController extends AbstractController
         $date = $request->request->get('date') ;
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
             "date" => \DateTime::createFromFormat('Y-m-d', $date)
-            ]) ;
+        ]) ;
         
+        $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
+            "date" => \DateTime::createFromFormat('Y-m-d', $date)
+        ]) ;
+        $elements = [] ;
+        foreach ($echeances as $echeance) {
+            $facture = $echeance->getCatTable()->getFacture() ;
+            $client = $this->appService->getFactureClient($facture)["client"] ;
+            
+            // Personnalier le statut pour pouvoir faciliter l'affichage
+            //  - En cours : 1 => ECR
+            //  - En Alerte : NULL => WRN
+            //  - Terminé : 0 => END
+
+            if($echeance->isStatut())
+            {
+                $statut = "ECR" ;
+            } else if(is_null($echeance->isStatut()))
+            {
+                $statut = "WRN" ;
+            }
+            else
+            {
+                $statut = "END" ;
+            }
+
+            $element = [] ;
+
+            $element["type"] = "Crédit" ;
+            $element["id"] = $echeance->getCatTable()->getId() ;
+            $element["client"] = $client ;
+            $element["statut"] = $statut ;
+            $element["numFact"] = $facture->getNumFact() ;
+            $element["montant"] = $echeance->getMontant() ;
+
+            array_push($elements,$element) ; 
+        }
+        $listEcheances = $elements ;
         $response = $this->renderView("agenda/detailsDateAganda.html.twig", [
-            "agendas" => $agendas
+            "agendas" => $agendas,
+            "listEcheances" => $listEcheances
         ]) ;
 
         return new Response($response) ;
@@ -221,6 +260,87 @@ class AgendaController extends AbstractController
         $this->entityManager->persist($commentaire) ;
         $this->entityManager->flush() ;
 
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/agenda/echeance/check', name: 'agd_echeance_check')]
+    public function agdCheckEcheance(Request $request): Response
+    {
+        $id = $request->request->get('id') ;
+
+        $echeance = $this->entityManager->getRepository(AgdEcheance::class)->find($id) ;
+
+        $date = $echeance->getDate() ;
+        $montant = $echeance->getMontant() ;
+
+        $dateEcheance = $date->format('d/m/Y') ;
+        $dateActuel = date('d/m/Y') ;
+
+        $compareInf = $this->appService->compareDates($dateEcheance,$dateActuel,"P") ;
+        $compareSup = $this->appService->compareDates($dateEcheance,$dateActuel,"G") ;
+
+        if($compareInf || $compareSup)
+        {
+            $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$dateActuel)) ;
+            $this->entityManager->flush() ;
+        }
+
+        $result = [
+            "type" => "green",
+            "message" => "Information enregistré avec succès",
+        ] ;
+
+        $finance = $echeance->getCatTable() ;
+        $crd_paiement_montant = $montant ;
+        $totalFacture = $finance->getFacture()->getTotal() ; 
+        $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ; 
+
+        $ttcRestant = $totalFacture - $totalPayee["total"] ;
+        $ttcRestant = $ttcRestant - $montant ; 
+        
+        if($ttcRestant < 0)
+        {
+            $crd_paiement_montant = $montant - abs($ttcRestant) ;
+            $result["type"] = "green";
+            $result["message"] = "Enregistrement effectué. Le montant dépasse de ".abs($ttcRestant) ; 
+        }
+
+        // DEBUT INSERTION
+
+        $crdDetail = new CrdDetails() ;
+
+        $crdDetail->setFinance($finance) ; 
+        $crdDetail->setDate($date) ;
+        $crdDetail->setMontant(floatval($crd_paiement_montant)) ;
+        $crdDetail->setAgence($this->agence) ;
+
+        $this->entityManager->persist($crdDetail) ;
+        $this->entityManager->flush() ; 
+        $refPaiement = $finance->getPaiement()->getReference() ; 
+
+        $this->appService->updateStatutFinance($finance) ;
+
+        // DESACTIVER L'ECHEANCE
+        $echeance->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        if($refPaiement == "AC")
+            $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+        else
+            $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+            
+        if(file_exists($filename))
+            unlink($filename) ;
+        if(!file_exists($filename))
+        {
+            $this->appService->generateCredit($filename,$this->agence,$refPaiement) ;
+        }
+
+        $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+        {
+            unlink($filename) ;
+        }
         return new JsonResponse($result) ;
     }
 }

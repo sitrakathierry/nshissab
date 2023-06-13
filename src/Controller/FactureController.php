@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdCategorie;
+use App\Entity\AgdEcheance;
 use App\Entity\Agence;
 use App\Entity\CltHistoClient;
 use App\Entity\CrdDetails;
@@ -609,6 +611,56 @@ class FactureController extends AbstractController
                 $this->entityManager->persist($crdDetail) ;
                 $this->entityManager->flush() ; 
             }
+            if ($paiement->getReference() == "CR") { 
+                // GESTION AGENDA
+                $agd_ech_enr_date = (array)$request->request->get('agd_ech_enr_date') ;
+                $agd_ech_enr_montant   = $request->request->get('agd_ech_enr_montant') ;
+
+                $refCategorie = $paiement->getReference() == "CR" ? "CRD" : "ACP" ;
+
+                $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
+                    "reference" => $refCategorie
+                ]) ;
+
+                foreach ($agd_ech_enr_date as $key => $value) {
+                    // GESTION DE DATE ULTERIEURE
+                    $dateActuelle = date('d/m/Y') ;
+                    $dateEcheance = $value ;
+
+                    $dateInf = $this->appService->compareDates($dateEcheance,$dateActuelle,"P") ;
+
+                    if($dateInf)
+                    {
+                        return new JsonResponse([
+                            "type" => "orange",
+                            "message" => "Désolé. La date de l'échéance doit être supérieure à la date actuelle"
+                            ]) ;
+                    }
+                    
+                    $echeance = new AgdEcheance() ;
+
+                    $echeance->setAgence($this->agence) ;
+                    $echeance->setCategorie($categorie) ;
+                    $echeance->setCatTable($finance) ;
+                    $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$value)) ;
+                    $echeance->setMontant($agd_ech_enr_montant[$key]) ;
+                    $echeance->setStatut(True) ;
+                    $echeance->setCreatedAt(new \DateTimeImmutable) ; 
+                    $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+                    $this->entityManager->persist($echeance) ;
+                    $this->entityManager->flush() ; 
+                }
+
+                if(!empty($agd_ech_enr_date))
+                {
+                    $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+                    if(file_exists($filename))
+                    {
+                        unlink($filename) ;
+                    }
+                }
+            }
         }
         
         // gestion des fichiers 
@@ -626,7 +678,8 @@ class FactureController extends AbstractController
             
         if(file_exists($filename))
             unlink($filename);
-            
+
+        
         
         return new JsonResponse($result) ;
     }

@@ -239,6 +239,12 @@ background-color: #ecb534 !important;
     border-color: var(--dark)!important ;
     color: var(--dark) !important ;
 }  
+
+.bg-outline-info
+{
+    border-color: var(--info)!important ;
+    color: var(--info) !important ;
+}
 .bg-purple {
     background-color: var(--purple) !important; }
 

@@ -17,9 +17,6 @@ class AgdEcheance
     #[ORM\ManyToOne(inversedBy: 'agdEcheances')]
     private ?AgdCategorie $categorie = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $catTable = null;
-
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
@@ -31,6 +28,15 @@ class AgdEcheance
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'agdEcheances')]
+    private ?CrdFinance $catTable = null;
+
+    #[ORM\ManyToOne(inversedBy: 'agdEcheances')]
+    private ?Agence $agence = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $statut = null;
 
     public function getId(): ?int
     {
@@ -45,18 +51,6 @@ class AgdEcheance
     public function setCategorie(?AgdCategorie $categorie): self
     {
         $this->categorie = $categorie;
-
-        return $this;
-    }
-
-    public function getCatTable(): ?int
-    {
-        return $this->catTable;
-    }
-
-    public function setCatTable(?int $catTable): self
-    {
-        $this->catTable = $catTable;
 
         return $this;
     }
@@ -105,6 +99,42 @@ class AgdEcheance
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCatTable(): ?CrdFinance
+    {
+        return $this->catTable;
+    }
+
+    public function setCatTable(?CrdFinance $catTable): self
+    {
+        $this->catTable = $catTable;
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function isStatut(): ?bool
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?bool $statut): self
+    {
+        $this->statut = $statut;
 
         return $this;
     }

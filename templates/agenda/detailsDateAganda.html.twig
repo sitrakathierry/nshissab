@@ -3,14 +3,25 @@
         {% set icone = agenda.type.reference == "EVT" ? "fa-star" : "fa-clock" %}
         {% set caption = agenda.type.reference == "EVT" ? "Evènement" : "Rendez-vous" %}
         <div class="border rounded py-2 px-3 m-2 bg-outline-purple d-flex flex-row align-items-center">
-            <i class="fa {{icone}}"></i><span class="ml-3 lh-2"><b>{{caption}}</b> - {{agenda.type.designation}} : <b>{{agenda.clientNom|upper}}</b> - {{agenda.type.objet}} : <b>{{ agenda.objet is not empty ? agenda.objet|upper : "AUCUN"}}</b> - Lieu : <b>{{agenda.lieu}}</b> à {{agenda.heure}} &emsp;<a href="{{path('agd_detail_agenda',{'id':agenda.id})}}" class="btn btn-sm ml-auto btn-info px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a> </span>
+            <i class="fa {{icone}}"></i><span class="ml-3 lh-2"><b>{{caption}}</b> - {{agenda.type.designation}} : <b>{{agenda.clientNom|upper}}</b> - {{agenda.type.objet}} : <b>{{ agenda.objet is not empty ? agenda.objet|upper : "AUCUN"}}</b> - Lieu : <b>{{agenda.lieu}}</b> à {{agenda.heure}} &emsp;<a href="{{path('agd_detail_agenda',{'id':agenda.id})}}" class="btn btn-sm ml-auto btn-info px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
         </div>
     {% endfor %}
-{% else %}
+{% endif %}
+{% if listEcheances is not empty %}
+    {% for listEcheance in listEcheances %}
+        {% set statut = listEcheance.statut == "ECR" ? "bg-outline-info" : (listEcheance.statut == "WRN" ? "bg-outline-danger" : "bg-outline-dark" ) %}
+        {% set message = listEcheance.statut == "ECR" ? "Paiement partie" : (listEcheance.statut == "WRN" ? "(Alerte) Paiement en retard" : "Paiement effectué" ) %}
+        <div class="border rounded py-2 px-3 m-2 {{statut}} d-flex flex-row align-items-center">
+            <i class="fa fa-percent"></i><span class="ml-3 lh-2"><b>{{"Crédit"|upper}}</b> - <b>{{message}}</b> - Facture N° : <b>{{listEcheance.numFact}}</b> - Client : <b>{{listEcheance.client|upper}}</b> - Montant : <b>{{listEcheance.montant}}</b> &emsp;<a href="{{path('crd_details_credit',{'id':listEcheance.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        </div>
+    {% endfor %}
+{% endif %}
+{% if agendas is empty and listEcheances is empty %}
     <div class="border rounded p-2 m-2 bg-outline-warning d-flex flex-row align-items-center">
         <b>Aucune information à signaler</b></span>
     </div>
 {% endif %}
+    
 
 
 {# <div class="border rounded p-2 m-2 bg-outline-success d-flex flex-row align-items-center">

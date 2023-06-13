@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdCategorie;
+use App\Entity\AgdEcheance;
 use App\Entity\Agence;
 use App\Entity\CltHistoClient;
 use App\Entity\CrdDetails;
@@ -193,6 +195,18 @@ class CreditController extends AbstractController
         
         $titlePage = $refPaiement == "CR" ? "Credit" : "Acompte" ;
 
+        $refCategorie = $refPaiement == "CR" ? "CRD" : "ACP" ;
+
+        $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
+            "reference" => $refCategorie
+            ]) ;
+
+        $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True,
+            "categorie" => $categorie
+            ]) ;
+
         return $this->render('credit/detailsFinanceCredit.html.twig',[
             "filename" => "credit",
             "titlePage" => $titlePage,
@@ -200,7 +214,8 @@ class CreditController extends AbstractController
             "facture" => $infoFacture,
             "factureDetails" => $elements,
             "financeDetails" => $financeDetails,
-            "refPaiement" => $refPaiement
+            "refPaiement" => $refPaiement,
+            "echeances" => $echeances
         ]) ;
 
     }
@@ -211,17 +226,20 @@ class CreditController extends AbstractController
         $crd_paiement_date = $request->request->get('crd_paiement_date') ;
         $crd_paiement_montant = $request->request->get('crd_paiement_montant') ;
         $crd_id_finance = $request->request->get('crd_paiement_id') ;
-
+        $crd_type = $request->request->get('crd_type') ;
+        
         $finance = $this->entityManager->getRepository(CrdFinance::class)->find($crd_id_finance) ;
 
         $data = [
             $crd_paiement_date,
-            $crd_paiement_montant
+            $crd_paiement_montant,
+            $crd_type
         ] ;
 
         $dataMessage = [
             "Date",
-            "Montant"
+            "Montant",
+            "Type"
         ] ;
 
         $result = $this->appService->verificationElement($data, $dataMessage) ;
@@ -229,6 +247,54 @@ class CreditController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
         
+        if ($crd_type == "ECHEANCE") {
+            // GESTION AGENDA
+
+            // GESTION DE DATE ULTERIEURE
+            $dateActuelle = date('d/m/Y') ;
+            $dateEcheance = $crd_paiement_date ;
+
+            $dateInf = $this->appService->compareDates($dateEcheance,$dateActuelle,"P") ;
+            if($dateInf)
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Désolé. La date doit être supérieure à la date actuelle"
+                    ]) ;
+            }
+            
+            // debut d'enregistrement de l'échéance
+            $paiement = $finance->getPaiement() ; 
+
+            $refCategorie = $paiement->getReference() == "CR" ? "CRD" : "ACP" ;
+
+            $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
+                "reference" => $refCategorie
+                ]) ;
+
+            $echeance = new AgdEcheance() ;
+
+            $echeance->setAgence($this->agence) ;
+            $echeance->setCategorie($categorie) ;
+            $echeance->setCatTable($finance) ;
+            $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$crd_paiement_date)) ;
+            $echeance->setMontant($crd_paiement_montant) ;
+            $echeance->setStatut(True) ;
+            $echeance->setCreatedAt(new \DateTimeImmutable) ; 
+            $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+            $this->entityManager->persist($echeance) ;
+            $this->entityManager->flush() ; 
+            
+            $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+            if(file_exists($filename))
+            {
+                unlink($filename) ;
+            }
+
+            return new JsonResponse($result) ;
+        }
+
         $totalFacture = $finance->getFacture()->getTotal() ; 
         $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($crd_id_finance) ; 
 
@@ -266,7 +332,6 @@ class CreditController extends AbstractController
             unlink($filename) ;
         if(!file_exists($filename))
         {
-            
             $this->appService->generateCredit($filename,$this->agence,$refPaiement) ;
         }
 
