@@ -281,6 +281,7 @@ class AgendaController extends AbstractController
 
         if($compareInf || $compareSup)
         {
+            $date = \DateTime::createFromFormat('j/m/Y',$dateActuel) ;
             $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$dateActuel)) ;
             $this->entityManager->flush() ;
         }
