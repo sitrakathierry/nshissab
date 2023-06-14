@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
 use App\Entity\Agence;
@@ -1038,7 +1039,7 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         }
 
-        // AGENDA FINANCIERE : CREDIT, ACOMPTE, ...
+        // AGENDA FINANCIERE : CREDIT
 
         $refCategorie = "CRD" ;
 
@@ -1079,6 +1080,39 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         }
 
+        // GESTION DE L'ACOMPTE SUR L'AGENDA
+
+        $agendaAcomptes = $this->entityManager->getRepository(AgdAcompte::class)->findBy([
+            "agence" => $agence
+        ]) ;
+
+        foreach ($agendaAcomptes as $agendaAcompte) {
+            $element = [] ;
+            $element["date"] = $agendaAcompte->getDate()->format('Y-m-d') ;
+            $markup = '' ;
+
+            // Tous les statut sont : 
+            //     - En cours : 1
+            //     - Soldé : 0
+            //     - En souffrance : NULL
+
+            $statutAgdAcompte = $agendaAcompte->isStatut() ;
+
+            if($statutAgdAcompte)
+            {
+                $markup = "<span class=\"badge bg-info m-1 font-smaller p-1 text-white\"><i class=\"fa fa-layer-group\"></i></span>" ;
+            }
+            else if(is_null($statutAgdAcompte))
+            {
+                $markup = "<span class=\"badge bg-danger m-1 font-smaller p-1 text-white\"><i class=\"fa fa-layer-group\"></i></span>" ;
+            }
+            else
+            {
+                $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-layer-group\"></i></span>" ;
+            }
+            $element["markup"] = $markup ;
+            array_push($elements,$element) ;
+        }
 
         $items = $elements ;
 
@@ -1514,41 +1548,40 @@ class AppService extends AbstractController
 
     public function checkAllDateAgenda()
     {
-        $dateActuel = date('d/m/Y') ;
+        
 
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
             "agence" => $this->agence
         ]) ;
         
-        foreach ($agendas as $agenda) {
-            $dateAgenda = $agenda->getDate()->format('d/m/Y') ; 
-
-            $compareInf = $this->compareDates($dateAgenda,$dateActuel,"P") ;
-
-            if($compareInf)
-            {
-                if($agenda->isStatut())
-                {
-                    $agenda->setStatut(NULL) ;
-                    $this->entityManager->flush() ;
-                }
-            }
-        }
+        $this->validCompareDate($agendas) ;
 
         $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
             "agence" => $this->agence
         ]) ;
 
-        foreach ($echeances as $echeance) {
-            $dateEcheance = $echeance->getDate()->format('d/m/Y') ; 
+        $this->validCompareDate($echeances) ;
 
-            $compareInf = $this->compareDates($dateEcheance,$dateActuel,"P") ;
+        $agendaAcomptes = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
+            "agence" => $this->agence
+        ]) ;
+        
+        $this->validCompareDate($agendaAcomptes) ;
+    }
 
+    public function validCompareDate($object)
+    {
+        $dateActuel = date('d/m/Y') ;
+        foreach ($object as $object) {
+            $dateAgdAcompte = $object->getDate()->format('d/m/Y') ; 
+        
+            $compareInf = $this->compareDates($dateAgdAcompte,$dateActuel,"P") ;
+        
             if($compareInf)
             {
-                if($echeance->isStatut())
+                if($object->isStatut())
                 {
-                    $echeance->setStatut(NULL) ;
+                    $object->setStatut(NULL) ;
                     $this->entityManager->flush() ;
                 }
             }

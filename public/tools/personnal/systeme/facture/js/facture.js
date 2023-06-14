@@ -4,6 +4,7 @@ $(document).ready(function(){
     var appBase = new AppBase() ;
     $("#fact_date").datepicker() ;
     $("#agd_ech_date").datepicker() ;
+    $("#agd_acp_date").datepicker() ;
     
    $("#formFacture").submit(function(event){
     event.preventDefault()
@@ -528,6 +529,8 @@ $(document).ready(function(){
                 $(this).removeClass(btnClass);
             }
         })
+
+        $(".agd_acompte").hide()
     })
 
     $(".fact_btn_paiement").click(function(){
@@ -583,6 +586,16 @@ $(document).ready(function(){
         else
         {
             $("#agd_echance").hide()
+        }
+
+        // Agenda acompte
+
+        if ($(this).hasClass('AC')) {
+            $(".agd_acompte").show()
+        }
+        else
+        {
+            $(".agd_acompte").hide()
         }
     })
 

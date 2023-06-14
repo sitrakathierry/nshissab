@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
 use App\Entity\Agence;
@@ -654,6 +655,31 @@ class FactureController extends AbstractController
 
                 if(!empty($agd_ech_enr_date))
                 {
+                    $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+                    if(file_exists($filename))
+                    {
+                        unlink($filename) ;
+                    }
+                }
+            }
+            else // Deuxième cas si le mode paiement est sous acompte : AC
+            {
+                $agd_acp_date = $request->request->get('agd_acp_date') ;
+                $agd_acp_objet = $request->request->get('agd_acp_objet') ;
+
+                if(!empty($agd_acp_date))
+                {
+                    $agd_acompte = new AgdAcompte() ;
+
+                    $agd_acompte->setAcompte($finance) ;
+                    $agd_acompte->setAgence($this->agence) ;
+                    $agd_acompte->setObjet($agd_acp_objet) ;
+                    $agd_acompte->setDate(\DateTime::createFromFormat('j/m/Y',$agd_acp_date)) ;
+                    $agd_acompte->setStatut(True) ;
+                    
+                    $this->entityManager->persist($agd_acompte) ;
+                    $this->entityManager->flush() ;
+
                     $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
                     if(file_exists($filename))
                     {

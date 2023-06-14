@@ -1,5 +1,7 @@
 $(document).ready(function(){
   $("#crd_paiement_date").datepicker()
+  $("#agd_acp_date").datepicker()
+  
   var instance = new Loading(files.loading)
   
   $("#formPaiementCredit").submit(function(){
@@ -310,4 +312,56 @@ $(document).ready(function(){
     })
   })
 
+  $("#formAgdAcompte").submit(function(){
+    var self = $(this)
+    $.confirm({
+        title: "Confirmation",
+        content:"Vous êtes sûre ?",
+        type:"blue",
+        theme:"modern",
+        buttons:{
+            btn1:{
+                text: 'Non',
+                action: function(){}
+            },
+            btn2:{
+                text: 'Oui',
+                btnClass: 'btn-blue',
+                keys: ['enter', 'shift'],
+                action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.agd_acompte_agenda_save,
+                        type:'post',
+                        cache: false,
+                        data:data,
+                        dataType: 'json',
+                        success: function(json){
+                          realinstance.close()
+                          $.alert({
+                              title: 'Message',
+                              content: json.message,
+                              type: json.type,
+                              buttons: {
+                                  OK: function(){
+                                      if(json.type == "green")
+                                      {
+                                          location.reload()
+                                      }
+                                  }
+                              }
+                          });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                }
+            }
+        }
+    })
+    return false;
+  })
 })

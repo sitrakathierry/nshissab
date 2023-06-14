@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
 use App\Entity\Agence;
@@ -201,11 +202,25 @@ class CreditController extends AbstractController
             "reference" => $refCategorie
             ]) ;
 
-        $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
-            "agence" => $this->agence,
-            "statut" => True,
-            "categorie" => $categorie
+            
+        if($refPaiement == "AC")
+        {
+            $unAgdAcompte = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
+                "acompte" => $finance
             ]) ;
+
+            $unAgdAcompte = is_null($unAgdAcompte) ? "" : $unAgdAcompte ;
+            $echeances = "" ;
+        }
+        else
+        {
+            $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
+                "agence" => $this->agence,
+                "statut" => True,
+                "categorie" => $categorie
+            ]) ;
+            $unAgdAcompte = "" ;
+        }
 
         return $this->render('credit/detailsFinanceCredit.html.twig',[
             "filename" => "credit",
@@ -215,7 +230,8 @@ class CreditController extends AbstractController
             "factureDetails" => $elements,
             "financeDetails" => $financeDetails,
             "refPaiement" => $refPaiement,
-            "echeances" => $echeances
+            "echeances" => $echeances,
+            "unAgdAcompte" => $unAgdAcompte
         ]) ;
 
     }

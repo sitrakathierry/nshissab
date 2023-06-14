@@ -1,6 +1,7 @@
 $(document).ready(function(){
     $("#agd_echance").hide()
-
+    $(".agd_acompte").hide()
+    
     $(document).on('click',".agd_btn_ajouter", function(){
         var agd_ech_date = $("#agd_ech_date").val()
         var agd_ech_montant = $("#agd_ech_montant").val()

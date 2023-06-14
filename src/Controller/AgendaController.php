@@ -2,12 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdAcompte;
 use App\Entity\AgdCommentaire;
 use App\Entity\AgdEcheance;
+use App\Entity\AgdHistoAcompte;
 use App\Entity\AgdTypes;
 use App\Entity\Agence;
 use App\Entity\Agenda;
 use App\Entity\CrdDetails;
+use App\Entity\CrdFinance;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -309,7 +312,7 @@ class AgendaController extends AbstractController
         // DEBUT INSERTION
 
         $crdDetail = new CrdDetails() ;
-
+ 
         $crdDetail->setFinance($finance) ; 
         $crdDetail->setDate($date) ;
         $crdDetail->setMontant(floatval($crd_paiement_montant)) ;
@@ -342,6 +345,72 @@ class AgendaController extends AbstractController
         {
             unlink($filename) ;
         }
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/agenda/acompte/save', name: 'agd_acompte_agenda_save')]
+    public function agdSaveAcompteAgenda(Request $request): Response
+    {
+        $agd_acp_id = $request->request->get('agd_acp_id') ;
+        $agd_acp_date = $request->request->get('agd_acp_date') ;
+        $agd_acp_objet = $request->request->get('agd_acp_objet') ;
+
+        $result = $this->appService->verificationElement([
+            $agd_acp_date,
+            $agd_acp_objet,
+        ],[
+            "Date",
+            "Objet",
+            ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $finance = $this->entityManager->getRepository(CrdFinance::class)->find($agd_acp_id) ;
+
+        $unAgdAcompte = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
+            "acompte" => $finance
+        ]) ;
+        
+        if(!is_null($unAgdAcompte))
+        {
+            $agdHistoAcompte = new AgdHistoAcompte() ;
+            $agdHistoAcompte->setAgendaAcompte($unAgdAcompte) ;
+            $agdHistoAcompte->setDate($unAgdAcompte->getDate()) ;
+            
+            $this->entityManager->persist($agdHistoAcompte) ;
+            $this->entityManager->flush() ;
+
+            $unAgdAcompte->setDate(\DateTime::createFromFormat('j/m/Y',$agd_acp_date)) ;
+            $unAgdAcompte->setObjet($agd_acp_objet) ;
+            $this->entityManager->flush() ;
+            
+            $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+            if(file_exists($filename))
+            {
+                unlink($filename) ;
+            }
+
+            return new JsonResponse($result) ;
+        }
+         
+        $agd_acompte = new AgdAcompte() ;
+
+        $agd_acompte->setAgence($this->agence) ;
+        $agd_acompte->setAcompte($finance) ;
+        $agd_acompte->setObjet($agd_acp_objet) ;
+        $agd_acompte->setDate(\DateTime::createFromFormat('j/m/Y',$agd_acp_date)) ;
+        $agd_acompte->setStatut(True) ;
+        
+        $this->entityManager->persist($agd_acompte) ;
+        $this->entityManager->flush() ;
+        
+        $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+        {
+            unlink($filename) ;
+        }
+        
         return new JsonResponse($result) ;
     }
 }
