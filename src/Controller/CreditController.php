@@ -481,4 +481,9 @@ class CreditController extends AbstractController
         return new Response($response) ; 
     }
 
+    #[Route('/credit/definitif/switch', name: 'crd_credit_basculer_definitif')]
+    public function crdSwitchDefinitif($acompte)
+    {    
+        
+    }
 }
