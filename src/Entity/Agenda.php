@@ -52,9 +52,13 @@ class Agenda
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $objet = null;
 
+    #[ORM\OneToMany(mappedBy: 'agenda', targetEntity: AgdHistorique::class)]
+    private Collection $agdHistoriques;
+
     public function __construct()
     {
         $this->agdCommentaires = new ArrayCollection();
+        $this->agdHistoriques = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -220,6 +224,36 @@ class Agenda
     public function setObjet(?string $objet): self
     {
         $this->objet = $objet;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AgdHistorique>
+     */
+    public function getAgdHistoriques(): Collection
+    {
+        return $this->agdHistoriques;
+    }
+
+    public function addAgdHistorique(AgdHistorique $agdHistorique): self
+    {
+        if (!$this->agdHistoriques->contains($agdHistorique)) {
+            $this->agdHistoriques->add($agdHistorique);
+            $agdHistorique->setAgenda($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgdHistorique(AgdHistorique $agdHistorique): self
+    {
+        if ($this->agdHistoriques->removeElement($agdHistorique)) {
+            // set the owning side to null (unless already changed)
+            if ($agdHistorique->getAgenda() === $this) {
+                $agdHistorique->setAgenda(null);
+            }
+        }
 
         return $this;
     }

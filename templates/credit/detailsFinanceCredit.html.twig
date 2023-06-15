@@ -66,7 +66,7 @@
                 </thead>
                 <tbody> 
                     {% for factureDetail in factureDetails %}
-                        <tr>
+                        <tr {{ facture.refStatut == "TRM" ? 'class="bg-secondary text-white"' : "" }}>
                             <td>{{ factureDetail.type|upper }}</td>
                             <td>{{ factureDetail.designation }}</td>
                             <td>{{ factureDetail.quantite }}</td>
@@ -109,10 +109,7 @@
             </div>
         </div>
         {% if facture.refStatut != "ATN" %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
-            </div>
-            <div class="barre_dashed w-100">
+            <div class="barre_dashed w-100 mt-3">
                 {% if refPaiement == "AC" and facture.refStatut != "ANL" %} 
                     <form id="formAgdAcompte">
                         <div class="p-3">
@@ -126,17 +123,19 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <label for="agd_acp_date" class="font-weight-bold text-uppercase">Fixer une date</label>
-                                    <input type="text" name="agd_acp_date" id="agd_acp_date" class="form-control" value="{{dateAgdAcp}}" placeholder=". . .">
+                                    <input type="text" {{ facture.refStatut == "TRM" ? "readonly" : "" }} name="agd_acp_date" id="agd_acp_date" class="form-control" value="{{dateAgdAcp}}" placeholder=". . .">
                                     <input type="hidden" name="agd_acp_id" value="{{facture.id}}" >
                                 </div>
                                 <div class="col-md-6">
                                     <label for="agd_acp_objet" class="font-weight-bold text-uppercase">Objet</label>
-                                    <input type="text" name="agd_acp_objet" id="agd_acp_objet" value="{{objetAgdAcp}}" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
+                                    <input type="text" {{ facture.refStatut == "TRM" ? "readonly" : "" }} name="agd_acp_objet" id="agd_acp_objet" value="{{objetAgdAcp}}" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="nom" class="font-weight-bold">&nbsp;</label>
-                                    <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i>&nbsp; {{ unAgdAcompte is empty ? "Enregistrer" : "Reporter" }} </button>
-                                </div>
+                                {% if facture.refStatut == "ECR"  %}
+                                    <div class="col-md-3">
+                                        <label for="nom" class="font-weight-bold">&nbsp;</label>
+                                        <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i>&nbsp; {{ unAgdAcompte is empty ? "Enregistrer" : "Reporter" }} </button>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </form>
@@ -195,7 +194,7 @@
                             <tbody>
                             {% set totalPayee = 0 %}
                                 {% for financeDetail in financeDetails %}
-                                    <tr>
+                                    <tr {{ facture.refStatut == "TRM" ? 'class="bg-secondary text-white"' : "" }} >
                                         <td>{{ financeDetail.date|date('d/m/Y') }}</td>
                                         {% if refPaiement == "CR" %}
                                             <td class="align-middle text-center">
@@ -213,16 +212,18 @@
                                 {% endfor %}
                                 {% if refPaiement == "CR" %}
                                     {% for echeance in echeances %}
-                                        <tr class="bg-info text-white" >
-                                            <td>{{ echeance.date|date('d/m/Y') }}</td>
-                                            <td class="align-middle text-center">
-                                                <b class="text-uppercase" >Echéance</b>
-                                            </td>
-                                            <td>{{ echeance.montant }}</td>
-                                            <td class="align-middle text-center">
-                                                <button value="{{echeance.id}}" class="btn btn-sm agd_btn_valid_check btn-purple font-smaller"><i class="fa fa-check"></i>&nbsp;{{"Payé"|upper}}</button>
-                                            </td>
-                                        </tr>
+                                        {% if echeance.statut != "DNONE" %}
+                                            <tr class=" {{ echeance.statut == "OK" ? "bg-info" : "bg-danger" }}  text-white" >
+                                                <td>{{ echeance.date }}</td>
+                                                <td class="align-middle text-center">
+                                                    <b class="text-uppercase" >Echéance</b>
+                                                </td>
+                                                <td>{{ echeance.montant }}</td>
+                                                <td class="align-middle text-center">
+                                                    <button value="{{echeance.id}}" class="btn btn-sm agd_btn_valid_check btn-purple font-smaller"><i class="fa fa-check"></i>&nbsp;{{"Payé"|upper}}</button>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
                                     {% endfor %}
                                 {% endif %}
                             </tbody>

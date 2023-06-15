@@ -6,6 +6,7 @@ use App\Entity\AgdAcompte;
 use App\Entity\AgdCommentaire;
 use App\Entity\AgdEcheance;
 use App\Entity\AgdHistoAcompte;
+use App\Entity\AgdHistorique;
 use App\Entity\AgdTypes;
 use App\Entity\Agence;
 use App\Entity\Agenda;
@@ -49,16 +50,25 @@ class AgendaController extends AbstractController
         ]) ;
     }
     
-    #[Route('/agenda/creation', name: 'agd_agenda_creation')]
-    public function agdCreationAgenda(): Response
+    #[Route('/agenda/creation/{id}', name: 'agd_agenda_creation', defaults : ["id" => NULL])]
+    public function agdCreationAgenda($id): Response
     {
         $agdTypes = $this->entityManager->getRepository(AgdTypes::class)->findAll() ;
+        $agenda = "" ; 
+        $titlePage = "Création Agenda" ;
+
+        if(!is_null($id))
+        {
+            $agenda = $this->entityManager->getRepository(Agenda::class)->find($id) ;
+            $titlePage = "Reporter Agenda" ;
+        }
 
         return $this->render('agenda/creation.html.twig', [
             "filename" => "agenda",
-            "titlePage" => "Creation agenda",
+            "titlePage" => $titlePage,
             "with_foot" => true,
-            "agdTypes" => $agdTypes
+            "agdTypes" => $agdTypes,
+            "agenda" => $agenda
         ]);
     }
 
@@ -127,13 +137,47 @@ class AgendaController extends AbstractController
             "Heure",
             "Lieu",
             ] ;
+            
+        $code_agenda = $request->request->get('agd_code_agenda') ; 
+        if(is_null($code_agenda))
+        {
+            $result = $this->appService->verificationElement($data, $dataMessage) ;
 
-        $result = $this->appService->verificationElement($data, $dataMessage) ;
-
-        if(!$result["allow"])
-            return new JsonResponse($result) ;
-
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+        }
+        
         $type = $this->entityManager->getRepository(AgdTypes::class)->find($agd_type) ;
+
+        if(!is_null($code_agenda))
+        {
+            $agenda = $this->entityManager->getRepository(Agenda::class)->find($code_agenda) ;
+
+            $histoAgenda = new AgdHistorique() ;
+
+            $histoAgenda->setAgenda($agenda) ;
+            $histoAgenda->setDate($agenda->getDate()) ;
+            $histoAgenda->setHeure($agenda->getHeure()) ; 
+            
+            $this->entityManager->persist($histoAgenda) ;
+            $this->entityManager->flush() ;
+
+            $agenda->setDate(\DateTime::createFromFormat('j/m/Y',$agd_date)) ;
+            $agenda->setStatut(True) ;
+            $this->entityManager->flush() ;
+
+            $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
+            if(file_exists($filename))
+            {
+                unlink($filename) ;
+            }
+
+            return new JsonResponse([
+                "type" => "green",
+                "message" => "Le programme a été reporté le $agd_date",
+                "redirect" => True
+                ]) ;
+        }
 
         $agenda = new Agenda() ;
 
@@ -165,13 +209,17 @@ class AgendaController extends AbstractController
     public function agdDetailsDate(Request $request)
     {
         $date = $request->request->get('date') ;
+
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
+            "agence" => $this->agence,
             "date" => \DateTime::createFromFormat('Y-m-d', $date)
         ]) ;
         
         $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
+            "agence" => $this->agence,
             "date" => \DateTime::createFromFormat('Y-m-d', $date)
         ]) ;
+
         $elements = [] ;
         foreach ($echeances as $echeance) {
             $facture = $echeance->getCatTable()->getFacture() ;
@@ -205,10 +253,51 @@ class AgendaController extends AbstractController
 
             array_push($elements,$element) ; 
         }
+
+        $agendaAcomptes = $this->entityManager->getRepository(AgdAcompte::class)->findBy([
+            "agence" => $this->agence,
+            "date" => \DateTime::createFromFormat('Y-m-d', $date)
+        ]) ;
+        
+        $acompteArray = [] ;
+        foreach ($agendaAcomptes as $agendaAcompte) {
+            $facture = $agendaAcompte->getAcompte()->getFacture() ;
+            $client = $this->appService->getFactureClient($facture)["client"] ;
+            
+            // Personnalier le statut pour pouvoir faciliter l'affichage
+            //  - En cours : 1 => ECR
+            //  - En Alerte : NULL => WRN
+            //  - Terminé : 0 => END
+
+            if($agendaAcompte->isStatut())
+            {
+                $statut = "ECR" ;
+            } else if(is_null($agendaAcompte->isStatut()))
+            {
+                $statut = "WRN" ;
+            }
+            else
+            {
+                $statut = "END" ;
+            }
+
+            $element = [] ;
+
+            $element["type"] = "Acompte" ;
+            $element["id"] = $agendaAcompte->getAcompte()->getId() ;
+            $element["client"] = $client ;
+            $element["statut"] = $statut ;
+            $element["numFact"] = $facture->getNumFact() ;
+            $element["objet"] = $agendaAcompte->getObjet() ;
+
+            array_push($acompteArray,$element) ; 
+        }
+
         $listEcheances = $elements ;
         $response = $this->renderView("agenda/detailsDateAganda.html.twig", [
             "agendas" => $agendas,
-            "listEcheances" => $listEcheances
+            "listEcheances" => $listEcheances,
+            "acompteArray" => $acompteArray
         ]) ;
 
         return new Response($response) ;

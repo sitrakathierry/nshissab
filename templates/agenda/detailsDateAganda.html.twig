@@ -16,7 +16,15 @@
         </div>
     {% endfor %}
 {% endif %}
-{% if agendas is empty and listEcheances is empty %}
+{% if acompteArray is not empty %}
+    {% for agendaAcompte in acompteArray %}
+        {% set statutAC = agendaAcompte.statut == "ECR" ? "bg-outline-info" : (agendaAcompte.statut == "WRN" ? "bg-outline-danger" : "bg-outline-dark" ) %}
+        <div class="border rounded py-2 px-3 m-2 {{statutAC}} d-flex flex-row align-items-center">
+            <i class="fa fa-layer-group"></i><span class="ml-3 lh-2"><b>{{"Acompte"|upper}}</b> - Objet : <b>{{agendaAcompte.objet}}</b> - Facture N° : <b>{{agendaAcompte.numFact}}</b> - Client : <b>{{agendaAcompte.client|upper}}</b> &emsp;<a href="{{path('crd_details_credit',{'id':agendaAcompte.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        </div>
+    {% endfor %}
+{% endif %}
+{% if agendas is empty and listEcheances is empty and acompteArray is empty %}
     <div class="border rounded p-2 m-2 bg-outline-warning d-flex flex-row align-items-center">
         <b>Aucune information à signaler</b></span>
     </div>

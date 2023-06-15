@@ -392,7 +392,10 @@ $(document).ready(function(){
     $("#fact_total_fixe").text(totalPartiel)
     $("#fact_total_apres_deduction").text(totalPartiel)
     $("#fact_total_tva").text(totalTva)
-    $("#fact_total_general").text(totalFixe)  
+    $("#fact_total_general").text(totalFixe)
+    $("#agd_total_facture").text(totalFixe)  
+    $("#agd_total_restant").text(totalFixe)
+    $("#agd_val_total_restant").val(totalFixe)
     $(".fact_enr_total_general").val(totalFixe)
     $(".fact_enr_total_tva").val(totalTva)
     // $("#fact_remise_prod_general").keyup()
@@ -445,6 +448,9 @@ $(document).ready(function(){
             var fact_total_tva = $("#fact_total_tva").text()
             $("#fact_total_apres_deduction").text(newVal)
             $("#fact_total_general").text(newVal + parseFloat(fact_total_tva))
+            $("#agd_total_facture").text(newVal + parseFloat(fact_total_tva))
+            $("#agd_total_restant").text(newVal + parseFloat(fact_total_tva)) 
+            $("#agd_val_total_restant").val(newVal + parseFloat(fact_total_tva))
             $(".fact_enr_total_general").val(newVal + parseFloat(fact_total_tva)) ;
 
             var lettreTotal = NumberToLetter(newVal + parseFloat(fact_total_tva))
@@ -596,6 +602,23 @@ $(document).ready(function(){
         else
         {
             $(".agd_acompte").hide()
+        }
+
+        if($(this).hasClass('AC') || $(this).hasClass('CR'))
+        {
+            var contentMontant = $(".contentMontant").html()
+            if(contentMontant != "")
+            {
+                $(".teleportMontant").html(contentMontant)
+                $(".contentMontant").empty()
+            }
+        }else{
+            var teleportMontant = $(".teleportMontant").html()
+            if(teleportMontant != "")
+            {
+                $(".contentMontant").html(teleportMontant)
+                $(".teleportMontant").empty()
+            }
         }
     })
 

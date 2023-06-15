@@ -216,9 +216,24 @@ class CreditController extends AbstractController
         {
             $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
                 "agence" => $this->agence,
-                "statut" => True,
-                "categorie" => $categorie
+                "categorie" => $categorie,
+                "catTable" => $finance
             ]) ;
+            
+            $echeanceArray = [] ;
+            foreach ($echeances as $echeance) {
+                $item = [] ;
+
+                $item["id"] = $echeance->getId() ;
+                $item["date"] = $echeance->getDate()->format('d/m/Y') ;
+                $item["montant"] = $echeance->getMontant() ;
+                $item["statut"] = $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE") ;
+                
+                array_push($echeanceArray,$item) ;
+            }
+            
+            $echeances = $echeanceArray ;
+
             $unAgdAcompte = "" ;
         }
 

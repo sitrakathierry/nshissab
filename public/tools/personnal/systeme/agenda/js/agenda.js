@@ -4,6 +4,8 @@ $(document).ready(function(){
     var instance = new Loading(files.loading)
     $("#agd_date").datepicker() ; 
 
+    agenda_editor.setEditorText($(".agenda_editor").val())
+
     var commentaireEditor = new LineEditor("#commentaireEditor") ;
 
     $("#formAgenda").submit(function(){
@@ -17,10 +19,7 @@ $(document).ready(function(){
           buttons: {
             btn1: {
               text: "Non",
-              action: function () {
-                $("input, select").val("")
-                agenda_editor.setEditorText("")
-              },
+              action: function () {},
             },
             btn2: {
               text: "Oui",
@@ -48,7 +47,10 @@ $(document).ready(function(){
                               $("#" + elem.split("=")[0]).val("");
                             });
                             agenda_editor.setEditorText("")
-                            location.reload();
+                            if(json.redirect != undefined)
+                              location.assign(routes.agd_agenda_consultation);
+                            else
+                              location.reload();
                           }
                         },
                       },
@@ -152,9 +154,9 @@ $(document).ready(function(){
             success: function(resp){  
               realinstance.close()
               $.confirm({
+                columnClass: 'agdDisplayDate',
                 title: '<h5 class="text-black font-weight-bold text-center text-uppercase" >'+captionDate+'</h5>',
                 content:resp,
-                columnClass: 'agdDisplayDate',
                 type:"black",
                 theme:"modern",
                 buttons:{

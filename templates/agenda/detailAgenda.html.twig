@@ -38,6 +38,10 @@
                 <label for="nom" class="font-weight-bold mt-3">{{agenda.type.objet|upper}}</label>
                 <input type="text" readonly name="nom" id="nom" value="{{agenda.objet}}" class="form-control" placeholder=". . .">
             </div>
+            <div class="col-md-3">
+                <label for="nom" class="font-weight-bold mt-3">&nbsp;</label>
+                <a href="{{path('agd_agenda_creation',{'id':agenda.id})}}" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-edit"></i>&nbsp;Reporter</a>
+            </div>
         </div>
         <div class="barre_dashed p-3 mt-4">
             <form id="formAgendaComment">

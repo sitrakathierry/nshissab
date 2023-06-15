@@ -21,19 +21,19 @@ table.lightgrey-weekends tbody td:nth-child(1){
 
 .agdDisplayDate
 {
-  width: 400px !important;
+  max-width: 400px !important;
 }
 
 @media only screen and (max-width: 375px) {
   .agdDisplayDate {
-      width: 90% !important; /* Customize the width for smaller screens */
+    max-width: 90% !important; /* Customize the width for smaller screens */
   }
 }
 
 
 @media only screen and (max-width: 900px) {
   .agdDisplayDate {
-      width: 300% !important; /* Customize the width for smaller screens */
+    max-width: 300% !important; /* Customize the width for smaller screens */
   }
 }
 .jconfirm .jconfirm-box div.jconfirm-title-c {
