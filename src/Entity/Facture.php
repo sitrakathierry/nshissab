@@ -85,6 +85,12 @@ class Facture
     #[ORM\OneToMany(mappedBy: 'facture', targetEntity: CrdFinance::class)]
     private Collection $crdFinances;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'factures')]
+    private ?self $factureParent = null;
+
+    #[ORM\OneToMany(mappedBy: 'factureParent', targetEntity: self::class)]
+    private Collection $factures;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -92,6 +98,7 @@ class Facture
         $this->cmdBonCommandes = new ArrayCollection();
         $this->savAnnulations = new ArrayCollection();
         $this->crdFinances = new ArrayCollection();
+        $this->factures = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -459,6 +466,48 @@ class Facture
             // set the owning side to null (unless already changed)
             if ($crdFinance->getFacture() === $this) {
                 $crdFinance->setFacture(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getFactureParent(): ?self
+    {
+        return $this->factureParent;
+    }
+
+    public function setFactureParent(?self $factureParent): self
+    {
+        $this->factureParent = $factureParent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFactures(): Collection
+    {
+        return $this->factures;
+    }
+
+    public function addFacture(self $facture): self
+    {
+        if (!$this->factures->contains($facture)) {
+            $this->factures->add($facture);
+            $facture->setFactureParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFacture(self $facture): self
+    {
+        if ($this->factures->removeElement($facture)) {
+            // set the owning side to null (unless already changed)
+            if ($facture->getFactureParent() === $this) {
+                $facture->setFactureParent(null);
             }
         }
 

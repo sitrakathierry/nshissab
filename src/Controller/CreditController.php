@@ -13,6 +13,7 @@ use App\Entity\CrdStatut;
 use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
+use App\Entity\Facture;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -484,6 +485,52 @@ class CreditController extends AbstractController
     #[Route('/credit/definitif/switch', name: 'crd_credit_basculer_definitif')]
     public function crdSwitchDefinitif($acompte)
     {    
+        $finance = $this->entityManager->getRepository(CrdFinance::class)->find($acompte) ;
+        $factureP = $finance->getFacture() ;
+
+        $lastRecordFacture = $this->entityManager->getRepository(Facture::class)->findOneBy([], ['id' => 'DESC']);
+        $numFacture = !is_null($lastRecordFacture) ? ($lastRecordFacture->getId()+1) : 1 ;
+        $numFacture = str_pad($numFacture, 3, "0", STR_PAD_LEFT);
+        $numFacture = "DF-".$numFacture."/".date('y') ; 
+
+        $facture = new Facture() ;
+
+        $facture->setAgence($this->agence) ;
+        $facture->setUser($this->userObj) ;
+        $facture->setClient($factureP->getClient()) ;
+        $facture->setType($factureP->getType());
+        $facture->setModele($factureP->getModele()) ;
+        $facture->setRemiseType($factureP->getRemiseType()) ;
+        $facture->setRemiseVal($factureP->getRemiseVal()) ;
+        $facture->setNumFact($numFacture) ;
+        $facture->setDescription($factureP->getDescription()) ;
+        $facture->setTvaVal($factureP->getTvaVal()) ;
+        $facture->setLieu($factureP->getLieu()) ;
+        $facture->setDate($factureP->getDate()) ;
+        $facture->setTotal($factureP->getTotal()) ;
+        $facture->setDevise($factureP->getDevise()) ;
+        $facture->setStatut(True) ;
+        $facture->setFactureParent($factureP) ;
+        $facture->setCreatedAt(new \DateTimeImmutable) ;
+        $facture->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($facture) ;
+        $this->entityManager->flush() ;
+
+        $histoPaiementP = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+            "facture" => $factureP
+            ]) ;
+
+        $histoPaiement = new FactHistoPaiement() ;
+
+        $histoPaiement->setLibelle($histoPaiementP->getLibelle()) ;
+        $histoPaiement->setNumero($histoPaiementP->getNumero()) ;
+        $histoPaiement->setPaiement($histoPaiementP->getPaiement()) ;
+        $histoPaiement->setFacture($histoPaiementP->getFacture()) ;
+        $histoPaiement->setStatutPaiement("Payee") ;
         
+        $this->entityManager->persist($histoPaiement) ;
+        $this->entityManager->flush() ;
+
     }
 }

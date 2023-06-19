@@ -45,6 +45,7 @@ class FactureController extends AbstractController
     private $nameAgence ; 
     private $nameUser ; 
     private $userObj ; 
+    private $factureRepository ;
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
@@ -59,6 +60,8 @@ class FactureController extends AbstractController
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
             "username" => $this->user["username"] 
         ]) ;
+
+        $this->factureRepository = $this->entityManager->getRepository(Facture::class) ;
     }
     
     #[Route('/facture/creation', name: 'ftr_creation')]
@@ -72,6 +75,21 @@ class FactureController extends AbstractController
             "agence" => $this->agence 
         ]) ; 
 
+        return $this->render('facture/creation.html.twig', [
+            "filename" => "facture",
+            "titlePage" => "Création Facture",
+            "with_foot" => true,
+            "modeles" => $modeles,
+            "types" => $types,
+            "paiements" => $paiements,
+            "clients" => $clients,
+
+        ]);
+    }
+
+    #[Route('/facture/creation/produit', name: 'ftr_creation_produit')]
+    public function factureCreationProduit(): Response
+    {
         $devises = $this->entityManager->getRepository(Devise::class)->findBy([
             "agence" => $this->agence,
             "statut" => True
@@ -84,18 +102,13 @@ class FactureController extends AbstractController
         $stockGenerales = json_decode(file_get_contents($filename)) ;
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
 
-        return $this->render('facture/creation.html.twig', [
-            "filename" => "facture",
-            "titlePage" => "Création Facture",
-            "with_foot" => true,
-            "modeles" => $modeles,
-            "types" => $types,
-            "paiements" => $paiements,
-            "clients" => $clients,
+        $responses = $this->renderView("facture/produit.html.twig",[
             "stockGenerales" => $stockGenerales,
             "devises" => $devises,
             "agcDevise" => $agcDevise
-        ]);
+            ]) ;
+
+        return new Response($responses) ;
     }
 
     #[Route('/facture/consultation', name: 'ftr_consultation')]
@@ -454,7 +467,7 @@ class FactureController extends AbstractController
                 $result["message"] = "Le montant payé n'est pas valide" ;
                 return new JsonResponse($result) ;
             }
-        }
+        } 
 
         // DEBUT D'INSERTION DE DONNEE
 

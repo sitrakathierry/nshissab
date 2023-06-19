@@ -76,7 +76,7 @@ $(document).ready(function(){
     {
         var valMontant = montant.val() != "" ? parseFloat(montant.val()) : 0
         var totalRestant = $("#agd_val_total_restant").val()
-        var totalPaye = parseFloat($("#fact_libelle").val())
+        var totalPaye = $("#fact_libelle").val() != "" ? parseFloat($("#fact_libelle").val()) : 0
         if(!firstAdd)
             var newTotalRestant = parseFloat(totalRestant) - valMontant - totalPaye
         else

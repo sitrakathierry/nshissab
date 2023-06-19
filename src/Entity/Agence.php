@@ -133,6 +133,15 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AgdAcompte::class)]
     private Collection $agdAcomptes;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: BtpMesure::class)]
+    private Collection $btpMesures;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: BtpElement::class)]
+    private Collection $btpElements;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: BtpEnoncee::class)]
+    private Collection $btpEnoncees;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -162,6 +171,9 @@ class Agence
         $this->agendas = new ArrayCollection();
         $this->agdEcheances = new ArrayCollection();
         $this->agdAcomptes = new ArrayCollection();
+        $this->btpMesures = new ArrayCollection();
+        $this->btpElements = new ArrayCollection();
+        $this->btpEnoncees = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1116,6 +1128,96 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($agdAcompte->getAgence() === $this) {
                 $agdAcompte->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BtpMesure>
+     */
+    public function getBtpMesures(): Collection
+    {
+        return $this->btpMesures;
+    }
+
+    public function addBtpMesure(BtpMesure $btpMesure): self
+    {
+        if (!$this->btpMesures->contains($btpMesure)) {
+            $this->btpMesures->add($btpMesure);
+            $btpMesure->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBtpMesure(BtpMesure $btpMesure): self
+    {
+        if ($this->btpMesures->removeElement($btpMesure)) {
+            // set the owning side to null (unless already changed)
+            if ($btpMesure->getAgence() === $this) {
+                $btpMesure->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BtpElement>
+     */
+    public function getBtpElements(): Collection
+    {
+        return $this->btpElements;
+    }
+
+    public function addBtpElement(BtpElement $btpElement): self
+    {
+        if (!$this->btpElements->contains($btpElement)) {
+            $this->btpElements->add($btpElement);
+            $btpElement->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBtpElement(BtpElement $btpElement): self
+    {
+        if ($this->btpElements->removeElement($btpElement)) {
+            // set the owning side to null (unless already changed)
+            if ($btpElement->getAgence() === $this) {
+                $btpElement->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BtpEnoncee>
+     */
+    public function getBtpEnoncees(): Collection
+    {
+        return $this->btpEnoncees;
+    }
+
+    public function addBtpEnoncee(BtpEnoncee $btpEnoncee): self
+    {
+        if (!$this->btpEnoncees->contains($btpEnoncee)) {
+            $this->btpEnoncees->add($btpEnoncee);
+            $btpEnoncee->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBtpEnoncee(BtpEnoncee $btpEnoncee): self
+    {
+        if ($this->btpEnoncees->removeElement($btpEnoncee)) {
+            // set the owning side to null (unless already changed)
+            if ($btpEnoncee->getAgence() === $this) {
+                $btpEnoncee->setAgence(null);
             }
         }
 

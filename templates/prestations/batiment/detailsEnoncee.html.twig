@@ -17,16 +17,24 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-2">
-        <form id="formElement">
-            <h5 class="title_form text-black text-uppercase">Création élément</h5>
+        <div class="row">
+            <div class="col-md-6"> 
+                <label for="btn_enc_nom" class="font-weight-bold">Nom</label>
+                <input type="text" readonly value="{{enoncee.nom}}" oninput="this.value = this.value.toUpperCase();" name="btn_enc_nom" id="btn_enc_nom" class="form-control" placeholder=". . .">
+            </div>
+        </div>
+        <div class="w-100 barre_dashed my-3"></div>
+        <form id="formCategorie">
+            <h5 class="title_form text-black text-uppercase">Création Categorie</h5>
             <div class="row">
-                <div class="col-md-3"> 
-                    <label for="btp_elem_nom" class="font-weight-bold">Désignation</label>
-                    <input type="text" oninput="this.value = this.value.toUpperCase();" name="btp_elem_nom" id="btp_elem_nom" class="form-control" placeholder=". . .">
+                <div class="col-md-4"> 
+                    <label for="btn_cat_nom" class="font-weight-bold">Nom</label>
+                    <input type="text" oninput="this.value = this.value.toUpperCase();" name="btn_cat_nom" id="btn_cat_nom" class="form-control" placeholder=". . .">
+                    <input type="hidden" name="btn_cat_enonce" value="{{enoncee.id}}">
                 </div>
-                <div class="col-md-3">
-                    <label for="btp_elem_mesure" class="font-weight-bold">Mésure</label>
-                    <select name="btp_elem_mesure" class="custom-select chosen_select custom-select-sm" id="btp_elem_mesure">
+                <div class="col-md-2"> 
+                    <label for="btn_cat_mesure" class="font-weight-bold">Mésure</label>
+                    <select name="btn_cat_mesure" class="custom-select chosen_select custom-select-sm" id="btn_cat_mesure">
                         <option value="">-</option>
                         {% for mesure in mesures %}
                             <option value="{{mesure.id}}">{{mesure.notation}} | {{mesure.nom|upper}}</option>
@@ -35,43 +43,28 @@
                 </div>
                 <div class="col-md-3">
                     <label for="nom" class="font-weight-bold">&nbsp;</label>
-                    <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                    <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i>&nbsp;Ajouter</button>
                 </div>
             </div>
         </form>
         <div class="barre_dashed mt-3 py-3">
-            {# <h5 class="title_form text-black text-uppercase">Attribution de prix</h5>
-            <div class="row">
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Pays</label>
-                    <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Prix Unitaire</label>
-                    <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">&nbsp;</label>
-                    <button class="btn btn-sm btn-success btn-block"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
-                </div>
-            </div> #}
             <div class="table-responsive">
-                <h5 class="title_form text-black text-uppercase">Liste des éléments</h5>
+                <h5 class="title_form text-black text-uppercase">Liste des Categories</h5>
                 <table class="table table-sm table-bordered mt-3">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Désignation</th>
+                            <th>Nom</th>
                             <th>Mésure</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for element in elements %}
+                        {% for categorie in categories %}
                             <tr>
-                                <td>{{element.nom}}</td>
-                                <td>{{element.mesure.notation}}</td>
+                                <td>{{categorie.nom}}</td>
+                                <td>{{categorie.mesure.notation}}</td>
                                 <td class="text-center align-middle">
-                                    <a href="{{path('prest_bat_detail_element',{'id':element.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                    <a href="#" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                                     <button class="btn btn-sm ml-1 btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
                                 </td>
                             </tr>

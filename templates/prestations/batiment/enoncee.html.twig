@@ -1,0 +1,68 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/batiment.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-2">
+        <form id="formEnonce">
+            <h5 class="title_form text-black text-uppercase">Création énoncé</h5>
+            <div class="row">
+                <div class="col-md-6"> 
+                    <label for="btn_enc_nom" class="font-weight-bold">Nom</label>
+                    <input type="text" oninput="this.value = this.value.toUpperCase();" name="btn_enc_nom" id="btn_enc_nom" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="nom" class="font-weight-bold">&nbsp;</label>
+                    <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            </div>
+        </form>
+        <div class="barre_dashed mt-3 py-3">
+            <div class="table-responsive w-75">
+                <h5 class="title_form text-black text-uppercase">Liste des énoncés</h5>
+                <table class="table table-sm table-bordered mt-3">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nom</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enoncee in enoncees %}
+                            <tr>
+                                <td>{{enoncee.nom}}</td>
+                                <td class="text-center align-middle">
+                                    <a href="{{path('prest_bat_detail_enoncee',{'id':enoncee.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                    <button class="btn btn-sm ml-1 btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

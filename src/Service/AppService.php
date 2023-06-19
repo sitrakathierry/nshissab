@@ -55,6 +55,7 @@ class AppService extends AbstractController
     private $user ;
     private $agence ;
     private $nameAgence ;
+
     public function __construct(SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder, UrlGeneratorInterface $urlGenerator)
     {
         $this->router = $router ;
