@@ -21,6 +21,12 @@ class FactModele
     #[ORM\OneToMany(mappedBy: 'modele', targetEntity: Facture::class)]
     private Collection $factures;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reference = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rang = null;
+
     public function __construct()
     {
         $this->factures = new ArrayCollection();
@@ -69,6 +75,30 @@ class FactModele
                 $facture->setModele(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getRang(): ?int
+    {
+        return $this->rang;
+    }
+
+    public function setRang(?int $rang): self
+    {
+        $this->rang = $rang;
 
         return $this;
     }

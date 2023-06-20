@@ -183,7 +183,11 @@ class PrestationController extends AbstractController
 
         $this->entityManager->persist($element) ;
         $this->entityManager->flush() ;
-        
+
+        $filename = "files/systeme/prestations/batiment/element(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
         return new JsonResponse($result) ;
     }
 
@@ -284,6 +288,10 @@ class PrestationController extends AbstractController
         $this->entityManager->persist($enoncee) ;
         $this->entityManager->flush() ;
         
+        $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
         return new JsonResponse($result) ;
     }
 

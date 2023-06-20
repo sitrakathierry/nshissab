@@ -1,0 +1,6 @@
+<option value="">-</option>
+{% for prix in prixs %}
+    <option value="{{prix.id}}">{{prix.montant}} | {{prix.pays|upper}}</option>
+{% endfor %}
+@##@
+{{element.mesure.notation}}

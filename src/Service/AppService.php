@@ -7,6 +7,8 @@ use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
 use App\Entity\Agence;
 use App\Entity\Agenda;
+use App\Entity\BtpElement;
+use App\Entity\BtpEnoncee;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\CmdBonCommande;
@@ -1146,6 +1148,47 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($agendaResult)) ;
 
+    }
+
+    public function generatePrestBatiment($filename,$agence)
+    {
+        $elements = $this->entityManager->getRepository(BtpElement::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+        ]) ;
+
+        $items = [] ;
+
+        foreach ($elements as $element) {
+            $item = [] ;
+            $item["id"] = $element->getId() ;
+            $item["agence"] = $element->getAgence()->getId() ;
+            $item["designation"] = $element->getNom() ;
+            $item["mesure"] = $element->getMesure()->getNotation() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateEnonceePrestBatiment($filename,$agence)
+    {
+        $enoncees = $this->entityManager->getRepository(BtpEnoncee::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+        ]) ;
+
+        $items = [] ;
+
+        foreach ($enoncees as $enoncee) {
+            $item = [] ;
+            $item["id"] = $enoncee->getId() ;
+            $item["agence"] = $enoncee->getAgence()->getId() ;
+            $item["nom"] = $enoncee->getNom() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
     }
 
     public function updateStatutFinance($finance)

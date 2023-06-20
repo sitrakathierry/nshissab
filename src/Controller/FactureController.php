@@ -6,6 +6,10 @@ use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
 use App\Entity\Agence;
+use App\Entity\BtpCategorie;
+use App\Entity\BtpElement;
+use App\Entity\BtpEnoncee;
+use App\Entity\BtpPrix;
 use App\Entity\CltHistoClient;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
@@ -67,7 +71,7 @@ class FactureController extends AbstractController
     #[Route('/facture/creation', name: 'ftr_creation')]
     public function factureCreation(): Response
     {
-        $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
+        $modeles = $this->entityManager->getRepository(FactModele::class)->findBy([],["rang" => "ASC"]) ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
 
@@ -83,7 +87,6 @@ class FactureController extends AbstractController
             "types" => $types,
             "paiements" => $paiements,
             "clients" => $clients,
-
         ]);
     }
 
@@ -107,6 +110,74 @@ class FactureController extends AbstractController
             "devises" => $devises,
             "agcDevise" => $agcDevise
             ]) ;
+
+        return new Response($responses) ;
+    }
+
+    #[Route('/facture/creation/prest/batiment', name: 'ftr_creation_prest_batiment')]
+    public function factureCreationPrestBatiment(): Response
+    {
+        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
+
+        $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateEnonceePrestBatiment($filename, $this->agence) ;
+        
+        $enoncees = json_decode(file_get_contents($filename)) ;
+
+        $filename = "files/systeme/prestations/batiment/element(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrestBatiment($filename, $this->agence) ;
+        
+        $elements = json_decode(file_get_contents($filename)) ;
+
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        $responses = $this->renderView("facture/prestBatiment.html.twig",[
+            "elements" => $elements,
+            "devises" => $devises,
+            "agcDevise" => $agcDevise,
+            "enoncees" => $enoncees,
+            ]) ;
+
+        return new Response($responses) ;
+    }
+
+    #[Route('/facture/batiment/categorie', name: 'ftr_batiment_categorie_get_opt')]
+    public function ftrGetCategorieBatimentOpt(Request $request): Response
+    {
+        $idEnonce = $request->request->get('id') ;
+
+        $enonce = $this->entityManager->getRepository(BtpEnoncee::class)->find($idEnonce) ;
+
+        $categories = $this->entityManager->getRepository(BtpCategorie::class)->findBy(["enonce" => $enonce]) ; 
+        
+        $responses = $this->renderView('facture/factBtpCategorie.html.twig', [
+            "categories" => $categories
+            ]) ;
+
+        return new Response($responses) ;
+    }
+
+    #[Route('/facture/batiment/element/prix', name: 'ftr_btm_element_prix_get_opt')]
+    public function ftrBtpGetPrixElement(Request $request): Response
+    {
+        $idelement = $request->request->get('id') ;
+
+        $element = $this->entityManager->getRepository(BtpElement::class)->find($idelement) ;
+
+        $prixs = $this->entityManager->getRepository(BtpPrix::class)->findBy([
+            "element" => $element, 
+            "statut" => True
+            ]) ; 
+        
+        $responses = $this->renderView('facture/factBtpPrixElement.html.twig', [
+            "prixs" => $prixs,
+            "element" => $element
+        ]) ;
 
         return new Response($responses) ;
     }
@@ -773,5 +844,4 @@ class FactureController extends AbstractController
         return new Response($response) ; 
     }
 
-    
 }

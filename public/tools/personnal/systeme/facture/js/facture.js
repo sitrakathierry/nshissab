@@ -205,15 +205,16 @@ $(document).ready(function(){
         var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
         var inputValue = $(this).attr("value")
         var self = $(this)
-        var btnText = $(this).data("text")
+        var indice = $(this).data("indice") ;
+        var factRoute = {
+            "PROD" : routes.ftr_creation_produit,
+            "PBAT" : routes.ftr_creation_prest_batiment,
+        } ;
 
         $(target).val(inputValue) ;
 
         $(this).addClass(btnClass)
         $(this).removeClass(currentbtnClass)
-
-        $(".fact_title_modele").text(btnText)
-        // $(".fact_caption_total_general").text("TOTAL "+btnText)
 
         $(".fact_btn_modele").each(function(){
             if (!self.is($(this))) {
@@ -221,7 +222,24 @@ $(document).ready(function(){
                 $(this).removeClass(btnClass);
             }
         })
-
+        
+        var realinstance = instance.loading()
+        $.ajax({
+            url: factRoute[indice],
+            type:'post',
+            cache: false,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#detailFacture").html(response)
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
     })
 
 })

@@ -1,4 +1,10 @@
 $(document).ready(function(){
+    var instance = new Loading(files.loading)
+    
+    $(".chosen_select").chosen({
+        no_results_text: "Aucun resultat trouvé : "
+    });
+
     function affichePrixProduit()
     {
         $(document).on("change",".fact_mod_prod_designation",function(){
