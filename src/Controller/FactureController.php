@@ -21,6 +21,7 @@ use App\Entity\FactHistoPaiement;
 use App\Entity\FactModele;
 use App\Entity\FactPaiement;
 use App\Entity\FactRemiseType;
+use App\Entity\FactSupDetailsPbat;
 use App\Entity\FactType;
 use App\Entity\Facture;
 use App\Entity\SavAnnulation;
@@ -49,7 +50,7 @@ class FactureController extends AbstractController
     private $nameAgence ; 
     private $nameUser ; 
     private $userObj ; 
-    private $factureRepository ;
+
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
@@ -71,7 +72,11 @@ class FactureController extends AbstractController
     #[Route('/facture/creation', name: 'ftr_creation')]
     public function factureCreation(): Response
     {
-        $modeles = $this->entityManager->getRepository(FactModele::class)->findBy([],["rang" => "ASC"]) ; 
+        $modeles = $this->entityManager->getRepository(FactModele::class)->findBy([
+            "parent" => NULL
+        ],[
+            "rang" => "ASC"
+            ]) ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
 
@@ -88,6 +93,24 @@ class FactureController extends AbstractController
             "paiements" => $paiements,
             "clients" => $clients,
         ]);
+    }
+
+    #[Route('/facture/modele/get', name: 'ftr_modele_get')]
+    public function factureGetModele(Request $request)
+    {
+        $id = $request->request->get('id') ;
+        $modele = $this->entityManager->getRepository(FactModele::class)->find($id) ;
+        $modeles = $this->entityManager->getRepository(FactModele::class)->findBy([
+            "parent" => $modele
+        ],[
+            "rang" => "ASC"
+        ]) ; 
+
+        $responses = $this->renderView("facture/factGetModele.html.twig", [
+            "modeles" => $modeles
+        ]) ;
+
+        return new Response($responses) ; 
     }
 
     #[Route('/facture/creation/produit', name: 'ftr_creation_produit')]
@@ -519,14 +542,30 @@ class FactureController extends AbstractController
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
-        
-        $fact_enr_prod_type = (array)$request->request->get('fact_enr_prod_type') ;
-        if(empty($fact_enr_prod_type))
+
+        $modele = $this->entityManager->getRepository(FactModele::class)->find($fact_modele) ; 
+
+        if($modele->getReference() == "PROD")
         {
-            $result["type"] = "orange" ;
-            $result["message"] = "Veuiller insérer un élément" ;
-            return new JsonResponse($result) ;
+            $fact_enr_prod_type = (array)$request->request->get('fact_enr_prod_type') ;
+            if(empty($fact_enr_prod_type))
+            {
+                $result["type"] = "orange" ;
+                $result["message"] = "Veuiller insérer un élément" ;
+                return new JsonResponse($result) ;
+            }
+        }else if($modele->getReference() == "PBAT")
+        {
+            $fact_enr_btp_enonce_id = (array)$request->request->get('fact_enr_btp_enonce_id') ;
+            if(empty($fact_enr_btp_enonce_id))
+            {
+                $result["type"] = "orange" ;
+                $result["message"] = "Veuiller insérer un élément" ;
+                return new JsonResponse($result) ;
+            }
         }
+
+        
 
         $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
 
@@ -552,7 +591,7 @@ class FactureController extends AbstractController
 
         $client = $this->entityManager->getRepository(CltHistoClient::class)->find($fact_client) ; 
         
-        $modele = $this->entityManager->getRepository(FactModele::class)->find($fact_modele) ; 
+        
         
         $lastRecordFacture = $this->entityManager->getRepository(Facture::class)->findOneBy([], ['id' => 'DESC']);
         $numFacture = !is_null($lastRecordFacture) ? ($lastRecordFacture->getId()+1) : 1 ;
@@ -618,45 +657,106 @@ class FactureController extends AbstractController
         $this->entityManager->persist($histoPaiement) ;
         $this->entityManager->flush() ;
 
-        $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
-        $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
-        $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
-        $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
-        $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
-        $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
-        $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
+        // INSERTION DES DETAILS DE LA FACTURE 
+        // PAR RAPPORT AU MODELE 
+        // PORTANT DES REFERENCES SPECIFIQUES
+        $modeleRef = $modele->getReference() ;
+        if($modeleRef == "PROD") // Produit
+        {
+            $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
+            $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
+            $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
+            $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
+            $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
+            $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
+            $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
 
-        foreach ($fact_enr_prod_type as $key => $value) {
-            $factDetail = new FactDetails() ;
-            $typeRemiseUnit = !empty($fact_enr_prod_remise_type[$key]) ? $this->entityManager->getRepository(FactRemiseType::class)->find($fact_enr_prod_remise_type[$key]) : null ;
-            $remiseVal = 0 ;
-
-            if(!is_null($typeRemiseUnit))
-            {
-                $remiseVal = !empty($fact_enr_prod_remise[$key]) ? $fact_enr_prod_remise[$key] : null ; 
+            foreach ($fact_enr_prod_type as $key => $value) {
+                $factDetail = new FactDetails() ;
+                $typeRemiseUnit = !empty($fact_enr_prod_remise_type[$key]) ? $this->entityManager->getRepository(FactRemiseType::class)->find($fact_enr_prod_remise_type[$key]) : null ;
+                $remiseVal = 0 ;
+    
+                if(!is_null($typeRemiseUnit))
+                {
+                    $remiseVal = !empty($fact_enr_prod_remise[$key]) ? $fact_enr_prod_remise[$key] : null ; 
+                }
+                else
+                    $remiseVal = null ;
+    
+                if($fact_enr_prod_type[$key] != "autre")
+                {
+                    $factDetail->setActivite($fact_enr_prod_type[$key]) ;
+                    $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
+                }
+                
+                $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
+    
+                $factDetail->setFacture($facture) ; 
+                $factDetail->setRemiseType($typeRemiseUnit) ;
+                $factDetail->setRemiseVal($remiseVal) ;
+                $factDetail->setDesignation($fact_enr_prod_designation[$key]) ;
+                $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
+                $factDetail->setPrix($fact_enr_text_prix[$key]) ;
+                $factDetail->setTvaVal($dtlsTvaVal) ;
+                $factDetail->setStatut(True) ;
+                $this->entityManager->persist($factDetail) ;
+                $this->entityManager->flush() ; 
             }
-            else
-                $remiseVal = null ;
-
-            if($fact_enr_prod_type[$key] != "autre")
-            {
-                $factDetail->setActivite($fact_enr_prod_type[$key]) ;
-                $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
-            }
-            
-            $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
-
-            $factDetail->setFacture($facture) ; 
-            $factDetail->setRemiseType($typeRemiseUnit) ;
-            $factDetail->setRemiseVal($remiseVal) ;
-            $factDetail->setDesignation($fact_enr_prod_designation[$key]) ;
-            $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
-            $factDetail->setPrix($fact_enr_text_prix[$key]) ;
-            $factDetail->setTvaVal($dtlsTvaVal) ;
-            $factDetail->setStatut(True) ;
-            $this->entityManager->persist($factDetail) ;
-            $this->entityManager->flush() ; 
         } 
+        else if($modeleRef == "PSTD")
+        {
+            $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
+            $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
+            $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
+            $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
+            $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
+            $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
+            $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
+        }
+        else if($modeleRef == "PBAT")
+        {
+            
+            $fact_enr_btp_categorie_id = $request->request->get('fact_enr_btp_categorie_id') ;
+            $fact_enr_btp_element_id = $request->request->get('fact_enr_btp_element_id') ;
+            $fact_enr_btp_designation = $request->request->get('fact_enr_btp_designation') ;
+            $fact_enr_btp_prix = $request->request->get('fact_enr_btp_prix') ;
+            $fact_enr_btp_quantite = $request->request->get('fact_enr_btp_quantite') ;
+            $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
+
+
+            foreach ($fact_enr_btp_enonce_id as $key => $value) {
+                $dtlsTvaVal = empty($fact_enr_btp_tva[$key]) ? null : $fact_enr_btp_tva[$key] ;
+
+                $factDetail = new FactDetails() ;
+
+                $factDetail->setActivite("BtpElement") ;
+                $factDetail->setEntite($fact_enr_btp_element_id[$key]) ;
+                $factDetail->setFacture($facture) ; 
+                $factDetail->setDesignation($fact_enr_btp_designation[$key]) ;
+                $factDetail->setQuantite($fact_enr_btp_quantite[$key]) ;
+                $factDetail->setPrix($fact_enr_btp_prix[$key]) ;
+                $factDetail->setTvaVal($dtlsTvaVal) ;
+                $factDetail->setStatut(True) ;
+
+                $this->entityManager->persist($factDetail) ;
+                $this->entityManager->flush() ; 
+
+                $enoncee = $this->entityManager->getRepository(BtpEnoncee::class)->find($fact_enr_btp_enonce_id[$key]) ;
+                $categorie = $this->entityManager->getRepository(BtpCategorie::class)->find($fact_enr_btp_categorie_id[$key]) ;
+
+                $factSupDetailsPbat = new FactSupDetailsPbat() ;
+
+                $factSupDetailsPbat->setEnonce($enoncee) ;
+                $factSupDetailsPbat->setCategorie($categorie) ;
+                $factSupDetailsPbat->setDetail($factDetail) ; 
+
+                $this->entityManager->persist($factSupDetailsPbat) ;
+                $this->entityManager->flush() ; 
+            }
+        }
+             
+        
+
 
         // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
 

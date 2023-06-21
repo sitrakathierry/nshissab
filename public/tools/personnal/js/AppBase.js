@@ -133,4 +133,44 @@ class AppBase
 
       return items[index] ;
     }
+
+    verificationElement(data = [], dataMessage = []) {
+        let allow = true;
+        let type = "green";
+        let message = "Information enregistrée avec succès";
+      
+        for (let i = 0; i < data.length; i++) {
+          if (!this.isNumeric(data[i])) {
+            if (data[i] === "") {
+              allow = false;
+              type = "orange";
+              message = dataMessage[i] + " vide";
+              break;
+            }
+          } else {
+            if (data[i] === "") {
+              allow = false;
+              type = "orange";
+              message = dataMessage[i] + " vide";
+              break;
+            } else if (parseInt(data[i]) < 0) {
+              allow = false;
+              type = "red";
+              message = dataMessage[i] + " doit être supérieur à 0";
+              break;
+            }
+          }
+        }
+      
+        let result = {};
+        result.allow = allow;
+        result.type = type;
+        result.message = message;
+      
+        return result;
+      }
+      
+      isNumeric(value) {
+        return !isNaN(parseFloat(value)) && isFinite(value);
+      }
 }

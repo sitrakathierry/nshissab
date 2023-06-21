@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BtpCategorieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BtpCategorieRepository::class)]
@@ -24,6 +26,14 @@ class BtpCategorie
 
     #[ORM\ManyToOne(inversedBy: 'btpCategories')]
     private ?BtpMesure $mesure = null;
+
+    #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: FactSupDetailsPbat::class)]
+    private Collection $factSupDetailsPbats;
+
+    public function __construct()
+    {
+        $this->factSupDetailsPbats = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,6 +84,36 @@ class BtpCategorie
     public function setMesure(?BtpMesure $mesure): self
     {
         $this->mesure = $mesure;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactSupDetailsPbat>
+     */
+    public function getFactSupDetailsPbats(): Collection
+    {
+        return $this->factSupDetailsPbats;
+    }
+
+    public function addFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if (!$this->factSupDetailsPbats->contains($factSupDetailsPbat)) {
+            $this->factSupDetailsPbats->add($factSupDetailsPbat);
+            $factSupDetailsPbat->setCategorie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if ($this->factSupDetailsPbats->removeElement($factSupDetailsPbat)) {
+            // set the owning side to null (unless already changed)
+            if ($factSupDetailsPbat->getCategorie() === $this) {
+                $factSupDetailsPbat->setCategorie(null);
+            }
+        }
 
         return $this;
     }

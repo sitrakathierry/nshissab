@@ -54,10 +54,14 @@ class FactDetails
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
 
+    #[ORM\OneToMany(mappedBy: 'detail', targetEntity: FactSupDetailsPbat::class)]
+    private Collection $factSupDetailsPbats;
+
     public function __construct()
     {
         $this->lvrDetails = new ArrayCollection();
         $this->savDetails = new ArrayCollection();
+        $this->factSupDetailsPbats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -253,6 +257,36 @@ class FactDetails
     public function setStatut(?bool $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactSupDetailsPbat>
+     */
+    public function getFactSupDetailsPbats(): Collection
+    {
+        return $this->factSupDetailsPbats;
+    }
+
+    public function addFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if (!$this->factSupDetailsPbats->contains($factSupDetailsPbat)) {
+            $this->factSupDetailsPbats->add($factSupDetailsPbat);
+            $factSupDetailsPbat->setDetail($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if ($this->factSupDetailsPbats->removeElement($factSupDetailsPbat)) {
+            // set the owning side to null (unless already changed)
+            if ($factSupDetailsPbat->getDetail() === $this) {
+                $factSupDetailsPbat->setDetail(null);
+            }
+        }
 
         return $this;
     }

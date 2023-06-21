@@ -199,6 +199,27 @@ $(document).ready(function(){
         }
     })
 
+    function displayTemplateFacture(factRoute = [], indice)
+    {
+        var realinstance = instance.loading()
+        $.ajax({
+            url: factRoute[indice],
+            type:'post',
+            cache: false,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#detailFacture").empty().html(response)
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }
+
     $(".fact_btn_modele").click(function(){
         var btnClass = $(this).data("class")
         var target = $(this).data("target")
@@ -223,17 +244,54 @@ $(document).ready(function(){
             }
         })
         
+        var data = new FormData() ;
+        data.append('id',inputValue)
+
         var realinstance = instance.loading()
         $.ajax({
-            url: factRoute[indice],
+            url: routes.ftr_modele_get,
             type:'post',
             cache: false,
+            data: data,
             dataType: 'html',
             processData: false,
             contentType: false,
             success: function(response){
                 realinstance.close()
-                $("#detailFacture").html(response)
+                if(response == "")
+                {
+                    displayTemplateFacture(factRoute,indice) ;
+                    return false ;
+                }
+                $("#detailFacture").empty()
+                $.confirm({
+                    title: (self.text()).toUpperCase(),
+                    content:`
+                        <label for="fact_src_opt_modele" class="font-weight-bold">Choisissez une option</label>
+                        <select name="fact_src_opt_modele" class="custom-select custom-select-sm" id="fact_src_opt_modele">
+                            <option value="" reference="" >-</option>
+                            `+response+`
+                        </select>
+                    `,
+                    type:"orange",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Valider',
+                            btnClass: 'btn-orange',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var optModele = $("#fact_src_opt_modele").find("option:selected")
+                                $(target).val(optModele.attr("value")) ;
+                                displayTemplateFacture(factRoute,optModele.attr("reference")) ;
+                            }
+                        }
+                    }
+                })
             },
             error: function(resp){
                 realinstance.close()
@@ -242,4 +300,15 @@ $(document).ready(function(){
         })
     })
 
+    $(window).scroll(function() {
+        var button = $('#actualiser');
+        var content = $('#formFacture');
+        var buttonOffsetTop = content.offset().top;
+      
+        if ($(window).scrollTop() >= buttonOffsetTop) {
+          button.addClass('fixed');
+        } else {
+          button.removeClass('fixed');
+        }
+    });
 })

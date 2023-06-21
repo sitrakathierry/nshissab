@@ -272,4 +272,70 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $(".editMesure").click(function(){
+        var self = $(this)
+        var nom = $(this).closest('tr').find('td:nth-child(1)').text()
+        var notation = $(this).closest('tr').find('td:nth-child(2)').text()
+        $.confirm({
+            title: "Modification Mésure",
+            content:`
+            <div class="text-left w-100">
+                <label for="btp_mes_edit_nom" class="font-weight-bold">Nom</label>
+                <input type="text" name="btp_mes_edit_nom" value="`+nom+`" id="btp_mes_edit_nom" class="form-control">
+    
+                <label for="btp_mes_edit_notation" class=" mt-2 font-weight-bold">Notation</label>
+                <input type="text" name="btp_mes_edit_notation" value="`+notation+`" id="btp_mes_edit_notation" class="form-control">
+            </div>
+            `,
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Modifier',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.prest_btp_update_mesure,
+                            type:'post',
+                            cache: false,
+                            data:{
+                              id:self.attr('value'),
+                              btp_mes_nom:$("#btp_mes_edit_nom").val(),
+                              btp_mes_notation:$("#btp_mes_edit_notation").val()
+                            },
+                            dataType: 'json',
+                            success: function(response){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: response.message,
+                                    type: response.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(response.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+      })
 })

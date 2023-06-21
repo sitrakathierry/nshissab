@@ -27,9 +27,13 @@ class BtpEnoncee
     #[ORM\OneToMany(mappedBy: 'enonce', targetEntity: BtpCategorie::class)]
     private Collection $btpCategories;
 
+    #[ORM\OneToMany(mappedBy: 'enonce', targetEntity: FactSupDetailsPbat::class)]
+    private Collection $factSupDetailsPbats;
+
     public function __construct()
     {
         $this->btpCategories = new ArrayCollection();
+        $this->factSupDetailsPbats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -97,6 +101,36 @@ class BtpEnoncee
             // set the owning side to null (unless already changed)
             if ($btpCategory->getEnonce() === $this) {
                 $btpCategory->setEnonce(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactSupDetailsPbat>
+     */
+    public function getFactSupDetailsPbats(): Collection
+    {
+        return $this->factSupDetailsPbats;
+    }
+
+    public function addFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if (!$this->factSupDetailsPbats->contains($factSupDetailsPbat)) {
+            $this->factSupDetailsPbats->add($factSupDetailsPbat);
+            $factSupDetailsPbat->setEnonce($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if ($this->factSupDetailsPbats->removeElement($factSupDetailsPbat)) {
+            // set the owning side to null (unless already changed)
+            if ($factSupDetailsPbat->getEnonce() === $this) {
+                $factSupDetailsPbat->setEnonce(null);
             }
         }
 

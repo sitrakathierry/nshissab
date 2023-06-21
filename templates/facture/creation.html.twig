@@ -11,11 +11,16 @@
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/agenda.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/produit.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/prestBatiment.js')}}" ></script>
 {% endblock %}   
-{% block body %}
+{% block body %}   
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+        <h4 class="text-uppercase d-flex flex-row align-items-center entete_page text-black">
+        {{titlePage}}
+        <a href="{{path('ftr_creation')}}" id="actualiser" type="button" class="btn btn-sm ml-auto font-weight-bold py-2 btn-primary text-white"><i class="fa fa-spinner"></i>&nbsp;Actualiser</a>
+        </h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <form id="formFacture">
@@ -181,9 +186,8 @@
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" onclick="location.reload()" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <a href="{{path('ftr_creation')}}" type="button" class="btn btn-sm ml-3 effacerTout btn-primary text-white"><i class="fa fa-spinner"></i>&nbsp;Actualiser</a>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_facture btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                {# <button type="button" onclick="location.reload()" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                <button type="submit" class="btn ml-3 enregistre_create_facture btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 
         </form>

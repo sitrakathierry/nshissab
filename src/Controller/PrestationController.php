@@ -398,6 +398,27 @@ class PrestationController extends AbstractController
         return new JsonResponse($result) ;
     }
 
+    #[Route('/prestation/batiment/mesure/update', name: 'prest_btp_update_mesure')]
+    public function prestUpdateMesureBatiment(Request $request)
+    {
+        $id = $request->request->get('id') ;
+        $btp_mes_nom = $request->request->get('btp_mes_nom') ;
+        $btp_mes_notation = $request->request->get('btp_mes_notation') ;
+
+        $mesure = $this->entityManager->getRepository(BtpMesure::class)->find($id) ;
+        
+        $mesure->setNom($btp_mes_nom) ;
+        $mesure->setNotation($btp_mes_notation) ;
+
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué",
+        ]) ;
+    }
+
+
     #[Route('/prestation/location/creation', name: 'prest_location_creation')]
     public function prestCreationLocation(): Response
     {

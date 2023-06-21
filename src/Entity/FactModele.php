@@ -27,9 +27,16 @@ class FactModele
     #[ORM\Column(nullable: true)]
     private ?int $rang = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'factModeles')]
+    private ?self $parent = null;
+
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
+    private Collection $factModeles;
+
     public function __construct()
     {
         $this->factures = new ArrayCollection();
+        $this->factModeles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,6 +106,48 @@ class FactModele
     public function setRang(?int $rang): self
     {
         $this->rang = $rang;
+
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFactModeles(): Collection
+    {
+        return $this->factModeles;
+    }
+
+    public function addFactModele(self $factModele): self
+    {
+        if (!$this->factModeles->contains($factModele)) {
+            $this->factModeles->add($factModele);
+            $factModele->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactModele(self $factModele): self
+    {
+        if ($this->factModeles->removeElement($factModele)) {
+            // set the owning side to null (unless already changed)
+            if ($factModele->getParent() === $this) {
+                $factModele->setParent(null);
+            }
+        }
 
         return $this;
     }

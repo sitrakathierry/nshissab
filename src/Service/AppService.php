@@ -401,7 +401,7 @@ class AppService extends AbstractController
                     $message = $dataMessage[$i]." vide" ;
                     break;
                 }
-                else if(intval($data[$i]) <= 0)
+                else if(intval($data[$i]) < 0)
                 {
                     $allow = False ;
                     $type="red" ;

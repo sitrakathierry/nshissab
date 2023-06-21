@@ -43,28 +43,16 @@
                 <input type="hidden" id="fact_text_prix">
             </div>
             <div class="col-md-2">
-                <label for="fact_mod_prod_qte" class="mt-2 font-weight-bold">Quantité</label>
-                <input type="number" step="any" name="fact_mod_prod_qte" class="form-control fact_mod_prod_qte" id="fact_mod_prod_qte" placeholder=". . .">
+                <label for="fact_btp_qte" class="mt-2 font-weight-bold">Quantité</label>
+                <input type="number" step="any" name="fact_btp_qte" class="form-control" id="fact_btp_qte" placeholder=". . .">
             </div>
             <div class="col-md-2">
-                <label for="fact_mod_prod_tva_val" class=" mt-2 font-weight-bold">TVA(%)</label>
-                <input type="number" name="fact_mod_prod_tva_val" class="form-control fact_mod_prod_tva_val" id="fact_mod_prod_tva_val" placeholder=". . .">
+                <label for="fact_btp_tva_val" class=" mt-2 font-weight-bold">TVA(%)</label>
+                <input type="number" name="fact_btp_tva_val" class="form-control" id="fact_btp_tva_val" placeholder=". . .">
             </div>
-            {# <div class="col-md-2">
-                <label for="fact_mod_prod_type_remise" class=" mt-2 font-weight-bold">Type Remise</label>
-                <select class="custom-select custom-select-sm chosen_select fact_mod_prod_type_remise" name="fact_mod_prod_type_remise" id="fact_mod_prod_type_remise" >
-                    <option value=""></option> 
-                    <option value="1">%</option> 
-                    <option value="2">Montant</option> 
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label for="fact_mod_prod_remise" class="mt-2 font-weight-bold">Remise</label>
-                <input type="number" name="fact_mod_prod_remise" class="form-control fact_mod_prod_remise" id="fact_mod_prod_remise" placeholder=". . .">
-            </div> #}
             <div class="col-md-2">
                 <label for="" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button type="button" class="btn btn-success btn-block btn-sm px-4 ajout_fact_element" ><i class="fa fa-plus-circle"></i>&nbsp;AJOUTER</button>
+                <button type="button" class="btn btn-success btn-block btn-sm px-4 ajout_fact_btp_element" ><i class="fa fa-plus-circle"></i>&nbsp;AJOUTER</button>
             </div>
         </div>
     </div>
@@ -82,26 +70,26 @@
                     <th>Montant</th>
                 </tr>
             </thead>
-            <tbody>
-                <th>-</th>
-                <td>-</td>
+            <tbody id="ftr_recap_btp">
+            
             </tbody>
             <tfoot>
                 <tr>
                     <th>Total HT</th>
-                    <th class="bg-light"><span id="fact_total_fixe"></span></th>
+                    <th class="bg-light"><span id="fact_btp_total_ht"></span></th>
                 </tr> 
                 <tr>
                     <th>Total TVA</th>
                     <th class="align-middle bg-light">
-                        <span id="fact_total_tva"></span>
-                        <input type="hidden" class="fact_enr_total_tva" name="fact_enr_total_tva">   
+                        <span id="fact_btp_total_tva_text"></span>
+                        <input type="hidden" id="fact_btp_total_tva" value="0.0" name="fact_enr_total_tva">   
                     </th>
                 </tr>
                 <tr>
                     <th class="fact_caption_total_general">Total TTC</th>
                     <th class="bg-primary text-white">
-                        <span id="fact_total_general">0</span>&nbsp;{{agcDevise.symbole}}
+                        <span id="fact_btp_total_ttc_text">0</span>&nbsp;{{agcDevise.symbole}}
+                        <input type="hidden" id="fact_btp_total_ttc" value="0.0" name="fact_enr_total_general"> 
                     </th>
                 </tr>
                 <tr class="fact_disp_devise d-none">
@@ -132,4 +120,8 @@
         </div>
     </div>
 </div>
-<script src="{{asset('tools/personnal/systeme/facture/js/prestBatiment.js')}}" ></script>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>
