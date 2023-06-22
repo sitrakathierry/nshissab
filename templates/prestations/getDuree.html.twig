@@ -1,0 +1,14 @@
+<div class="col-md-3 caption_duree">
+    <label for="srv_tarif_duree" class="font-weight-bold text-uppercase">Durée</label>
+    <select name="srv_tarif_duree" class="custom-select chosen_select custom-select-sm" id="srv_tarif_duree">
+        <option value="">-</option>
+        {% for duree in durees %}
+            <option value="{{duree.id}}">{{duree.nom|upper}}</option>
+        {% endfor %}
+    </select>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

@@ -230,6 +230,7 @@ $(document).ready(function(){
         var factRoute = {
             "PROD" : routes.ftr_creation_produit,
             "PBAT" : routes.ftr_creation_prest_batiment,
+            "PSTD" : routes.ftr_creation_prest_service,
         } ;
 
         $(target).val(inputValue) ;
@@ -300,15 +301,4 @@ $(document).ready(function(){
         })
     })
 
-    $(window).scroll(function() {
-        var button = $('#actualiser');
-        var content = $('#formFacture');
-        var buttonOffsetTop = content.offset().top;
-      
-        if ($(window).scrollTop() >= buttonOffsetTop) {
-          button.addClass('fixed');
-        } else {
-          button.removeClass('fixed');
-        }
-    });
 })

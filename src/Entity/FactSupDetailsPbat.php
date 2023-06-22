@@ -22,6 +22,9 @@ class FactSupDetailsPbat
     #[ORM\ManyToOne(inversedBy: 'factSupDetailsPbats')]
     private ?FactDetails $detail = null;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $infoSup = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +62,18 @@ class FactSupDetailsPbat
     public function setDetail(?FactDetails $detail): self
     {
         $this->detail = $detail;
+
+        return $this;
+    }
+
+    public function getInfoSup(): ?string
+    {
+        return $this->infoSup;
+    }
+
+    public function setInfoSup(?string $infoSup): self
+    {
+        $this->infoSup = $infoSup;
 
         return $this;
     }

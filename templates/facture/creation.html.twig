@@ -13,6 +13,20 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/agenda.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/facture/js/produit.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/facture/js/prestBatiment.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/prestService.js')}}" ></script>
+    <script>
+        $(window).scroll(function() {
+            var button = $('#actualiser');
+            var content = $('#formFacture');
+            var buttonOffsetTop = content.offset().top;
+        
+            if ($(window).scrollTop() >= buttonOffsetTop) {
+            button.addClass('fixed');
+            } else {
+            button.removeClass('fixed');
+            }
+        });
+    </script>
 {% endblock %}   
 {% block body %}   
 <div class="barre_top rounded shadow mb-5">
@@ -182,7 +196,6 @@
                     <input type="text" class="form-control fact_date" name="fact_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="fact_date">
                 </div>
             </div>
-        </div>
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

@@ -11,6 +11,7 @@ use App\Entity\BtpPrix;
 use App\Entity\Service;
 use App\Entity\SrvDuree;
 use App\Entity\SrvFormat;
+use App\Entity\SrvTarif;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -85,11 +86,11 @@ class PrestationController extends AbstractController
 
         $data = [
             $srv_nom
-            ] ;
+        ] ;
         
         $dataMessage = [
             "Nom"
-            ] ;
+        ] ;
 
         $result = $this->appService->verificationElement($data, $dataMessage) ;
 
@@ -121,7 +122,11 @@ class PrestationController extends AbstractController
 
         $service = $this->entityManager->getRepository(Service::class)->find($id) ;
         $formats = $this->entityManager->getRepository(SrvFormat::class)->findAll() ;
-        $durees = $this->entityManager->getRepository(SrvDuree::class)->findAll() ;
+
+        $tarifs = $this->entityManager->getRepository(SrvTarif::class)->findBy([
+            "service" => $service,
+            "statut" => True,
+            ]) ;
 
         return $this->render('prestations/detailsService.html.twig', [
             "filename" => "prestations",
@@ -129,7 +134,7 @@ class PrestationController extends AbstractController
             "with_foot" => true,
             "service" => $service,
             "formats" => $formats,
-            "durees" => $durees
+            "tarifs" => $tarifs
         ]);
     }
 
@@ -432,7 +437,6 @@ class PrestationController extends AbstractController
     #[Route('/prestation/location/consultation', name: 'prest_location_consultation')]
     public function prestConsultationLocation(): Response
     {
-
         return $this->render('prestations/location/consultation.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Consultation prestation location",
@@ -440,5 +444,86 @@ class PrestationController extends AbstractController
         ]);
     }
 
+    #[Route('/prestation/service/duree/get', name: 'prest_service_duree_get')]
+    public function prestGetServiceDuree()
+    {
+        $durees = $this->entityManager->getRepository(SrvDuree::class)->findAll() ;
 
+        $responses = $this->renderView('prestations/getDuree.html.twig',[
+            "durees" => $durees
+            ]) ;
+        
+        return new Response($responses) ;
+    }
+
+
+    #[Route('/prestation/service/prix/save', name: 'prest_service_prix_save')]
+    public function prestSaveServicePrix(Request $request)
+    {
+        $srv_service_id = $request->request->get('srv_service_id') ;
+        $srv_tarif_format = $request->request->get('srv_tarif_format') ;
+        $srv_tarif_duree = $request->request->get('srv_tarif_duree') ;
+        $srv_tarif_prix = $request->request->get('srv_tarif_prix') ;
+
+        $result = $this->appService->verificationElement([
+            $srv_tarif_format,
+            $srv_tarif_prix,
+        ],[
+            "Format",
+            "Prix"
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $service = $this->entityManager->getRepository(Service::class)->find($srv_service_id) ;
+        $format = $this->entityManager->getRepository(SrvFormat::class)->find($srv_tarif_format) ;
+        $duree = NULL ; 
+        if($format->getReference() == "DRE")
+        {
+            $result = $this->appService->verificationElement([
+                $srv_tarif_duree
+            ],[
+                "Durée",
+            ]) ;
+    
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+
+            
+            $duree = $this->entityManager->getRepository(SrvDuree::class)->find($srv_tarif_duree) ;
+        }
+        $nom = $duree == NULL ? $format->getNom() : $duree->getNom() ;
+
+        $tarif = new SrvTarif() ;
+
+        $tarif->setService($service) ;
+        $tarif->setFormat($format) ;
+        $tarif->setDuree($duree) ;
+        $tarif->setNom($nom) ;
+        $tarif->setPrix(floatval($srv_tarif_prix)) ;
+        $tarif->setStatut(True) ;
+
+        $this->entityManager->persist($tarif) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/prestation/service/prix/get', name: 'prest_get_service_prix')]
+    public function prestGetServicePrix(Request $request)
+    {
+        $id = $request->request->get('idP') ;
+
+        $tarifs = $this->entityManager->getRepository(SrvTarif::class)->findBy([
+            "service" => $id,
+            "statut" => True,
+            ]) ;
+
+        $response = $this->renderView("prestations/getPrix.html.twig",[
+            "tarifs" => $tarifs
+        ]) ;
+
+        return new Response($response) ;
+    }
 }

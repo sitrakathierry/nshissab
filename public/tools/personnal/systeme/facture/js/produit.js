@@ -9,43 +9,56 @@ $(document).ready(function(){
     {
         $(document).on("change",".fact_mod_prod_designation",function(){
             var self = $(this)
+            var maRoute = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? routes.stock_get_produit_prix : routes.prest_get_service_prix ;
+            var typeData = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? 'json' : 'html' ;
             if ($(this).is("select")) {
                 $("#fact_text_designation").val($(this).find("option:selected").text())
                 var realinstance = instance.loading()
+                var data = new FormData() ;
+                data.append('idP',self.val()) ;
                 $.ajax({
-                    url: routes.stock_get_produit_prix,
+                    url: maRoute,
                     type:'post',
                     cache: false,
-                    data:{idP:self.val()},
-                    dataType: 'json',
+                    data:data,
+                    dataType: typeData ,
+                    processData: false,
+                    contentType: false,
                     success: function(resp){
                         realinstance.close()
-                        if(resp.produitPrix.length > 1)
+                        if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
                         {
-                            var optionsPrix = '<option value=""></option>' ;
-                            resp.produitPrix.forEach(elem => {
-                                optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
-                            });
+                            if(resp.produitPrix.length > 1)
+                            {
+                                var optionsPrix = '<option value=""></option>' ;
+                                resp.produitPrix.forEach(elem => {
+                                    optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
+                                });
+                            }
+                            else
+                            {
+                                var optionsPrix = '<option value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
+                                $("#fact_text_prix").val(resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice) ;
+                            }
+                            
+                            if(resp.tva != "")
+                            {
+                                $("#fact_mod_prod_tva_val").attr("readonly",true)
+                                $("#fact_mod_prod_tva_val").val(resp.tva)
+                            }
+                            else
+                            {
+                                $("#fact_mod_prod_tva_val").removeAttr("readonly")
+                                $("#fact_mod_prod_tva_val").val("")
+                            }
+                            
+                            $(".fact_mod_prod_prix").html(optionsPrix)
                         }
                         else
                         {
-                            var optionsPrix = '<option value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
-                            $("#fact_text_prix").val(resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice) ;
+                            $(".fact_mod_prod_prix").html(resp) ;
                         }
-                        
-                        if(resp.tva != "")
-                        {
-                            $("#fact_mod_prod_tva_val").attr("readonly",true)
-                            $("#fact_mod_prod_tva_val").val(resp.tva)
-                        }
-                        else
-                        {
-                            $("#fact_mod_prod_tva_val").removeAttr("readonly")
-                            $("#fact_mod_prod_tva_val").val("")
-                        }
-                        
-                        $(".fact_mod_prod_prix").html(optionsPrix)
-                        $(".fact_mod_prod_prix").trigger("chosen:updated"); 
+                        $(".fact_mod_prod_prix").trigger('chosen:updated') ; 
                     },
                     error: function(){
                         realinstance.close()
@@ -217,18 +230,26 @@ $(document).ready(function(){
 
         if(fact_mod_prod_type != "autre")
         {
-            var stock = parseInt(fact_text_designation.split(" | ")[2].split(" : ")[1])
-            if(stock < parseInt(fact_mod_prod_qte))
+            if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
             {
-                $.alert({
-                    title: "Stock insuffisant",
-                    content: "Veuiller entrer une quantité inférieure au stock",
-                    type:'red',
-                })
-                return false;
+                var stock = parseInt(fact_text_designation.split(" | ")[2].split(" : ")[1])
+                if(stock < parseInt(fact_mod_prod_qte))
+                {
+                    $.alert({
+                        title: "Stock insuffisant",
+                        content: "Veuiller entrer une quantité inférieure au stock",
+                        type:'red',
+                    })
+                    return false;
+                }
+    
+                fact_text_designation = fact_text_designation.split(" | ")[0]+" | "+fact_text_designation.split(" | ")[1] ;
+            }
+            else
+            {
+                fact_text_designation + $("#fact_text_designation").val()
             }
 
-            fact_text_designation = fact_text_designation.split(" | ")[0]+" | "+fact_text_designation.split(" | ")[1] ;
         }
 
         var fact_mod_prod_type_remise = $("#fact_mod_prod_type_remise").val()

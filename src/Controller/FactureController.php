@@ -169,6 +169,32 @@ class FactureController extends AbstractController
         return new Response($responses) ;
     }
 
+    #[Route('/facture/creation/prest/service', name: 'ftr_creation_prest_service')]
+    public function factureCreationPrestService(): Response
+    {
+        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
+
+        $filename = "files/systeme/prestations/service(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrestationService($filename, $this->agence) ;
+
+        $services = json_decode(file_get_contents($filename)) ;
+
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        $responses = $this->renderView("facture/prestStandard.html.twig",[
+            "devises" => $devises,
+            "agcDevise" => $agcDevise,
+            "services" => $services
+        ]) ;
+
+        return new Response($responses) ;
+    }
+
+
     #[Route('/facture/batiment/categorie', name: 'ftr_batiment_categorie_get_opt')]
     public function ftrGetCategorieBatimentOpt(Request $request): Response
     {
@@ -545,7 +571,7 @@ class FactureController extends AbstractController
 
         $modele = $this->entityManager->getRepository(FactModele::class)->find($fact_modele) ; 
 
-        if($modele->getReference() == "PROD")
+        if($modele->getReference() == "PROD" || $modele->getReference() == "PSTD")
         {
             $fact_enr_prod_type = (array)$request->request->get('fact_enr_prod_type') ;
             if(empty($fact_enr_prod_type))
@@ -661,7 +687,7 @@ class FactureController extends AbstractController
         // PAR RAPPORT AU MODELE 
         // PORTANT DES REFERENCES SPECIFIQUES
         $modeleRef = $modele->getReference() ;
-        if($modeleRef == "PROD") // Produit
+        if($modeleRef == "PROD" || $modeleRef == "PSTD") // Produit ou Prestation Standard
         {
             $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
             $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
@@ -703,16 +729,6 @@ class FactureController extends AbstractController
                 $this->entityManager->flush() ; 
             }
         } 
-        else if($modeleRef == "PSTD")
-        {
-            $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
-            $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
-            $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
-            $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
-            $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
-            $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
-            $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
-        }
         else if($modeleRef == "PBAT")
         {
             
@@ -722,7 +738,8 @@ class FactureController extends AbstractController
             $fact_enr_btp_prix = $request->request->get('fact_enr_btp_prix') ;
             $fact_enr_btp_quantite = $request->request->get('fact_enr_btp_quantite') ;
             $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
-
+            $fact_enr_btp_info_sup = $request->request->get('fact_enr_btp_info_sup') ;
+            
 
             foreach ($fact_enr_btp_enonce_id as $key => $value) {
                 $dtlsTvaVal = empty($fact_enr_btp_tva[$key]) ? null : $fact_enr_btp_tva[$key] ;
@@ -749,130 +766,129 @@ class FactureController extends AbstractController
                 $factSupDetailsPbat->setEnonce($enoncee) ;
                 $factSupDetailsPbat->setCategorie($categorie) ;
                 $factSupDetailsPbat->setDetail($factDetail) ; 
+                $factSupDetailsPbat->setInfoSup($fact_enr_btp_info_sup[$key]) ;
 
                 $this->entityManager->persist($factSupDetailsPbat) ;
                 $this->entityManager->flush() ; 
             }
         }
-             
-        
-
 
         // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
-
-        if($paiement->getReference() == "CR" || $paiement->getReference() == "AC")
+        if(!is_null($paiement))
         {
-            $lastRecordFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([], ['id' => 'DESC']);
-            $numFinance = !is_null($lastRecordFinance) ? ($lastRecordFinance->getId()+1) : 1 ;
-            $numFinance = str_pad($numFinance, 5, "0", STR_PAD_LEFT);
-            $refFncStatut = "ECR" ; 
-            
-            $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
-                    "reference" => $refFncStatut
-                ]) ;
-
-            $finance = new CrdFinance() ;
-
-            $finance->setAgence($this->agence) ;
-            $finance->setFacture($facture) ;
-            $finance->setPaiement($paiement) ;
-            $finance->setNumFnc($numFinance) ;
-            $finance->setStatut($crdStatut) ; 
-            $finance->setCreatedAt(new \DateTimeImmutable) ; 
-            $finance->setUpdatedAt(new \DateTimeImmutable) ; 
-
-            $this->entityManager->persist($finance) ;
-            $this->entityManager->flush() ; 
-
-            if(!is_null($fact_libelle))
+            if($paiement->getReference() == "CR" || $paiement->getReference() == "AC")
             {
-                $crdDetail = new CrdDetails() ;
+                $lastRecordFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([], ['id' => 'DESC']);
+                $numFinance = !is_null($lastRecordFinance) ? ($lastRecordFinance->getId()+1) : 1 ;
+                $numFinance = str_pad($numFinance, 5, "0", STR_PAD_LEFT);
+                $refFncStatut = "ECR" ; 
+                
+                $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
+                        "reference" => $refFncStatut
+                    ]) ;
 
-                $crdDetail->setFinance($finance) ; 
-                $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$fact_date)) ;
-                $crdDetail->setMontant(floatval($fact_libelle)) ;
-                $crdDetail->setAgence($this->agence) ;
+                $finance = new CrdFinance() ;
 
-                $this->entityManager->persist($crdDetail) ;
+                $finance->setAgence($this->agence) ;
+                $finance->setFacture($facture) ;
+                $finance->setPaiement($paiement) ;
+                $finance->setNumFnc($numFinance) ;
+                $finance->setStatut($crdStatut) ; 
+                $finance->setCreatedAt(new \DateTimeImmutable) ; 
+                $finance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+                $this->entityManager->persist($finance) ;
                 $this->entityManager->flush() ; 
-            }
-            if ($paiement->getReference() == "CR") { 
-                // GESTION AGENDA
-                $agd_ech_enr_date = (array)$request->request->get('agd_ech_enr_date') ;
-                $agd_ech_enr_montant   = $request->request->get('agd_ech_enr_montant') ;
 
-                $refCategorie = $paiement->getReference() == "CR" ? "CRD" : "ACP" ;
+                if(!is_null($fact_libelle))
+                {
+                    $crdDetail = new CrdDetails() ;
 
-                $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
-                    "reference" => $refCategorie
-                ]) ;
+                    $crdDetail->setFinance($finance) ; 
+                    $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$fact_date)) ;
+                    $crdDetail->setMontant(floatval($fact_libelle)) ;
+                    $crdDetail->setAgence($this->agence) ;
 
-                foreach ($agd_ech_enr_date as $key => $value) {
-                    // GESTION DE DATE ULTERIEURE
-                    $dateActuelle = date('d/m/Y') ;
-                    $dateEcheance = $value ;
-
-                    $dateInf = $this->appService->compareDates($dateEcheance,$dateActuelle,"P") ;
-
-                    if($dateInf)
-                    {
-                        return new JsonResponse([
-                            "type" => "orange",
-                            "message" => "Désolé. La date de l'échéance doit être supérieure à la date actuelle"
-                            ]) ;
-                    }
-                    
-                    $echeance = new AgdEcheance() ;
-
-                    $echeance->setAgence($this->agence) ;
-                    $echeance->setCategorie($categorie) ;
-                    $echeance->setCatTable($finance) ;
-                    $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$value)) ;
-                    $echeance->setMontant($agd_ech_enr_montant[$key]) ;
-                    $echeance->setStatut(True) ;
-                    $echeance->setCreatedAt(new \DateTimeImmutable) ; 
-                    $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
-
-                    $this->entityManager->persist($echeance) ;
+                    $this->entityManager->persist($crdDetail) ;
                     $this->entityManager->flush() ; 
                 }
+                if ($paiement->getReference() == "CR") { 
+                    // GESTION AGENDA
+                    $agd_ech_enr_date = (array)$request->request->get('agd_ech_enr_date') ;
+                    $agd_ech_enr_montant   = $request->request->get('agd_ech_enr_montant') ;
 
-                if(!empty($agd_ech_enr_date))
-                {
-                    $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
-                    if(file_exists($filename))
+                    $refCategorie = $paiement->getReference() == "CR" ? "CRD" : "ACP" ;
+
+                    $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
+                        "reference" => $refCategorie
+                    ]) ;
+
+                    foreach ($agd_ech_enr_date as $key => $value) {
+                        // GESTION DE DATE ULTERIEURE
+                        $dateActuelle = date('d/m/Y') ;
+                        $dateEcheance = $value ;
+
+                        $dateInf = $this->appService->compareDates($dateEcheance,$dateActuelle,"P") ;
+
+                        if($dateInf)
+                        {
+                            return new JsonResponse([
+                                "type" => "orange",
+                                "message" => "Désolé. La date de l'échéance doit être supérieure à la date actuelle"
+                                ]) ;
+                        }
+                        
+                        $echeance = new AgdEcheance() ;
+
+                        $echeance->setAgence($this->agence) ;
+                        $echeance->setCategorie($categorie) ;
+                        $echeance->setCatTable($finance) ;
+                        $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$value)) ;
+                        $echeance->setMontant($agd_ech_enr_montant[$key]) ;
+                        $echeance->setStatut(True) ;
+                        $echeance->setCreatedAt(new \DateTimeImmutable) ; 
+                        $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+                        $this->entityManager->persist($echeance) ;
+                        $this->entityManager->flush() ; 
+                    }
+
+                    if(!empty($agd_ech_enr_date))
                     {
-                        unlink($filename) ;
+                        $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+                        if(file_exists($filename))
+                        {
+                            unlink($filename) ;
+                        }
                     }
                 }
-            }
-            else // Deuxième cas si le mode paiement est sous acompte : AC
-            {
-                $agd_acp_date = $request->request->get('agd_acp_date') ;
-                $agd_acp_objet = $request->request->get('agd_acp_objet') ;
-
-                if(!empty($agd_acp_date))
+                else // Deuxième cas si le mode paiement est sous acompte : AC
                 {
-                    $agd_acompte = new AgdAcompte() ;
+                    $agd_acp_date = $request->request->get('agd_acp_date') ;
+                    $agd_acp_objet = $request->request->get('agd_acp_objet') ;
 
-                    $agd_acompte->setAcompte($finance) ;
-                    $agd_acompte->setAgence($this->agence) ;
-                    $agd_acompte->setObjet($agd_acp_objet) ;
-                    $agd_acompte->setDate(\DateTime::createFromFormat('j/m/Y',$agd_acp_date)) ;
-                    $agd_acompte->setStatut(True) ;
-                    
-                    $this->entityManager->persist($agd_acompte) ;
-                    $this->entityManager->flush() ;
-
-                    $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
-                    if(file_exists($filename))
+                    if(!empty($agd_acp_date))
                     {
-                        unlink($filename) ;
+                        $agd_acompte = new AgdAcompte() ;
+
+                        $agd_acompte->setAcompte($finance) ;
+                        $agd_acompte->setAgence($this->agence) ;
+                        $agd_acompte->setObjet($agd_acp_objet) ;
+                        $agd_acompte->setDate(\DateTime::createFromFormat('j/m/Y',$agd_acp_date)) ;
+                        $agd_acompte->setStatut(True) ;
+                        
+                        $this->entityManager->persist($agd_acompte) ;
+                        $this->entityManager->flush() ;
+
+                        $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+                        if(file_exists($filename))
+                        {
+                            unlink($filename) ;
+                        }
                     }
                 }
             }
         }
-        
         // gestion des fichiers 
 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
@@ -881,13 +897,23 @@ class FactureController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
         
-        if($paiement->getReference() == "AC")
-            $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
-        else
-            $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+        if(!is_null($paiement))
+        {
+            if($paiement->getReference() == "AC")
+            {
+                $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+                if(file_exists($filename))
+                unlink($filename);
+            }
+            else if($paiement->getReference() == "CR")
+            {
+                $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+                if(file_exists($filename))
+                unlink($filename);
+            }
+                
             
-        if(file_exists($filename))
-            unlink($filename);
+        }
 
         
         

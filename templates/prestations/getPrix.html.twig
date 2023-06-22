@@ -1,0 +1,4 @@
+<option value="">-</option>
+{% for tarif in tarifs %}
+    <option value="{{tarif.id}}">{{tarif.prix}} | <span class="font-italic">{{tarif.nom|lower}}</span></option>
+{% endfor %}

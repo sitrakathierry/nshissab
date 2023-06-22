@@ -30,35 +30,29 @@
         {% endif %} 
 
         <div class="barre_dashed p-3">
-            <h5 class="title_form text-black text-uppercase">Tarifs</h5>
-            <div class="row">
-                <div class="col-md-3 caption_format">
-                    <label for="srv_tarif_format" class="font-weight-bold text-uppercase">Format</label>
-                    <select name="srv_tarif_format" class="custom-select chosen_select custom-select-sm" id="srv_tarif_format">
-                        <option value="" data-reference="">-</option>
-                        {% for format in formats %}
-                            <option value="{{format.id}}" data-reference="{{format.reference}}">{{format.nom|upper}}</option>
-                        {% endfor %}
-                    </select>
+            <form id="formServPrix" >
+                <h5 class="title_form text-black text-uppercase">Tarifs</h5>
+                <div class="row">
+                    <div class="col-md-3 caption_format">
+                        <label for="srv_tarif_format" class="font-weight-bold text-uppercase">Format</label>
+                        <input type="hidden" name="srv_service_id" value="{{service.id}}">
+                        <select name="srv_tarif_format" class="custom-select chosen_select custom-select-sm" id="srv_tarif_format">
+                            <option value="" data-reference="">-</option>
+                            {% for format in formats %}
+                                <option value="{{format.id}}" data-reference="{{format.reference}}">{{format.nom|upper}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="srv_tarif_prix" class="font-weight-bold text-uppercase">Prix</label>
+                        <input type="number" step="any" name="srv_tarif_prix" id="srv_tarif_prix" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="" class="font-weight-bold text-uppercase">&nbsp;</label>
+                        <button class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                    </div>
                 </div>
-                <div class="col-md-3 d-none caption_duree">
-                    <label for="srv_tarif_duree" class="font-weight-bold text-uppercase">Durée</label>
-                    <select name="srv_tarif_duree" class="custom-select chosen_select custom-select-sm" id="srv_tarif_duree">
-                        <option value="">-</option>
-                        {% for duree in durees %}
-                            <option value="{{duree.id}}">{{duree.nom|upper}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="srv_tarif_prix" class="font-weight-bold text-uppercase">Prix</label>
-                    <input type="number" name="srv_tarif_prix" id="srv_tarif_prix" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="" class="font-weight-bold text-uppercase">&nbsp;</label>
-                    <button class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-                </div>
-            </div>
+            </form>
             <div class="table-responsive mt-3">
                 <table class="table table-sm table-bordered">
                     <thead class="thead-light">
@@ -69,14 +63,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                    {% for tarif in tarifs %}
                         <tr>
-                            <td>-</td>
-                            <td>-</td>
+                            <td>{{tarif.nom|upper}}</td>
+                            <td>{{tarif.prix}}</td>
                             <td class="align-middle text-center">
                                 <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
                                 <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

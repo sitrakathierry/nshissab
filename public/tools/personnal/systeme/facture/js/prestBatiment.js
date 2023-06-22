@@ -58,12 +58,14 @@ $(document).ready(function(){
             $("#fact_btp_enoncee").val(),
             $("#fact_btp_categorie").val(),
             $("#fact_btp_designation").val(),
+            $("#fact_btp_info_sup").val(),
             $("#fact_btp_prix").val(),
             $("#fact_btp_qte").val(),
         ],[
             "Enoncée",
             "Catégorie",
             "Désignation",
+            "Information Supplémentaire",
             "Prix",
             "Quantié",
         ])
@@ -86,6 +88,7 @@ $(document).ready(function(){
         var designationText = $("#fact_btp_designation").find("option:selected").text();
         var mesure = $("#fact_btp_mesure").val()
         var prix = $("#fact_btp_prix").val()
+        var infoSup = $("#fact_btp_info_sup").val()
         var prixText = $("#fact_btp_prix").find("option:selected").text() ;
         var prixMontant = prixText.split(' | ') ;
         var qte = $("#fact_btp_qte").val()
@@ -102,6 +105,7 @@ $(document).ready(function(){
                 `+designationText+`
                 <input type="hidden" name="fact_enr_btp_enonce_id[]" value="`+enonceId+`">
                 <input type="hidden" name="fact_enr_btp_categorie_id[]" value="`+categorieId+`">
+                <input type="hidden" name="fact_enr_btp_info_sup[]" value="`+infoSup+`">
                 <input type="hidden" name="fact_enr_btp_element_id[]" value="`+designation+`">
                 <input type="hidden" name="fact_enr_btp_designation[]" value="`+(designationText+mesure)+`">
                 </td>
@@ -135,7 +139,7 @@ $(document).ready(function(){
                 <table class="table table-sm table-bordered table-hover">
                     <thead class="thead-light">
                         <tr>
-                            <th colspan="7" class="text-uppercase" id="categorie`+categorieId+`">CATEGORIE : `+categorieText+` </th>
+                            <th colspan="7" class="text-uppercase" id="categorie`+categorieId+`">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+`</th>
                         </tr>
                         <tr>
                             <th>Désignation</th>
@@ -183,7 +187,7 @@ $(document).ready(function(){
                 <table class="table table-sm table-bordered table-hover">
                     <thead class="thead-light">
                         <tr>
-                            <th colspan="7" class="text-uppercase" id="categorie`+categorieId+`">CATEGORIE : `+categorieText+` </th>
+                            <th colspan="7" class="text-uppercase" id="categorie`+categorieId+`">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+` </th>
                         </tr>
                         <tr>
                             <th>Désignation</th>
@@ -242,13 +246,12 @@ $(document).ready(function(){
         $("#fact_somme_lettre").text(lettreTotal) ;
 
         $("#fact_btp_designation").val("")
+        $("#fact_btp_mesure").val("")
         $("#fact_btp_prix").val("")
         $("#fact_btp_qte").val("")
         $("#fact_btp_tva_val").val("")
         $(".chosen_select").trigger("chosen:updated") ;
     })
-
-
 
     $(document).on('click',".supprLigneCat",function(){
         if(!$(this).attr("disabled"))
