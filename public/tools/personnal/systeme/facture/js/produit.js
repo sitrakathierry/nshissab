@@ -219,7 +219,7 @@ $(document).ready(function(){
             }
         }
 
-        var fact_text_type = fact_mod_prod_type == "autre" ? "Autre" : "Produit"
+        var fact_text_type = fact_mod_prod_type == "autre" ? "Autre" : fact_mod_prod_type
         var fact_text_designation = $("#fact_text_designation").val()
         var fact_text_prix = fact_mod_prod_type == "autre" ? $("#fact_mod_prod_prix").val() : parseFloat($("#fact_text_prix").val().split(" | ")[0])
         
