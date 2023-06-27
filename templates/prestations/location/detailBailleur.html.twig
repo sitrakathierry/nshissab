@@ -1,0 +1,108 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/location.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-2">
+        <h5 class="title_form text-black text-uppercase">Bailleur</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <label for="prest_lct_prop_nom" class="font-weight-bold">Nom propriétaire</label>
+                <input type="text" readonly value="{{bailleur.nom}}" name="prest_lct_prop_nom" oninput="this.value = this.value.toUpperCase();" id="prest_lct_prop_nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-2">
+                <label for="prest_lct_prop_tel" class="font-weight-bold">Téléphone</label>
+                <input type="text" readonly value="{{bailleur.telephone}}" name="prest_lct_prop_tel" id="prest_lct_prop_tel" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_lct_prop_adresse" class="font-weight-bold">Adresse</label>
+                <input type="text" readonly value="{{bailleur.adresse}}" name="prest_lct_prop_adresse" oninput="this.value = this.value.toUpperCase();" id="prest_lct_prop_adresse" class="form-control" placeholder=". . .">
+            </div>
+            {# <div class="col-md-3">
+                <label for="" class="font-weight-bold">&nbsp;</label>
+                <button type="submit" class="btn btn-block btn-sm btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div> #}
+        </div>
+        <div class="barre_dashed w-100 py-3 mt-3">
+            <form id="formBail">
+                <h5 class="title_form text-black text-uppercase">Création Location du bailleur</h5>
+                <div class="row">
+                    <div class="col-md-5"> 
+                        <label for="prest_lct_bail_nom" class="font-weight-bold">Nom Location</label>
+                        <input type="text" name="prest_lct_bail_nom" oninput="this.value = this.value.toUpperCase();" id="prest_lct_bail_nom" class="form-control" placeholder=". . .">
+                        <input type="hidden" name="prest_lct_bailleur_id" value="{{bailleur.id}}" >
+                    </div>
+                    <div class="col-md-4">
+                        <label for="prest_lct_bail_lieu" class="font-weight-bold">Adresse</label>
+                        <input type="text" name="prest_lct_bail_lieu" oninput="this.value = this.value.toUpperCase();" id="prest_lct_bail_lieu" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="prest_lct_bail_dimension" class="font-weight-bold">Dimension</label>
+                        <input type="text" name="prest_lct_bail_dimension" id="prest_lct_bail_dimension" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="prest_lct_bail_montant" class="font-weight-bold mt-2">Montant</label>
+                        <input type="number" step="any" name="prest_lct_bail_montant"  id="prest_lct_bail_montant" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="prest_lct_bail_caution" class="font-weight-bold mt-2">Caution</label>
+                        <input type="number" step="any" name="prest_lct_bail_caution"  id="prest_lct_bail_caution" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="" class="font-weight-bold mt-2">&nbsp;</label>
+                        <button type="submit" class="btn btn-block btn-sm btn-success text-uppercase"><i class="fa fa-plus-circle"></i>&nbsp;Ajouter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="barre_dashed w-100 py-3">
+            <h5 class="title_form text-black text-uppercase">Liste des Locations</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nom Location</th>
+                            <th>Adresse</th>
+                            <th>Dimension</th>
+                            <th>Montant</th>
+                            <th>Caution</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    {# Nursie Primerage #}
+                    <tbody>
+                        {% for bail in bails %}
+                            <tr>
+                                <td>{{bail.nom}}</td>
+                                <td>{{bail.lieux}}</td>
+                                <td>{{bail.dimension}}</td>
+                                <td>{{bail.montant}}</td>
+                                <td>{{bail.caution}}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

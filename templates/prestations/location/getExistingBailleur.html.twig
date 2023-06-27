@@ -1,0 +1,29 @@
+<div class="row">
+    <div class="col-md-4">
+        <label for="prest_ctr_prop_nom" class="font-weight-bold">Nom Propriétaire</label>
+        <select name="prest_ctr_prop_nom" class="custom-select chosen_select custom-select-sm" id="prest_ctr_prop_nom">
+            <option value="">-</option>
+            {% for bailleur in bailleurs %}
+                <option value="{{bailleur.id}}">{{bailleur.nom}} | {{bailleur.telephone}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_prop_phone" class="font-weight-bold">Téléphone</label>
+        <input type="text" readonly name="prest_ctr_prop_phone" id="prest_ctr_prop_phone" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_prop_adresse" class="font-weight-bold">Adresse</label>
+        <input type="text" readonly name="prest_ctr_prop_adresse" id="prest_ctr_prop_adresse" class="form-control" placeholder=". . .">
+        <input type="hidden" name="prest_ctr_prop_nouveau" value="NON">
+    </div>
+    <div class="col-md-2">
+        <label class="font-weight-bold">&nbsp;</label>
+        <button type="button" class="btn btn-sm btn-primary btn-block" id="prest_ctr_new_prop" ><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

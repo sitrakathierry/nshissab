@@ -142,6 +142,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: BtpEnoncee::class)]
     private Collection $btpEnoncees;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctBailleur::class)]
+    private Collection $lctBailleurs;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -174,6 +177,7 @@ class Agence
         $this->btpMesures = new ArrayCollection();
         $this->btpElements = new ArrayCollection();
         $this->btpEnoncees = new ArrayCollection();
+        $this->lctBailleurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1218,6 +1222,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($btpEnoncee->getAgence() === $this) {
                 $btpEnoncee->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctBailleur>
+     */
+    public function getLctBailleurs(): Collection
+    {
+        return $this->lctBailleurs;
+    }
+
+    public function addLctBailleur(LctBailleur $lctBailleur): self
+    {
+        if (!$this->lctBailleurs->contains($lctBailleur)) {
+            $this->lctBailleurs->add($lctBailleur);
+            $lctBailleur->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctBailleur(LctBailleur $lctBailleur): self
+    {
+        if ($this->lctBailleurs->removeElement($lctBailleur)) {
+            // set the owning side to null (unless already changed)
+            if ($lctBailleur->getAgence() === $this) {
+                $lctBailleur->setAgence(null);
             }
         }
 

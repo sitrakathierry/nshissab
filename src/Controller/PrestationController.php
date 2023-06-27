@@ -8,6 +8,11 @@ use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\BtpMesure;
 use App\Entity\BtpPrix;
+use App\Entity\LctBail;
+use App\Entity\LctBailleur;
+use App\Entity\LctPeriode;
+use App\Entity\LctRenouvellement;
+use App\Entity\LctTypeLocation;
 use App\Entity\Service;
 use App\Entity\SrvDuree;
 use App\Entity\SrvFormat;
@@ -423,27 +428,6 @@ class PrestationController extends AbstractController
         ]) ;
     }
 
-
-    #[Route('/prestation/location/creation', name: 'prest_location_creation')]
-    public function prestCreationLocation(): Response
-    {
-        return $this->render('prestations/location/creation.html.twig', [
-            "filename" => "prestations",
-            "titlePage" => "Création prestation location",
-            "with_foot" => true,
-        ]);
-    }
-
-    #[Route('/prestation/location/consultation', name: 'prest_location_consultation')]
-    public function prestConsultationLocation(): Response
-    {
-        return $this->render('prestations/location/consultation.html.twig', [
-            "filename" => "prestations",
-            "titlePage" => "Consultation prestation location",
-            "with_foot" => false
-        ]);
-    }
-
     #[Route('/prestation/service/duree/get', name: 'prest_service_duree_get')]
     public function prestGetServiceDuree()
     {
@@ -511,8 +495,7 @@ class PrestationController extends AbstractController
     }
 
     #[Route('/prestation/service/prix/get', name: 'prest_get_service_prix')]
-    public function prestGetServicePrix(Request $request)
-    {
+    public function prestGetServicePrix(Request $request){
         $id = $request->request->get('idP') ;
 
         $tarifs = $this->entityManager->getRepository(SrvTarif::class)->findBy([
@@ -525,5 +508,276 @@ class PrestationController extends AbstractController
         ]) ;
 
         return new Response($response) ;
+    }
+
+    #[Route('/prestation/location/bailleur', name: 'prest_location_bailleur')]
+    public function prestLocationBailleur(){
+
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateLocationBailleur($filename, $this->agence) ; 
+
+        $bailleurs = json_decode(file_get_contents($filename)) ;
+        
+        return $this->render('prestations/location/bailleur.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Bailleur",
+            "with_foot" => true,
+            "bailleurs" => $bailleurs
+        ]);
+    }
+
+    #[Route('/prestation/location/detail/{id}', name: 'prest_location_bailleur_detail')]
+    public function prestDetailLocationBailleur($id){
+        $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($id) ;
+
+        $bails = $this->entityManager->getRepository(LctBail::class)->findBy([
+            "statut" => True
+        ]) ;
+
+        return $this->render('prestations/location/detailBailleur.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Detail Bailleur",
+            "with_foot" => true,
+            "bailleur" => $bailleur,
+            "bails" => $bails
+        ]);
+    }
+
+    #[Route('/prestation/location/bailleur/save', name: 'prest_location_bailleur_save')]
+    public function prestSaveLocationBailleur(Request $request){
+        $prest_lct_prop_nom = $request->request->get('prest_lct_prop_nom') ;
+        $prest_lct_prop_tel = $request->request->get('prest_lct_prop_tel') ;
+        $prest_lct_prop_adresse = $request->request->get('prest_lct_prop_adresse') ;
+
+        $result = $this->appService->verificationElement([
+            $prest_lct_prop_nom,
+            $prest_lct_prop_tel,
+            $prest_lct_prop_adresse,
+        ],[
+            "Nom Propriétaire",
+            "Téléphone",
+            "Adresse"
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $bailleur = new LctBailleur() ;
+
+        $bailleur->setAgence($this->agence) ;
+        $bailleur->setNom($prest_lct_prop_nom) ;
+        $bailleur->setTelephone($prest_lct_prop_tel) ;
+        $bailleur->setAdresse($prest_lct_prop_adresse) ;
+        $bailleur->setStatut(True) ;
+
+        $this->entityManager->persist($bailleur) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/prestation/location/bail/save', name: 'prest_location_bail_save')]
+    public function prestSaveLocationBail(Request $request){
+        $prest_lct_bailleur_id = $request->request->get('prest_lct_bailleur_id') ;
+        $prest_lct_bail_nom = $request->request->get('prest_lct_bail_nom') ;
+        $prest_lct_bail_dimension = $request->request->get('prest_lct_bail_dimension') ;
+        $prest_lct_bail_montant = $request->request->get('prest_lct_bail_montant') ;
+        $prest_lct_bail_caution = $request->request->get('prest_lct_bail_caution') ;
+        $prest_lct_bail_lieu = $request->request->get('prest_lct_bail_lieu') ;
+        
+        $result = $this->appService->verificationElement([
+            $prest_lct_bail_nom,
+            $prest_lct_bail_lieu,
+            $prest_lct_bail_dimension,
+            $prest_lct_bail_montant,
+            $prest_lct_bail_caution,
+        ],[
+            "Nom Location",
+            "Adresse",
+            "Dimension",
+            "Montant",
+            "Caution"
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($prest_lct_bailleur_id) ;
+        $bail = new LctBail() ;
+
+        $bail->setBailleur($bailleur) ;
+        $bail->setNom($prest_lct_bail_nom) ;
+        $bail->setLieux($prest_lct_bail_lieu) ;
+        $bail->setDimension($prest_lct_bail_dimension) ;
+        $bail->setMontant(floatval($prest_lct_bail_montant)) ;
+        $bail->setCaution(floatval($prest_lct_bail_caution)) ;
+        $bail->setStatut(True) ;
+
+        $this->entityManager->persist($bail) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/prestation/location/contrat', name: 'prest_location_contrat')]
+    public function prestLocationContrat(){
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationBailleur($filename, $this->agence) ; 
+
+        $bailleurs = json_decode(file_get_contents($filename)) ;
+
+        $type_locs = $this->entityManager->getRepository(LctTypeLocation::class)->findAll() ;
+        $renouvs = $this->entityManager->getRepository(LctRenouvellement::class)->findAll() ;
+        $periodes = $this->entityManager->getRepository(LctPeriode::class)->findBy([],["rang" => "ASC"]) ;
+
+        return $this->render('prestations/location/contrat.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Nouveau contrat",
+            "with_foot" => true,
+            "bailleurs" => $bailleurs,
+            "type_locs" => $type_locs,
+            "periodes" => $periodes,
+            "renouvs" => $renouvs
+        ]);
+    }
+
+    #[Route('/prestation/location/bailleur/get', name: 'prest_location_bailleur_get')]
+    public function prestGetBailleurLocation(Request $request){
+        $id = $request->request->get('id') ;
+
+        $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($id) ;
+
+        $response = [] ;
+        if(!is_null($bailleur))
+        {
+            $bails = $this->entityManager->getRepository(LctBail::class)->findBy([
+                "bailleur" => $bailleur
+            ]) ; 
+
+            $response["telephone"] = $bailleur->getTelephone() ;
+            $response["adresse"] = $bailleur->getAdresse() ;
+            $response["bails"] = [] ;
+
+            foreach ($bails as $bail) {
+                array_push($response["bails"],[
+                    "id" => $bail->getId(),
+                    "nom" => $bail->getNom(),
+                    "lieu" => $bail->getLieux()
+                ]) ;
+            }
+
+        }
+        else
+        {
+            $response["telephone"] = "" ;
+            $response["adresse"] = "" ;
+            $response["bails"] = [] ;
+        }
+
+        return new JsonResponse($response) ;
+    }
+    
+    #[Route('/prestation/location/bailleur/new', name: 'prest_new_location_bailleur')]
+    public function prestNewLocationBailleur(){
+        $response = $this->renderView("prestations/location/getNewBailleur.html.twig") ;
+        return new Response($response) ;
+    }
+
+    #[Route('/prestation/location/bailleur/existing', name: 'prest_existing_location_bailleur')]
+    public function prestExistingLocationBailleur(){
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationBailleur($filename, $this->agence) ; 
+
+        $bailleurs = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("prestations/location/getExistingBailleur.html.twig",[
+            "bailleurs" => $bailleurs
+            ]) ;
+        return new Response($response) ;
+    }
+
+    #[Route('/prestation/location/bail/new', name: 'prest_new_location_bail')]
+    public function prestNewLocationBail()
+    {
+        $type_locs = $this->entityManager->getRepository(LctTypeLocation::class)->findAll() ;
+        $response = $this->renderView("prestations/location/getNewBail.html.twig",[
+            "type_locs" => $type_locs
+        ]) ;
+        return new Response($response) ;
+    }
+
+    #[Route('/prestation/location/bail/existing', name: 'prest_existing_location_bail')]
+    public function prestExistingLocationBail(Request $request){
+
+        $id = $request->request->get('id') ;
+
+        $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($id) ;
+
+        $bails = $this->entityManager->getRepository(LctBail::class)->findBy([
+            "bailleur" => $bailleur
+        ]) ;
+        if(empty($bails))
+        {
+            return new Response("") ;
+        }
+        $items = [] ;
+        foreach ($bails as $bail) {
+            array_push($items,[
+                "id" => $bail->getId(),
+                "nom" => $bail->getNom(),
+                "lieu" => $bail->getLieux()
+            ]) ;
+        }
+        $type_locs = $this->entityManager->getRepository(LctTypeLocation::class)->findAll() ;
+        $response = $this->renderView("prestations/location/getExistingBail.html.twig",[
+            "bails" => $items,
+            "type_locs" => $type_locs,
+        ]) ;
+        return new Response($response) ;
+    }
+
+    
+    #[Route('/prestation/location/bail/get', name: 'prest_location_bail_get')]
+    public function prestGetBailLocation(Request $request){
+        $id = $request->request->get('id') ;
+        $bail = $this->entityManager->getRepository(LctBail::class)->find($id) ;
+        $response = [] ;
+        if(!is_null($bail))
+        {
+            $response["dimension"] = $bail->getDimension() ;
+            $response["adresse"] = $bail->getLieux() ;
+            $response["montant"] = $bail->getMontant() ;
+            $response["caution"] = $bail->getCaution() ;
+        }
+        else
+        {
+            $response["dimension"] = "" ;
+            $response["adresse"] = "" ;
+            $response["montant"] = "" ;
+            $response["caution"] = "" ;
+        }
+
+        return new JsonResponse($response) ;
+    }
+
+    
+    #[Route('/prestation/location/contrat/save', name: 'prest_location_contrat_save')]
+    public function prestSaveContratLocation(Request $request)
+    {
+        
+        return new JsonResponse([
+            "type" => "orange",
+            "message" => "Mise à jours en cours de finition",
+            ]) ;
     }
 }

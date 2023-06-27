@@ -168,9 +168,77 @@ class AppBase
         result.message = message;
       
         return result;
-      }
+    }
       
-      isNumeric(value) {
-        return !isNaN(parseFloat(value)) && isFinite(value);
+    isNumeric(value) {
+      return !isNaN(parseFloat(value)) && isFinite(value);
+    }
+
+    str_pad(str, length, padChar, padType) {
+      str = String(str); // Convertir en chaîne de caractères
+    
+      if (str.length >= length) {
+        return str; // Pas besoin de remplissage
       }
+    
+      padChar = String(padChar); // Convertir en chaîne de caractères
+    
+      if (padChar.length === 0) {
+        return str; // Pas de caractère de remplissage
+      }
+    
+      padType = padType || 'right'; // Type de remplissage par défaut est "right"
+    
+      var padLength = length - str.length;
+      var pad = padChar.repeat(padLength);
+    
+      if (padType === 'left') {
+        return pad + str;
+      } else if (padType === 'both') {
+        var padLeftLength = Math.floor(padLength / 2);
+        var padRightLength = padLength - padLeftLength;
+        var padLeft = padChar.repeat(padLeftLength);
+        var padRight = padChar.repeat(padRightLength);
+        return padLeft + str + padRight;
+      } else {
+        return str + pad;
+      }
+    }
+
+    convertirFormatDate(dateString) {
+      // Séparer la date en jour, mois et année
+      var dateParts = dateString.split('/');
+      var jour = dateParts[0];
+      var mois = dateParts[1];
+      var annee = dateParts[2];
+    
+      // Créer un nouvel objet Date avec le format aaaa-mm-jj
+      var date = new Date(annee, mois - 1, jour);
+    
+      // Obtenir les composants de la date au format 'aaaa-mm-jj'
+      var anneeConvertie = date.getFullYear();
+      var moisConverti = ('0' + (date.getMonth() + 1)).slice(-2); // Ajouter un zéro devant si nécessaire
+      var jourConverti = ('0' + date.getDate()).slice(-2); // Ajouter un zéro devant si nécessaire
+    
+      // Retourner la date convertie au format 'aaaa-mm-jj'
+      return anneeConvertie + '-' + moisConverti + '-' + jourConverti;
+    }
+
+
+    calculerDateApresNjours(dateInitiale, nbJours) {
+      // Convertir la date initiale en objet Date
+      var date = new Date(this.convertirFormatDate(dateInitiale));
+      // Calculer la date après le nombre de jours spécifié
+      var dateApresNJours = new Date(date.getTime() + (nbJours * 24 * 60 * 60 * 1000));
+    
+      // Conversion de la date en format souhaité (jj/mm/aaaa)
+      var jour = dateApresNJours.getDate();
+      var mois = dateApresNJours.getMonth() + 1; // Les mois commencent à partir de zéro (0)
+      var annee = dateApresNJours.getFullYear();
+    
+      // Formattage de la date
+      var dateFormatee = this.str_pad(jour,2,"0","left") + '/' + this.str_pad(mois,2,"0","left") + '/' + annee;
+    
+      return dateFormatee;
+    }
 }

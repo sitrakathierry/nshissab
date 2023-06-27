@@ -19,6 +19,8 @@ use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\FactPaiement;
 use App\Entity\Facture;
+use App\Entity\LctBail;
+use App\Entity\LctBailleur;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
 use App\Entity\Menu;
@@ -1185,6 +1187,28 @@ class AppService extends AbstractController
             $item["id"] = $enoncee->getId() ;
             $item["agence"] = $enoncee->getAgence()->getId() ;
             $item["nom"] = $enoncee->getNom() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateLocationBailleur($filename, $agence) 
+    {
+        $bailleurs = $this->entityManager->getRepository(LctBailleur::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($bailleurs as $bailleur) {
+            $item = [] ;
+            $item["id"] = $bailleur->getId() ;
+            $item["agence"] = $bailleur->getAgence()->getId() ;
+            $item["nom"] = $bailleur->getNom() ;
+            $item["telephone"] = $bailleur->getTelephone() ;
+            $item["adresse"] = $bailleur->getAdresse() ;
             array_push($items,$item) ;
         }
 

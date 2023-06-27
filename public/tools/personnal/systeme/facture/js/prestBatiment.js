@@ -287,6 +287,6 @@ $(document).ready(function(){
             $("#fact_somme_lettre").text(lettreTotal) ;
         }
         $(this).prop("disabled", true);
-        $(this).closest('tr').remove()
+        $(this).closest('tr').remove() ;
     })
 })

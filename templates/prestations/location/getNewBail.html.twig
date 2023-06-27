@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-md-3">
+        <label for="prest_ctr_bail_type_location" class="font-weight-bold">Type location</label>
+        <select name="prest_ctr_bail_type_location" class="custom-select chosen_select custom-select-sm" id="prest_ctr_bail_type_location">
+            <option value="">-</option>
+            {% for type_loc in type_locs %}
+                <option value="{{type_loc.id}}">{{type_loc.nom|upper}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_bail_location" class="font-weight-bold">Location du bailleur</label>
+        <input type="text" name="prest_ctr_bail_location" id="prest_ctr_bail_location" class="form-control" placeholder=". . .">
+        <input type="hidden" name="prest_ctr_bail_nouveau" value="OUI">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_bail_adresse" class="font-weight-bold">Adresse</label>
+        <input type="text" name="prest_ctr_bail_adresse" id="prest_ctr_bail_adresse" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_bail_dimension" class="font-weight-bold">Dimension</label>
+        <input type="text" name="prest_ctr_bail_dimension" id="prest_ctr_bail_dimension" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_bail_montant" class="font-weight-bold mt-3">Montant</label>
+        <input type="number" step="any" name="prest_ctr_bail_montant" id="prest_ctr_bail_montant" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_bail_caution" class="font-weight-bold mt-3">Caution</label>
+        <input type="number" step="any" name="prest_ctr_bail_caution" id="prest_ctr_bail_caution" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label class="font-weight-bold mt-3">&nbsp;</label>
+        <button type="button" class="btn btn-sm btn-info btn-block" id="prest_ctr_existing_bail"><i class="fa fa-layer-group"></i>&nbsp;Location Existant</button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>
