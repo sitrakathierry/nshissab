@@ -1,0 +1,7 @@
+.step {
+    display: none;
+}
+
+.step:first-child {
+    display: block;
+}

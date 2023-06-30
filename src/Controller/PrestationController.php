@@ -10,6 +10,7 @@ use App\Entity\BtpMesure;
 use App\Entity\BtpPrix;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
+use App\Entity\LctCycle;
 use App\Entity\LctPeriode;
 use App\Entity\LctRenouvellement;
 use App\Entity\LctTypeLocation;
@@ -635,6 +636,7 @@ class PrestationController extends AbstractController
         $bailleurs = json_decode(file_get_contents($filename)) ;
 
         $type_locs = $this->entityManager->getRepository(LctTypeLocation::class)->findAll() ;
+        $cycles = $this->entityManager->getRepository(LctCycle::class)->findAll() ;
         $renouvs = $this->entityManager->getRepository(LctRenouvellement::class)->findAll() ;
         $periodes = $this->entityManager->getRepository(LctPeriode::class)->findBy([],["rang" => "ASC"]) ;
 
@@ -645,7 +647,8 @@ class PrestationController extends AbstractController
             "bailleurs" => $bailleurs,
             "type_locs" => $type_locs,
             "periodes" => $periodes,
-            "renouvs" => $renouvs
+            "renouvs" => $renouvs,
+            "cycles" => $cycles,
         ]);
     }
 
@@ -756,15 +759,11 @@ class PrestationController extends AbstractController
         {
             $response["dimension"] = $bail->getDimension() ;
             $response["adresse"] = $bail->getLieux() ;
-            $response["montant"] = $bail->getMontant() ;
-            $response["caution"] = $bail->getCaution() ;
         }
         else
         {
             $response["dimension"] = "" ;
             $response["adresse"] = "" ;
-            $response["montant"] = "" ;
-            $response["caution"] = "" ;
         }
 
         return new JsonResponse($response) ;

@@ -310,80 +310,242 @@ $(document).ready(function(){
 
     // calculerDateApresNjours
 
+    var montantAllMois = 0 ;
+    var nbSpecJour = 0 ;
+    var dateFinAll = "" ;
+    function calculMontantJourMois(dateMois, montant)
+    {
+        var resultDateAFin = appBase.calculerDureeEnJours(dateMois,1) ;
+        var finMois = (resultDateAFin.split("&##&")[1]).split("/")[0] ; // date fin du mois du premier mois
+        var ecartJUnMois = resultDateAFin.split("&##&")[0] ;  // Ecart en jour à partir de la date quelconque du mois jusqu'à la fin du mois
+        // console.log("Ecart : "+ecartJUnMois) ;
+        if( nbSpecJour <= parseInt(ecartJUnMois))
+        {
+            montantAllMois += (parseInt(nbSpecJour) * montant) / parseInt(finMois) ;
+            dateFinAll = appBase.calculerDateApresNjours(dateMois,parseInt(nbSpecJour)) ; 
+        }
+        else
+        {
+            montantAllMois += (parseInt(ecartJUnMois) * montant) / parseInt(finMois) ;
+            nbSpecJour -= parseInt(ecartJUnMois) ;
+            if (nbSpecJour > 0) {
+                var dateDonnee = new Date(appBase.convertirFormatDate(resultDateAFin.split("&##&")[1]));
+                var jourSuivant = new Date(dateDonnee.getTime() + 24 * 60 * 60 * 1000);
+                var sjour = jourSuivant.getDate() ;
+                var smois = jourSuivant.getMonth() + 1 ;
+                var sannee = jourSuivant.getFullYear() ;
+                var formatjourSuivant = appBase.str_pad(sjour,2,"0","left")+"/"+appBase.str_pad(smois,2,"0","left")+"/"+sannee
+                calculMontantJourMois(formatjourSuivant,montant) ;
+            }
+        }
+
+    }
+
     function calculDateFin()
     {
         var dateDebut = $("#prest_ctr_date_debut").val()
+        var cycle = $("#prest_ctr_cycle").val()
+        var cycleRef = $("#cycleRef").val()
+        var forfait = $("#prest_ctr_forfait").val()
+        var forfaitRef = $("#forfaitRef").val()
+        var fftMontant = $("#prest_ctr_montant_forfait").val()
         var duree = $("#prest_ctr_duree").val()
         var periode = $("#prest_ctr_periode").val()
-        var periodeSelected = $("#prest_ctr_periode").find("option:selected")
-        var refPeriode = periodeSelected.data("reference")
+        var periodeRef = $("#periodeRef").val()
         var nbJour = 0 ;
 
-        var result = appBase.verificationElement([
-            dateDebut,
-            duree,
-            periode,
-        ],[
-            "Date Début",
-            "Durée",
-            "Période",
-        ])
+        // var result = appBase.verificationElement([
+        //     cycle,
+        //     forfait,
+        //     fftMontant,
+        //     duree,
+        //     periode,
+        //     dateDebut,
+        // ],[
+        //     "Cycle",
+        //     "Forfait",
+        //     "Montant Forfait",
+        //     "Durée",
+        //     "Période",
+        //     "Date Début",
+        // ])
 
-        if(!result["allow"])
-        {
-            $.alert({
-                title: 'Message',
-                content: result["message"],
-                type: result["type"],
-            });
+        // if(!result["allow"])
+        // {
+        //     $.alert({
+        //         title: 'Message',
+        //         content: result["message"],
+        //         type: result["type"],
+        //     });
 
-            return result["allow"] ;
-        }
+        //     return result["allow"] ;
+        // }
+        var montantTotal = 0 ;
+        var dateFin = "" ;
         duree = parseInt(duree) ;
-        if(refPeriode == "J") // Jour
+        fftMontant = parseFloat(fftMontant) ;
+        if(cycleRef == "CJOUR")
         {
-            nbJour = duree 
-        }
-        else if(refPeriode == "M") // Mois
-        {
-            nbJour = 30 * duree ;
-        }
-        else if(refPeriode == "A") // Année
-        {
-            nbJour = 365 * duree ;
-        }
+            if(forfaitRef == "FJOUR")
+            {
+                // Si le fofait est par Jour et que le cycle est Journalier
+                if(periodeRef == "J") // Jour
+                {
+                    nbJour = duree ;
+                    montantTotal = duree * fftMontant ;
+                }
+                else if(periodeRef == "M") // Mois
+                {
+                    nbJour = 30 * duree ;
+                    montantTotal = 30 * duree * fftMontant ;
+                }
+                else if(periodeRef == "A") // Année
+                {
+                    nbJour =  365 * duree ;
+                    montantTotal = 365 * duree * fftMontant ;
+                }
 
-        var dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
+                dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
+            }
+            else if(forfaitRef == "FMOIS")
+            {
+                // Si le fofait est par Mois et que le cycle est Journalier
+                if(periodeRef == "J") // Jour
+                {
+                    nbJour = duree ;
+                    montantTotal = (duree * fftMontant) / 30 ;
+                }
+                else if(periodeRef == "M") // Mois
+                {
+                    nbJour = 30 * duree ;
+                    montantTotal = duree * fftMontant ;
+                }
+                else if(periodeRef == "A") // Année
+                {
+                    nbJour =  365 * duree ;
+                    montantTotal = 12 * duree * fftMontant ;
+                }
 
+                dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
+            }
+        }
+        else if(cycleRef == "CMOIS")
+        {
+            if(forfaitRef == "FJOUR")
+            {
+                // Si le fofait est par Jour et que le cycle est Mensuel
+                if(periodeRef == "J") // Jour
+                {
+                    nbJour = duree ;
+                    montantTotal = duree * fftMontant ;
+                    dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
+                }
+                else if(periodeRef == "M") // Mois
+                {
+                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,duree)
+                    var ecartJour = resultCalcul.split("&##&")[0] ;
+                    montantTotal = parseInt(ecartJour) * fftMontant ;
+                    dateFin = resultCalcul.split("&##&")[1] ;
+                }
+                else if(periodeRef == "A") // Année
+                {
+                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,(12 * duree))
+                    var ecartJour = resultCalcul.split("&##&")[0] ;
+                    montantTotal = parseInt(ecartJour) * fftMontant ;
+                    dateFin = resultCalcul.split("&##&")[1] ;
+                }
+            }
+            else if(forfaitRef == "FMOIS")
+            {
+                // Si le fofait est par Mois et que le cycle est Mensuel
+                if(periodeRef == "J") // Jour
+                {
+                    nbSpecJour = duree
+                    calculMontantJourMois(dateDebut, fftMontant) ;
+                    montantTotal = montantAllMois ; 
+                    dateFin = dateFinAll ;
+                }
+                else if(periodeRef == "M") // Mois
+                {
+                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,duree)
+                    var ecartEnJour = resultCalcul.split("&##&")[0] ;
+                    nbSpecJour = ecartEnJour
+                    calculMontantJourMois(dateDebut, fftMontant) ;
+                    montantTotal = montantAllMois ; 
+                    dateFin = resultCalcul.split("&##&")[1];
+                    // montantTotal = parseInt(ecartJour) * fftMontant ;
+                    // dateFin = resultCalcul.split("&##&")[1] ;
+                }
+                else if(periodeRef == "A") // Année
+                {
+                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,12 * duree)
+                    var ecartEnJour = resultCalcul.split("&##&")[0] ;
+                    nbSpecJour = ecartEnJour
+                    calculMontantJourMois(dateDebut, fftMontant) ;
+                    montantTotal = montantAllMois ; 
+                    dateFin = resultCalcul.split("&##&")[1];
+                }
+            }
+        }
+        montantTotal = montantTotal % 1 !== 0 ? montantTotal.toFixed(2) : parseInt(montantTotal) ; 
+        $("#prest_ctr_montant_contrat").val(montantTotal)
+        $("#prest_ctr_montant_mois").val(montantTotal)
         $("#prest_ctr_date_fin").val(dateFin)
     }
 
     $("#prest_ctr_date_debut").change(function(){
-        calculDateFin() 
-        if($("#prest_ctr_date_debut").val() != "")
-        {
-            $("#prest_ctr_periode").change(function(){
-                calculDateFin() 
-            })
+        montantAllMois = 0 ;
+        nbSpecJour = 0 ;
+        dateFinAll = "" ;
+        calculDateFin() ;
         
-            $(".prest_ctr_duree").change(function(){
-                calculDateFin() 
+        var arrayData = [
+            ".prest_ctr_cycle",
+            ".prest_ctr_forfait",
+            ".prest_ctr_periode",
+            ".prest_ctr_montant_forfait",
+            ".prest_ctr_duree",
+        ]
+
+        arrayData.forEach(elem => {
+            $(elem).change(function(){
+                montantAllMois = 0 ;
+                nbSpecJour = 0 ;
+                dateFinAll = "" ;
+                calculDateFin() ;
             })
-        
-            $(".prest_ctr_duree").keyup(function(){
-                calculDateFin() 
-            }) 
-        }
+
+            $(elem).keyup(function(){
+                montantAllMois = 0 ;
+                nbSpecJour = 0 ;
+                dateFinAll = "" ;
+                calculDateFin() ;
+            })
+        })
+
+    })
+
+    $("#prest_ctr_forfait").change(function(){
+        var optionSelected =  $(this).find("option:selected")
+        var libelle = optionSelected.data("libelle") == "" ? "Aucun" : optionSelected.data("libelle")
+
+        $("#lblMontant").text(libelle)
     })
 
     $(document).on('change',".prest_ctr_bail_caution",function(){
-        var montantLoc = $("#prest_ctr_bail_montant").val()
-        $("#prest_ctr_montant_contrat").val(parseFloat(montantLoc) + parseFloat($(this).val()))
+        var montantContrat = $("#prest_ctr_montant_mois").val()
+        var caution = $(this).val() == "" ? 0 : parseFloat($(this).val()) ;
+        var totalContrat = parseFloat(montantContrat) + caution ;
+        totalContrat = totalContrat % 1 !== 0 ? totalContrat.toFixed(2) : parseInt(totalContrat)  ;
+        $("#prest_ctr_montant_contrat").val(totalContrat) ;
     })
 
     $(document).on('keyup',".prest_ctr_bail_caution",function(){
-        var montantLoc = $("#prest_ctr_bail_montant").val()
-        $("#prest_ctr_montant_contrat").val(parseFloat(montantLoc) + parseFloat($(this).val()))
+        var montantContrat = $("#prest_ctr_montant_mois").val()
+        var caution = $(this).val() == "" ? 0 : parseFloat($(this).val()) ;
+        var totalContrat = parseFloat(montantContrat) + caution ;
+        totalContrat = totalContrat % 1 !== 0 ? totalContrat.toFixed(2) : parseInt(totalContrat)  ;
+        $("#prest_ctr_montant_contrat").val(totalContrat) ;
     })
 
     $("#formContrat").submit(function(){
@@ -437,5 +599,62 @@ $(document).ready(function(){
             }
         })
         return false ;
+    })
+
+    var currentStep = 1;
+    $(".next-btn").click(function() {
+        var currentStepDiv = $("#step" + currentStep);
+        var nextStepDiv = $("#step" + (currentStep + 1));
+        
+        var currentStepBtn = $(".step"+currentStep)
+        var nextStepBtn = $(".step"+(currentStep + 1))
+
+        currentStepBtn.removeClass("btn-info")
+        currentStepBtn.addClass("btn-outline-info")
+
+        nextStepBtn.removeClass("btn-outline-info")
+        nextStepBtn.addClass("btn-info")
+
+        currentStepDiv.hide();
+        nextStepDiv.show();
+        currentStep++;
+    });
+
+    $(".prev-btn").click(function() {
+        var currentStepDiv = $("#step" + currentStep);
+        var prevStepDiv = $("#step" + (currentStep - 1));
+
+        var currentStepBtn = $(".step"+currentStep)
+        var prevStepBtn = $(".step"+(currentStep - 1))
+
+        currentStepBtn.removeClass("btn-info")
+        currentStepBtn.addClass("btn-outline-info")
+
+        prevStepBtn.removeClass("btn-outline-info")
+        prevStepBtn.addClass("btn-info")
+
+        currentStepDiv.hide();
+        prevStepDiv.show();
+        currentStep--;
+    });
+
+    $("#prest_ctr_mode").change(function(){
+        var optionSelected =  $(this).find("option:selected")
+        var libelle = optionSelected.data("libelle") == "" ? "Aucun" : optionSelected.data("libelle")
+
+        $("#delaiPaiement").text(libelle)
+    })
+
+    var selectArray = [
+        "#prest_ctr_cycle",
+        "#prest_ctr_forfait",
+        "#prest_ctr_periode",
+    ] ;
+
+    selectArray.forEach(elem => {
+        $(elem).change(function(){
+            var target = $(this).find("option:selected").data("target")
+            $(target).val($(this).find("option:selected").data("reference"))
+        })
     })
 })

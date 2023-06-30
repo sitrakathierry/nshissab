@@ -23,12 +23,6 @@ class LctBail
     private ?string $dimension = null;
 
     #[ORM\Column(nullable: true)]
-    private ?float $montant = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?float $caution = null;
-
-    #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
 
     #[ORM\Column(length: 500, nullable: true)]
@@ -71,30 +65,6 @@ class LctBail
     public function setDimension(?string $dimension): self
     {
         $this->dimension = $dimension;
-
-        return $this;
-    }
-
-    public function getMontant(): ?float
-    {
-        return $this->montant;
-    }
-
-    public function setMontant(?float $montant): self
-    {
-        $this->montant = $montant;
-
-        return $this;
-    }
-
-    public function getCaution(): ?float
-    {
-        return $this->caution;
-    }
-
-    public function setCaution(?float $caution): self
-    {
-        $this->caution = $caution;
 
         return $this;
     }

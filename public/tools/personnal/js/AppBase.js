@@ -241,4 +241,21 @@ class AppBase
     
       return dateFormatee;
     }
+
+    calculerDureeEnJours(date, mois) {
+      var parts = date.split('/');
+      var jour = parseInt(parts[0]);
+      var moisDebut = parseInt(parts[1]) - 1; // Les mois commencent à partir de zéro dans les objets Date
+      var annee = parseInt(parts[2]);
+      
+      var dateDebut = new Date(annee, moisDebut, jour);
+      var dateFin = new Date(dateDebut.getFullYear(), dateDebut.getMonth() + mois, 0);
+      
+      var finJour = this.str_pad(dateFin.getDate(),2,"0","left") ;
+      var finMois = this.str_pad((dateFin.getMonth() + 1),2,"0","left") ;
+
+      var dureeEnJours = Math.ceil((dateFin - dateDebut) / (1000 * 60 * 60 * 24));
+      var dateFinText = finJour +"/"+finMois+"/"+dateFin.getFullYear() ; 
+      return (dureeEnJours+1)+"&##&"+dateFinText ;
+    }
 }
