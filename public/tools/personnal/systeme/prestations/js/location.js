@@ -548,6 +548,10 @@ $(document).ready(function(){
         $("#prest_ctr_montant_contrat").val(totalContrat) ;
     })
 
+    $("#submitFormContrat").click(function(){
+        $("#formContrat").submit()
+    })
+
     $("#formContrat").submit(function(){
         var self = $(this)
         $.confirm({
@@ -580,11 +584,27 @@ $(document).ready(function(){
                                     content: json.message,
                                     type: json.type,
                                     buttons: {
-                                        OK: function(){
+                                        NON: function(){
                                             if(json.type == "green")
                                             {
                                                 location.assign(routes.prest_location_contrat)
                                             }
+                                        },
+                                        OUI: function(){
+                                            $.alert({
+                                                title: 'Message',
+                                                content: "Caution enregistré",
+                                                type: json.type,
+                                                buttons: {
+                                                    IMPRIMER: function(){},
+                                                    OK: function(){
+                                                        if(json.type == "green")
+                                                        {
+                                                            location.assign(routes.prest_location_contrat)
+                                                        }}
+                                                    ,
+                                                }
+                                            });
                                         }
                                     }
                                 });
@@ -601,7 +621,8 @@ $(document).ready(function(){
         return false ;
     })
 
-    var currentStep = 1;
+    var currentStep = 1 ;
+    var recapArray = [] ;
     $(".next-btn").click(function() {
         var currentStepDiv = $("#step" + currentStep);
         var nextStepDiv = $("#step" + (currentStep + 1));
@@ -609,14 +630,283 @@ $(document).ready(function(){
         var currentStepBtn = $(".step"+currentStep)
         var nextStepBtn = $(".step"+(currentStep + 1))
 
+        if(currentStep == 1)
+        {
+            // INFORMATION DU BAILLEUR 
+            var prest_ctr_prop_nom = $("#prest_ctr_prop_nom").val()
+            var prest_ctr_prop_phone = $("#prest_ctr_prop_phone").val()
+            var prest_ctr_prop_adresse = $("#prest_ctr_prop_adresse").val()
+
+            var result = appBase.verificationElement([
+                prest_ctr_prop_nom,
+                prest_ctr_prop_phone,
+                prest_ctr_prop_adresse,
+            ],[
+                "Nom",
+                "Téléphone",
+                "Adresse",
+            ])
+
+            if(!result["allow"])
+            {
+                $.alert({
+                    title: 'Message',
+                    content: result["message"],
+                    type: result["type"],
+                });
+
+                return result["allow"] ;
+            }
+
+            if($("#prest_ctr_prop_nouveau").val() == "NON")
+            {
+                var prest_ctr_prop_nom = $("#prest_ctr_prop_nom")
+
+                var optionSelected =  $(prest_ctr_prop_nom).find("option:selected")
+                recapArray.push({
+                    "bailleur" : {
+                        "nom" : (optionSelected.text()).split(" | ")[0],
+                        "telephone" : prest_ctr_prop_phone,
+                        "adresse" : prest_ctr_prop_adresse
+                    }
+                })
+            }
+            else
+            {
+                recapArray.push({
+                    "bailleur" : {
+                        "nom" : prest_ctr_prop_nom,
+                        "telephone" : prest_ctr_prop_phone,
+                        "adresse" : prest_ctr_prop_adresse
+                    }
+                })
+            }
+            currentStepDiv.hide();
+            nextStepDiv.show();
+        }
+        else if(currentStep == 2)
+        {
+            // INFORMATION LOCATAIRE
+            var prest_ctr_clt_nom = $("#prest_ctr_clt_nom").val()
+            var prest_ctr_clt_telephone = $("#prest_ctr_clt_telephone").val()
+            var prest_ctr_clt_adresse = $("#prest_ctr_clt_adresse").val()
+            var prest_ctr_clt_email = $("#prest_ctr_clt_email").val()
+
+            var result = appBase.verificationElement([
+                prest_ctr_clt_nom,
+                prest_ctr_clt_telephone,
+                prest_ctr_clt_adresse,
+                prest_ctr_clt_email,
+            ],[
+                "Nom",
+                "Téléphone",
+                "Adresse",
+                "Email",
+            ])
+
+            if(!result["allow"])
+            {
+                $.alert({
+                    title: 'Message',
+                    content: result["message"],
+                    type: result["type"],
+                });
+
+                return result["allow"] ;
+            }
+
+            if($("#prest_ctr_clt_nouveau").val() == "NON")
+            {
+                var prest_ctr_clt_nom = $("#prest_ctr_clt_nom")
+
+                var optionSelected =  $(prest_ctr_clt_nom).find("option:selected")
+                recapArray.push({
+                    "locataire" : {
+                        "nom" : (optionSelected.text()).split(" | ")[0],
+                        "telephone" : prest_ctr_clt_telephone,
+                        "adresse" : prest_ctr_clt_adresse,
+                        "email" : prest_ctr_clt_email
+                    }
+                })
+            }
+            else
+            {
+                recapArray.push({
+                    "locataire" : {
+                        "nom" : prest_ctr_clt_nom,
+                        "telephone" : prest_ctr_clt_telephone,
+                        "adresse" : prest_ctr_clt_adresse,
+                        "email" : prest_ctr_clt_email
+                    }
+                })
+            }
+            currentStepDiv.hide() ;
+            nextStepDiv.show() ;
+        }
+        else if(currentStep == 3)
+        {
+            // INFORMATION BAIL
+            var prest_ctr_bail_type_location = $("#prest_ctr_bail_type_location").val()
+            var prest_ctr_bail_location = $("#prest_ctr_bail_location").val()
+            var prest_ctr_bail_adresse = $("#prest_ctr_bail_adresse").val()
+            var prest_ctr_bail_dimension = $("#prest_ctr_bail_dimension").val()
+
+            var result = appBase.verificationElement([
+                prest_ctr_bail_type_location,
+                prest_ctr_bail_location,
+                prest_ctr_bail_adresse,
+                prest_ctr_bail_dimension,
+            ],[
+                "Type Location",
+                "Nom du bail",
+                "Adresse",
+                "Dimension",
+            ])
+
+            if(!result["allow"])
+            {
+                $.alert({
+                    title: 'Message',
+                    content: result["message"],
+                    type: result["type"],
+                });
+
+                return result["allow"] ;
+            }
+
+            if($("#prest_ctr_bail_nouveau").val() == "NON")
+            {
+                var prest_ctr_bail_type_location = $("#prest_ctr_bail_type_location")
+                var prest_ctr_bail_location = $("#prest_ctr_bail_location")
+
+                var option1Selected =  $(prest_ctr_bail_type_location).find("option:selected")
+                var option2Selected =  $(prest_ctr_bail_location).find("option:selected")
+                recapArray.push({
+                    "bail" : {
+                        "typeLocation" : option1Selected.text(),
+                        "nom" : (option2Selected.text()).split(" | ")[0],
+                        "adresse" : prest_ctr_bail_adresse,
+                        "dimension" : prest_ctr_bail_dimension
+                    }
+                })
+            }
+            else
+            {
+                var prest_ctr_bail_type_location = $("#prest_ctr_bail_type_location")
+                var option1Selected =  $(prest_ctr_bail_type_location).find("option:selected")
+
+                recapArray.push({
+                    "bail" : {
+                        "typeLocation" : option1Selected.text(),
+                        "nom" : prest_ctr_bail_location,
+                        "adresse" : prest_ctr_bail_adresse,
+                        "dimension" : prest_ctr_bail_dimension
+                    }
+                })
+            }
+            currentStepDiv.hide() ;
+            nextStepDiv.show() ;
+        }
+        else if(currentStep == 4)
+        { 
+            // INFORMATION DE CONTRAT
+            var prest_ctr_cycle = $("#prest_ctr_cycle") // SELECT
+            var prest_ctr_forfait = $("#prest_ctr_forfait") // SELECT
+            var prest_ctr_montant_forfait = $("#prest_ctr_montant_forfait").val()
+            var prest_ctr_duree = $("#prest_ctr_duree").val()
+            var prest_ctr_periode = $("#prest_ctr_periode") // SELECT
+            var prest_ctr_date_debut = $("#prest_ctr_date_debut").val()
+            var prest_ctr_date_fin = $("#prest_ctr_date_fin").val()
+            var prest_ctr_retenu = $("#prest_ctr_retenu").val()
+            var prest_ctr_renouvellement = $("#prest_ctr_renouvellement") // SELECT
+            var prest_ctr_mode = $("#prest_ctr_mode") // SELECT
+            var prest_ctr_delai_mode = $("#prest_ctr_delai_mode") // SELECT 
+            var prest_ctr_bail_caution = $("#prest_ctr_bail_caution").val()
+            var prest_ctr_montant_contrat = $("#prest_ctr_montant_contrat").val()
+            var prest_ctr_delai_change = $("#prest_ctr_delai_change") // SELECT
+
+            var result = appBase.verificationElement([
+                prest_ctr_cycle.val(),
+                prest_ctr_forfait.val(),
+                prest_ctr_montant_forfait,
+                prest_ctr_duree,
+                prest_ctr_periode.val(),
+                prest_ctr_date_debut,
+                prest_ctr_date_fin,
+                prest_ctr_retenu,
+                prest_ctr_renouvellement.val(),
+                prest_ctr_mode.val(),
+                prest_ctr_delai_mode.val(),
+                prest_ctr_bail_caution,
+                prest_ctr_montant_contrat,
+                prest_ctr_delai_change.val(),
+            ],[
+                "Cycle",
+                "Forfait",
+                "Montant Forfait",
+                "Durée du contrat",
+                "Période du contrat",
+                "Date Début",
+                "Date Fin",
+                "Retenu",
+                "Renouvellement",
+                "Mode de paiement",
+                "Date limite de paiement",
+                "Caution",
+                "Montant Contrat",
+                "Délai changement avant fin",
+            ])
+
+            if(!result["allow"])
+            {
+                $.alert({
+                    title: 'Message',
+                    content: result["message"],
+                    type: result["type"],
+                });
+
+                return result["allow"] ;
+            }
+
+            currentStepDiv.hide();
+            nextStepDiv.show();
+
+            $(".recap_prop_nom").text(recapArray[0].bailleur.nom)
+            $(".recap_prop_tel").text(recapArray[0].bailleur.telephone)
+            $(".recap_prop_adresse").text(recapArray[0].bailleur.adresse)
+
+            $(".recap_loctr_nom").text(recapArray[1].locataire.nom)
+            $(".recap_loctr_tel").text(recapArray[1].locataire.telephone)
+            $(".recap_loctr_adresse").text(recapArray[1].locataire.adresse)
+            $(".recap_loctr_email").text(recapArray[1].locataire.email)
+
+            $(".recap_bail_type").text(recapArray[2].bail.typeLocation)
+            $(".recap_bail_nom").text(recapArray[2].bail.nom)
+            $(".recap_bail_adresse").text(recapArray[2].bail.adresse)
+            $(".recap_bail_dimension").text(recapArray[2].bail.dimension)
+            
+            $("#recap_ctr_cycle").val(prest_ctr_cycle.find("option:selected").text())
+            $("#recap_ctr_forfait").val(prest_ctr_forfait.find("option:selected").text())
+            $("#recap_ctr_montant_forfait").val(prest_ctr_montant_forfait)
+            $("#recap_ctr_duree").val(prest_ctr_duree)
+            $("#recap_ctr_periode").val(prest_ctr_periode.find("option:selected").text())
+            $("#recap_ctr_date_debut").val(prest_ctr_date_debut)
+            $("#recap_ctr_date_fin").val(prest_ctr_date_fin)
+            $("#recap_ctr_percent").val(prest_ctr_retenu)
+            $("#recap_ctr_renouvment").val(prest_ctr_renouvellement.find("option:selected").text())
+            $("#recap_ctr_mode").val(prest_ctr_mode.find("option:selected").text())
+            $("#recap_ctr_date_limite").val(prest_ctr_delai_mode.find("option:selected").text())
+            $("#recap_ctr_caution").val(prest_ctr_bail_caution)
+            $("#recap_ctr_montant_contrat").val(prest_ctr_montant_contrat)
+            $("#recap_ctr_changement").val(prest_ctr_delai_change.find("option:selected").text())
+        }
+
         currentStepBtn.removeClass("btn-info")
         currentStepBtn.addClass("btn-outline-info")
 
         nextStepBtn.removeClass("btn-outline-info")
         nextStepBtn.addClass("btn-info")
 
-        currentStepDiv.hide();
-        nextStepDiv.show();
         currentStep++;
     });
 
@@ -656,5 +946,24 @@ $(document).ready(function(){
             var target = $(this).find("option:selected").data("target")
             $(target).val($(this).find("option:selected").data("reference"))
         })
+    })
+
+    $("#prest_ctr_renouvellement").change(function(){
+
+        var elemAutre = `
+        <div class="col-md-3" id="captionCtrRenouvAutre">
+            <label for="prest_ctr_renouvellement_autre" class="font-weight-bold mt-3">Autre Type Renouvellmement</label>
+            <input type="text" name="prest_ctr_renouvellement_autre" id="prest_ctr_renouvellement_autre" class="form-control" placeholder=". . .">
+        </div>
+        `
+        var optionSelected =  $(this).find("option:selected")
+        if(optionSelected.data("reference") == "AUTRE")
+        {
+            $(elemAutre).insertAfter("#captionCtrRenouv") ;
+        }
+        else
+        {
+            $("#captionCtrRenouvAutre").remove()
+        }
     })
 })

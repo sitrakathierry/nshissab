@@ -54,14 +54,6 @@
                         <input type="text" name="prest_lct_bail_dimension" id="prest_lct_bail_dimension" class="form-control" placeholder=". . .">
                     </div>
                     <div class="col-md-3">
-                        <label for="prest_lct_bail_montant" class="font-weight-bold mt-2">Montant</label>
-                        <input type="number" step="any" name="prest_lct_bail_montant"  id="prest_lct_bail_montant" class="form-control" placeholder=". . .">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="prest_lct_bail_caution" class="font-weight-bold mt-2">Caution</label>
-                        <input type="number" step="any" name="prest_lct_bail_caution"  id="prest_lct_bail_caution" class="form-control" placeholder=". . .">
-                    </div>
-                    <div class="col-md-3">
                         <label for="" class="font-weight-bold mt-2">&nbsp;</label>
                         <button type="submit" class="btn btn-block btn-sm btn-success text-uppercase"><i class="fa fa-plus-circle"></i>&nbsp;Ajouter</button>
                     </div>
@@ -77,8 +69,6 @@
                             <th>Nom Location</th>
                             <th>Adresse</th>
                             <th>Dimension</th>
-                            <th>Montant</th>
-                            <th>Caution</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -89,8 +79,6 @@
                                 <td>{{bail.nom}}</td>
                                 <td>{{bail.lieux}}</td>
                                 <td>{{bail.dimension}}</td>
-                                <td>{{bail.montant}}</td>
-                                <td>{{bail.caution}}</td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
                                     <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>

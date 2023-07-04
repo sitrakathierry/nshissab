@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\LctBailRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LctBailRepository::class)]
@@ -27,6 +29,14 @@ class LctBail
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $lieux = null;
+
+    #[ORM\OneToMany(mappedBy: 'bail', targetEntity: LctContrat::class)]
+    private Collection $lctContrats;
+
+    public function __construct()
+    {
+        $this->lctContrats = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,6 +99,36 @@ class LctBail
     public function setLieux(?string $lieux): self
     {
         $this->lieux = $lieux;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctContrat>
+     */
+    public function getLctContrats(): Collection
+    {
+        return $this->lctContrats;
+    }
+
+    public function addLctContrat(LctContrat $lctContrat): self
+    {
+        if (!$this->lctContrats->contains($lctContrat)) {
+            $this->lctContrats->add($lctContrat);
+            $lctContrat->setBail($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctContrat(LctContrat $lctContrat): self
+    {
+        if ($this->lctContrats->removeElement($lctContrat)) {
+            // set the owning side to null (unless already changed)
+            if ($lctContrat->getBail() === $this) {
+                $lctContrat->setBail(null);
+            }
+        }
 
         return $this;
     }

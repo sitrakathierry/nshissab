@@ -145,6 +145,12 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctBailleur::class)]
     private Collection $lctBailleurs;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctLocataire::class)]
+    private Collection $lctLocataires;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctContrat::class)]
+    private Collection $lctContrats;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -178,6 +184,8 @@ class Agence
         $this->btpElements = new ArrayCollection();
         $this->btpEnoncees = new ArrayCollection();
         $this->lctBailleurs = new ArrayCollection();
+        $this->lctLocataires = new ArrayCollection();
+        $this->lctContrats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1252,6 +1260,66 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($lctBailleur->getAgence() === $this) {
                 $lctBailleur->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctLocataire>
+     */
+    public function getLctLocataires(): Collection
+    {
+        return $this->lctLocataires;
+    }
+
+    public function addLctLocataire(LctLocataire $lctLocataire): self
+    {
+        if (!$this->lctLocataires->contains($lctLocataire)) {
+            $this->lctLocataires->add($lctLocataire);
+            $lctLocataire->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctLocataire(LctLocataire $lctLocataire): self
+    {
+        if ($this->lctLocataires->removeElement($lctLocataire)) {
+            // set the owning side to null (unless already changed)
+            if ($lctLocataire->getAgence() === $this) {
+                $lctLocataire->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctContrat>
+     */
+    public function getLctContrats(): Collection
+    {
+        return $this->lctContrats;
+    }
+
+    public function addLctContrat(LctContrat $lctContrat): self
+    {
+        if (!$this->lctContrats->contains($lctContrat)) {
+            $this->lctContrats->add($lctContrat);
+            $lctContrat->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctContrat(LctContrat $lctContrat): self
+    {
+        if ($this->lctContrats->removeElement($lctContrat)) {
+            // set the owning side to null (unless already changed)
+            if ($lctContrat->getAgence() === $this) {
+                $lctContrat->setAgence(null);
             }
         }
 

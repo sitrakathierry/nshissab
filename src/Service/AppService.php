@@ -21,6 +21,7 @@ use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
+use App\Entity\LctContrat;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
 use App\Entity\Menu;
@@ -1215,6 +1216,47 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($items)) ;
     }
 
+    public function generateLocationContrat($filename, $agence) 
+    {
+        $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
+            "agence" => $agence
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($contrats as $contrat) {
+            $item = [] ;
+            if($contrat->getPeriode()->getReference() == "J")
+            {
+                $periode = "Jour(s)" ;
+            }
+            if($contrat->getPeriode()->getReference() == "M")
+            {
+                $periode = "Mois" ;
+            }
+            else
+            {
+                $periode = "An(s)" ;
+            }
+
+            $item["id"] = $contrat->getId() ;
+            $item["agence"] = $contrat->getAgence()->getId() ;
+            $item["numContrat"] = $contrat->getNumContrat() ;
+            $item["dateContrat"] = $contrat->getDateContrat()->format("d/m/Y") ;
+            $item["bailleur"] = $contrat->getBailleur()->getNom() ;
+            $item["bail"] = $contrat->getBail()->getNom() ;
+            $item["locataire"] = $contrat->getLocataire()->getNom() ;
+            $item["cycle"] = $contrat->getCycle()->getNom() ;
+            $item["dateDebut"] = $contrat->getDateDebut()->format("d/m/Y") ;
+            $item["dateFin"] = $contrat->getDateFin()->format("d/m/Y") ;
+            $item["dureeContrat"] = $contrat->getDuree()." ".$periode ;
+            $item["montantContrat"] = $contrat->getMontantContrat() ;
+            $item["statut"] = $contrat->getStatut()->getNom() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
     public function updateStatutFinance($finance)
     {
         $totalFacture = $finance->getFacture()->getTotal() ; 

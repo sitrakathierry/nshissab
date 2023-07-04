@@ -2,21 +2,18 @@
 
 namespace App\Entity;
 
-use App\Repository\LctBailleurRepository;
+use App\Repository\LctLocataireRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: LctBailleurRepository::class)]
-class LctBailleur
+#[ORM\Entity(repositoryClass: LctLocataireRepository::class)]
+class LctLocataire
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    #[ORM\ManyToOne(inversedBy: 'lctBailleurs')]
-    private ?Agence $agence = null;
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $nom = null;
@@ -24,39 +21,29 @@ class LctBailleur
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $telephone = null;
 
-    #[ORM\Column(length: 500, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
 
-    #[ORM\OneToMany(mappedBy: 'bailleur', targetEntity: LctBail::class)]
-    private Collection $lctBails;
+    #[ORM\ManyToOne(inversedBy: 'lctLocataires')]
+    private ?Agence $agence = null;
 
-    #[ORM\OneToMany(mappedBy: 'bailleur', targetEntity: LctContrat::class)]
+    #[ORM\OneToMany(mappedBy: 'locataire', targetEntity: LctContrat::class)]
     private Collection $lctContrats;
 
     public function __construct()
     {
-        $this->lctBails = new ArrayCollection();
         $this->lctContrats = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getAgence(): ?Agence
-    {
-        return $this->agence;
-    }
-
-    public function setAgence(?Agence $agence): self
-    {
-        $this->agence = $agence;
-
-        return $this;
     }
 
     public function getNom(): ?string
@@ -95,6 +82,18 @@ class LctBailleur
         return $this;
     }
 
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
     public function isStatut(): ?bool
     {
         return $this->statut;
@@ -107,32 +106,14 @@ class LctBailleur
         return $this;
     }
 
-    /**
-     * @return Collection<int, LctBail>
-     */
-    public function getLctBails(): Collection
+    public function getAgence(): ?Agence
     {
-        return $this->lctBails;
+        return $this->agence;
     }
 
-    public function addLctBail(LctBail $lctBail): self
+    public function setAgence(?Agence $agence): self
     {
-        if (!$this->lctBails->contains($lctBail)) {
-            $this->lctBails->add($lctBail);
-            $lctBail->setBailleur($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLctBail(LctBail $lctBail): self
-    {
-        if ($this->lctBails->removeElement($lctBail)) {
-            // set the owning side to null (unless already changed)
-            if ($lctBail->getBailleur() === $this) {
-                $lctBail->setBailleur(null);
-            }
-        }
+        $this->agence = $agence;
 
         return $this;
     }
@@ -149,7 +130,7 @@ class LctBailleur
     {
         if (!$this->lctContrats->contains($lctContrat)) {
             $this->lctContrats->add($lctContrat);
-            $lctContrat->setBailleur($this);
+            $lctContrat->setLocataire($this);
         }
 
         return $this;
@@ -159,8 +140,8 @@ class LctBailleur
     {
         if ($this->lctContrats->removeElement($lctContrat)) {
             // set the owning side to null (unless already changed)
-            if ($lctContrat->getBailleur() === $this) {
-                $lctContrat->setBailleur(null);
+            if ($lctContrat->getLocataire() === $this) {
+                $lctContrat->setLocataire(null);
             }
         }
 

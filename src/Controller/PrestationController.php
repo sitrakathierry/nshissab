@@ -10,9 +10,14 @@ use App\Entity\BtpMesure;
 use App\Entity\BtpPrix;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
+use App\Entity\LctContrat;
 use App\Entity\LctCycle;
+use App\Entity\LctForfait;
+use App\Entity\LctLocataire;
+use App\Entity\LctModePaiement;
 use App\Entity\LctPeriode;
 use App\Entity\LctRenouvellement;
+use App\Entity\LctStatut;
 use App\Entity\LctTypeLocation;
 use App\Entity\Service;
 use App\Entity\SrvDuree;
@@ -588,16 +593,12 @@ class PrestationController extends AbstractController
         $prest_lct_bailleur_id = $request->request->get('prest_lct_bailleur_id') ;
         $prest_lct_bail_nom = $request->request->get('prest_lct_bail_nom') ;
         $prest_lct_bail_dimension = $request->request->get('prest_lct_bail_dimension') ;
-        $prest_lct_bail_montant = $request->request->get('prest_lct_bail_montant') ;
-        $prest_lct_bail_caution = $request->request->get('prest_lct_bail_caution') ;
         $prest_lct_bail_lieu = $request->request->get('prest_lct_bail_lieu') ;
         
         $result = $this->appService->verificationElement([
             $prest_lct_bail_nom,
             $prest_lct_bail_lieu,
             $prest_lct_bail_dimension,
-            $prest_lct_bail_montant,
-            $prest_lct_bail_caution,
         ],[
             "Nom Location",
             "Adresse",
@@ -616,8 +617,6 @@ class PrestationController extends AbstractController
         $bail->setNom($prest_lct_bail_nom) ;
         $bail->setLieux($prest_lct_bail_lieu) ;
         $bail->setDimension($prest_lct_bail_dimension) ;
-        $bail->setMontant(floatval($prest_lct_bail_montant)) ;
-        $bail->setCaution(floatval($prest_lct_bail_caution)) ;
         $bail->setStatut(True) ;
 
         $this->entityManager->persist($bail) ;
@@ -639,6 +638,8 @@ class PrestationController extends AbstractController
         $cycles = $this->entityManager->getRepository(LctCycle::class)->findAll() ;
         $renouvs = $this->entityManager->getRepository(LctRenouvellement::class)->findAll() ;
         $periodes = $this->entityManager->getRepository(LctPeriode::class)->findBy([],["rang" => "ASC"]) ;
+        $forfaits = $this->entityManager->getRepository(LctForfait::class)->findAll() ;
+        $modePaiements = $this->entityManager->getRepository(LctModePaiement::class)->findAll() ;
 
         return $this->render('prestations/location/contrat.html.twig', [
             "filename" => "prestations",
@@ -649,8 +650,29 @@ class PrestationController extends AbstractController
             "periodes" => $periodes,
             "renouvs" => $renouvs,
             "cycles" => $cycles,
+            "forfaits" => $forfaits,
+            "modePaiements" => $modePaiements,
+
         ]);
     }
+
+    #[Route('/prestation/location/contrat/liste', name: 'prest_location_contrat_liste')]
+    public function prestLocationContratListe(){
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationContrat($filename, $this->agence) ; 
+
+        $contrats = json_decode(file_get_contents($filename)) ;
+
+        return $this->render('prestations/location/listeContrat.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Liste des contrats",
+            "with_foot" => false,
+            "contrats" => $contrats
+        ]);
+    }
+
 
     #[Route('/prestation/location/bailleur/get', name: 'prest_location_bailleur_get')]
     public function prestGetBailleurLocation(Request $request){
@@ -773,10 +795,168 @@ class PrestationController extends AbstractController
     #[Route('/prestation/location/contrat/save', name: 'prest_location_contrat_save')]
     public function prestSaveContratLocation(Request $request)
     {
-        
+        // VERIFICATION DU BAILLEUR
+        $prest_ctr_prop_nom = $request->request->get("prest_ctr_prop_nom") ;
+        $prest_ctr_prop_phone = $request->request->get("prest_ctr_prop_phone") ;
+        $prest_ctr_prop_adresse = $request->request->get("prest_ctr_prop_adresse") ;
+        $prest_ctr_prop_nouveau = $request->request->get("prest_ctr_prop_nouveau") ;
+
+        if($prest_ctr_prop_nouveau == "OUI")
+        {
+            $bailleur = new LctBailleur() ;
+
+            $bailleur->setAgence($this->agence) ;
+            $bailleur->setNom($prest_ctr_prop_nom) ;
+            $bailleur->setTelephone($prest_ctr_prop_phone) ;
+            $bailleur->setAdresse($prest_ctr_prop_adresse) ;
+            $bailleur->setStatut(True) ;
+    
+            $this->entityManager->persist($bailleur) ;
+            $this->entityManager->flush() ;
+    
+            $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+            if(file_exists($filename))
+                unlink($filename) ;
+        }
+        else
+        {
+            $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($prest_ctr_prop_nom) ;
+        }
+
+        // VERIFICATION DU LOCATAIRE
+        $prest_ctr_clt_nom = $request->request->get("prest_ctr_clt_nom") ;
+        $prest_ctr_clt_nouveau = $request->request->get("prest_ctr_clt_nouveau") ;
+        $prest_ctr_clt_telephone = $request->request->get("prest_ctr_clt_telephone") ;
+        $prest_ctr_clt_adresse = $request->request->get("prest_ctr_clt_adresse") ;
+        $prest_ctr_clt_email = $request->request->get("prest_ctr_clt_email") ;
+
+        if($prest_ctr_clt_nouveau == "OUI")
+        {
+            $locataire = new LctLocataire() ;
+
+            $locataire->setAgence($this->agence) ;
+            $locataire->setNom($prest_ctr_clt_nom) ;
+            $locataire->setTelephone($prest_ctr_clt_telephone) ;
+            $locataire->setAdresse($prest_ctr_clt_adresse) ;
+            $locataire->setEmail($prest_ctr_clt_email) ;
+            $locataire->setStatut(True) ;
+    
+            $this->entityManager->persist($locataire) ;
+            $this->entityManager->flush() ;
+        }
+        else
+        {
+            $locataire = $this->entityManager->getRepository(LctLocataire::class)->find($prest_ctr_clt_nom) ;
+        }
+
+        // VERIFICATION DU BAIL
+        $prest_ctr_bail_type_location = $request->request->get("prest_ctr_bail_type_location") ;
+        $prest_ctr_bail_location = $request->request->get("prest_ctr_bail_location") ;
+        $prest_ctr_bail_nouveau = $request->request->get("prest_ctr_bail_nouveau") ;
+        $prest_ctr_bail_adresse = $request->request->get("prest_ctr_bail_adresse") ;
+        $prest_ctr_bail_dimension = $request->request->get("prest_ctr_bail_dimension") ;
+
+        if($prest_ctr_bail_nouveau == "OUI")
+        {
+            $bail = new LctBail() ;
+
+            $bail->setBailleur($bailleur) ;
+            $bail->setNom($prest_ctr_bail_location) ;
+            $bail->setLieux($prest_ctr_bail_adresse) ;
+            $bail->setDimension($prest_ctr_bail_dimension) ;
+            $bail->setStatut(True) ;
+
+            $this->entityManager->persist($bail) ;
+            $this->entityManager->flush() ;
+        }
+        else
+        {
+            $bail = $this->entityManager->getRepository(LctBail::class)->find($prest_ctr_bail_location) ;
+        }
+
+        // ENREGISTREMENT DU CONTRAT
+
+        $lastRecordFContrat = $this->entityManager->getRepository(LctContrat::class)->findOneBy([], ['id' => 'DESC']);
+        $numContrat = !is_null($lastRecordFContrat) ? ($lastRecordFContrat->getId()+1) : 1 ;
+        $numContrat = str_pad($numContrat, 5, "0", STR_PAD_LEFT);
+        $numContrat = "CTR-".$numContrat ; 
+
+        $prest_ctr_cycle = $request->request->get("prest_ctr_cycle") ;
+        $prest_ctr_forfait = $request->request->get("prest_ctr_forfait") ;
+        $prest_ctr_montant_forfait = $request->request->get("prest_ctr_montant_forfait") ;
+        $prest_ctr_duree = $request->request->get("prest_ctr_duree") ;
+        $prest_ctr_periode = $request->request->get("prest_ctr_periode") ;
+        $prest_ctr_date_debut = $request->request->get("prest_ctr_date_debut") ;
+        $prest_ctr_date_fin = $request->request->get("prest_ctr_date_fin") ;
+        $prest_ctr_retenu = $request->request->get("prest_ctr_retenu") ;
+        $prest_ctr_renouvellement = $request->request->get("prest_ctr_renouvellement") ;
+        $prest_ctr_mode = $request->request->get("prest_ctr_mode") ;
+        $prest_ctr_delai_mode = $request->request->get("prest_ctr_delai_mode") ;
+        $prest_ctr_bail_caution = $request->request->get("prest_ctr_bail_caution") ;
+        $prest_ctr_montant_contrat = $request->request->get("prest_ctr_montant_contrat") ;
+        $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
+        $ctr_lieu = $request->request->get("ctr_lieu") ;
+        $ctr_date = $request->request->get("ctr_date") ;
+
+        $type_loc = $this->entityManager->getRepository(LctTypeLocation::class)->find($prest_ctr_bail_type_location) ;
+        $cycle = $this->entityManager->getRepository(LctCycle::class)->find($prest_ctr_cycle) ;
+        $renouv = $this->entityManager->getRepository(LctRenouvellement::class)->find($prest_ctr_renouvellement) ;
+        $periode = $this->entityManager->getRepository(LctPeriode::class)->find($prest_ctr_periode) ;
+        $forfait = $this->entityManager->getRepository(LctForfait::class)->find($prest_ctr_forfait) ;
+        $modePaiement = $this->entityManager->getRepository(LctModePaiement::class)->find($prest_ctr_mode) ;
+        $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+            "reference" => "ENCR"
+        ]) ;
+
+        $contrat = new LctContrat() ;
+
+        $contrat->setAgence($this->agence) ;
+        $contrat->setBailleur($bailleur) ;
+        $contrat->setBail($bail) ;
+        $contrat->setLocataire($locataire) ;
+        $contrat->setNumContrat($numContrat) ;
+        $contrat->setMontantContrat($prest_ctr_montant_contrat) ;
+        $contrat->setCycle($cycle) ;
+        $contrat->setForfait($forfait) ;
+        $contrat->setMontantForfait($prest_ctr_montant_forfait) ;
+        $contrat->setDuree($prest_ctr_duree) ;
+        $contrat->setPeriode($periode) ;
+        $contrat->setPourcentage($prest_ctr_retenu) ;
+        $contrat->setRenouvellement($renouv) ;
+        $contrat->setTypeLocation($type_loc) ;
+        $contrat->setDateDebut(\DateTime::createFromFormat('j/m/Y',$prest_ctr_date_debut)) ;
+        $contrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$prest_ctr_date_fin)) ;
+        $contrat->setModePaiement($modePaiement) ;
+        $contrat->setDateLimite($prest_ctr_delai_mode) ;
+        $contrat->setCaution($prest_ctr_bail_caution) ;
+        $contrat->setDelaiChgFin($prest_ctr_delai_change) ;
+        $contrat->setNote("Nouveau Contrat") ;
+        $contrat->setLieuContrat($ctr_lieu) ;
+        $contrat->setDateContrat(\DateTime::createFromFormat('j/m/Y',$ctr_date)) ;
+        $contrat->setStatut($statut) ;
+        $contrat->setCreatedAt(new \DateTimeImmutable) ; 
+        $contrat->setUpdatedAt(new \DateTimeImmutable) ; 
+
+        $this->entityManager->persist($contrat) ;
+        $this->entityManager->flush() ;
+
         return new JsonResponse([
-            "type" => "orange",
-            "message" => "Mise à jours en cours de finition",
+            "type" => "green",
+            "message" => "Contrat enregistré. Est-ce que la caution a été payée ? ",
             ]) ;
     }
+
+    #[Route('/prestation/location/contrat/detail/{id}', name: 'prest_location_contrat_detail')]
+    public function prestDetailContratLocation($id)
+    {
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+
+        return $this->render('prestations/location/detailsContrat.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Detail contrat",
+            "with_foot" => true,
+            "contrat" => $contrat
+        ]);
+    }
+
 }

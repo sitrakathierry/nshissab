@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-4">
         <label for="prest_ctr_prop_nom" class="font-weight-bold">Nom Propriétaire</label>
-        <input type="text" name="prest_ctr_prop_nom" id="prest_ctr_prop_nom" class="form-control" placeholder=". . .">
+        <input type="text" name="prest_ctr_prop_nom" oninput="this.value = this.value.toUpperCase();" id="prest_ctr_prop_nom" class="form-control" placeholder=". . .">
     </div>
     <div class="col-md-3">
         <label for="prest_ctr_prop_phone" class="font-weight-bold">Téléphone</label>
@@ -9,8 +9,8 @@
     </div>
     <div class="col-md-3">
         <label for="prest_ctr_prop_adresse" class="font-weight-bold">Adresse</label>
-        <input type="text" name="prest_ctr_prop_adresse" id="prest_ctr_prop_adresse" class="form-control" placeholder=". . .">
-        <input type="hidden" name="prest_ctr_prop_nouveau" value="OUI">
+        <input type="text" name="prest_ctr_prop_adresse" oninput="this.value = this.value.toUpperCase();" id="prest_ctr_prop_adresse" class="form-control" placeholder=". . .">
+        <input type="hidden" name="prest_ctr_prop_nouveau" id="prest_ctr_prop_nouveau" value="OUI">
     </div>
     <div class="col-md-2">
         <label class="font-weight-bold">&nbsp;</label>

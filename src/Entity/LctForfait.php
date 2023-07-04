@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\LctCycleRepository;
+use App\Repository\LctForfaitRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: LctCycleRepository::class)]
-class LctCycle
+#[ORM\Entity(repositoryClass: LctForfaitRepository::class)]
+class LctForfait
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,7 +24,7 @@ class LctCycle
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $libelle = null;
 
-    #[ORM\OneToMany(mappedBy: 'cycle', targetEntity: LctContrat::class)]
+    #[ORM\OneToMany(mappedBy: 'forfait', targetEntity: LctContrat::class)]
     private Collection $lctContrats;
 
     public function __construct()
@@ -85,7 +85,7 @@ class LctCycle
     {
         if (!$this->lctContrats->contains($lctContrat)) {
             $this->lctContrats->add($lctContrat);
-            $lctContrat->setCycle($this);
+            $lctContrat->setForfait($this);
         }
 
         return $this;
@@ -95,8 +95,8 @@ class LctCycle
     {
         if ($this->lctContrats->removeElement($lctContrat)) {
             // set the owning side to null (unless already changed)
-            if ($lctContrat->getCycle() === $this) {
-                $lctContrat->setCycle(null);
+            if ($lctContrat->getForfait() === $this) {
+                $lctContrat->setForfait(null);
             }
         }
 

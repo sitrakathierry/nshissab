@@ -1,0 +1,144 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-unstyled mb-3">
+                    <li>Nom du bailleur :&nbsp;<span class="recap_prop_nom text-primary font-weight-bold">{{contrat.bailleur.nom|upper}}</span></li>
+                    <li>Tel :&nbsp;<span class="recap_prop_tel text-primary font-weight-bold">{{contrat.bailleur.telephone}}</span></li>
+                    <li>Adresse :&nbsp;<span class="recap_prop_adresse text-primary font-weight-bold">{{contrat.bailleur.adresse|upper}}</span></li>
+                </ul>
+                <ul class="list-unstyled">
+                    <li>Type de Location :&nbsp;<span class="recap_bail_type text-primary font-weight-bold">{{contrat.typeLocation.nom|upper}}</span></li>
+                    <li>Nom du Bail :&nbsp;<span class="recap_bail_nom text-primary font-weight-bold">{{contrat.bail.nom|upper}}</span></li>
+                    <li>Adresse :&nbsp;<span class="recap_bail_adresse text-primary font-weight-bold">{{contrat.bail.lieux|upper}}</span></li>
+                    <li>Dimension :&nbsp;<span class="recap_bail_dimension text-primary font-weight-bold">{{contrat.bail.dimension}}</span></li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-unstyled">
+                    <li>Nom du Locataire :&nbsp;<span class="recap_loctr_nom text-primary font-weight-bold">{{contrat.locataire.nom|upper}}</span></li>
+                    <li>Tel :&nbsp;<span class="recap_loctr_tel text-primary font-weight-bold">{{contrat.locataire.telephone}}</span></li>
+                    <li>Adresse :&nbsp;<span class="recap_loctr_adresse text-primary font-weight-bold">{{contrat.locataire.adresse|upper}}</span></li>
+                    <li>Email :&nbsp;<span class="recap_loctr_email text-primary font-weight-bold">{{contrat.locataire.email}}</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="w-100">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Cycle</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_cycle" value="{{contrat.cycle.nom|upper}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Forfait</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_forfait" value="{{contrat.forfait.nom|upper}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Montant par Mois</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_montant_forfait" value="{{contrat.montantForfait}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Durée du contrat</label>
+                    <input type="text" class="form-control" id="recap_ctr_duree" readonly value="{{contrat.duree}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Période du contrat</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_periode" value="{{contrat.periode.nom}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Date Début</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_date_debut" value="{{contrat.dateDebut|date("d/m/Y")}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Date Fin</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_date_fin" value="{{contrat.dateFin|date("d/m/Y")}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Pourcentage à retenir(%)</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_percent" value="{{contrat.pourcentage}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Renouvellement</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_renouvment" value="{{contrat.renouvellement.nom|upper}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Mode de paiement Loyer</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_mode" value="{{contrat.modePaiement.nom|upper}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Date Limite Paiement</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_date_limite" value="Jusqu'au {{contrat.dateLimite}} du mois" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Caution</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_caution" value="{{contrat.caution}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Montant Contrat</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="{{contrat.montantContrat}}" >
+                </div>
+                <div class="col-md-6">
+                    <label class="font-weight-bold mt-3">Délai (jour) changement avant fin du mois</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_changement" value="{{contrat.delaiChgFin}} Jours avant la fin du contrat" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Lieu Contrat</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="{{contrat.lieuContrat|upper}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Date Contrat</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="{{contrat.dateContrat|date("d/m/Y")}}" >
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive mt-3">
+            <h5 class="title_form text-black text-uppercase">Calendrier des paiements</h5>
+            <table class="table-sm table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date paiement</th>
+                        <th>Date limite paiement</th>
+                        <th>Mois</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>04/07/2023</td>
+                        <td>09/07/2023</td>
+                        <td>JUILLET</td>
+                        <td>150000</td>
+                        <th>A venir / En cours de paiement / Payé / En retard</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

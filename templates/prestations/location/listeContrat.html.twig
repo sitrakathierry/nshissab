@@ -1,0 +1,113 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/location.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase">N° Contrat</label>
+                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                    <option value="">TOUS</option>
+                    
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bailleur</label>
+                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                    <option value="">TOUS</option>
+                    
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bail</label>
+                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                    <option value="">TOUS</option>
+                    
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase">Locataire</label>
+                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                    <option value="">TOUS</option>
+                    
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Contrat</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Début</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Fin</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Date Contrat</th>
+                        <th>Bailleur</th>
+                        <th>Bail</th>
+                        <th>Locataire</th>
+                        <th>Cycle</th>
+                        <th>Date Début</th>
+                        <th>Date Fin</th>
+                        <th>Durée contrat</th>
+                        <th>Montant contrat</th>
+                        <th class="text-center">Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contrat in contrats %}
+                        <tr>
+                            <td>{{contrat.numContrat}}</td>
+                            <td>{{contrat.dateContrat}}</td>
+                            <td>{{contrat.bailleur}}</td>
+                            <td>{{contrat.bail}}</td>
+                            <td>{{contrat.locataire}}</td>
+                            <td>{{contrat.cycle|upper}}</td>
+                            <td>{{contrat.dateDebut}}</td>
+                            <td>{{contrat.dateFin}}</td>
+                            <td>{{contrat.dureeContrat}}</td>
+                            <td>{{contrat.montantContrat}}</td>
+                            <th class="text-center">{{contrat.statut|upper}}</th>
+                            <td class="text-center">
+                                <a href="{{path('prest_location_contrat_detail',{'id':contrat.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

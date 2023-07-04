@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\LctCycleRepository;
+use App\Repository\LctStatutRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: LctCycleRepository::class)]
-class LctCycle
+#[ORM\Entity(repositoryClass: LctStatutRepository::class)]
+class LctStatut
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,10 +21,7 @@ class LctCycle
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reference = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $libelle = null;
-
-    #[ORM\OneToMany(mappedBy: 'cycle', targetEntity: LctContrat::class)]
+    #[ORM\OneToMany(mappedBy: 'statut', targetEntity: LctContrat::class)]
     private Collection $lctContrats;
 
     public function __construct()
@@ -61,18 +58,6 @@ class LctCycle
         return $this;
     }
 
-    public function getLibelle(): ?string
-    {
-        return $this->libelle;
-    }
-
-    public function setLibelle(?string $libelle): self
-    {
-        $this->libelle = $libelle;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, LctContrat>
      */
@@ -85,7 +70,7 @@ class LctCycle
     {
         if (!$this->lctContrats->contains($lctContrat)) {
             $this->lctContrats->add($lctContrat);
-            $lctContrat->setCycle($this);
+            $lctContrat->setStatut($this);
         }
 
         return $this;
@@ -95,8 +80,8 @@ class LctCycle
     {
         if ($this->lctContrats->removeElement($lctContrat)) {
             // set the owning side to null (unless already changed)
-            if ($lctContrat->getCycle() === $this) {
-                $lctContrat->setCycle(null);
+            if ($lctContrat->getStatut() === $this) {
+                $lctContrat->setStatut(null);
             }
         }
 

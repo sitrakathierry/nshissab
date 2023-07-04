@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\LctTypeLocationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LctTypeLocationRepository::class)]
@@ -18,6 +20,14 @@ class LctTypeLocation
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reference = null;
+
+    #[ORM\OneToMany(mappedBy: 'typeLocation', targetEntity: LctContrat::class)]
+    private Collection $lctContrats;
+
+    public function __construct()
+    {
+        $this->lctContrats = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -44,6 +54,36 @@ class LctTypeLocation
     public function setReference(?string $reference): self
     {
         $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctContrat>
+     */
+    public function getLctContrats(): Collection
+    {
+        return $this->lctContrats;
+    }
+
+    public function addLctContrat(LctContrat $lctContrat): self
+    {
+        if (!$this->lctContrats->contains($lctContrat)) {
+            $this->lctContrats->add($lctContrat);
+            $lctContrat->setTypeLocation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctContrat(LctContrat $lctContrat): self
+    {
+        if ($this->lctContrats->removeElement($lctContrat)) {
+            // set the owning side to null (unless already changed)
+            if ($lctContrat->getTypeLocation() === $this) {
+                $lctContrat->setTypeLocation(null);
+            }
+        }
 
         return $this;
     }
