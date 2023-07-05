@@ -92,6 +92,9 @@ class LctContrat
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $captionRenouv = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -405,6 +408,18 @@ class LctContrat
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCaptionRenouv(): ?string
+    {
+        return $this->captionRenouv;
+    }
+
+    public function setCaptionRenouv(?string $captionRenouv): self
+    {
+        $this->captionRenouv = $captionRenouv;
 
         return $this;
     }

@@ -1,6 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading) ;
     var appBase = new AppBase() ;
+    var contrat_editor = new LineEditor("#contrat_editor") ;
 
     $("#prest_ctr_date_debut").datepicker()
 
@@ -155,6 +156,32 @@ $(document).ready(function(){
         })
     })
 
+    $(document).on('change',"#prest_ctr_clt_nom",function(){
+        if (!($(this).is("select"))) {
+            return false ;
+        }
+        var realinstance = instance.loading()
+        var self = $(this)
+        $.ajax({
+            url: routes.prest_location_locataire_get,
+            type:'post',
+            cache: false,
+            data:{id:self.val()},
+            dataType: 'json',
+            success: function(json){
+                realinstance.close()
+                $("#prest_ctr_clt_telephone").val(json.telephone)
+                $("#prest_ctr_clt_adresse").val(json.adresse)
+                $("#prest_ctr_clt_email").val(json.email)
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    })
+    
+
     $(document).on('click',"#prest_ctr_new_prop",function(){
         if(!$(this).attr("disabled"))
         {
@@ -308,6 +335,68 @@ $(document).ready(function(){
         })
     })
 
+    $(document).on('click',"#prest_ctr_exist_loctr",function(){
+        if(!$(this).attr("disabled"))
+        {
+            var realinstance = instance.loading()
+            var self = $(this)
+            $.ajax({
+                url: routes.prest_existing_locataire,
+                type:'post',
+                cache: false,
+                dataType: 'html',
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    realinstance.close()
+                    if(response != "")
+                    {
+                        $("#captionContratLocataire").empty().html(response)
+                    }else
+                    {
+                        $.alert({
+                            title: "Message",
+                            content: "Aucun locataire existant pour le moment",
+                            type: "orange"
+                        });
+                    }
+                },
+                error: function(resp){
+                    realinstance.close()
+                    $.alert(JSON.stringify(resp)) ;
+                }
+            })
+        }
+        $(this).prop("disabled", true);
+        // $(this).closest('tr').remove() ;
+    })
+    
+    $(document).on('click',"#prest_ctr_new_loctr",function(){
+        if(!$(this).attr("disabled"))
+        {
+            var realinstance = instance.loading()
+            var self = $(this)
+            $.ajax({
+                url: routes.prest_new_location_locataire,
+                type:'post',
+                cache: false,
+                dataType: 'html',
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    realinstance.close()
+                    $("#captionContratLocataire").empty().html(response)
+                },
+                error: function(resp){
+                    realinstance.close()
+                    $.alert(JSON.stringify(resp)) ;
+                }
+            })
+        }
+        $(this).prop("disabled", true);
+        // $(this).closest('tr').remove() ;
+    })
+
     // calculerDateApresNjours
 
     var montantAllMois = 0 ;
@@ -386,36 +475,49 @@ $(document).ready(function(){
         fftMontant = parseFloat(fftMontant) ;
         if(cycleRef == "CJOUR")
         {
+            nbJour = duree ;
+            dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
+
             if(forfaitRef == "FJOUR")
             {
-                // Si le fofait est par Jour et que le cycle est Journalier
-                if(periodeRef == "J") // Jour
-                {
-                    nbJour = duree ;
-                    montantTotal = duree * fftMontant ;
-                }
-                else if(periodeRef == "M") // Mois
+                montantTotal = duree * fftMontant ;
+            }
+            else if(forfaitRef == "FORFAIT")
+            {
+                montantTotal = fftMontant ;
+            }
+        }
+        else if(cycleRef == "CMOIS")
+        {
+            if(forfaitRef == "FORFAIT")
+            {
+                // Si le type de paiement est Forfaitaire et que le cycle est Journalier
+                // if(periodeRef == "J") // Jour
+                // {
+                //     nbJour = duree ;
+                //     montantTotal = duree * fftMontant ;
+                // } else
+                 if(periodeRef == "M") // Mois
                 {
                     nbJour = 30 * duree ;
-                    montantTotal = 30 * duree * fftMontant ;
                 }
                 else if(periodeRef == "A") // Année
                 {
                     nbJour =  365 * duree ;
-                    montantTotal = 365 * duree * fftMontant ;
                 }
+                montantTotal =  fftMontant ;
 
                 dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
             }
             else if(forfaitRef == "FMOIS")
             {
-                // Si le fofait est par Mois et que le cycle est Journalier
-                if(periodeRef == "J") // Jour
-                {
-                    nbJour = duree ;
-                    montantTotal = (duree * fftMontant) / 30 ;
-                }
-                else if(periodeRef == "M") // Mois
+                // Si le type de paiement est par Mois et que le cycle est Journalier
+                // if(periodeRef == "J") // Jour
+                // {
+                //     nbJour = duree ;
+                //     montantTotal = (duree * fftMontant) / 30 ;
+                // } else
+                if(periodeRef == "M") // Mois
                 {
                     nbJour = 30 * duree ;
                     montantTotal = duree * fftMontant ;
@@ -428,64 +530,61 @@ $(document).ready(function(){
 
                 dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
             }
-        }
-        else if(cycleRef == "CMOIS")
-        {
-            if(forfaitRef == "FJOUR")
-            {
-                // Si le fofait est par Jour et que le cycle est Mensuel
-                if(periodeRef == "J") // Jour
-                {
-                    nbJour = duree ;
-                    montantTotal = duree * fftMontant ;
-                    dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
-                }
-                else if(periodeRef == "M") // Mois
-                {
-                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,duree)
-                    var ecartJour = resultCalcul.split("&##&")[0] ;
-                    montantTotal = parseInt(ecartJour) * fftMontant ;
-                    dateFin = resultCalcul.split("&##&")[1] ;
-                }
-                else if(periodeRef == "A") // Année
-                {
-                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,(12 * duree))
-                    var ecartJour = resultCalcul.split("&##&")[0] ;
-                    montantTotal = parseInt(ecartJour) * fftMontant ;
-                    dateFin = resultCalcul.split("&##&")[1] ;
-                }
-            }
-            else if(forfaitRef == "FMOIS")
-            {
-                // Si le fofait est par Mois et que le cycle est Mensuel
-                if(periodeRef == "J") // Jour
-                {
-                    nbSpecJour = duree
-                    calculMontantJourMois(dateDebut, fftMontant) ;
-                    montantTotal = montantAllMois ; 
-                    dateFin = dateFinAll ;
-                }
-                else if(periodeRef == "M") // Mois
-                {
-                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,duree)
-                    var ecartEnJour = resultCalcul.split("&##&")[0] ;
-                    nbSpecJour = ecartEnJour
-                    calculMontantJourMois(dateDebut, fftMontant) ;
-                    montantTotal = montantAllMois ; 
-                    dateFin = resultCalcul.split("&##&")[1];
-                    // montantTotal = parseInt(ecartJour) * fftMontant ;
-                    // dateFin = resultCalcul.split("&##&")[1] ;
-                }
-                else if(periodeRef == "A") // Année
-                {
-                    var resultCalcul = appBase.calculerDureeEnJours(dateDebut,12 * duree)
-                    var ecartEnJour = resultCalcul.split("&##&")[0] ;
-                    nbSpecJour = ecartEnJour
-                    calculMontantJourMois(dateDebut, fftMontant) ;
-                    montantTotal = montantAllMois ; 
-                    dateFin = resultCalcul.split("&##&")[1];
-                }
-            }
+            // if(forfaitRef == "FJOUR")
+            // {
+            //     // Si le fofait est par Jour et que le cycle est Mensuel
+            //     if(periodeRef == "J") // Jour
+            //     {
+            //         nbJour = duree ;
+            //         montantTotal = duree * fftMontant ;
+            //         dateFin = appBase.calculerDateApresNjours(dateDebut,parseInt(nbJour))
+            //     }
+            //     else if(periodeRef == "M") // Mois
+            //     {
+            //         var resultCalcul = appBase.calculerDureeEnJours(dateDebut,duree)
+            //         var ecartJour = resultCalcul.split("&##&")[0] ;
+            //         montantTotal = parseInt(ecartJour) * fftMontant ;
+            //         dateFin = resultCalcul.split("&##&")[1] ;
+            //     }
+            //     else if(periodeRef == "A") // Année
+            //     {
+            //         var resultCalcul = appBase.calculerDureeEnJours(dateDebut,(12 * duree))
+            //         var ecartJour = resultCalcul.split("&##&")[0] ;
+            //         montantTotal = parseInt(ecartJour) * fftMontant ;
+            //         dateFin = resultCalcul.split("&##&")[1] ;
+            //     }
+            // }
+            // else if(forfaitRef == "FMOIS")
+            // {
+            //     // Si le fofait est par Mois et que le cycle est Mensuel
+            //     if(periodeRef == "J") // Jour
+            //     {
+            //         nbSpecJour = duree
+            //         calculMontantJourMois(dateDebut, fftMontant) ;
+            //         montantTotal = montantAllMois ; 
+            //         dateFin = dateFinAll ;
+            //     }
+            //     else if(periodeRef == "M") // Mois
+            //     {
+            //         var resultCalcul = appBase.calculerDureeEnJours(dateDebut,duree)
+            //         var ecartEnJour = resultCalcul.split("&##&")[0] ;
+            //         nbSpecJour = ecartEnJour
+            //         calculMontantJourMois(dateDebut, fftMontant) ;
+            //         montantTotal = montantAllMois ; 
+            //         dateFin = resultCalcul.split("&##&")[1];
+            //         // montantTotal = parseInt(ecartJour) * fftMontant ;
+            //         // dateFin = resultCalcul.split("&##&")[1] ;
+            //     }
+            //     else if(periodeRef == "A") // Année
+            //     {
+            //         var resultCalcul = appBase.calculerDureeEnJours(dateDebut,12 * duree)
+            //         var ecartEnJour = resultCalcul.split("&##&")[0] ;
+            //         nbSpecJour = ecartEnJour
+            //         calculMontantJourMois(dateDebut, fftMontant) ;
+            //         montantTotal = montantAllMois ; 
+            //         dateFin = resultCalcul.split("&##&")[1];
+            //     }
+            // }
         }
         montantTotal = montantTotal % 1 !== 0 ? montantTotal.toFixed(2) : parseInt(montantTotal) ; 
         $("#prest_ctr_montant_contrat").val(montantTotal)
@@ -528,6 +627,22 @@ $(document).ready(function(){
     $("#prest_ctr_forfait").change(function(){
         var optionSelected =  $(this).find("option:selected")
         var libelle = optionSelected.data("libelle") == "" ? "Aucun" : optionSelected.data("libelle")
+        var reference = optionSelected.data("reference")
+
+        if(reference == "FMOIS")
+        {
+            $("#captionModePaiement").show()
+            $("#captionDateLimite").show()
+            $("#captionRecapModeP").show()
+            $("#captionRecapDateLimite").show()
+        }
+        else
+        {
+            $("#captionModePaiement").hide()
+            $("#captionDateLimite").hide()
+            $("#captionRecapModeP").hide()
+            $("#captionRecapDateLimite").hide()
+        }
 
         $("#lblMontant").text(libelle)
     })
@@ -554,6 +669,7 @@ $(document).ready(function(){
 
     $("#formContrat").submit(function(){
         var self = $(this)
+        $("#contrat_editor").val(contrat_editor.getEditorText('#contrat_editor'))
         $.confirm({
             title: "Confirmation",
             content:"Vous êtes sûre ?",
@@ -595,7 +711,7 @@ $(document).ready(function(){
                                                 title: 'Message',
                                                 content: "Caution enregistré",
                                                 type: json.type,
-                                                buttons: {
+                                                buttons:{
                                                     IMPRIMER: function(){},
                                                     OK: function(){
                                                         if(json.type == "green")
@@ -622,7 +738,9 @@ $(document).ready(function(){
     })
 
     var currentStep = 1 ;
-    var recapArray = [] ;
+    var bailleur = {} ;
+    var bail = {} ;
+    var locataire = {} ;
     $(".next-btn").click(function() {
         var currentStepDiv = $("#step" + currentStep);
         var nextStepDiv = $("#step" + (currentStep + 1));
@@ -663,23 +781,19 @@ $(document).ready(function(){
                 var prest_ctr_prop_nom = $("#prest_ctr_prop_nom")
 
                 var optionSelected =  $(prest_ctr_prop_nom).find("option:selected")
-                recapArray.push({
-                    "bailleur" : {
+                bailleur = {
                         "nom" : (optionSelected.text()).split(" | ")[0],
                         "telephone" : prest_ctr_prop_phone,
                         "adresse" : prest_ctr_prop_adresse
-                    }
-                })
+                    }   
             }
             else
             {
-                recapArray.push({
-                    "bailleur" : {
-                        "nom" : prest_ctr_prop_nom,
-                        "telephone" : prest_ctr_prop_phone,
-                        "adresse" : prest_ctr_prop_adresse
-                    }
-                })
+                bailleur =  {
+                    "nom" : prest_ctr_prop_nom,
+                    "telephone" : prest_ctr_prop_phone,
+                    "adresse" : prest_ctr_prop_adresse
+                }
             }
             currentStepDiv.hide();
             nextStepDiv.show();
@@ -718,27 +832,23 @@ $(document).ready(function(){
             if($("#prest_ctr_clt_nouveau").val() == "NON")
             {
                 var prest_ctr_clt_nom = $("#prest_ctr_clt_nom")
-
                 var optionSelected =  $(prest_ctr_clt_nom).find("option:selected")
-                recapArray.push({
-                    "locataire" : {
-                        "nom" : (optionSelected.text()).split(" | ")[0],
-                        "telephone" : prest_ctr_clt_telephone,
-                        "adresse" : prest_ctr_clt_adresse,
-                        "email" : prest_ctr_clt_email
-                    }
-                })
+
+                locataire = {
+                    "nom" : optionSelected.text(),
+                    "telephone" : prest_ctr_clt_telephone,
+                    "adresse" : prest_ctr_clt_adresse,
+                    "email" : prest_ctr_clt_email
+                }
             }
             else
             {
-                recapArray.push({
-                    "locataire" : {
-                        "nom" : prest_ctr_clt_nom,
-                        "telephone" : prest_ctr_clt_telephone,
-                        "adresse" : prest_ctr_clt_adresse,
-                        "email" : prest_ctr_clt_email
-                    }
-                })
+                locataire = {
+                    "nom" : prest_ctr_clt_nom,
+                    "telephone" : prest_ctr_clt_telephone,
+                    "adresse" : prest_ctr_clt_adresse,
+                    "email" : prest_ctr_clt_email
+                }
             }
             currentStepDiv.hide() ;
             nextStepDiv.show() ;
@@ -781,28 +891,25 @@ $(document).ready(function(){
 
                 var option1Selected =  $(prest_ctr_bail_type_location).find("option:selected")
                 var option2Selected =  $(prest_ctr_bail_location).find("option:selected")
-                recapArray.push({
-                    "bail" : {
-                        "typeLocation" : option1Selected.text(),
-                        "nom" : (option2Selected.text()).split(" | ")[0],
-                        "adresse" : prest_ctr_bail_adresse,
-                        "dimension" : prest_ctr_bail_dimension
-                    }
-                })
+
+                bail = {
+                    "typeLocation" : option1Selected.text(),
+                    "nom" : (option2Selected.text()).split(" | ")[0],
+                    "adresse" : prest_ctr_bail_adresse,
+                    "dimension" : prest_ctr_bail_dimension
+                }
             }
             else
             {
                 var prest_ctr_bail_type_location = $("#prest_ctr_bail_type_location")
                 var option1Selected =  $(prest_ctr_bail_type_location).find("option:selected")
 
-                recapArray.push({
-                    "bail" : {
-                        "typeLocation" : option1Selected.text(),
-                        "nom" : prest_ctr_bail_location,
-                        "adresse" : prest_ctr_bail_adresse,
-                        "dimension" : prest_ctr_bail_dimension
-                    }
-                })
+                bail = {
+                    "typeLocation" : option1Selected.text(),
+                    "nom" : prest_ctr_bail_location,
+                    "adresse" : prest_ctr_bail_adresse,
+                    "dimension" : prest_ctr_bail_dimension
+                }
             }
             currentStepDiv.hide() ;
             nextStepDiv.show() ;
@@ -835,14 +942,11 @@ $(document).ready(function(){
                 prest_ctr_date_fin,
                 prest_ctr_retenu,
                 prest_ctr_renouvellement.val(),
-                prest_ctr_mode.val(),
-                prest_ctr_delai_mode.val(),
-                prest_ctr_bail_caution,
                 prest_ctr_montant_contrat,
                 prest_ctr_delai_change.val(),
             ],[
                 "Cycle",
-                "Forfait",
+                "Type de paiement",
                 "Montant Forfait",
                 "Durée du contrat",
                 "Période du contrat",
@@ -850,9 +954,6 @@ $(document).ready(function(){
                 "Date Fin",
                 "Retenu",
                 "Renouvellement",
-                "Mode de paiement",
-                "Date limite de paiement",
-                "Caution",
                 "Montant Contrat",
                 "Délai changement avant fin",
             ])
@@ -871,19 +972,19 @@ $(document).ready(function(){
             currentStepDiv.hide();
             nextStepDiv.show();
 
-            $(".recap_prop_nom").text(recapArray[0].bailleur.nom)
-            $(".recap_prop_tel").text(recapArray[0].bailleur.telephone)
-            $(".recap_prop_adresse").text(recapArray[0].bailleur.adresse)
+            $(".recap_prop_nom").text(bailleur.nom)
+            $(".recap_prop_tel").text(bailleur.telephone)
+            $(".recap_prop_adresse").text(bailleur.adresse)
 
-            $(".recap_loctr_nom").text(recapArray[1].locataire.nom)
-            $(".recap_loctr_tel").text(recapArray[1].locataire.telephone)
-            $(".recap_loctr_adresse").text(recapArray[1].locataire.adresse)
-            $(".recap_loctr_email").text(recapArray[1].locataire.email)
+            $(".recap_loctr_nom").text(locataire.nom)
+            $(".recap_loctr_tel").text(locataire.telephone)
+            $(".recap_loctr_adresse").text(locataire.adresse)
+            $(".recap_loctr_email").text(locataire.email)
 
-            $(".recap_bail_type").text(recapArray[2].bail.typeLocation)
-            $(".recap_bail_nom").text(recapArray[2].bail.nom)
-            $(".recap_bail_adresse").text(recapArray[2].bail.adresse)
-            $(".recap_bail_dimension").text(recapArray[2].bail.dimension)
+            $(".recap_bail_type").text(bail.typeLocation)
+            $(".recap_bail_nom").text(bail.nom)
+            $(".recap_bail_adresse").text(bail.adresse)
+            $(".recap_bail_dimension").text(bail.dimension)
             
             $("#recap_ctr_cycle").val(prest_ctr_cycle.find("option:selected").text())
             $("#recap_ctr_forfait").val(prest_ctr_forfait.find("option:selected").text())
@@ -898,7 +999,14 @@ $(document).ready(function(){
             $("#recap_ctr_date_limite").val(prest_ctr_delai_mode.find("option:selected").text())
             $("#recap_ctr_caution").val(prest_ctr_bail_caution)
             $("#recap_ctr_montant_contrat").val(prest_ctr_montant_contrat)
-            $("#recap_ctr_changement").val(prest_ctr_delai_change.find("option:selected").text())
+            if(prest_ctr_delai_change.val() == "AUTRE")
+            {
+                $("#recap_ctr_changement").val($("#prest_ctr_autre_valeur").val()+" Jours avant la fin du contrat")
+            }
+            else
+            {
+                $("#recap_ctr_changement").val(prest_ctr_delai_change.find("option:selected").text())
+            }
         }
 
         currentStepBtn.removeClass("btn-info")
@@ -946,6 +1054,61 @@ $(document).ready(function(){
             var target = $(this).find("option:selected").data("target")
             $(target).val($(this).find("option:selected").data("reference"))
         })
+    })
+
+    $(".prest_ctr_cycle").change(function(){
+        var realinstance = instance.loading()
+        var self = $(this)
+        var data = new FormData() ;
+        data.append('id',self.val())
+        $.ajax({
+            url: routes.prest_get_cycle_rules,
+            type:'post',
+            cache: false,
+            data : data,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#prest_ctr_forfait").html(response.split("@##@")[0])
+                $("#prest_ctr_periode").html(response.split("@##@")[1])
+                $("#prest_ctr_renouvellement").html(response.split("@##@")[2])
+
+                if(self.find("option:selected").data("reference") == "CJOUR")
+                {
+                    $("#captionModePaiement").hide()
+                    $("#captionDateLimite").hide()
+                    $("#captionRecapModeP").hide()
+                    $("#captionRecapDateLimite").hide()
+                }
+                else
+                {
+                    $("#captionModePaiement").show()
+                    $("#captionDateLimite").show()
+                    $("#captionRecapModeP").show()
+                    $("#captionRecapDateLimite").show()
+                }
+
+                $(".chosen_select").trigger("chosen:updated")
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    })
+
+    $("#captionAutreValeur").hide()
+    $("#prest_ctr_delai_change").change(function(){
+        if($(this).val() == "AUTRE")
+        {
+            $("#captionAutreValeur").show()
+        }
+        else
+        {
+            $("#captionAutreValeur").hide()
+        }
     })
 
     $("#prest_ctr_renouvellement").change(function(){

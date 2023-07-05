@@ -1,0 +1,32 @@
+<div class="row">
+    <div class="col-md-3">
+        <label for="prest_ctr_clt_nom" class="font-weight-bold">Nom Locataire</label>
+        <select name="prest_ctr_clt_nom" class="custom-select chosen_select custom-select-sm" id="prest_ctr_clt_nom">
+            <option value="">-</option>
+            {% for locataire in locataires %}
+                <option value="{{locataire.id}}">{{locataire.nom|upper}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="prest_ctr_clt_nouveau" id="prest_ctr_clt_nouveau" value="NON">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_clt_telephone" class="font-weight-bold">Téléphone</label>
+        <input type="text" readonly name="prest_ctr_clt_telephone" id="prest_ctr_clt_telephone" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_clt_adresse" class="font-weight-bold">Adresse</label>
+        <input type="text" readonly name="prest_ctr_clt_adresse" id="prest_ctr_clt_adresse" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <label for="prest_ctr_clt_email" class="font-weight-bold">Email</label>
+        <input type="email" readonly name="prest_ctr_clt_email" id="prest_ctr_clt_email" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-3">
+        <button type="button" class="btn btn-sm btn-primary btn-block mt-3" id="prest_ctr_new_loctr"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

@@ -211,7 +211,15 @@ $(document).ready(function(){
             contentType: false,
             success: function(response){
                 realinstance.close()
-                $("#detailFacture").empty().html(response)
+                if(indice == "PLOC")
+                {
+                    $("#factureStandard").empty().append(response)
+                }
+                else
+                {
+                    $("#detailFacture").empty().html(response)
+                }
+                
             },
             error: function(resp){
                 realinstance.close()
@@ -231,6 +239,7 @@ $(document).ready(function(){
             "PROD" : routes.ftr_creation_produit,
             "PBAT" : routes.ftr_creation_prest_batiment,
             "PSTD" : routes.ftr_creation_prest_service,
+            "PLOC" : routes.fact_creation_prest_location,
         } ;
 
         $(target).val(inputValue) ;
@@ -263,7 +272,7 @@ $(document).ready(function(){
                 {
                     displayTemplateFacture(factRoute,indice) ;
                     return false ;
-                }
+                } 
                 $("#detailFacture").empty()
                 $.confirm({
                     title: (self.text()).toUpperCase(),

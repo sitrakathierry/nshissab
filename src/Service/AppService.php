@@ -22,6 +22,7 @@ use App\Entity\Facture;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
 use App\Entity\LctContrat;
+use App\Entity\LctLocataire;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
 use App\Entity\Menu;
@@ -1216,6 +1217,30 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($items)) ;
     }
 
+    public function generateLocationLocataire($filename, $agence) 
+    {
+        $locataires = $this->entityManager->getRepository(LctLocataire::class)->findBy([
+            "statut" => True,
+            "agence" => $agence
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($locataires as $locataire) {
+            $item = [] ;
+            $item["id"] = $locataire->getId() ;
+            $item["agence"] = $locataire->getAgence()->getId() ;
+            $item["nom"] = $locataire->getNom() ;
+            $item["telephone"] = $locataire->getTelephone() ;
+            $item["adresse"] = $locataire->getAdresse() ;
+            $item["email"] = $locataire->getEmail() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+    
+
     public function generateLocationContrat($filename, $agence) 
     {
         $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
@@ -1257,6 +1282,7 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($items)) ;
     }
+
     public function updateStatutFinance($finance)
     {
         $totalFacture = $finance->getFacture()->getTotal() ; 

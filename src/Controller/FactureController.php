@@ -194,7 +194,6 @@ class FactureController extends AbstractController
         return new Response($responses) ;
     }
 
-
     #[Route('/facture/batiment/categorie', name: 'ftr_batiment_categorie_get_opt')]
     public function ftrGetCategorieBatimentOpt(Request $request): Response
     {
@@ -911,8 +910,6 @@ class FactureController extends AbstractController
                 if(file_exists($filename))
                 unlink($filename);
             }
-                
-            
         }
 
         
@@ -970,4 +967,13 @@ class FactureController extends AbstractController
         return new Response($response) ; 
     }
 
+    #[Route('/facture/creation/prest/location', name: 'fact_creation_prest_location')]
+    public function factureCreationPrestLocation()
+    {
+        return $this->render('facture/creationFactPrestLocation.html.twig', [
+            "filename" => "facture",
+            "titlePage" => "Création Facture : Prestation Location",
+            "with_foot" => true
+        ]);
+    }
 }

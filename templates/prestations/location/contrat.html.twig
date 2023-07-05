@@ -64,7 +64,7 @@
 
             <div id="step2" class="step">
                 <h5 class="title_form text-black text-uppercase mt-3">Information Locataire</h5>
-                <div class="container-fluid" id="captionContratLocatiare">
+                <div class="container-fluid" id="captionContratLocataire">
                     <div class="row">
                         <div class="col-md-3">
                             <label for="prest_ctr_clt_nom" class="font-weight-bold">Nom Locataire</label>
@@ -84,7 +84,7 @@
                             <input type="email" name="prest_ctr_clt_email" id="prest_ctr_clt_email" class="form-control" placeholder=". . .">
                         </div>
                         <div class="col-md-3">
-                            <button type="button" class="btn btn-sm btn-info btn-block mt-3"><i class="fa fa-users"></i>&nbsp;Existant</button>
+                            <button type="button" class="btn btn-sm btn-info btn-block mt-3" id="prest_ctr_exist_loctr"><i class="fa fa-users"></i>&nbsp;Existant</button>
                         </div>
                     </div>
                 </div>
@@ -93,7 +93,6 @@
                     <button type="button" class="btn btn-warning text-white px-3 btn-sm next-btn">Suivant&nbsp;<i class="fa fa-arrow-right"></i></button>
                 </div>
             </div>
-
             <div id="step3" class="step">
                 <h5 class="title_form text-black text-uppercase mt-3">Information de Bail</h5>
                 <div  id="captionBailLocation" class="container-fluid">
@@ -139,7 +138,7 @@
                     <div class="col-md-2">
                         <label for="prest_ctr_cycle" class="font-weight-bold">Cycle</label>
                         <select name="prest_ctr_cycle" class="custom-select chosen_select custom-select-sm prest_ctr_cycle" id="prest_ctr_cycle">
-                            <option value="" data-target="#cycleRef" data-libelle="">-</option>
+                            <option value="" data-reference="-" data-target="#cycleRef" data-libelle="">-</option>
                             {% for cycle in cycles %}
                                 <option value="{{cycle.id}}" data-target="#cycleRef" data-reference="{{cycle.reference}}" data-libelle="{{cycle.libelle}}" >{{cycle.nom|upper}}</option>
                             {% endfor %}
@@ -147,9 +146,9 @@
                         <input type="hidden" id="cycleRef">
                     </div>
                     <div class="col-md-2">
-                        <label for="prest_ctr_forfait" class="font-weight-bold">Forfait</label>
+                        <label for="prest_ctr_forfait" class="font-weight-bold">Type de paiement</label>
                         <select name="prest_ctr_forfait" class="custom-select chosen_select custom-select-sm prest_ctr_forfait" id="prest_ctr_forfait">
-                            <option value="" data-target="#forfaitRef" data-libelle="">-</option>
+                            <option value="" data-target="#forfaitRef" data-libelle="" data-reference="">-</option>
                             {% for forfait in forfaits %}
                                 <option value="{{forfait.id}}" data-target="#forfaitRef" data-reference="{{forfait.reference}}" data-libelle="{{forfait.libelle}}" >{{forfait.nom|upper}}</option>
                             {% endfor %}
@@ -195,7 +194,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" id="captionModePaiement">
                         <label for="prest_ctr_mode" class="font-weight-bold mt-3">Mode de paiement Loyer</label>
                         <select name="prest_ctr_mode" class="custom-select chosen_select custom-select-sm " id="prest_ctr_mode">
                             <option value="" data-libelle="">-</option>
@@ -204,7 +203,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" id="captionDateLimite" >
                         <label for="prest_ctr_delai_mode" class="font-weight-bold mt-3">Date Limite Paiement</label>
                         <select name="prest_ctr_delai_mode" class="custom-select chosen_select custom-select-sm" id="prest_ctr_delai_mode">
                             <option value="">-</option>
@@ -222,15 +221,20 @@
                         <input type="text" readonly name="prest_ctr_montant_contrat" id="prest_ctr_montant_contrat" class="form-control" placeholder=". . .">
                         <input type="hidden" id="prest_ctr_montant_mois">
                     </div>
-                    <div class="col-md-6">
-                        <label for="prest_ctr_delai_change" class="font-weight-bold mt-3">Définir un delai (jour) pour signaler des changements avant la fin du contrat </label>
+                    <div class="col-md-4">
+                        <label for="prest_ctr_delai_change" class="font-weight-bold mt-3">Changement avant fin du contrat </label>
                         <select name="prest_ctr_delai_change" class="custom-select chosen_select custom-select-sm" id="prest_ctr_delai_change">
                             <option value="">-</option>
                             <option value="15">15 Jours avant la fin du contrat</option>
                             <option value="20">20 Jours avant la fin du contrat</option>
                             <option value="25">25 Jours avant la fin du contrat</option>
                             <option value="30">30 Jours avant la fin du contrat</option>
+                            <option value="AUTRE">Définir la valeur</option>
                         </select>
+                    </div>
+                    <div class="col-md-3" id="captionAutreValeur">
+                        <label for="prest_ctr_autre_valeur" class="font-weight-bold mt-3">Autre valeur</label>
+                        <input type="number" step="any" name="prest_ctr_autre_valeur" id="prest_ctr_autre_valeur" class="form-control prest_ctr_autre_valeur" placeholder=". . .">
                     </div>
                 </div>
                 <div class="w-100 text-right mt-5 barre_dashed p-3">
@@ -265,21 +269,25 @@
                         </div>
                     </div>
                     <div class="w-100">
-                        <h4 class="text-black text-uppercase mt-2">Contrat</h4>
+                        <label class="font-weight-bold">Description</label>
+                        <textarea name="contrat_editor" class="form-control"  id="contrat_editor" cols="30" rows="10"></textarea>
+                    </div>
+                    <div class="w-100">
+                        <h4 class="text-black text-uppercase mt-3">Contrat</h4>
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="font-weight-bold mt-3">Cycle</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_cycle" value="MENSUEL" >
                             </div>
-                            <div class="col-md-3">
-                                <label class="font-weight-bold mt-3">Forfait</label>
+                            <div class="col-md-2">
+                                <label class="font-weight-bold mt-3">Type de Paiement</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_forfait" value="par Mois" >
                             </div>
                             <div class="col-md-3">
-                                <label class="font-weight-bold mt-3">Montant par Mois</label>
+                                <label class="font-weight-bold mt-3">Montant</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_montant_forfait" value="450000" >
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="font-weight-bold mt-3">Durée du contrat</label>
                                 <input type="text" class="form-control" id="recap_ctr_duree" readonly value="2" >
                             </div>
@@ -303,11 +311,11 @@
                                 <label class="font-weight-bold mt-3">Renouvellement</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_renouvment" value="RENOUVELLEMENT ANNUELLE" >
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="captionRecapModeP">
                                 <label class="font-weight-bold mt-3">Mode de paiement Loyer</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_mode" value="Paiement à l'entrée" >
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="captionRecapDateLimite">
                                 <label class="font-weight-bold mt-3">Date Limite Paiement</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_date_limite" value="5" >
                             </div>
@@ -319,8 +327,8 @@
                                 <label class="font-weight-bold mt-3">Montant Contrat</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="1400000" >
                             </div>
-                            <div class="col-md-6">
-                                <label class="font-weight-bold mt-3">Délai (jour) changement avant fin du mois</label>
+                            <div class="col-md-4">
+                                <label class="font-weight-bold mt-3">Changement avant fin du mois</label>
                                 <input type="text" class="form-control" readonly id="recap_ctr_changement" value="15" >
                             </div>
                         </div>

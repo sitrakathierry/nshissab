@@ -709,10 +709,98 @@ class PrestationController extends AbstractController
 
         return new JsonResponse($response) ;
     }
+
+    #[Route('/prestation/location/locataire/get', name: 'prest_location_locataire_get')]
+    public function prestGetLocataireLocation(Request $request){
+        $id = $request->request->get('id') ;
+
+        $locataire = $this->entityManager->getRepository(LctLocataire::class)->find($id) ;
+
+        $response = [] ;
+        if(!is_null($locataire))
+        {
+            $response["telephone"] = $locataire->getTelephone() ;
+            $response["adresse"] = $locataire->getAdresse() ;
+            $response["email"] = $locataire->getEmail() ;
+        }
+        else
+        {
+            $response["telephone"] = "" ;
+            $response["adresse"] = "" ;
+            $response["email"] = "" ;
+        }
+
+        return new JsonResponse($response) ;
+    }
+
+    #[Route('/prestation/location/cycle/get', name: 'prest_get_cycle_rules')]
+    public function prestGetCycleRules(Request $request){
+        $id = $request->request->get('id') ;
+        if($id == "")
+        {
+            $response = '<option value="" data-target="#forfaitRef" data-libelle="" data-reference="">-</option>@##@<option value="" data-target="#periodeRef" data-reference="" data-libelle="" >-</option>@##@<option value="" data-reference="">-</option>';
+            return new Response($response) ;
+        }
+
+        $cycle = $this->entityManager->getRepository(LctCycle::class)->find($id) ;
+
+        $typePaiement = [
+            "CJOUR" => ["FJOUR","FORFAIT"],
+            "CMOIS" => ["FMOIS","FORFAIT"]
+        ] ;
+        
+        $optionForfait = '<option value="" data-target="#forfaitRef" data-libelle="" data-reference="">-</option>' ;
+        foreach ($typePaiement[$cycle->getReference()] as $forfait) {
+            $forfaitObj = $this->entityManager->getRepository(LctForfait::class)->findOneBy([
+                "reference" => $forfait
+            ]) ;
+            
+            $optionForfait .= '<option value="'.$forfaitObj->getId().'" data-target="#forfaitRef" data-reference="'.$forfaitObj->getReference().'" data-libelle="'.$forfaitObj->getLibelle().'" >'.strtoupper($forfaitObj->getNom()).'</option>' ;
+        }
+
+        $periode = [
+            "CJOUR" => ["J"],
+            "CMOIS" => ["M","A"]
+        ] ;
+
+        $optionPeriode = '<option value="" data-target="#periodeRef" data-reference="" data-libelle="" >-</option>' ;
+        foreach ($periode[$cycle->getReference()] as $periode) {
+            $periodeObj = $this->entityManager->getRepository(LctPeriode::class)->findOneBy([
+                "reference" => $periode
+            ]) ;
+
+            $optionPeriode .= '<option value="'.$periodeObj->getId().'" data-target="#periodeRef" data-reference="'.$periodeObj->getReference().'" data-libelle="'.$periodeObj->getNom().'" >'.strtoupper($periodeObj->getNom()).'</option>' ;
+        }
+
+        $renouv = [
+            "CJOUR" => ["RVL","AUTRE"],
+            "CMOIS" => ["TCT","RVL","AUTRE"]
+        ] ;
+
+        $optionRenouv = '<option value="" data-reference="">-</option>' ;
+        foreach ($renouv[$cycle->getReference()] as $renouvl) {
+            $renouvObj = $this->entityManager->getRepository(LctRenouvellement::class)->findOneBy([
+                "reference" => $renouvl
+            ]) ;
+
+            $optionRenouv .= '<option value="'.$renouvObj->getId().'" data-reference="'.$renouvObj->getReference().'">'.strtoupper($renouvObj->getNom()).'</option>' ;
+        }
+
+        $response = $optionForfait."@##@".$optionPeriode."@##@".$optionRenouv ;
+
+
+        return new Response($response) ;
+    }
     
     #[Route('/prestation/location/bailleur/new', name: 'prest_new_location_bailleur')]
     public function prestNewLocationBailleur(){
         $response = $this->renderView("prestations/location/getNewBailleur.html.twig") ;
+        return new Response($response) ;
+    }
+
+    #[Route('/prestation/location/locataire/new', name: 'prest_new_location_locataire')]
+    public function prestNewLocationLocataire(){
+        $response = $this->renderView("prestations/location/getNewLocataire.html.twig") ;
         return new Response($response) ;
     }
 
@@ -728,6 +816,26 @@ class PrestationController extends AbstractController
         $response = $this->renderView("prestations/location/getExistingBailleur.html.twig",[
             "bailleurs" => $bailleurs
             ]) ;
+        return new Response($response) ;
+    }
+
+    #[Route('/prestation/location/locataire/existing', name: 'prest_existing_locataire')]
+    public function prestExistingLocataire(){
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        $locataires = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("prestations/location/getExistingLocataire.html.twig",[
+            "locataires" => $locataires
+            ]) ;
+
+        if(empty($locataires))
+        {
+            $response = "" ;
+        }
         return new Response($response) ;
     }
 
@@ -895,6 +1003,8 @@ class PrestationController extends AbstractController
         $prest_ctr_bail_caution = $request->request->get("prest_ctr_bail_caution") ;
         $prest_ctr_montant_contrat = $request->request->get("prest_ctr_montant_contrat") ;
         $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
+        $prest_ctr_renouvellement_autre = $request->request->get("prest_ctr_renouvellement_autre") ;
+        $contrat_editor = $request->request->get("contrat_editor") ;
         $ctr_lieu = $request->request->get("ctr_lieu") ;
         $ctr_date = $request->request->get("ctr_date") ;
 
@@ -923,6 +1033,7 @@ class PrestationController extends AbstractController
         $contrat->setPeriode($periode) ;
         $contrat->setPourcentage($prest_ctr_retenu) ;
         $contrat->setRenouvellement($renouv) ;
+        $contrat->setCaptionRenouv($prest_ctr_renouvellement_autre) ;
         $contrat->setTypeLocation($type_loc) ;
         $contrat->setDateDebut(\DateTime::createFromFormat('j/m/Y',$prest_ctr_date_debut)) ;
         $contrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$prest_ctr_date_fin)) ;
@@ -930,7 +1041,7 @@ class PrestationController extends AbstractController
         $contrat->setDateLimite($prest_ctr_delai_mode) ;
         $contrat->setCaution($prest_ctr_bail_caution) ;
         $contrat->setDelaiChgFin($prest_ctr_delai_change) ;
-        $contrat->setNote("Nouveau Contrat") ;
+        $contrat->setNote($contrat_editor) ;
         $contrat->setLieuContrat($ctr_lieu) ;
         $contrat->setDateContrat(\DateTime::createFromFormat('j/m/Y',$ctr_date)) ;
         $contrat->setStatut($statut) ;
@@ -939,6 +1050,11 @@ class PrestationController extends AbstractController
 
         $this->entityManager->persist($contrat) ;
         $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
 
         return new JsonResponse([
             "type" => "green",
