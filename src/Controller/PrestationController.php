@@ -1003,6 +1003,7 @@ class PrestationController extends AbstractController
         $prest_ctr_bail_caution = $request->request->get("prest_ctr_bail_caution") ;
         $prest_ctr_montant_contrat = $request->request->get("prest_ctr_montant_contrat") ;
         $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
+        $prest_ctr_delai_change = $prest_ctr_delai_change == "AUTRE" ? $request->request->get("prest_ctr_autre_valeur") : $prest_ctr_delai_change;
         $prest_ctr_renouvellement_autre = $request->request->get("prest_ctr_renouvellement_autre") ;
         $contrat_editor = $request->request->get("contrat_editor") ;
         $ctr_lieu = $request->request->get("ctr_lieu") ;
