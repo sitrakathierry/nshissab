@@ -55,7 +55,30 @@
         </tbody>
     </table>
 </div>
-
+<div class="row">
+    <div class="col-md-7"></div>
+    <div class="col-md-5"> 
+        <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+            </div>
+            <input type="text" class="form-control fact_lieu" name="fact_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="fact_lieu">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-7"></div>
+    <div class="col-md-5"> 
+        <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+            </div>
+            <input type="text" class="form-control fact_date" name="fact_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="fact_date">
+        </div>
+    </div>
+</div>
 {% if with_foot %}
     <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
         <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
