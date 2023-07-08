@@ -24,6 +24,7 @@ use App\Entity\FactRemiseType;
 use App\Entity\FactSupDetailsPbat;
 use App\Entity\FactType;
 use App\Entity\Facture;
+use App\Entity\LctContrat;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\User;
@@ -970,10 +971,84 @@ class FactureController extends AbstractController
     #[Route('/facture/creation/prest/location', name: 'fact_creation_prest_location')]
     public function factureCreationPrestLocation()
     {
+        // $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        // if(!file_exists($filename))
+        //     $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        // $locataires = json_decode(file_get_contents($filename)) ;
+
+        $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationContrat($filename, $this->agence) ; 
+
+        $contrats = json_decode(file_get_contents($filename)) ;
+
         return $this->render('facture/creationFactPrestLocation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Création Facture : Prestation Location",
-            "with_foot" => true
+            "with_foot" => true,
+            "contrats" => $contrats,
         ]);
+    }
+
+    #[Route('/facture/prest/location/contrat/get', name: 'fact_prest_loctr_get_contrat')]
+    public function factureGetContratPrestLocation(Request $request)
+    {
+        $id = $request->request->get('id') ;
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+
+        $item = [] ;
+
+        if($contrat->getPeriode()->getReference() == "J")
+        {
+            $periode = "Jour(s)" ;
+        }
+        if($contrat->getPeriode()->getReference() == "M")
+        {
+            $periode = "Mois" ;
+        } 
+        else if($contrat->getPeriode()->getReference() == "A")
+        {
+            $periode = "An(s)" ;
+        }
+
+        $item["id"] = $contrat->getId() ;
+        $item["agence"] = $contrat->getAgence()->getId() ;
+        $item["numContrat"] = $contrat->getNumContrat() ;
+        $item["dateContrat"] = $contrat->getDateContrat()->format("d/m/Y") ;
+        $item["bailleur"] = $contrat->getBailleur()->getNom() ;
+        $item["bail"] = $contrat->getBail()->getNom() ;
+        $item["locataire"] = $contrat->getLocataire()->getNom() ;
+        $item["cycle"] = $contrat->getCycle()->getNom() ;
+        $item["dateDebut"] = $contrat->getDateDebut()->format("d/m/Y") ;
+        $item["dateFin"] = $contrat->getDateFin()->format("d/m/Y") ;
+        $item["dureeContrat"] = $contrat->getDuree()." ".$periode ;
+        $item["montantForfait"] = $contrat->getMontantForfait() ;
+        $item["forfaitLibelle"] = $contrat->getForfait()->getLibelle() ;
+        $item["typePaiement"] = $contrat->getForfait()->getNom() ;
+        $item["statut"] = $contrat->getStatut()->getNom() ;
+        
+        $tableauMois = [] ;
+        if($contrat->getCycle()->getReference() == "CMOIS")
+        {
+            if($contrat->getForfait()->getReference() == "FMOIS")
+            {
+                $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
+                $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
+                $tableauMois = $this->appService->genererTableauMois($dateGenere,12, $contrat->getDateLimite()) ;
+            }
+        }
+
+        $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
+            "item" => $item,
+            "tableauMois" => $tableauMois,
+            "dateLimite" => $contrat->getDateLimite(),
+            ]) ;
+        
+
+        return new Response($response) ;
     }
 }

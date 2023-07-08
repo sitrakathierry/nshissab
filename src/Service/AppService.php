@@ -1259,7 +1259,7 @@ class AppService extends AbstractController
             {
                 $periode = "Mois" ;
             }
-            else
+            else if($contrat->getPeriode()->getReference() == "A")
             {
                 $periode = "An(s)" ;
             }
@@ -1573,6 +1573,12 @@ class AppService extends AbstractController
             "credit" => [
                 "credit(agence)",
                 "acompte(agence)"
+            ],
+            "agenda" => [
+                "agenda(agence)"
+            ],
+            "prestations" => [
+                "service(agence)"
             ]
         ];
 
@@ -1722,6 +1728,107 @@ class AppService extends AbstractController
                 }
             }
         }
+    }
+
+    function convertirFormatDate($dateString) {
+        // Séparer la date en jour, mois et année
+        $dateParts = explode('/', $dateString);
+        $jour = $dateParts[0];
+        $mois = $dateParts[1];
+        $annee = $dateParts[2];
+    
+        // Créer un nouvel objet DateTime avec le format aaaa-mm-jj
+        $date = new \DateTime("$annee-$mois-$jour");
+    
+        // Obtenir les composants de la date au format 'aaaa-mm-jj'
+        $anneeConvertie = $date->format('Y');
+        $moisConverti = $date->format('m');
+        $jourConverti = $date->format('d');
+    
+        // Retourner la date convertie au format 'aaaa-mm-jj'
+        return $anneeConvertie . '-' . $moisConverti . '-' . $jourConverti;
+    }
+
+    public function calculerDateAvantNjours($dateInitiale, $nbJours) {
+        // Convertir la date initiale en objet DateTime
+        $date = new \DateTime($this->convertirFormatDate($dateInitiale));
+        
+        // Calculer la date N jours avant la date initiale
+        $dateAvantNJours = $date->modify("-$nbJours days");
+        
+        // Conversion de la date en format souhaité (jj/mm/aaaa)
+        $jour = $dateAvantNJours->format('d');
+        $mois = $dateAvantNJours->format('m');
+        $annee = $dateAvantNJours->format('Y');
+        
+        // Formattage de la date
+        $dateFormatee = str_pad($jour, 2, "0", STR_PAD_LEFT) . '/' . str_pad($mois, 2, "0", STR_PAD_LEFT) . '/' . $annee;
+        
+        return $dateFormatee;
+    }
+
+    public function calculerDateApresNjours($dateInitiale, $nbJours) {
+        // Convertir la date initiale en objet DateTime
+        $date = new \DateTime($this->convertirFormatDate($dateInitiale));
+        
+        // Calculer la date après le nombre de jours spécifié        
+        $dateApresNJours = $date->modify("+$nbJours days");
+
+        // Conversion de la date en format souhaité (jj/mm/aaaa)
+        $jour = $dateApresNJours->format('d');
+        $mois = $dateApresNJours->format('m');
+        $annee = $dateApresNJours->format('Y');
+        
+        // Formattage de la date
+        $dateFormatee = str_pad($jour, 2, "0", STR_PAD_LEFT) . '/' . str_pad($mois, 2, "0", STR_PAD_LEFT) . '/' . $annee;
+        
+        // return $dateApresNJours;
+        return $dateFormatee;
+    }
+
+    function genererTableauMois($dateInitiale, $nombreMois, $dateLimite) {
+        $tableauDates = array();
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        $date = \DateTime::createFromFormat('d/m/Y', $dateInitiale);
+        $mois = null;
+        for ($i = 0; $i < $nombreMois; $i++) {
+            // Calculer la date après le nombre de jours spécifié
+            $dateApresNJours = $this->calculerDateApresNjours($dateInitiale, 30 * ($i + 1));
+            // Extraire le mois de la date
+            $date->modify("+30 days");
+            
+            $annee = intval(explode("/",$dateApresNJours)[2]);
+            if($mois == null)
+            {
+                $mois = intval(explode("/",$dateApresNJours)[1]); 
+            }
+            else if($mois == (12 + 1))
+            {
+                $mois = 1 ;
+                return $tableauDates;
+            }
+            
+            // Ajouter la date au tableau
+            $finLimite = $this->calculerDateApresNjours($dateApresNJours,$dateLimite) ;
+            
+            $resultCompare = $this->compareDates($finLimite,date("d/m/Y"),"P") || $this->compareDates($finLimite,date("d/m/Y"),"E") ;
+
+            $statut = $resultCompare ? "En Alerte" : "-" ;
+
+            // if(!$resultCompare)
+            //     return $tableauDates ;
+
+            $tableauDates[] = [
+                "debutLimite" => $dateApresNJours,
+                "finLimite" => $finLimite,
+                "mois" => $tabMois[$mois - 1],
+                "annee" => $annee,
+                "statut" =>'<span class="text-danger font-weight-bold">'.strtoupper($statut).'</span>',
+            ];
+            $mois++ ;
+        }
+        
+        return $tableauDates;
     }
 
 }

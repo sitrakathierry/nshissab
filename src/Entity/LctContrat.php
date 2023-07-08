@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\LctContratRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -94,6 +96,14 @@ class LctContrat
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $captionRenouv = null;
+
+    #[ORM\OneToMany(mappedBy: 'contrat', targetEntity: LctPaiement::class)]
+    private Collection $lctPaiements;
+
+    public function __construct()
+    {
+        $this->lctPaiements = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -420,6 +430,36 @@ class LctContrat
     public function setCaptionRenouv(?string $captionRenouv): self
     {
         $this->captionRenouv = $captionRenouv;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctPaiement>
+     */
+    public function getLctPaiements(): Collection
+    {
+        return $this->lctPaiements;
+    }
+
+    public function addLctPaiement(LctPaiement $lctPaiement): self
+    {
+        if (!$this->lctPaiements->contains($lctPaiement)) {
+            $this->lctPaiements->add($lctPaiement);
+            $lctPaiement->setContrat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctPaiement(LctPaiement $lctPaiement): self
+    {
+        if ($this->lctPaiements->removeElement($lctPaiement)) {
+            // set the owning side to null (unless already changed)
+            if ($lctPaiement->getContrat() === $this) {
+                $lctPaiement->setContrat(null);
+            }
+        }
 
         return $this;
     }

@@ -1000,6 +1000,7 @@ class PrestationController extends AbstractController
         $prest_ctr_renouvellement = $request->request->get("prest_ctr_renouvellement") ;
         $prest_ctr_mode = $request->request->get("prest_ctr_mode") ;
         $prest_ctr_delai_mode = $request->request->get("prest_ctr_delai_mode") ;
+        $prest_ctr_delai_mode = $prest_ctr_delai_mode == "" ? 0 : $prest_ctr_delai_mode ;
         $prest_ctr_bail_caution = $request->request->get("prest_ctr_bail_caution") ;
         $prest_ctr_montant_contrat = $request->request->get("prest_ctr_montant_contrat") ;
         $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
@@ -1040,7 +1041,7 @@ class PrestationController extends AbstractController
         $contrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$prest_ctr_date_fin)) ;
         $contrat->setModePaiement($modePaiement) ;
         $contrat->setDateLimite($prest_ctr_delai_mode) ;
-        $contrat->setCaution($prest_ctr_bail_caution) ;
+        $contrat->setCaution($prest_ctr_bail_caution == "" ? 0 : $prest_ctr_bail_caution) ;
         $contrat->setDelaiChgFin($prest_ctr_delai_change) ;
         $contrat->setNote($contrat_editor) ;
         $contrat->setLieuContrat($ctr_lieu) ;
