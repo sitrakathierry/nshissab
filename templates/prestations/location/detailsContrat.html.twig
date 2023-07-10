@@ -113,21 +113,23 @@
             <table class="table-sm table table-bordered">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Date paiement</th>
-                        <th>Date limite paiement</th>
-                        <th>Mois</th>
-                        <th>Montant</th>
-                        <th>Statut</th>
+                        <th>Numéro Relevé</th>
+                        <th>Date de paiement</th>
+                        <th>Montant Payé</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>04/07/2023</td>
-                        <td>09/07/2023</td>
-                        <td>JUILLET</td>
-                        <td>150000</td>
-                        <th>A venir / En cours de paiement / Payé / En retard</th>
-                    </tr>
+                    {% for paiement in paiements %}
+                        <tr>
+                            <td>{{paiement.numReleve}}</td>
+                            <td>{{paiement.date | date('d/m/Y')}}</td>
+                            <th>{{paiement.montant }}</th>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

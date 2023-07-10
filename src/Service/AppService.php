@@ -1795,7 +1795,7 @@ class AppService extends AbstractController
             // Calculer la date après le nombre de jours spécifié
             $dateApresNJours = $this->calculerDateApresNjours($dateInitiale, 30 * ($i + 1));
             // Extraire le mois de la date
-            $date->modify("+30 days");
+            // $date->modify("+30 days");
             
             $annee = intval(explode("/",$dateApresNJours)[2]);
             if($mois == null)
@@ -1805,7 +1805,7 @@ class AppService extends AbstractController
             else if($mois == (12 + 1))
             {
                 $mois = 1 ;
-                return $tableauDates;
+                // return $tableauDates;
             }
             
             // Ajouter la date au tableau
@@ -1815,17 +1815,73 @@ class AppService extends AbstractController
 
             $statut = $resultCompare ? "En Alerte" : "-" ;
 
-            // if(!$resultCompare)
-            //     return $tableauDates ;
+            if(!$resultCompare)
+            {
+                $resteBoucle = $nombreMois - $i ;
+                if($resteBoucle >= 5)
+                {
+                    $nombreMois = $i + 5 ;
+                }
+                else
+                {
+                    $nombreMois = $i + $resteBoucle ;
+                }
+                // return $tableauDates ;
+            }
 
             $tableauDates[] = [
                 "debutLimite" => $dateApresNJours,
-                "finLimite" => $finLimite,
+                "finLimite" => $finLimite, 
                 "mois" => $tabMois[$mois - 1],
+                "indexMois" => $mois,
                 "annee" => $annee,
                 "statut" =>'<span class="text-danger font-weight-bold">'.strtoupper($statut).'</span>',
             ];
             $mois++ ;
+        }
+        
+        return $tableauDates;
+    }
+
+    function genererTableauJour($dateInitiale, $nombreJour) {
+        $tableauDates = array();
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        $date = \DateTime::createFromFormat('d/m/Y', $dateInitiale);
+        for ($i = 0; $i < $nombreJour; $i++) {
+            // Calculer la date après le nombre de jours spécifié
+            $dateApresNJours = $this->calculerDateApresNjours($dateInitiale,$i + 1);
+            // Extraire le mois de la date
+            // $date->modify("+1 days");
+            $annee = intval(explode("/",$dateApresNJours)[2]);
+            $mois = intval(explode("/",$dateApresNJours)[1]); 
+            // Ajouter la date au tableau
+            // $finLimite = $this->calculerDateApresNjours($dateApresNJours,$dateLimite) ;
+            
+            $resultCompare = $this->compareDates($dateApresNJours,date("d/m/Y"),"P") || $this->compareDates($dateApresNJours,date("d/m/Y"),"E") ;
+
+            $statut = $resultCompare ? "En Alerte" : "-" ;
+
+            if(!$resultCompare)
+            {
+                $resteBoucle = $nombreJour - $i ;
+                if($resteBoucle >= 5)
+                {
+                    $nombreJour = $i + 5 ;
+                }
+                else
+                {
+                    $nombreJour = $i + $resteBoucle ;
+                }
+            }
+
+            $tableauDates[] = [
+                "debutLimite" => $dateApresNJours,
+                // "finLimite" => $finLimite,
+                "mois" => $tabMois[$mois - 1],
+                "indexMois" => $mois,
+                "annee" => $annee,
+                "statut" =>'<span class="text-danger font-weight-bold">'.strtoupper($statut).'</span>',
+            ];
         }
         
         return $tableauDates;

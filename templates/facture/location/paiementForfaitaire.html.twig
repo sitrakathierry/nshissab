@@ -1,14 +1,7 @@
-<style>
-    #listePaiement {
-        max-height: 200px !important; /* Hauteur maximale du tbody */
-        overflow-y: auto !important; /* Ajoute une barre de défilement verticale si nécessaire */
-    }
-</style>
 <div class="table-responsive mt-3">
     <table class="table-sm table table-bordered">
         <thead class="thead-dark">
             <tr>
-                <th colspan="2">Date prévu paiement (Date Limite : Jusqu'au {{dateLimite}} du mois)</th>
                 <th>Désignation </th>
                 <th>Date de paiement </th>
                 <th>Mois</th>
@@ -20,27 +13,15 @@
         <tbody id="listePaiement">
             {% for tableauM in tableauMois %}
                 <tr>
-                    <td>
-                    Debut :&nbsp;{{ tableauM.debutLimite }}
-                    <input type="hidden" name="partie_date_debut[]" id="partie_date_debut" value="{{ tableauM.debutLimite }}">
-                    </td>
-                    <td>
-                    Date Limite :&nbsp;{{ tableauM.finLimite }}
-                    <input type="hidden" name="partie_date_limite[]" id="partie_date_limite" value="{{ tableauM.finLimite }}">
-                    </td>
-                    <td>
-                    LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}
+                    <td>LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}
                     <input type="hidden" name="partie_designation[]" id="partie_designation" value="LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}">
+                    <input type="hidden" name="partie_mois[]" id="partie_mois" >
                     <input type="hidden" name="partie_montant_payee[]" id="partie_montant_payee">
                     <input type="hidden" name="partie_statut[]" id="partie_statut">
                     </td>
                     <td class="datePaiement">-</td>
-                    <td>
-                    {{ tableauM.mois | upper }}
-                    <input type="hidden" name="partie_mois[]" id="partie_mois" value="{{ tableauM.indexMois }}">
-                    </td>
-                    <td>
-                    {{ tableauM.annee | upper }}
+                    <td class="moisPment">-</td>
+                    <td>{{ tableauM.annee | upper }}
                     <input type="hidden" name="partie_annee[]" id="partie_annee" value="{{ tableauM.annee }}">
                     </td>
                     <td class="montantPayee">-</td>
@@ -50,13 +31,13 @@
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="6" class="text-uppercase">Montant Total Payé</th>
+                <th colspan="4" class="text-uppercase">Montant Total Payé</th>
                 <th colspan="2" id="montantTotalPayee" class="text-success"></th>
             </tr>
-            {# <tr>
-                <th colspan="6" class="text-uppercase">Montant à rembourser</th>
+            <tr>
+                <th colspan="4" class="text-uppercase">Montant à rembourser</th>
                 <th colspan="2" id="montantRestant" class="text-warning"></th>
-            </tr> #}
+            </tr>
         </tfoot>
     </table>
 </div>

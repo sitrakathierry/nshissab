@@ -15,8 +15,10 @@ use App\Entity\LctCycle;
 use App\Entity\LctForfait;
 use App\Entity\LctLocataire;
 use App\Entity\LctModePaiement;
+use App\Entity\LctPaiement;
 use App\Entity\LctPeriode;
 use App\Entity\LctRenouvellement;
+use App\Entity\LctRepartition;
 use App\Entity\LctStatut;
 use App\Entity\LctTypeLocation;
 use App\Entity\Service;
@@ -1069,12 +1071,48 @@ class PrestationController extends AbstractController
     {
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
 
+        $paiements = $this->entityManager->getRepository(LctPaiement::class)->findBy([
+            "contrat" => $contrat
+            ]) ;
+
         return $this->render('prestations/location/detailsContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Detail contrat",
             "with_foot" => true,
-            "contrat" => $contrat
+            "contrat" => $contrat,
+            "paiements" => $paiements,
         ]);
     }
 
+    #[Route('/prestation/location/loyer/liste', name: 'prest_location_liste_loyer')]
+    public function prestListeLoyerLocation()
+    {
+        $paiements = $this->entityManager->getRepository(LctPaiement::class)->findBy([
+            "agence" => $this->agence
+            ]) ;
+        
+        return $this->render('prestations/location/listeLocationLoyer.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Detail contrat",
+            "with_foot" => true,
+            "paiements" => $paiements,
+        ]);
+    }
+
+    #[Route('/prestation/location/loyer/details/{id}', name: 'prest_location_details_loyer')]
+    public function prestDetailsLoyerLocation($id)
+    {
+        $paiement = $this->entityManager->getRepository(LctPaiement::class)->find($id) ;
+
+        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+            "paiement" => $paiement 
+        ]) ;
+
+        return $this->render('prestations/location/detailsLocationLoyer.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Detail contrat",
+            "with_foot" => true,
+            "repartitions" => $repartitions,
+        ]);
+    }
 }

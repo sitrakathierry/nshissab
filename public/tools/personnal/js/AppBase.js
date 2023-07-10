@@ -38,7 +38,7 @@ class AppBase
         
     }
 
-    getMonthName(monthIndex) {
+    getMonthName(monthIndex){
         var monthNames = [
           "Janvier",
           "Février",

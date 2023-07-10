@@ -25,6 +25,9 @@ use App\Entity\FactSupDetailsPbat;
 use App\Entity\FactType;
 use App\Entity\Facture;
 use App\Entity\LctContrat;
+use App\Entity\LctPaiement;
+use App\Entity\LctRepartition;
+use App\Entity\LctStatutLoyer;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\User;
@@ -1005,7 +1008,7 @@ class FactureController extends AbstractController
         {
             $periode = "Jour(s)" ;
         }
-        if($contrat->getPeriode()->getReference() == "M")
+        else if($contrat->getPeriode()->getReference() == "M")
         {
             $periode = "Mois" ;
         } 
@@ -1027,28 +1030,145 @@ class FactureController extends AbstractController
         $item["dureeContrat"] = $contrat->getDuree()." ".$periode ;
         $item["montantForfait"] = $contrat->getMontantForfait() ;
         $item["forfaitLibelle"] = $contrat->getForfait()->getLibelle() ;
+        $item["refForfait"] = $contrat->getForfait()->getReference() ;
         $item["typePaiement"] = $contrat->getForfait()->getNom() ;
         $item["statut"] = $contrat->getStatut()->getNom() ;
         
         $tableauMois = [] ;
+
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
             if($contrat->getForfait()->getReference() == "FMOIS")
             {
+                if($contrat->getPeriode()->getReference() == "M")
+                    $duree = $contrat->getDuree() ;  
+                else if($contrat->getPeriode()->getReference() == "A")
+                    $duree = $contrat->getDuree() * 12 ; 
+                
                 $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
                 $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
-                $tableauMois = $this->appService->genererTableauMois($dateGenere,12, $contrat->getDateLimite()) ;
+                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite()) ;
+                
+                $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
+                    "item" => $item,
+                    "tableauMois" => $tableauMois,
+                    "dateLimite" => $contrat->getDateLimite(),
+                    "bail" => $contrat->getBail()->getNom(),
+                    "adresse" => $contrat->getBail()->getLieux()
+                ]) ;
+            } 
+        }
+        else if($contrat->getCycle()->getReference() == "CJOUR")
+        { 
+            if($contrat->getForfait()->getReference() == "FJOUR")
+            {
+                $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,1) ;
+                $dateGenere = $dateAvant ;
+                $tableauMois = $this->appService->genererTableauJour($dateGenere,$contrat->getDuree()) ;
+
+                $response = $this->renderView("facture/location/paiementJournaliere.html.twig",[
+                    "item" => $item,
+                    "tableauMois" => $tableauMois,
+                    "dateLimite" => $contrat->getDateLimite(),
+                    "bail" => $contrat->getBail()->getNom(),
+                    "adresse" => $contrat->getBail()->getLieux()
+                ]) ;
             }
+        } 
+
+        if($contrat->getForfait()->getReference() == "FORFAIT")
+        {
+            $tableauMois = [[
+                "annee" => date('Y'),
+                "statut" =>'-',
+            ]] ;
+
+            $response = $this->renderView("facture/location/paiementForfaitaire.html.twig",[
+                "item" => $item,
+                "tableauMois" => $tableauMois,
+                "dateLimite" => $contrat->getDateLimite(),
+                "bail" => $contrat->getBail()->getNom(),
+                "adresse" => $contrat->getBail()->getLieux()
+            ]) ;
         }
 
-        $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
-            "item" => $item,
-            "tableauMois" => $tableauMois,
-            "dateLimite" => $contrat->getDateLimite(),
-            ]) ;
-        
-
         return new Response($response) ;
+    }
+
+    #[Route('/facture/prest/location/save', name: 'fact_prest_location_save')]
+    public function factureSavePrestLocation(Request $request)
+    {
+        $fact_prest_lct_numContrat = $request->request->get("fact_prest_lct_numContrat") ; 
+        $location_paiement_editor = $request->request->get("location_paiement_editor") ; 
+        $fact_prest_lct_date_paiement = $request->request->get("fact_prest_lct_date_paiement") ; 
+        $fact_prest_lct_mtn_a_payer = $request->request->get("fact_prest_lct_mtn_a_payer") ; 
+
+        $result = $this->appService->verificationElement([
+            $fact_prest_lct_numContrat,
+            $fact_prest_lct_mtn_a_payer
+        ], [
+            "Numéro contrat",
+            "Montant à payer"
+            ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        // AJOUT PAIEMENT DE LOYER 
+
+        $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([], ['id' => 'DESC']);
+        $numPaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getId()+1) : 1 ;
+        $numPaiement = str_pad($numPaiement, 4, "0", STR_PAD_LEFT);
+        
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($fact_prest_lct_numContrat) ;
+        
+        $paiement = new LctPaiement() ;
+        
+        $paiement->setAgence($this->agence) ;
+        $paiement->setContrat($contrat) ;
+        $paiement->setDate(\DateTime::createFromFormat('j/m/Y',$fact_prest_lct_date_paiement)) ;
+        $paiement->setMontant($fact_prest_lct_mtn_a_payer) ;
+        $paiement->setNumReleve($numPaiement) ;
+        $paiement->setDescription($location_paiement_editor) ;
+
+        $this->entityManager->persist($paiement) ;
+        $this->entityManager->flush() ; 
+        
+        $partie_date_debut = $request->request->get("partie_date_debut") ;
+        $partie_date_limite = $request->request->get("partie_date_limite") ;
+        $partie_designation = $request->request->get("partie_designation") ;
+        $partie_montant_payee = $request->request->get("partie_montant_payee") ;
+        $partie_statut = (array)$request->request->get("partie_statut") ;
+        $partie_mois = $request->request->get("partie_mois") ;
+        $partie_annee = $request->request->get("partie_annee") ;
+        
+        foreach ($partie_statut as $key => $value) {
+            # code...
+            if($value == "")
+                break ;
+            $statutLoyer = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+                "reference" => $partie_statut[$key]
+            ]) ;
+    
+            $repartition = new LctRepartition() ;
+    
+            $repartition->setPaiement($paiement) ;
+            $repartition->setMois($partie_mois[$key]) ;
+            $repartition->setAnnee($partie_annee[$key]) ;
+            $repartition->setMontant($partie_montant_payee[$key]) ;
+            $repartition->setDateDebut(\DateTime::createFromFormat('j/m/Y',$partie_date_debut[$key])) ;
+            $repartition->setDateLimite(\DateTime::createFromFormat('j/m/Y',$partie_date_limite[$key])) ;
+            $repartition->setDesignation($partie_designation[$key]) ;
+            $repartition->setStatut($statutLoyer) ;
+            $repartition->setCreatedAt(new \DateTimeImmutable) ;
+            $repartition->setUpdatedAt(new \DateTimeImmutable) ;
+    
+            $this->entityManager->persist($repartition) ;
+            $this->entityManager->flush() ;
+        }
+
+        return new JsonResponse($result) ;
     }
 }

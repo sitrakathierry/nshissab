@@ -940,10 +940,8 @@ $(document).ready(function(){
                 prest_ctr_periode.val(),
                 prest_ctr_date_debut,
                 prest_ctr_date_fin,
-                prest_ctr_retenu,
                 prest_ctr_renouvellement.val(),
                 prest_ctr_montant_contrat,
-                prest_ctr_delai_change.val(),
             ],[
                 "Cycle",
                 "Type de paiement",
@@ -952,10 +950,8 @@ $(document).ready(function(){
                 "Période du contrat",
                 "Date Début",
                 "Date Fin",
-                "Retenu",
                 "Renouvellement",
                 "Montant Contrat",
-                "Délai changement avant fin",
             ])
 
             if(!result["allow"])

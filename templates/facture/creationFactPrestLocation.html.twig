@@ -1,104 +1,166 @@
 
 <div id="formFacture"></div>
-<h5 class="title_form text-black text-uppercase">Location de maison</h5>
-<div class="row">
-    <div class="col-md-3">
-        <label for="fact_prest_lct_numContrat" class="mt-2 font-weight-bold">Numéro du contrat</label>
-        <select name="fact_prest_lct_numContrat" class="custom-select chosen_select fact_client custom-select-sm" id="fact_prest_lct_numContrat">
-            <option value="">-</option>
-            {% for contrat in contrats %}
-                <option value="{{contrat.id}}">{{contrat.numContrat}} | BAIL : {{contrat.bail|upper}}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <label for="fact_prest_lct_bailleur" class="mt-2 font-weight-bold">Nom du bailleur</label>
-        <input type="text" readonly name="fact_prest_lct_bailleur" id="fact_prest_lct_bailleur" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-3">
-        <label for="fact_prest_lct_bail" class="mt-2 font-weight-bold">Nom du bail</label>
-        <input type="text" readonly name="fact_prest_lct_bail" id="fact_prest_lct_bail" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-3">
-        <label for="fact_prest_lct_locataire" class="mt-2 font-weight-bold">Nom du Locataire</label>
-        <input type="text" readonly name="fact_prest_lct_locataire" id="fact_prest_lct_locataire" class="form-control" placeholder=". . .">
-    </div>
-</div>
-<div class="row mt-2">
-    <div class="col-md-2">
-        <label for="fact_prest_lct_duree" class="mt-2 font-weight-bold">Durée du contrat</label>
-        <input type="text" name="fact_prest_lct_duree" readonly id="fact_prest_lct_duree" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-2">
-        <label for="fact_prest_lct_cycle" class="mt-2 font-weight-bold">Cycle</label>
-        <input type="text" name="fact_prest_lct_cycle" readonly id="fact_prest_lct_cycle" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-2">
-        <label for="fact_prest_lct_type_pment" class="mt-2 font-weight-bold">Type de paiement</label>
-        <input type="text" name="fact_prest_lct_type_pment" readonly id="fact_prest_lct_type_pment" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-2">
-        <label for="fact_prest_lct_montant" class="mt-2 font-weight-bold">Montant <span id="captionTypePment" class="text-info">. . .</span></label>
-        <input type="text" name="fact_prest_lct_montant" readonly id="fact_prest_lct_montant" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-2">
-        <label for="fact_prest_lct_date_debut" class="mt-2 font-weight-bold">Date Début</label>
-        <input type="text" readonly name="fact_prest_lct_date_debut" id="fact_prest_lct_date_debut" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-2">
-        <label for="fact_prest_lct_date_fin" class="mt-2 font-weight-bold">Date Fin</label>
-        <input type="text" readonly name="fact_prest_lct_date_fin" id="fact_prest_lct_date_fin" class="form-control" placeholder=". . .">
-    </div>
-</div>
-<div class="w-100 mt-2">
-    <label for="location_paiement_editor" class="mt-2 font-weight-bold">Description</label>
-    <textarea name="location_paiement_editor" class="form-control" id="location_paiement_editor" cols="30" rows="10"></textarea>
-</div>
-<h5 class="title_form text-black text-uppercase mt-4 mb-0">Paiement Loyer</h5>
-<div class="row">
-    <div class="col-md-3">
-        <label for="fact_prest_lct_date_paiement" class="mt-2 font-weight-bold">Date de paiement</label>
-        <input type="text" name="fact_prest_lct_date_paiement" value="{{ 'now'|date('d/m/Y') }}" id="fact_prest_lct_date_paiement" class="form-control" placeholder=". . .">
-    </div>
-    <div class="col-md-3">
-        <label for="fact_prest_lct_mtn_a_payer" class="mt-2 font-weight-bold">Montant à payer</label>
-        <input type="text" name="fact_prest_lct_mtn_a_payer" id="fact_prest_lct_mtn_a_payer" class="form-control" placeholder=". . .">
-    </div>
-</div>
-<div id="captionListePaiement">
-</div>
-<div class="row mt-3">
-    <div class="col-md-7"></div>
-    <div class="col-md-5"> 
-        <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
-        <div class="input-group mb-2">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
-            </div>
-            <input type="text" class="form-control fact_lieu" name="fact_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="fact_lieu">
+<form id="formFactLocation">
+    <h5 class="title_form text-black text-uppercase">Location de maison</h5>
+    <div class="row">
+        <div class="col-md-3">
+            <label for="fact_prest_lct_numContrat" class="mt-2 font-weight-bold">Numéro du contrat</label>
+            <select name="fact_prest_lct_numContrat" class="custom-select chosen_select fact_client custom-select-sm" id="fact_prest_lct_numContrat">
+                <option value="">-</option>
+                {% for contrat in contrats %}
+                    <option value="{{contrat.id}}">{{contrat.numContrat}} | BAIL : {{contrat.bail|upper}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="fact_prest_lct_bailleur" class="mt-2 font-weight-bold">Nom du bailleur</label>
+            <input type="text" readonly name="fact_prest_lct_bailleur" id="fact_prest_lct_bailleur" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-3">
+            <label for="fact_prest_lct_bail" class="mt-2 font-weight-bold">Nom du bail</label>
+            <input type="text" readonly name="fact_prest_lct_bail" id="fact_prest_lct_bail" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-3">
+            <label for="fact_prest_lct_locataire" class="mt-2 font-weight-bold">Nom du Locataire</label>
+            <input type="text" readonly name="fact_prest_lct_locataire" id="fact_prest_lct_locataire" class="form-control" placeholder=". . .">
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-7"></div>
-    <div class="col-md-5"> 
-        <label for="nom" class="mt-1 font-weight-bold">Le,</label>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-            </div>
-            <input type="text" class="form-control fact_date" name="fact_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="fact_date">
+    <div class="row mt-2">
+        <div class="col-md-2">
+            <label for="fact_prest_lct_cycle" class="mt-2 font-weight-bold">Cycle</label>
+            <input type="text" name="fact_prest_lct_cycle" readonly id="fact_prest_lct_cycle" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-2">
+            <label for="fact_prest_lct_date_debut" class="mt-2 font-weight-bold">Date Début</label>
+            <input type="text" readonly name="fact_prest_lct_date_debut" id="fact_prest_lct_date_debut" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-2">
+            <label for="fact_prest_lct_date_fin" class="mt-2 font-weight-bold">Date Fin</label>
+            <input type="text" readonly name="fact_prest_lct_date_fin" id="fact_prest_lct_date_fin" class="form-control" placeholder=". . .">
+            <input type="hidden"  id="fact_prest_lct_ref_forfait" >
         </div>
     </div>
-</div>
-{% if with_foot %}
-    <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-        <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+    <div class="w-100 mt-2">
+        <label for="location_paiement_editor" class="mt-2 font-weight-bold">Description</label>
+        <textarea name="location_paiement_editor" class="form-control" id="location_paiement_editor" cols="30" rows="10"></textarea>
     </div>
-{% endif %} 
+    <h5 class="title_form text-black text-uppercase mt-4 mb-0">Paiement Loyer</h5>
+    <div class="row">
+        <div class="col-md-2">
+            <label for="fact_prest_lct_duree" class="mt-2 font-weight-bold">Durée du contrat</label>
+            <input type="text" name="fact_prest_lct_duree" readonly id="fact_prest_lct_duree" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-2">
+            <label for="fact_prest_lct_type_pment" class="mt-2 font-weight-bold">Type de paiement</label>
+            <input type="text" name="fact_prest_lct_type_pment" readonly id="fact_prest_lct_type_pment" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-2">
+            <label for="fact_prest_lct_montant" class="mt-2 font-weight-bold">Montant <span id="captionTypePment" class="text-info">. . .</span></label>
+            <input type="text" name="fact_prest_lct_montant" readonly id="fact_prest_lct_montant" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-3">
+            <label for="fact_prest_lct_date_paiement" class="mt-2 font-weight-bold">Date de paiement</label>
+            <input type="text" name="fact_prest_lct_date_paiement" value="{{ 'now'|date('d/m/Y') }}" id="fact_prest_lct_date_paiement" class="form-control" placeholder=". . .">
+        </div>
+        <div class="col-md-3">
+            <label for="fact_prest_lct_mtn_a_payer" class="mt-2 font-weight-bold">Montant à payer</label>
+            <input type="text" name="fact_prest_lct_mtn_a_payer" id="fact_prest_lct_mtn_a_payer" class="form-control" placeholder=". . .">
+        </div>
+    </div>
+    <div id="captionListePaiement">
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-7"></div>
+        <div class="col-md-5"> 
+            <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                </div>
+                <input type="text" class="form-control fact_lieu" name="fact_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Facture" id="fact_lieu">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-7"></div>
+        <div class="col-md-5"> 
+            <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                <input type="text" class="form-control fact_date" name="fact_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Facture" id="fact_date">
+            </div>
+        </div>
+    </div>
+    {% if with_foot %}
+        <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+            <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+        </div>
+    {% endif %} 
+</form>
 <script>
+
     var location_paiement_editor = new LineEditor("#location_paiement_editor") ;
+    var instance = new Loading(files.loading) ;
+    
     $(".chosen_select").chosen({
-            no_results_text: "Aucun resultat trouvé : "
-        });
+        no_results_text: "Aucun resultat trouvé : "
+    }) ;
+
+    $("#fact_prest_lct_date_paiement").datepicker() ;
+    $("#fact_date").datepicker()
+
+    $("#formFactLocation").submit(function(){
+        var self = $(this)
+        $("#location_paiement_editor").val(location_paiement_editor.getEditorText("#location_paiement_editor"))
+        $.confirm({
+            title: "Confirmation",
+            content:"Etes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.fact_prest_location_save,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
 </script>

@@ -151,6 +151,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctContrat::class)]
     private Collection $lctContrats;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctPaiement::class)]
+    private Collection $lctPaiements;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -186,6 +189,7 @@ class Agence
         $this->lctBailleurs = new ArrayCollection();
         $this->lctLocataires = new ArrayCollection();
         $this->lctContrats = new ArrayCollection();
+        $this->lctPaiements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1320,6 +1324,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($lctContrat->getAgence() === $this) {
                 $lctContrat->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctPaiement>
+     */
+    public function getLctPaiements(): Collection
+    {
+        return $this->lctPaiements;
+    }
+
+    public function addLctPaiement(LctPaiement $lctPaiement): self
+    {
+        if (!$this->lctPaiements->contains($lctPaiement)) {
+            $this->lctPaiements->add($lctPaiement);
+            $lctPaiement->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctPaiement(LctPaiement $lctPaiement): self
+    {
+        if ($this->lctPaiements->removeElement($lctPaiement)) {
+            // set the owning side to null (unless already changed)
+            if ($lctPaiement->getAgence() === $this) {
+                $lctPaiement->setAgence(null);
             }
         }
 

@@ -38,6 +38,12 @@ class LctRepartition
     #[ORM\ManyToOne(inversedBy: 'lctRepartitions')]
     private ?LctStatutLoyer $statut = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateLimite = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $designation = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -135,6 +141,30 @@ class LctRepartition
     public function setStatut(?LctStatutLoyer $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getDateLimite(): ?\DateTimeInterface
+    {
+        return $this->dateLimite;
+    }
+
+    public function setDateLimite(?\DateTimeInterface $dateLimite): self
+    {
+        $this->dateLimite = $dateLimite;
+
+        return $this;
+    }
+
+    public function getDesignation(): ?string
+    {
+        return $this->designation;
+    }
+
+    public function setDesignation(?string $designation): self
+    {
+        $this->designation = $designation;
 
         return $this;
     }

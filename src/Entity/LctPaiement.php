@@ -28,6 +28,15 @@ class LctPaiement
     #[ORM\OneToMany(mappedBy: 'paiement', targetEntity: LctRepartition::class)]
     private Collection $lctRepartitions;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numReleve = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\ManyToOne(inversedBy: 'lctPaiements')]
+    private ?Agence $agence = null;
+
     public function __construct()
     {
         $this->lctRepartitions = new ArrayCollection();
@@ -100,6 +109,42 @@ class LctPaiement
                 $lctRepartition->setPaiement(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getNumReleve(): ?string
+    {
+        return $this->numReleve;
+    }
+
+    public function setNumReleve(?string $numReleve): self
+    {
+        $this->numReleve = $numReleve;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }
