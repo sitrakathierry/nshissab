@@ -37,6 +37,12 @@ class LctPaiement
     #[ORM\ManyToOne(inversedBy: 'lctPaiements')]
     private ?Agence $agence = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $lieu = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $indication = null;
+
     public function __construct()
     {
         $this->lctRepartitions = new ArrayCollection();
@@ -145,6 +151,30 @@ class LctPaiement
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function getLieu(): ?string
+    {
+        return $this->lieu;
+    }
+
+    public function setLieu(?string $lieu): self
+    {
+        $this->lieu = $lieu;
+
+        return $this;
+    }
+
+    public function getIndication(): ?string
+    {
+        return $this->indication;
+    }
+
+    public function setIndication(?string $indication): self
+    {
+        $this->indication = $indication;
 
         return $this;
     }

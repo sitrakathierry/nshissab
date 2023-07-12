@@ -12,61 +12,91 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
+{% set tabMois = [
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+] %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{paiement.numReleve}}</span></h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">N° Contrat</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
-                    <option value="">TOUS</option>
-                    
-                </select>
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Contrat N°</label>
+                <input type="text" readonly name="nom" value="{{ paiement.numContrat }}" id="nom" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bail</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
-                    <option value="">TOUS</option>
-                    
-                </select>
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Bailleur</label>
+                <input type="text" readonly name="nom" value="{{ paiement.bailleur | upper }}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Bail</label>
+                <input type="text" readonly name="nom" value="{{ paiement.bail | upper }}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Locataire</label>
+                <input type="text" readonly name="nom" value="{{ paiement.locataire | upper }}" id="nom" class="form-control" placeholder=". . .">
             </div>
         </div>
         <div class="table-responsive mt-3">
-            <h5 class="title_form text-black text-uppercase">Tous des paiements</h5>
             <table class="table-sm table table-bordered">
                 <thead class="thead-dark">
-                    <tr>
-                        <th>Date limite</th>
-                        <th>Date paiement</th>
+                    <tr class="text-uppercase">
                         <th>Désignation</th>
-                        <th>Mois</th>
-                        <th>Année</th>
+                        <th>Jours / Mois</th>
                         <th>Montant payé</th>
-                        <th>Statut</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% set totalPayee = 0 %}
                     {% for repartition in repartitions %}
                         <tr>
-                            <td>{{ repartition.dateLimite | date("d/m/Y")}}</td>
-                            <td>{{ repartition.paiement.date | date('d/m/Y') }}</td>
-                            <td>{{ repartition.designation }}</td>
-                            <td>{{ repartition.mois}}</td>
-                            <th>{{ repartition.annee }}</th>
+                            <td>{{ repartition.designation | upper}}</td>
+                            <td>{{ repartition.moment | upper }}</td>
                             <th>{{ repartition.montant }}</th>
-                            <th>{{ repartition.statut.nom | upper }}</th>
                         </tr>
+                        {% set totalPayee = totalPayee + repartition.montant %}
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" class="text-uppercase">Montant Total Payée</th>
+                        <th class="text-white bg-primary" >{{ totalPayee }}</th>
+                    </tr>
+                </tfoot>
             </table>
+            <div class="w-100">
+                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{ paiement.lettre | upper}}</span>
+            </div>
         </div>
-
+        <div class="row mt-3">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                    </div>
+                    <input type="text" class="form-control ctr_lieu" name="ctr_lieu" value="{{paiement.lieu}}" placeholder=". . ." aria-label="Lieu Contrat" id="ctr_lieu">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <input type="text" class="form-control ctr_date" readonly name="ctr_date" value="{{ paiement.date }}" placeholder=". . ." aria-label="Date Contrat" id="ctr_date">
+                </div>
+            </div>
+        </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
         {% endif %} 
     </div>

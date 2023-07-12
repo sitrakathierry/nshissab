@@ -58,13 +58,13 @@
             <label for="fact_prest_lct_montant" class="mt-2 font-weight-bold">Montant <span id="captionTypePment" class="text-info">. . .</span></label>
             <input type="text" name="fact_prest_lct_montant" readonly id="fact_prest_lct_montant" class="form-control" placeholder=". . .">
         </div>
-        <div class="col-md-3">
+        {# <div class="col-md-3">
             <label for="fact_prest_lct_date_paiement" class="mt-2 font-weight-bold">Date de paiement</label>
             <input type="text" name="fact_prest_lct_date_paiement" value="{{ 'now'|date('d/m/Y') }}" id="fact_prest_lct_date_paiement" class="form-control" placeholder=". . .">
-        </div>
+        </div> #}
         <div class="col-md-3">
             <label for="fact_prest_lct_mtn_a_payer" class="mt-2 font-weight-bold">Montant à payer</label>
-            <input type="text" name="fact_prest_lct_mtn_a_payer" id="fact_prest_lct_mtn_a_payer" class="form-control" placeholder=". . .">
+            <input type="number" step="any" name="fact_prest_lct_mtn_a_payer" id="fact_prest_lct_mtn_a_payer" class="form-control" placeholder=". . .">
         </div>
     </div>
     <div id="captionListePaiement">
@@ -143,6 +143,12 @@
                                 content: json.message,
                                 type: json.type,
                                 buttons: {
+                                    IMPRIMER: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    },
                                     OK: function(){
                                         if(json.type == "green")
                                         {

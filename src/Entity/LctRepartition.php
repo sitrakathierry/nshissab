@@ -44,6 +44,9 @@ class LctRepartition
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $designation = null;
 
+    #[ORM\ManyToOne(inversedBy: 'lctRepartitions')]
+    private ?LctContrat $contrat = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -165,6 +168,18 @@ class LctRepartition
     public function setDesignation(?string $designation): self
     {
         $this->designation = $designation;
+
+        return $this;
+    }
+
+    public function getContrat(): ?LctContrat
+    {
+        return $this->contrat;
+    }
+
+    public function setContrat(?LctContrat $contrat): self
+    {
+        $this->contrat = $contrat;
 
         return $this;
     }

@@ -100,9 +100,13 @@ class LctContrat
     #[ORM\OneToMany(mappedBy: 'contrat', targetEntity: LctPaiement::class)]
     private Collection $lctPaiements;
 
+    #[ORM\OneToMany(mappedBy: 'contrat', targetEntity: LctRepartition::class)]
+    private Collection $lctRepartitions;
+
     public function __construct()
     {
         $this->lctPaiements = new ArrayCollection();
+        $this->lctRepartitions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -458,6 +462,36 @@ class LctContrat
             // set the owning side to null (unless already changed)
             if ($lctPaiement->getContrat() === $this) {
                 $lctPaiement->setContrat(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctRepartition>
+     */
+    public function getLctRepartitions(): Collection
+    {
+        return $this->lctRepartitions;
+    }
+
+    public function addLctRepartition(LctRepartition $lctRepartition): self
+    {
+        if (!$this->lctRepartitions->contains($lctRepartition)) {
+            $this->lctRepartitions->add($lctRepartition);
+            $lctRepartition->setContrat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctRepartition(LctRepartition $lctRepartition): self
+    {
+        if ($this->lctRepartitions->removeElement($lctRepartition)) {
+            // set the owning side to null (unless already changed)
+            if ($lctRepartition->getContrat() === $this) {
+                $lctRepartition->setContrat(null);
             }
         }
 

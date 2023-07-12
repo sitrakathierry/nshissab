@@ -695,9 +695,26 @@ $(document).ready(function(){
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()
+                                if(json.caution == "SANS")
+                                {
+                                    $.alert({
+                                        title: 'Message',
+                                        content: json.message,
+                                        type: json.type,
+                                        buttons:{
+                                            OK: function(){
+                                                if(json.type == "green")
+                                                {
+                                                    location.assign(routes.prest_location_contrat)
+                                                }}
+                                            ,
+                                        }
+                                    });
+                                    return false ;
+                                }
                                 $.alert({
                                     title: 'Message',
-                                    content: json.message,
+                                    content: json.message+". Est-ce que la caution a-t-il été payée ? ",
                                     type: json.type,
                                     buttons: {
                                         NON: function(){
@@ -707,20 +724,33 @@ $(document).ready(function(){
                                             }
                                         },
                                         OUI: function(){
-                                            $.alert({
-                                                title: 'Message',
-                                                content: "Caution enregistré",
-                                                type: json.type,
-                                                buttons:{
-                                                    IMPRIMER: function(){},
-                                                    OK: function(){
-                                                        if(json.type == "green")
-                                                        {
-                                                            location.assign(routes.prest_location_contrat)
-                                                        }}
-                                                    ,
+                                            var realinstance = instance.loading()
+                                            $.ajax({
+                                                url: routes.prest_save_caution_location,
+                                                type:'post',
+                                                cache: false,
+                                                data : {contrat:json.contrat,montantCtn:json.montantCtn},
+                                                dataType: 'json',
+                                                success: function(respCtn){
+                                                    realinstance.close()
+                                                    $.alert({
+                                                        title: 'Message',
+                                                        content: "La caution a été enregistré",
+                                                        type: "green",
+                                                        buttons:{
+                                                            IMPRIMER: function(){},
+                                                            OK: function(){
+                                                                    location.assign(routes.prest_location_contrat)
+                                                                }
+                                                            ,
+                                                        }
+                                                    });
+                                                },
+                                                error: function(resp){
+                                                    realinstance.close()
+                                                    $.alert(JSON.stringify(resp)) ;
                                                 }
-                                            });
+                                            })
                                         }
                                     }
                                 });
@@ -940,7 +970,6 @@ $(document).ready(function(){
                 prest_ctr_periode.val(),
                 prest_ctr_date_debut,
                 prest_ctr_date_fin,
-                prest_ctr_renouvellement.val(),
                 prest_ctr_montant_contrat,
             ],[
                 "Cycle",
@@ -950,7 +979,6 @@ $(document).ready(function(){
                 "Période du contrat",
                 "Date Début",
                 "Date Fin",
-                "Renouvellement",
                 "Montant Contrat",
             ])
 

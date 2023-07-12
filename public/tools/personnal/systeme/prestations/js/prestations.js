@@ -1,5 +1,6 @@
 $(document).ready(function(){
     var prest_prestation_editor = new LineEditor(".prest_prestation_editor") ;
+    var paiement_editor = new LineEditor("#paiement_editor") ;
     var instance = new Loading(files.loading) 
     prest_prestation_editor.setEditorText($(".prest_prestation_editor").text())
     

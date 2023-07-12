@@ -20,6 +20,7 @@ use App\Entity\LctPeriode;
 use App\Entity\LctRenouvellement;
 use App\Entity\LctRepartition;
 use App\Entity\LctStatut;
+use App\Entity\LctStatutLoyer;
 use App\Entity\LctTypeLocation;
 use App\Entity\Service;
 use App\Entity\SrvDuree;
@@ -905,6 +906,43 @@ class PrestationController extends AbstractController
     #[Route('/prestation/location/contrat/save', name: 'prest_location_contrat_save')]
     public function prestSaveContratLocation(Request $request)
     {
+        // GESTION D'ERREUR 
+        $prest_ctr_cycle = $request->request->get("prest_ctr_cycle") ;
+        $prest_ctr_forfait = $request->request->get("prest_ctr_forfait") ;
+        $prest_ctr_renouvellement = $request->request->get("prest_ctr_renouvellement") ;
+        $prest_ctr_mode = $request->request->get("prest_ctr_mode") ;
+        $prest_ctr_delai_mode = $request->request->get("prest_ctr_delai_mode") ;
+        $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
+
+        $forfait = $this->entityManager->getRepository(LctForfait::class)->find($prest_ctr_forfait) ;
+        $cycle = $this->entityManager->getRepository(LctCycle::class)->find($prest_ctr_cycle) ;
+        
+        if($cycle->getReference() == "CMOIS" && $forfait->getReference() == "FMOIS")
+        {
+            $result = $this->appService->verificationElement([
+                $prest_ctr_renouvellement,
+                $prest_ctr_mode,
+                $prest_ctr_delai_mode,
+                $prest_ctr_delai_change,
+            ],[
+                "Renouvellement",
+                "Mode de paiement Loyer",
+                "Date Limite de Paiement",
+                "Changement avant fin du contrat"
+            ]) ;
+    
+            if(!$result["allow"])
+            {
+                $result["caution"] = "SANS" ;
+                return new JsonResponse($result) ;
+            }
+        }
+        else
+        {
+            $prest_ctr_delai_mode = $prest_ctr_delai_mode == "" ? NULL : $prest_ctr_delai_mode ;
+            $prest_ctr_delai_change = $prest_ctr_delai_change == "" ? NULL : $prest_ctr_delai_change ;
+        }
+
         // VERIFICATION DU BAILLEUR
         $prest_ctr_prop_nom = $request->request->get("prest_ctr_prop_nom") ;
         $prest_ctr_prop_phone = $request->request->get("prest_ctr_prop_phone") ;
@@ -989,34 +1027,28 @@ class PrestationController extends AbstractController
         $lastRecordFContrat = $this->entityManager->getRepository(LctContrat::class)->findOneBy([], ['id' => 'DESC']);
         $numContrat = !is_null($lastRecordFContrat) ? ($lastRecordFContrat->getId()+1) : 1 ;
         $numContrat = str_pad($numContrat, 5, "0", STR_PAD_LEFT);
-        $numContrat = "CTR-".$numContrat ; 
+        $numContrat = "CTR-".$numContrat."/".date('y') ; 
 
-        $prest_ctr_cycle = $request->request->get("prest_ctr_cycle") ;
-        $prest_ctr_forfait = $request->request->get("prest_ctr_forfait") ;
+        
         $prest_ctr_montant_forfait = $request->request->get("prest_ctr_montant_forfait") ;
         $prest_ctr_duree = $request->request->get("prest_ctr_duree") ;
         $prest_ctr_periode = $request->request->get("prest_ctr_periode") ;
         $prest_ctr_date_debut = $request->request->get("prest_ctr_date_debut") ;
         $prest_ctr_date_fin = $request->request->get("prest_ctr_date_fin") ;
         $prest_ctr_retenu = $request->request->get("prest_ctr_retenu") ;
-        $prest_ctr_renouvellement = $request->request->get("prest_ctr_renouvellement") ;
-        $prest_ctr_mode = $request->request->get("prest_ctr_mode") ;
-        $prest_ctr_delai_mode = $request->request->get("prest_ctr_delai_mode") ;
-        $prest_ctr_delai_mode = $prest_ctr_delai_mode == "" ? 0 : $prest_ctr_delai_mode ;
+        $prest_ctr_retenu = $prest_ctr_retenu == "" ? NULL : $prest_ctr_retenu ;
         $prest_ctr_bail_caution = $request->request->get("prest_ctr_bail_caution") ;
+        $prest_ctr_bail_caution = $prest_ctr_bail_caution == "" ? NULL : $prest_ctr_bail_caution ;
         $prest_ctr_montant_contrat = $request->request->get("prest_ctr_montant_contrat") ;
-        $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
-        $prest_ctr_delai_change = $prest_ctr_delai_change == "AUTRE" ? $request->request->get("prest_ctr_autre_valeur") : $prest_ctr_delai_change;
+        $prest_ctr_delai_change = $prest_ctr_delai_change == "AUTRE" ? ($request->request->get("prest_ctr_autre_valeur")  == "" ? NULL : $request->request->get("prest_ctr_autre_valeur")) : $prest_ctr_delai_change;
         $prest_ctr_renouvellement_autre = $request->request->get("prest_ctr_renouvellement_autre") ;
         $contrat_editor = $request->request->get("contrat_editor") ;
         $ctr_lieu = $request->request->get("ctr_lieu") ;
         $ctr_date = $request->request->get("ctr_date") ;
-
+        
         $type_loc = $this->entityManager->getRepository(LctTypeLocation::class)->find($prest_ctr_bail_type_location) ;
-        $cycle = $this->entityManager->getRepository(LctCycle::class)->find($prest_ctr_cycle) ;
         $renouv = $this->entityManager->getRepository(LctRenouvellement::class)->find($prest_ctr_renouvellement) ;
         $periode = $this->entityManager->getRepository(LctPeriode::class)->find($prest_ctr_periode) ;
-        $forfait = $this->entityManager->getRepository(LctForfait::class)->find($prest_ctr_forfait) ;
         $modePaiement = $this->entityManager->getRepository(LctModePaiement::class)->find($prest_ctr_mode) ;
         $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
             "reference" => "ENCR"
@@ -1043,7 +1075,7 @@ class PrestationController extends AbstractController
         $contrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$prest_ctr_date_fin)) ;
         $contrat->setModePaiement($modePaiement) ;
         $contrat->setDateLimite($prest_ctr_delai_mode) ;
-        $contrat->setCaution($prest_ctr_bail_caution == "" ? 0 : $prest_ctr_bail_caution) ;
+        $contrat->setCaution($prest_ctr_bail_caution) ;
         $contrat->setDelaiChgFin($prest_ctr_delai_change) ;
         $contrat->setNote($contrat_editor) ;
         $contrat->setLieuContrat($ctr_lieu) ;
@@ -1060,9 +1092,13 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        $indcCaution = !is_null($prest_ctr_bail_caution) ? "AVEC" : "SANS" ;
         return new JsonResponse([
             "type" => "green",
-            "message" => "Contrat enregistré. Est-ce que la caution a été payée ? ",
+            "message" => "Contrat enregistré",
+            "caution" => $indcCaution,
+            "contrat" => $contrat->getId(),
+            "montantCtn" => $prest_ctr_bail_caution
             ]) ;
     }
 
@@ -1070,18 +1106,128 @@ class PrestationController extends AbstractController
     public function prestDetailContratLocation($id)
     {
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+            "contrat" => $contrat 
+        ]) ;
+        
+        $bailleur = [
+            "nom" => $contrat->getBailleur()->getNom(),
+            "telephone" => $contrat->getBailleur()->getTelephone(),
+            "adresse" => $contrat->getBailleur()->getAdresse(),
+        ] ;
 
-        $paiements = $this->entityManager->getRepository(LctPaiement::class)->findBy([
-            "contrat" => $contrat
-            ]) ;
+        $locataire = [
+            "nom" => $contrat->getLocataire()->getNom(),
+            "telephone" =>$contrat->getLocataire()->getTelephone(),
+            "adresse" => $contrat->getLocataire()->getAdresse(),
+            "email" => $contrat->getLocataire()->getEmail(),
+        ] ;
 
+        $bail = [
+            "nom" => $contrat->getBail()->getNom(),
+            "adresse" => $contrat->getBail()->getLieux(),
+            "dimension" => $contrat->getBail()->getDimension(),
+        ] ;
+
+        $parent = [
+            "typeLocation" => $contrat->getTypeLocation()->getNom(),
+            "cycle" => $contrat->getCycle()->getNom(),
+            "typePaiement" => $contrat->getForfait()->getNom(),
+            "montantForfait" => $contrat->getMontantForfait(),
+            "numContrat" => $contrat->getNumContrat(),
+            "duree" => $contrat->getDuree(),
+            "date" => $contrat->getDateContrat()->format("d/m/Y"),
+            "lieu" => $contrat->getLieuContrat(),
+            "periode" => $contrat->getPeriode()->getNom(),
+            "dateDebut" => $contrat->getDateDebut()->format("d/m/Y") ,
+            "dateFin" => $contrat->getDateFin()->format("d/m/Y") ,
+            "retenu" => is_null($contrat->getPourcentage()) ? "" : $contrat->getPourcentage(),
+            "renouveau" => empty($contrat->getRenouvellement()) ? "" : $contrat->getRenouvellement()->getNom(),
+            "modePaiement" => is_null($contrat->getModePaiement()) ? "" : $contrat->getModePaiement()->getNom(),
+            "isModeP" => !is_null($contrat->getModePaiement()),
+            "dateLimite" => is_null($contrat->getDateLimite()) ? "" : $contrat->getDateLimite(),
+            "caution" => empty($contrat->getCaution()) ? "" : "Jusqu'au ".$contrat->getCaution()." du mois",
+            "isCaution" => !empty($contrat->getCaution()),
+            "montantContrat" => $contrat->getMontantContrat(),
+            "changement" => empty($contrat->getDelaiChgFin()) ? "" : $contrat->getDelaiChgFin()." Jours avant la fin du contrat"
+        ] ;
+
+        $childs = [] ;
+        
+        $totalReleve = 0 ;
+
+        foreach ($repartitions as $repartition) {
+            $item = [] ;
+
+            $statutRepart = $repartition->getStatut()->getReference() ; 
+            if($statutRepart == "CAUTION")
+                continue ;
+
+            $refForfait =  $contrat->getForfait()->getReference() ;
+            if($refForfait == "FJOUR")
+                $moment = $repartition->getDateDebut()->format("d/m/Y") ;
+            else 
+                $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
+
+            $item["designation"] = $repartition->getDesignation() ;
+            $item["moment"] = $moment ;
+            $item["dateDebut"] = $repartition->getDateDebut()->format('d/m/Y') ;
+            $item["montant"] = $repartition->getMontant() ;
+            $item["statut"] = $repartition->getStatut()->getReference() ;
+
+            $totalReleve += $repartition->getMontant() ; 
+            array_push($childs,$item) ;
+        }
+
+        $resultat = array_reduce($childs, function($carry, $item) {
+            $dateDebut = $item['dateDebut'];
+            
+            if (!isset($carry[$dateDebut])) {
+                $carry[$dateDebut] = $item;
+            } else {
+                $carry[$dateDebut]['montant'] += $item['montant'];
+            }
+            
+            return $carry;
+        }, []);
+        
+        $childs = array_values($resultat); 
+        $newChilds = [] ;
+        foreach ($childs as $child) {
+            $elem = [] ;
+            
+            $elem["moment"] = $child["moment"] ;
+            $elem["dateDebut"] = $child["dateDebut"] ;
+            $elem["montant"] = $child["montant"] ;
+
+            if($child["montant"] == $contrat->getMontantForfait())
+            {
+                $elem["designation"] = "Paiement ".$child["designation"] ;
+                $elem["statut"] = "Payée" ;
+            }
+            else
+            {
+                $elem["designation"] = "Acompte ".$child["designation"] ;
+                $elem["statut"] = "Acompte" ;
+            }
+            array_push($newChilds,$elem) ;
+        }
+
+        $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
         return $this->render('prestations/location/detailsContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Detail contrat",
             "with_foot" => true,
-            "contrat" => $contrat,
-            "paiements" => $paiements,
+            "contrat" => $parent,
+            "repartitions" => $newChilds,
+            "lettreReleve" => $lettreReleve,
+            "bailleur" => $bailleur,
+            "locataire" => $locataire,
+            "bail" => $bail,
         ]);
+        
+        
     }
 
     #[Route('/prestation/location/loyer/liste', name: 'prest_location_liste_loyer')]
@@ -1093,7 +1239,7 @@ class PrestationController extends AbstractController
         
         return $this->render('prestations/location/listeLocationLoyer.html.twig', [
             "filename" => "prestations",
-            "titlePage" => "Detail contrat",
+            "titlePage" => "Relevé de loyer",
             "with_foot" => true,
             "paiements" => $paiements,
         ]);
@@ -1103,16 +1249,106 @@ class PrestationController extends AbstractController
     public function prestDetailsLoyerLocation($id)
     {
         $paiement = $this->entityManager->getRepository(LctPaiement::class)->find($id) ;
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        $parent = [
+            "numReleve" => $paiement->getNumReleve(),
+            "numContrat" => $paiement->getContrat()->getNumContrat(),
+            "bailleur" => $paiement->getContrat()->getBailleur()->getNom(),
+            "bail" => $paiement->getContrat()->getBail()->getNom(),
+            "locataire" => $paiement->getContrat()->getLocataire()->getNom(),
+            "lettre" => $this->appService->NumberToLetter($paiement->getMontant()),
+            "lieu" => $paiement->getLieu(),
+            "date" => $paiement->getDate()->format("d/m/Y"),
+        ] ;
 
         $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
             "paiement" => $paiement 
         ]) ;
+        
+        $childs = [] ;
+
+        foreach ($repartitions as $repartition) {
+            $item = [] ;
+
+            $statutRepart = $repartition->getStatut()->getReference() ; 
+            if( $statutRepart == "PAYE")
+                $labelDsg = "Paiement" ;
+            else if( $statutRepart == "ACOMPTE")
+                $labelDsg = "Acompte" ;
+            else
+                $labelDsg = "" ;
+
+            $refForfait =  $paiement->getContrat()->getForfait()->getReference() ;
+            if($refForfait == "FJOUR")
+                $moment = $repartition->getDateDebut()->format("d/m/Y") ;
+            else 
+                $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
+
+            $item["designation"] = $labelDsg." ".$repartition->getDesignation() ;
+            $item["moment"] = $moment ;
+            $item["montant"] = $repartition->getMontant() ;
+
+            array_push($childs,$item) ;
+        }
 
         return $this->render('prestations/location/detailsLocationLoyer.html.twig', [
             "filename" => "prestations",
-            "titlePage" => "Detail contrat",
+            "titlePage" => "Relevé de paiement ",
             "with_foot" => true,
-            "repartitions" => $repartitions,
+            "repartitions" => $childs,
+            "paiement" => $parent,
         ]);
+    }
+
+    
+    #[Route('/prestation/location/caution/save', name: 'prest_save_caution_location')]
+    public function prestSaveCautionLocation(Request $request)
+    {
+        $idContrat = $request->request->get("contrat") ;
+        $montantCtn = $request->request->get("montantCtn") ;
+        
+        $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([], ['id' => 'DESC']);
+        $numPaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getId()+1) : 1 ;
+        $numPaiement = str_pad($numPaiement, 4, "0", STR_PAD_LEFT)."/".date('y');
+        
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($idContrat) ;
+        
+        $paiement = new LctPaiement() ;
+        
+        $paiement->setAgence($this->agence) ;
+        $paiement->setContrat($contrat) ;
+        $paiement->setDate(\DateTime::createFromFormat('j/m/Y',date('d/m/Y'))) ;
+        $paiement->setMontant(floatval($montantCtn)) ;
+        $paiement->setNumReleve($numPaiement) ;
+        $paiement->setIndication("CAUTION") ;
+        $paiement->setDescription("Paiement Caution à la création du contrat le ".date('d/m/Y')) ;
+
+        $this->entityManager->persist($paiement) ;
+        $this->entityManager->flush() ; 
+
+        $statutLoyer = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+            "reference" => "CAUTION"
+        ]) ;
+
+        $repartition = new LctRepartition() ;
+
+        $repartition->setPaiement($paiement) ;
+        $repartition->setMois(intval(date('m'))) ;
+        $repartition->setAnnee(date('Y')) ;
+        $repartition->setMontant(floatval($montantCtn)) ;
+        $repartition->setDateDebut(NULL) ;
+        $repartition->setDateLimite(NULL) ;
+        $repartition->setDesignation("PAIEMENT CAUTION ".$contrat->getBail()->getNom()) ;
+        $repartition->setStatut($statutLoyer) ;
+        $repartition->setCreatedAt(new \DateTimeImmutable) ;
+        $repartition->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($repartition) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "La caution a été enregistré"
+        ]) ;
     }
 }

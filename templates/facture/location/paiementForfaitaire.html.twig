@@ -1,41 +1,48 @@
 <div class="table-responsive mt-3">
     <table class="table-sm table table-bordered">
         <thead class="thead-dark">
-            <tr>
+            <tr class="text-uppercase">
                 <th>Désignation </th>
-                <th>Date de paiement </th>
-                <th>Mois</th>
-                <th>Année</th>
                 <th>Montant payé</th>
                 <th>Statut</th>
             </tr>
         </thead>
-        <tbody id="listePaiement">
+        <tbody id="listePaiement"> 
+            {% set passageElem = false %}
             {% for tableauM in tableauMois %}
+                {% set statutPaiement = tableauM.statut %}
+                {% set montatPayee = "-" %}
                 <tr>
-                    <td>LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}
-                    <input type="hidden" name="partie_designation[]" id="partie_designation" value="LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}">
-                    <input type="hidden" name="partie_mois[]" id="partie_mois" >
-                    <input type="hidden" name="partie_montant_payee[]" id="partie_montant_payee">
-                    <input type="hidden" name="partie_statut[]" id="partie_statut">
+                    <td>
+                        LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}
+                        <input type="hidden" name="partie_designation[]" id="partie_designation" value="LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}">
+                        <input type="hidden" name="partie_mois[]" id="partie_mois" >
+                        <input type="hidden" name="partie_annee[]" id="partie_annee" value="{{ tableauM.annee }}">
+                        <input type="hidden" name="partie_montant_payee[]" id="partie_montant_payee">
+                        <input type="hidden" name="partie_statut[]" id="partie_statut">
+                        {% if not passageElem and elemExistant is not empty %}
+                            {% set statutPaiement = elemExistant.statut %}
+                            {% set montatPayee = elemExistant.montant %}
+                            <input type="hidden" id="partie_montant_initial" value="{{elemExistant.montant}}"> 
+                            <input type="hidden" id="partie_statut_initial" value="{{elemExistant.statut}}"> 
+                            {% set passageElem = true %}
+                        {% else %}
+                            <input type="hidden" id="partie_montant_initial" value="0"> 
+                            <input type="hidden" id="partie_statut_initial" value="{{statutPaiement}}">
+                        {% endif %}
                     </td>
-                    <td class="datePaiement">-</td>
-                    <td class="moisPment">-</td>
-                    <td>{{ tableauM.annee | upper }}
-                    <input type="hidden" name="partie_annee[]" id="partie_annee" value="{{ tableauM.annee }}">
-                    </td>
-                    <td class="montantPayee">-</td>
-                    <td class="statutPment">{{ tableauM.statut | raw }}</td>
+                    <td class="montantPayee">{{ montatPayee }}</td>
+                    <td class="statutPment">{{ statutPaiement | raw }}</td>
                 </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="4" class="text-uppercase">Montant Total Payé</th>
+                <th class="text-uppercase">Montant Total Payé</th>
                 <th colspan="2" id="montantTotalPayee" class="text-success"></th>
             </tr>
             <tr>
-                <th colspan="4" class="text-uppercase">Montant à rembourser</th>
+                <th class="text-uppercase">Montant à rembourser</th>
                 <th colspan="2" id="montantRestant" class="text-warning"></th>
             </tr>
         </tfoot>

@@ -45,64 +45,75 @@ $(document).ready(function(){
     {
         var montantparMois = parseFloat($("#fact_prest_lct_montant").val())
         var montantPayee = $("#fact_prest_lct_mtn_a_payer").val()
-        var referenceForfait = $("#fact_prest_lct_ref_forfait").val()
-        var dateIPaiement = $("#fact_prest_lct_date_paiement").val()
+        // var referenceForfait = $("#fact_prest_lct_ref_forfait").val()
+        // var dateIPaiement = $("#fact_prest_lct_date_paiement").val()
         montantPayee = parseFloat(montantPayee) ;
         var totalPayee = 0 ;
+        var totalInitial = 0 ;
+
         $("#listePaiement").find("tr").each(function(){
             var ligne = $(this)
-            ligne.find(".montantPayee").text("-")
-            ligne.find(".statutPment").empty().html('<span class="text-dark font-weight-bold">-</span>')
-            ligne.find(".datePaiement").text("-")
+            var montantInitial = parseFloat(ligne.find("#partie_montant_initial").val())
+            var statutInitial = ligne.find("#partie_statut_initial").val()
+            ligne.find(".montantPayee").text(montantInitial == 0 ? "-" : montantInitial)
+            ligne.find(".statutPment").empty().html(statutInitial)
+            // ligne.find(".datePaiement").text("-")
             ligne.find("#partie_montant_payee").val("")
             ligne.find("#partie_statut").val("")
-            if(referenceForfait == "FORFAIT")
-            {
-                ligne.find(".moisPment").text("-")
-                ligne.find("#partie_mois").val("")
-            }
+            // if(referenceForfait == "FORFAIT")
+            // {
+            //     ligne.find(".moisPment").text("-")
+            //     ligne.find("#partie_mois").val("")
+            // }
         })
 
         $("#listePaiement").find("tr").each(function(){
             var ligne = $(this)
+            var montantInitial = parseFloat(ligne.find("#partie_montant_initial").val())
+            montantPayee += montantInitial ;
             if(montantPayee > 0 && montantPayee < montantparMois)
             {
                 totalPayee += montantPayee ;
+                var valMontantPayee = montantPayee - montantInitial ;
                 ligne.find(".montantPayee").text(montantPayee)
                 ligne.find(".statutPment").empty().html('<span class="text-info font-weight-bold">ACOMPTE</span>')
-                ligne.find(".datePaiement").text($("#fact_prest_lct_date_paiement").val())
-                ligne.find("#partie_montant_payee").val(montantPayee)
+                // ligne.find(".datePaiement").text($("#fact_prest_lct_date_paiement").val())
+                ligne.find("#partie_montant_payee").val(valMontantPayee)
                 ligne.find("#partie_statut").val("ACOMPTE")
             }
             else if( montantPayee >= montantparMois)
             {
                 totalPayee += montantparMois ;
+                var valMontantparMois = montantparMois - montantInitial ;
                 ligne.find(".statutPment").empty().html('<span class="text-success font-weight-bold">PAYEE</span>') ;
                 ligne.find(".montantPayee").text(montantparMois)
-                ligne.find(".datePaiement").text($("#fact_prest_lct_date_paiement").val())
-                ligne.find("#partie_montant_payee").val(montantparMois)
+                // ligne.find(".datePaiement").text($("#fact_prest_lct_date_paiement").val())
+                ligne.find("#partie_montant_payee").val(valMontantparMois)
                 ligne.find("#partie_statut").val("PAYE")
             }
-
-            if(referenceForfait == "FORFAIT")
-            {
-                dateIPaiement = new Date(appBase.convertirFormatDate(dateIPaiement))
-                mois = appBase.getMonthName(dateIPaiement.getMonth()) ; 
-                ligne.find(".moisPment").text(mois.toUpperCase()) ; 
-                ligne.find("#partie_mois").val(dateIPaiement.getMonth()+1)
-            }
+            totalInitial += montantInitial ;
+            // if(referenceForfait == "FORFAIT")
+            // {
+            //     dateIPaiement = new Date(appBase.convertirFormatDate(dateIPaiement))
+            //     mois = appBase.getMonthName(dateIPaiement.getMonth()) ; 
+            //     ligne.find(".moisPment").text(mois.toUpperCase()) ; 
+            //     ligne.find("#partie_mois").val(dateIPaiement.getMonth()+1)
+            // }
 
             montantPayee -= montantparMois;
+            
             if (montantPayee <= 0) {
                 return false; // Sortez de la boucle si le montant total est épuisé
             }
         })
 
         var montantActuelPayee = $("#fact_prest_lct_mtn_a_payer").val()
-        montantActuelPayee = montantActuelPayee == "" ? 0 : montantActuelPayee ;
+        montantActuelPayee = montantActuelPayee == "" ? 0 : parseFloat(montantActuelPayee) + totalInitial ;
+
         totalPayee = parseFloat(totalPayee) ;
-        $("#montantTotalPayee").text(totalPayee)
-        $("#montantRestant").text(parseFloat(montantActuelPayee) - totalPayee)
+  
+        $("#montantTotalPayee").text(totalPayee) ;
+        $("#montantRestant").text( montantActuelPayee - totalPayee) ;
     }
 
     $(document).on('keyup',"#fact_prest_lct_mtn_a_payer",function(){
