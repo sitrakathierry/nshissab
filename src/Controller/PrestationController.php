@@ -1205,13 +1205,13 @@ class PrestationController extends AbstractController
         
         $listeForfait = $childs ;
 
-        $resultat = array_reduce($childs, function($carry, $item) {
-            $dateDebut = $item['dateDebut'];
+        $resultat = array_reduce($childs, function($carry, $contenu) {
+            $dateDebut = $contenu['dateDebut'];
             
             if (!isset($carry[$dateDebut])) {
-                $carry[$dateDebut] = $item;
+                $carry[$dateDebut] = $contenu;
             } else {
-                $carry[$dateDebut]['montant'] += $item['montant'];
+                $carry[$dateDebut]['montant'] += $contenu['montant'];
             }
             
             return $carry;
@@ -1338,7 +1338,7 @@ class PrestationController extends AbstractController
                 }
                 array_shift($tableauMois) ;
                 $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
-                    "item" => $item,
+                    // "item" => $item,
                     "tableauMois" => $tableauMois,
                     "elemExistant" => $elemExistant,
                     "repartitions" => $newChilds,
@@ -1418,7 +1418,7 @@ class PrestationController extends AbstractController
                 }
                 array_shift($tableauMois) ;
                 $response = $this->renderView("prestations/location/loyer/paiementJournaliere.html.twig",[
-                    "item" => $item,
+                    // "item" => $item,
                     "tableauMois" => $tableauMois,
                     "elemExistant" => $elemExistant,
                     "repartitions" => $newChilds,
@@ -1430,7 +1430,7 @@ class PrestationController extends AbstractController
         if($contrat->getForfait()->getReference() == "FORFAIT")
         {
             $response = $this->renderView("prestations/location/loyer/paiementForfaitaire.html.twig",[
-                "item" => $item,
+                // "item" => $item,
                 // "tableauMois" => $tableauMois,
                 // "elemExistant" => $elemExistant,
                 "repartitions" => $listeForfait,
