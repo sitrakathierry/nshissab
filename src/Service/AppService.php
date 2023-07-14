@@ -1801,8 +1801,6 @@ class AppService extends AbstractController
             if($mois == null)
             {
                 $mois = intval(explode("/",$dateApresNJours)[1]); 
-                if($mode == "FIN")
-                    $mois -= 1 ;
             }
             else if($mois == (12 + 1))
             {
