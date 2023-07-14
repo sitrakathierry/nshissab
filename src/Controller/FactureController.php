@@ -1095,7 +1095,7 @@ class FactureController extends AbstractController
 
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
                 $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
-                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite()) ;
+                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(),$contrat->getModePaiement()->getReference()) ;
                 if(!empty($elemExistant))
                 {
                     $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
