@@ -283,3 +283,9 @@ background-color: #ecb534 !important;
   background-color: var(--indigo);
   border-color: var(--indigo);
 }
+
+.content_auto
+{
+    max-height: 350px !important;
+    overflow: auto;
+}

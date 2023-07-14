@@ -1815,19 +1815,8 @@ class AppService extends AbstractController
 
             $statut = $resultCompare ? "En Alerte" : "-" ;
 
-            if(!$resultCompare)
-            {
-                $resteBoucle = $nombreMois - $i ;
-                if($resteBoucle >= 5)
-                {
-                    $nombreMois = $i + 5 ;
-                }
-                else
-                {
-                    $nombreMois = $i + $resteBoucle ;
-                }
+            // if(!$resultCompare)
                 // return $tableauDates ;
-            }
 
             $tableauDates[] = [
                 "debutLimite" => $dateApresNJours,
@@ -1861,18 +1850,8 @@ class AppService extends AbstractController
 
             $statut = $resultCompare ? "En Alerte" : "-" ;
 
-            if(!$resultCompare)
-            {
-                $resteBoucle = $nombreJour - $i ;
-                if($resteBoucle >= 5)
-                {
-                    $nombreJour = $i + 5 ;
-                }
-                else
-                {
-                    $nombreJour = $i + $resteBoucle ;
-                }
-            }
+            // if(!$resultCompare)
+                // return $tableauDates ;
 
             $tableauDates[] = [
                 "debutLimite" => $dateApresNJours,

@@ -1034,10 +1034,6 @@ class FactureController extends AbstractController
         
         $tableauMois = [] ;
 
-        $statutLoyerAcompte = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
-            "reference" => "ACOMPTE"
-        ]) ;
-
         $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
             "reference" => "PAYE"
         ]) ;
@@ -1100,14 +1096,28 @@ class FactureController extends AbstractController
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
                 $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
                 $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite()) ;
-                
+                if(!empty($elemExistant))
+                {
+                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
+                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
+                }
+                else
+                {
+                    $tableauMois[0]["montantInitial"] = 0 ;
+                }
+
+                for ($i=0; $i < count($tableauMois); $i++) { 
+                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                    if($i != 0)
+                    {
+                        $tableauMois[$i]["montantInitial"] = 0 ;
+                    }
+                }
+
                 $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
                     "item" => $item,
                     "tableauMois" => $tableauMois,
                     "elemExistant" => $elemExistant,
-                    "dateLimite" => $contrat->getDateLimite(),
-                    "bail" => $contrat->getBail()->getNom(),
-                    "adresse" => $contrat->getBail()->getLieux()
                 ]) ;
             } 
         }
@@ -1163,14 +1173,32 @@ class FactureController extends AbstractController
                 $dateGenere = $dateAvant ;
                 $duree = $contrat->getDuree() - $jourEcoule ;
                 $tableauMois = $this->appService->genererTableauJour($dateGenere,$duree) ;
-            
+                
+                if(!empty($elemExistant))
+                {
+                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
+                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
+                }
+                else
+                {
+                    $tableauMois[0]["montantInitial"] = 0 ;
+                }
+
+                for ($i=0; $i < count($tableauMois); $i++) { 
+                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                    if($i != 0)
+                    {
+                        $tableauMois[$i]["montantInitial"] = 0 ;
+                    }
+                }
+
                 $response = $this->renderView("facture/location/paiementJournaliere.html.twig",[
                     "item" => $item,
                     "tableauMois" => $tableauMois,
                     "elemExistant" => $elemExistant,
-                    "dateLimite" => $contrat->getDateLimite(),
-                    "bail" => $contrat->getBail()->getNom(),
-                    "adresse" => $contrat->getBail()->getLieux()
+                    // "dateLimite" => $contrat->getDateLimite(),
+                    // "bail" => $contrat->getBail()->getNom(),
+                    // "adresse" => $contrat->getBail()->getLieux()
                 ]) ;
             }
         } 
@@ -1210,14 +1238,27 @@ class FactureController extends AbstractController
                 "annee" => date('Y'),
                 "statut" =>'-',
             ]] ;
+            if(!empty($elemExistant))
+                {
+                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
+                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
+                }
+                else
+                {
+                    $tableauMois[0]["montantInitial"] = 0 ;
+                }
 
+                for ($i=0; $i < count($tableauMois); $i++) { 
+                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                    if($i != 0)
+                    {
+                        $tableauMois[$i]["montantInitial"] = 0 ;
+                    }
+                } 
             $response = $this->renderView("facture/location/paiementForfaitaire.html.twig",[
                 "item" => $item,
                 "tableauMois" => $tableauMois,
                 "elemExistant" => $elemExistant,
-                "dateLimite" => $contrat->getDateLimite(),
-                "bail" => $contrat->getBail()->getNom(),
-                "adresse" => $contrat->getBail()->getLieux()
             ]) ;
         }
 

@@ -1,0 +1,43 @@
+<div class="table-responsive mt-4 content_auto">
+    <table class="table-sm mb-0 table table-bordered">
+        <thead class="thead-dark">
+            <tr class="text-uppercase">
+                <th>Désignation</th>
+                <th>Date Paiement</th>
+                <th>Montant payé</th>
+                {# <th>Statut</th> #}
+            </tr>
+        </thead>
+        <tbody>
+            {% set totalPayee = 0 %}
+            {% for repartition in repartitions %}
+                <tr>
+                    <td>{{ repartition.statut ~ ". " ~ repartition.designation | upper}}</td>
+                    <td>{{ repartition.datePaiement}}</td>
+                    <th>{{ repartition.montant }}</th>
+                    {# <th>{{ repartition.statut | upper }}</th> #}
+                </tr>
+                {% set totalPayee = totalPayee + repartition.montant %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<table class="table-sm table table-bordered font-smaller">
+    <tfoot>
+        <tr>
+            <th colspan="3" class="text-uppercase">Montant Total Payée</th>
+            <th  class="text-white bg-success" >{{ totalPayee }}</th>
+        </tr>
+        <tr>
+            <th colspan="3" class="text-uppercase">Montant Restant</th>
+            <th  class="text-white bg-primary" >{{ parentContrat.montantContrat - totalPayee }}</th>
+        </tr>
+        <tr>
+            <th colspan="3" class="text-uppercase">Montant Total Contrat</th>
+            <th  class="text-white bg-dark" >{{ parentContrat.montantContrat }}</th>
+        </tr>
+    </tfoot>
+</table>
+<div class="w-100">
+    Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{ lettreReleve | upper}}</span>
+</div>

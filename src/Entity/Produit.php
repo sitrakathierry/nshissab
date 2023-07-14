@@ -58,8 +58,6 @@ class Produit
     #[ORM\OneToMany(mappedBy: 'produit', targetEntity: PrdVariationPrix::class)]
     private Collection $prdVariationPrixes;
 
-    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: PrdHistoFournisseur::class)]
-    private Collection $prdHistoFournisseurs;
 
     #[ORM\ManyToOne(inversedBy: 'produits')]
     private ?ParamTvaType $tvaType = null;
@@ -67,7 +65,6 @@ class Produit
     public function __construct()
     {
         $this->prdVariationPrixes = new ArrayCollection();
-        $this->prdHistoFournisseurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -255,36 +252,6 @@ class Produit
             // set the owning side to null (unless already changed)
             if ($prdVariationPrix->getProduit() === $this) {
                 $prdVariationPrix->setProduit(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, PrdHistoFournisseur>
-     */
-    public function getPrdHistoFournisseurs(): Collection
-    {
-        return $this->prdHistoFournisseurs;
-    }
-
-    public function addPrdHistoFournisseur(PrdHistoFournisseur $prdHistoFournisseur): self
-    {
-        if (!$this->prdHistoFournisseurs->contains($prdHistoFournisseur)) {
-            $this->prdHistoFournisseurs->add($prdHistoFournisseur);
-            $prdHistoFournisseur->setProduit($this);
-        }
-
-        return $this;
-    }
-
-    public function removePrdHistoFournisseur(PrdHistoFournisseur $prdHistoFournisseur): self
-    {
-        if ($this->prdHistoFournisseurs->removeElement($prdHistoFournisseur)) {
-            // set the owning side to null (unless already changed)
-            if ($prdHistoFournisseur->getProduit() === $this) {
-                $prdHistoFournisseur->setProduit(null);
             }
         }
 

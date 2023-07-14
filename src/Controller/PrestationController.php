@@ -1106,10 +1106,6 @@ class PrestationController extends AbstractController
     public function prestDetailContratLocation($id)
     {
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
-        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-            "contrat" => $contrat 
-        ]) ;
         
         $bailleur = [
             "nom" => $contrat->getBailleur()->getNom(),
@@ -1146,12 +1142,34 @@ class PrestationController extends AbstractController
             "renouveau" => empty($contrat->getRenouvellement()) ? "" : $contrat->getRenouvellement()->getNom(),
             "modePaiement" => is_null($contrat->getModePaiement()) ? "" : $contrat->getModePaiement()->getNom(),
             "isModeP" => !is_null($contrat->getModePaiement()),
-            "dateLimite" => is_null($contrat->getDateLimite()) ? "" : $contrat->getDateLimite(),
-            "caution" => empty($contrat->getCaution()) ? "" : "Jusqu'au ".$contrat->getCaution()." du mois",
+            "dateLimite" => is_null($contrat->getDateLimite()) ? "" : "Jusqu'au ".$contrat->getDateLimite()." du mois",
+            "caution" => empty($contrat->getCaution()) ? "" : $contrat->getCaution(),
             "isCaution" => !empty($contrat->getCaution()),
             "montantContrat" => $contrat->getMontantContrat(),
             "changement" => empty($contrat->getDelaiChgFin()) ? "" : $contrat->getDelaiChgFin()." Jours avant la fin du contrat"
         ] ;
+
+        return $this->render('prestations/location/detailsContrat.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Detail contrat",
+            "with_foot" => true,
+            "contrat" => $parent,
+            "bailleur" => $bailleur,
+            "locataire" => $locataire,
+            "bail" => $bail,
+        ]);
+        
+        
+    }
+
+    #[Route('/prestation/location/contrat/releve/loyer/{id}', name: 'prest_location_contrat_releve_loyer')]
+    public function prestReleveLoyerContratLocation($id)
+    {
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+            "contrat" => $contrat 
+        ]) ;
 
         $childs = [] ;
         
@@ -1164,21 +1182,28 @@ class PrestationController extends AbstractController
             if($statutRepart == "CAUTION")
                 continue ;
 
-            $refForfait =  $contrat->getForfait()->getReference() ;
-            if($refForfait == "FJOUR")
-                $moment = $repartition->getDateDebut()->format("d/m/Y") ;
-            else 
-                $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
+            // $refForfait =  $contrat->getForfait()->getReference() ;
+            // if($refForfait == "FJOUR")
+            //     $moment = $repartition->getDateDebut()->format("d/m/Y") ;
+            // else 
+            //     $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
 
             $item["designation"] = $repartition->getDesignation() ;
-            $item["moment"] = $moment ;
-            $item["dateDebut"] = $repartition->getDateDebut()->format('d/m/Y') ;
+            $item["debutLimite"] = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y") ;
+            $item["dateLimite"] = is_null($repartition->getDateLimite()) ? "" : $repartition->getDateLimite()->format("d/m/Y") ;
+            $item["datePaiement"] = $repartition->getPaiement()->getDate()->format("d/m/Y") ;
+            $item["mois"] = is_null($repartition->getMois()) ? "" : $tabMois[$repartition->getMois() - 1]  ;
+            $item["annee"] = $repartition->getAnnee() ;
+            // $item["moment"] = $moment ;
+            $item["dateDebut"] = is_null($repartition->getDateDebut()) ? "NONE" : $repartition->getDateDebut()->format("d/m/Y") ;
             $item["montant"] = $repartition->getMontant() ;
             $item["statut"] = $repartition->getStatut()->getReference() ;
 
             $totalReleve += $repartition->getMontant() ; 
             array_push($childs,$item) ;
         }
+        
+        $listeForfait = $childs ;
 
         $resultat = array_reduce($childs, function($carry, $item) {
             $dateDebut = $item['dateDebut'];
@@ -1197,37 +1222,230 @@ class PrestationController extends AbstractController
         foreach ($childs as $child) {
             $elem = [] ;
             
-            $elem["moment"] = $child["moment"] ;
+            // $elem["moment"] = $child["moment"] ;
+            $elem["debutLimite"] = $child["debutLimite"] ;
+            $elem["dateLimite"] = $child["dateLimite"] ;
+            $elem["datePaiement"] = $child["datePaiement"] ;
+            $elem["mois"] = $child["mois"] ;
+            $elem["annee"] = $child["annee"] ;
             $elem["dateDebut"] = $child["dateDebut"] ;
             $elem["montant"] = $child["montant"] ;
 
             if($child["montant"] == $contrat->getMontantForfait())
             {
-                $elem["designation"] = "Paiement ".$child["designation"] ;
+                $elem["designation"] = "Paiement. ".$child["designation"] ;
                 $elem["statut"] = "Payée" ;
             }
             else
             {
-                $elem["designation"] = "Acompte ".$child["designation"] ;
+                $elem["designation"] = "Acompte. ".$child["designation"] ;
                 $elem["statut"] = "Acompte" ;
             }
             array_push($newChilds,$elem) ;
         }
 
         $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
-        return $this->render('prestations/location/detailsContrat.html.twig', [
+        $parent = [
+            "numContrat" => $contrat->getNumContrat(),
+            "montantContrat" => $contrat->getMontantContrat(),
+            "bailleur" => $contrat->getBailleur()->getNom(),
+            "locataire" => $contrat->getLocataire()->getNom(),
+            "bail" => $contrat->getBail()->getNom(),
+            "lieu" => $contrat->getLieuContrat(),
+            "isCaution" => !empty($contrat->getCaution()),
+        ] ;
+
+        $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+            "reference" => "PAYE"
+        ]) ;
+
+        if($contrat->getCycle()->getReference() == "CMOIS")
+        {
+            if($contrat->getForfait()->getReference() == "FMOIS")
+            {
+                $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
+                    "contrat" => $contrat
+                ],["id" => "DESC"]) ;
+
+                $elemExistant = [] ;
+
+                if(!is_null($lastPaiement))
+                {
+                    $moisEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+                        "contrat" => $contrat,
+                        "statut" => $statutLoyerPaye
+                    ]) ;
+                    
+                    $moisEcoule = !is_null($moisEcoule) ? count($moisEcoule) : 0 ;
+
+                    $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
+                        "paiement" => $lastPaiement
+                    ],["id" => "DESC"]) ;
+
+                    $statutLastRpt = $lastRepart->getStatut()->getReference() ;
+                    
+                    if($statutLastRpt == "ACOMPTE")
+                    {
+                        $elemExistant = [
+                            "montant" => $lastRepart->getMontant(),
+                            "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
+                        ] ;
+                        $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
+                    }
+                    else if($statutLastRpt == "PAYE")
+                    {
+                        $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),30) ;
+                    }
+                    else
+                    {
+                        $moisEcoule = 0 ;
+                        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                    }
+                }
+                else
+                {
+                    $moisEcoule = 0 ;
+                    $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                }
+
+                if($contrat->getPeriode()->getReference() == "M")
+                    $duree = $contrat->getDuree() ;  
+                else if($contrat->getPeriode()->getReference() == "A")
+                    $duree = $contrat->getDuree() * 12 ; 
+                
+                $duree -= $moisEcoule ;
+
+                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
+                $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
+                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite()) ;
+                
+                if(!empty($elemExistant))
+                {
+                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
+                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
+                }
+                else
+                {
+                    $tableauMois[0]["montantInitial"] = 0 ;
+                }
+
+                for ($i=0; $i < count($tableauMois); $i++) { 
+                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                    if($i != 0)
+                    {
+                        $tableauMois[$i]["montantInitial"] = 0 ;
+                    }
+                }
+                array_shift($tableauMois) ;
+                $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
+                    "item" => $item,
+                    "tableauMois" => $tableauMois,
+                    "elemExistant" => $elemExistant,
+                    "repartitions" => $newChilds,
+                    "lettreReleve" => $lettreReleve,
+                ]) ;
+            } 
+        }
+        else if($contrat->getCycle()->getReference() == "CJOUR")
+        { 
+            if($contrat->getForfait()->getReference() == "FJOUR")
+            {
+                $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
+                    "contrat" => $contrat
+                ],["id" => "DESC"]) ;
+
+                $elemExistant = [] ;
+
+                if(!is_null($lastPaiement))
+                {
+                    $jourEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+                        "contrat" => $contrat,
+                        "statut" => $statutLoyerPaye
+                    ]) ;
+                    
+                    $jourEcoule = !is_null($jourEcoule) ? count($jourEcoule) : 0 ;
+
+                    $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
+                        "paiement" => $lastPaiement
+                    ],["id" => "DESC"]) ;
+
+                    $statutLastRpt = $lastRepart->getStatut()->getReference() ;
+                    if($statutLastRpt == "ACOMPTE")
+                    {
+                        $elemExistant = [
+                            "montant" => $lastRepart->getMontant(),
+                            "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
+                        ] ;
+                        $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
+                    }
+                    else if($statutLastRpt == "PAYE")
+                    {
+                        $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),1) ;
+                    }
+                    else
+                    {
+                        $moisEcoule = 0 ;
+                        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                    }
+                }
+                else
+                {
+                    $jourEcoule = 0 ;
+                    $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                }
+
+                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,1) ;
+                $dateGenere = $dateAvant ;
+                $duree = $contrat->getDuree() - $jourEcoule ;
+                $tableauMois = $this->appService->genererTableauJour($dateGenere,$duree) ;
+                
+                if(!empty($elemExistant))
+                {
+                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
+                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
+                }
+                else
+                {
+                    $tableauMois[0]["montantInitial"] = 0 ;
+                }
+
+                for ($i=0; $i < count($tableauMois); $i++) { 
+                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                    if($i != 0)
+                    {
+                        $tableauMois[$i]["montantInitial"] = 0 ;
+                    }
+                }
+                array_shift($tableauMois) ;
+                $response = $this->renderView("prestations/location/loyer/paiementJournaliere.html.twig",[
+                    "item" => $item,
+                    "tableauMois" => $tableauMois,
+                    "elemExistant" => $elemExistant,
+                    "repartitions" => $newChilds,
+                    "lettreReleve" => $lettreReleve,
+                ]) ;
+            }
+        } 
+
+        if($contrat->getForfait()->getReference() == "FORFAIT")
+        {
+            $response = $this->renderView("prestations/location/loyer/paiementForfaitaire.html.twig",[
+                "item" => $item,
+                // "tableauMois" => $tableauMois,
+                // "elemExistant" => $elemExistant,
+                "repartitions" => $listeForfait,
+                "lettreReleve" => $lettreReleve,
+                "parentContrat" => $parent,
+            ]) ;
+        }
+
+        return $this->render('prestations/location/detailsReleveContrat.html.twig', [
             "filename" => "prestations",
-            "titlePage" => "Detail contrat",
+            "titlePage" => "Relevé de paiement",
             "with_foot" => true,
             "contrat" => $parent,
-            "repartitions" => $newChilds,
-            "lettreReleve" => $lettreReleve,
-            "bailleur" => $bailleur,
-            "locataire" => $locataire,
-            "bail" => $bail,
+            "template" => $response,
         ]);
-        
-        
     }
 
     #[Route('/prestation/location/loyer/liste', name: 'prest_location_liste_loyer')]

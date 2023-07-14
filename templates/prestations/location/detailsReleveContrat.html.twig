@@ -1,0 +1,76 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}} - Contrat : <span class="text-white px-2 py-1 rounded badge-warning">{{contrat.numContrat}}</span></h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Bailleur</label>
+                <input type="text" readonly name="nom" value="{{ contrat.bailleur | upper }}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Bail</label>
+                <input type="text" readonly name="nom" value="{{ contrat.bail | upper }}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Locataire</label>
+                <input type="text" readonly name="nom" value="{{ contrat.locataire | upper }}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_ctr_bail_type_location" class="font-weight-bold">Montant Contrat</label>
+                <input type="text" readonly name="nom" value="{{ contrat.montantContrat | upper }}" id="nom" class="form-control" placeholder=". . .">
+            </div>
+        </div>
+        {{ template | raw }}
+        <div class="row mt-3">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                    </div>
+                    <input type="text" class="form-control ctr_lieu" name="ctr_lieu" value="{{contrat.lieu | upper}}" placeholder=". . ." aria-label="Lieu Contrat" id="ctr_lieu">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <input type="text" class="form-control ctr_date" readonly name="ctr_date" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Contrat" id="ctr_date">
+                </div>
+            </div>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                {% if contrat.isCaution %}
+                    <button type="button" class="btn btn-sm btn-purple text-white"><i class="fa fa-print"></i>&nbsp;Fiche de caution</button>
+                {% endif %}
+                <button type="button" class="btn btn-sm ml-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

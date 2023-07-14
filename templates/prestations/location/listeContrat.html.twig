@@ -80,20 +80,26 @@
                 <tbody>
                     {% for contrat in contrats %}
                         <tr>
-                            <td>{{contrat.numContrat}}</td>
-                            <td>{{contrat.dateContrat}}</td>
-                            <td>{{contrat.bailleur}}</td>
-                            <td>{{contrat.bail}}</td>
-                            <td>{{contrat.locataire}}</td>
-                            <td>{{contrat.cycle|upper}}</td>
-                            <td>{{contrat.dateDebut}}</td>
-                            <td>{{contrat.dateFin}}</td>
-                            <td>{{contrat.dureeContrat}}</td>
-                            <td>{{contrat.montantContrat}}</td>
-                            <th class="text-center">{{contrat.statut|upper}}</th>
-                            <td class="text-center">
-                                <a href="{{path('prest_location_contrat_detail',{'id':contrat.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                            <td class="align-middle">{{contrat.numContrat}}</td>
+                            <td class="align-middle">{{contrat.dateContrat}}</td>
+                            <td class="align-middle">{{contrat.bailleur}}</td>
+                            <td class="align-middle">{{contrat.bail}}</td>
+                            <td class="align-middle">{{contrat.locataire}}</td>
+                            <td class="align-middle">{{contrat.cycle|upper}}</td>
+                            <td class="align-middle">{{contrat.dateDebut}}</td>
+                            <td class="align-middle">{{contrat.dateFin}}</td>
+                            <td class="align-middle">{{contrat.dureeContrat}}</td>
+                            <td class="align-middle">{{contrat.montantContrat}}</td>
+                            <th class="text-center align-middle">{{contrat.statut|upper}}</th>
+                            <td class="text-center align-middle">
+                                <div class="d-flex flex-column align-items-center justify-content-center p-2">
+                                    <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.id})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
+                                    <a href="{{path('prest_location_contrat_detail',{'id':contrat.id})}}" class="btn btn-sm mt-2 btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                </div>
                             </td>
+                        </tr>
+                        <tr>
+                            <th colspan="12" class="p-1 bg-light"> </th>
                         </tr>
                     {% endfor %}
                 </tbody>

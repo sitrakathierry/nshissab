@@ -106,69 +106,12 @@
             <label class="font-weight-bold">Description</label>
             <textarea name="paiement_editor" class="form-control"  id="paiement_editor" cols="30" rows="10"></textarea>
         </div>
-        <div class="table-responsive mt-4">
-            <h5 class="title_form text-black text-uppercase">Calendrier des paiements</h5>
-            <table class="table-sm table table-bordered">
-                <thead class="thead-dark">
-                    <tr class="text-uppercase">
-                        <th>Désignation</th>
-                        <th>Jours / Mois</th>
-                        <th>Montant payé</th>
-                        <th>Statut</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% set totalPayee = 0 %}
-                    {% for repartition in repartitions %}
-                        <tr>
-                            <td>{{ repartition.designation | upper}}</td>
-                            <td>{{ repartition.moment | upper }}</td>
-                            <th>{{ repartition.montant }}</th>
-                            <th>{{ repartition.statut | upper }}</th>
-                        </tr>
-                        {% set totalPayee = totalPayee + repartition.montant %}
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2" class="text-uppercase">Montant Total Payée</th>
-                        <th colspan="2" class="text-white bg-primary" >{{ totalPayee }}</th>
-                    </tr>
-                </tfoot>
-            </table>
-            <div class="w-100">
-                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{ lettreReleve | upper}}</span>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-7"></div>
-            <div class="col-md-5"> 
-                <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
-                <div class="input-group mb-2">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
-                    </div>
-                    <input type="text" class="form-control ctr_lieu" name="ctr_lieu" value="{{contrat.lieu}}" placeholder=". . ." aria-label="Lieu Contrat" id="ctr_lieu">
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-7"></div>
-            <div class="col-md-5"> 
-                <label for="nom" class="mt-1 font-weight-bold">Le,</label>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                    </div>
-                    <input type="text" class="form-control ctr_date" readonly name="ctr_date" value="{{ contrat.date }}" placeholder=". . ." aria-label="Date Contrat" id="ctr_date">
-                </div>
-            </div>
-        </div>
+
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                {% if contrat.isCaution %}
+                {# {% if contrat.isCaution %}
                     <button type="button" class="btn btn-sm btn-purple text-white"><i class="fa fa-print"></i>&nbsp;Fiche de caution</button>
-                {% endif %}
+                {% endif %} #}
                 <button type="button" class="btn btn-sm ml-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
         {% endif %} 

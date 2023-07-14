@@ -14,8 +14,8 @@
                 {% set montatPayee = "-" %}
                 <tr>
                     <td>
-                        LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}
-                        <input type="hidden" name="partie_designation[]" id="partie_designation" value="LOCATION&nbsp;{{ bail|upper }}&nbsp;|&nbsp;{{ adresse|upper }}">
+                        {{ tableauM.designation | upper }}
+                        <input type="hidden" name="partie_designation[]" id="partie_designation" value="{{ tableauM.designation | upper }}">
                         <input type="hidden" name="partie_mois[]" id="partie_mois" >
                         <input type="hidden" name="partie_annee[]" id="partie_annee" value="{{ tableauM.annee }}">
                         <input type="hidden" name="partie_montant_payee[]" id="partie_montant_payee">
@@ -61,3 +61,21 @@
     {% set i = i + 1 %}
 {% endfor %}
 }]
+@##@
+{% set lenParent = tableauMois | length %}
+{% set a = 0 %}
+[
+{% for elems in tableauMois  %}
+    {
+        {% set lenItem2 = elems | length %}
+        {% set i = 0 %}
+        {% for key,value in elems %}
+                "{{key}}" : "{{value}}"
+                {{ i != lenItem2 - 1 ? "," : "" }}
+            {% set i = i + 1 %}
+        {% endfor %}
+    }
+    {{ a != lenParent - 1 ? "," : "" }}
+    {% set a = a + 1 %}
+{% endfor %}
+]
