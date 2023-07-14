@@ -9,27 +9,17 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/location.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase d-flex flex-row align-items-center entete_page text-black">
-        {{titlePage}}
-        <a href="{{path('prest_location_contrat_commissions')}}" class="btn ml-auto font-weight-bold text-uppercase btn-purple btn-sm"><i class="fa fa-cubes"></i>&nbsp;Liste des commissions</a>
-        </h4>
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
                 <label for="fact_search_num" class="font-weight-bold text-uppercase">N° Contrat</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
-                    <option value="">TOUS</option>
-                    
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bailleur</label>
                 <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
                     <option value="">TOUS</option>
                     
@@ -49,63 +39,51 @@
                     
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Contrat</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Début</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Fin</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                     <tr>
                         <th>Numéro</th>
-                        <th>Date Contrat</th>
-                        <th>Bailleur</th>
                         <th>Bail</th>
                         <th>Locataire</th>
                         <th>Cycle</th>
-                        <th>Date Début</th>
-                        <th>Date Fin</th>
                         <th>Durée contrat</th>
-                        <th>Montant contrat</th>
-                        <th class="text-center">Statut</th>
-                        <th></th>
+                        <th>Date de paiement</th>
+                        <th>Montant Commission</th>
+                        {# <th></th> #}
                     </tr>
                 </thead>
                 <tbody>
+                {% set totalCommission = 0 %}
                     {% for contrat in contrats %}
                         <tr>
                             <td class="align-middle">{{contrat.numContrat}}</td>
-                            <td class="align-middle">{{contrat.dateContrat}}</td>
-                            <td class="align-middle">{{contrat.bailleur}}</td>
-                            <td class="align-middle">{{contrat.bail}}</td>
-                            <td class="align-middle">{{contrat.locataire}}</td>
+                            <td class="align-middle">{{contrat.bail|upper}}</td>
+                            <td class="align-middle">{{contrat.locataire|upper}}</td>
                             <td class="align-middle">{{contrat.cycle|upper}}</td>
-                            <td class="align-middle">{{contrat.dateDebut}}</td>
-                            <td class="align-middle">{{contrat.dateFin}}</td>
-                            <td class="align-middle">{{contrat.dureeContrat}}</td>
-                            <td class="align-middle">{{contrat.montantContrat}}</td>
-                            <th class="text-center align-middle">{{contrat.statut|upper}}</th>
-                            <td class="text-center align-middle">
+                            <td class="align-middle">{{contrat.duree}}</td>
+                            <td class="align-middle">{{contrat.datePaiement}}</td>
+                            <td class="align-middle">{{contrat.commission}}</td>
+                            {# <td class="text-center align-middle">
                                 <div class="d-flex flex-column align-items-center justify-content-center p-2">
                                     <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.id})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
                                     <a href="{{path('prest_location_contrat_detail',{'id':contrat.id})}}" class="btn btn-sm mt-2 btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                                 </div>
-                            </td>
+                            </td> #}
                         </tr>
                         <tr>
                             <th colspan="12" class="p-1 bg-light"> </th>
                         </tr>
+                        {% set totalCommission = totalCommission + contrat.commission  %}
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="6" >Montant Total</th>
+                        <th class="text-white bg-primary">{{totalCommission}}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 

@@ -63,6 +63,15 @@ class AgendaController extends AbstractController
             $titlePage = "Reporter Agenda" ;
         }
 
+        // $code = $this->appService->encodeChiffre(2148560) ;
+
+        // $donnee = [
+        //     "code" => $code,
+        //     "decode" => $this->appService->decoderChiffre($code) ,
+        // ] ;
+
+        // dd($donnee) ;
+
         return $this->render('agenda/creation.html.twig', [
             "filename" => "agenda",
             "titlePage" => $titlePage,

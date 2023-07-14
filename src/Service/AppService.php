@@ -47,6 +47,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nexmo\Client\Exception\Exception;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Vonage\Client\Credentials\Basic;
 use Vonage\Client;
 use Vonage\SMS\Message\SMS ;
@@ -251,6 +252,16 @@ class AppService extends AbstractController
         $id++ ;
         if(isset($menuUsers[$id]) && !empty($menuUsers[$id]))
             $this->getMenuUser($menuUsers, $id,$menus) ;
+    }
+
+    public function encodeChiffre($chiffre) {
+        $result = dechex($chiffre) ;
+        return base64_encode($result) ;
+    }
+
+    public function decoderChiffre($chiffrement) {
+        $result = base64_decode($chiffrement) ;
+        return hexdec($result) ;
     }
 
     public function generatePassword() 
@@ -1786,7 +1797,7 @@ class AppService extends AbstractController
         return $dateFormatee;
     }
 
-    function genererTableauMois($dateInitiale, $nombreMois, $dateLimite, $mode) {
+    public function genererTableauMois($dateInitiale, $nombreMois, $dateLimite, $mode) {
         $tableauDates = array();
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         $date = \DateTime::createFromFormat('d/m/Y', $dateInitiale);
@@ -1832,7 +1843,7 @@ class AppService extends AbstractController
         return $tableauDates;
     }
 
-    function genererTableauJour($dateInitiale, $nombreJour) {
+    public function genererTableauJour($dateInitiale, $nombreJour) {
         $tableauDates = array();
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         $date = \DateTime::createFromFormat('d/m/Y', $dateInitiale);

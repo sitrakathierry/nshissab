@@ -675,7 +675,151 @@ class PrestationController extends AbstractController
             "contrats" => $contrats
         ]);
     }
+    
+    #[Route('/prestation/location/contrat/commission', name: 'prest_location_contrat_commissions')]
+    public function prestLocationCommissionContrat(){
+        // $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
 
+        // if(!file_exists($filename))
+        //     $this->appService->generateLocationContrat($filename, $this->agence) ; 
+
+        // $contrats = json_decode(file_get_contents($filename)) ;
+
+        $contrats = $this->entityManager->getRepository(LctContrat::class)->findAll() ;
+
+        $tabContrats = [] ;
+
+            foreach ($contrats as $contrat) {
+                if((is_null($contrat->getPourcentage()) || empty($contrat->getPourcentage())))
+                    continue ;
+
+                if($contrat->getForfait()->getReference() == "FORFAIT")
+                {
+                    if($contrat->getPeriode()->getReference() == "J")
+                {
+                    $periode = " Jour(s)" ;
+                }
+                if($contrat->getPeriode()->getReference() == "M")
+                {
+                    $periode = " Mois" ;
+                }
+                else if($contrat->getPeriode()->getReference() == "A")
+                {
+                    $periode = " An(s)" ;
+                }
+
+                $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy(["contrat" => $contrat], ['id' => 'DESC']);
+                $datePaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getDate()->format("d/m/Y")) : "-" ;
+                
+
+                $elemC = [] ;
+
+                $elemC["numContrat"] = $contrat->getNumContrat() ;
+                $elemC["bail"] = $contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                $elemC["locataire"] = $contrat->getLocataire()->getNom() ;
+                $elemC["cycle"] = $contrat->getCycle()->getNom() ;
+                $elemC["duree"] = $contrat->getDuree().$periode ;
+                $elemC["datePaiement"] = $datePaiement ;
+                $elemC["commission"] = ($contrat->getMontantContrat() * $contrat->getPourcentage()) / 100;
+
+                array_push($tabContrats,$elemC) ;
+
+                continue ;
+            }
+
+            $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+                "contrat" => $contrat 
+            ]) ;
+    
+            $childs = [] ;
+            
+            $totalReleve = 0 ;
+    
+            foreach ($repartitions as $repartition) {
+                $item = [] ;
+    
+                $statutRepart = $repartition->getStatut()->getReference() ; 
+                if($statutRepart == "CAUTION")
+                    continue ;
+    
+                $item["dateDebut"] = is_null($repartition->getDateDebut()) ? "NONE" : $repartition->getDateDebut()->format("d/m/Y") ;
+                $item["montant"] = $repartition->getMontant() ;
+                $item["statut"] = $repartition->getStatut()->getReference() ;
+
+                $totalReleve += $repartition->getMontant() ; 
+                array_push($childs,$item) ;
+            }
+    
+            $resultat = array_reduce($childs, function($carry, $contenu) {
+                $dateDebut = $contenu['dateDebut'];
+                
+                if (!isset($carry[$dateDebut])) {
+                    $carry[$dateDebut] = $contenu;
+                } else {
+                    $carry[$dateDebut]['montant'] += $contenu['montant'];
+                }
+                
+                return $carry;
+            }, []);
+            
+            $childs = array_values($resultat); 
+            $newChilds = [] ;
+            
+            foreach ($childs as $child) {
+                $elem = [] ;
+                
+                $elem["dateDebut"] = $child["dateDebut"] ;
+                $elem["montant"] = $child["montant"] ;
+                
+                if($child["montant"] == $contrat->getMontantForfait())
+                {
+                    array_push($newChilds,$elem) ;
+                }
+                
+            }
+
+            $commission = 0 ;
+            foreach ($newChilds as $newChild) {
+                $commission += ($newChild["montant"] * $contrat->getPourcentage()) / 100 ;
+            }
+
+            if($contrat->getPeriode()->getReference() == "J")
+            {
+                $periode = " Jour(s)" ;
+            }
+            if($contrat->getPeriode()->getReference() == "M")
+            {
+                $periode = " Mois" ;
+            }
+            else if($contrat->getPeriode()->getReference() == "A")
+            {
+                $periode = " An(s)" ;
+            }
+
+            $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy(["contrat" => $contrat], ['id' => 'DESC']);
+            $datePaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getDate()->format("d/m/Y")) : "-" ;
+            
+
+            $elemC = [] ;
+
+            $elemC["numContrat"] = $contrat->getNumContrat() ;
+            $elemC["bail"] = $contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+            $elemC["locataire"] = $contrat->getLocataire()->getNom() ;
+            $elemC["cycle"] = $contrat->getCycle()->getNom() ;
+            $elemC["duree"] = $contrat->getDuree().$periode ;
+            $elemC["datePaiement"] = $datePaiement ;
+            $elemC["commission"] = $commission ;
+
+            array_push($tabContrats,$elemC) ;
+        }
+
+        return $this->render('prestations/location/listeCommissionContrat.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Liste des commissions",
+            "with_foot" => false,
+            "contrats" => $tabContrats
+        ]);
+    }
 
     #[Route('/prestation/location/bailleur/get', name: 'prest_location_bailleur_get')]
     public function prestGetBailleurLocation(Request $request){
@@ -1219,6 +1363,7 @@ class PrestationController extends AbstractController
         
         $childs = array_values($resultat); 
         $newChilds = [] ;
+
         foreach ($childs as $child) {
             $elem = [] ;
             
@@ -1245,6 +1390,7 @@ class PrestationController extends AbstractController
         }
 
         $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
+
         $parent = [
             "numContrat" => $contrat->getNumContrat(),
             "montantContrat" => $contrat->getMontantContrat(),
