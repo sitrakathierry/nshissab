@@ -1336,10 +1336,10 @@ class PrestationController extends AbstractController
                         $tableauMois[$i]["montantInitial"] = 0 ;
                     }
                 }
-                array_shift($tableauMois) ;
+                $nouveauTableau = array_slice($tableauMois, 1);
                 $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
                     // "item" => $item,
-                    "tableauMois" => $tableauMois,
+                    "tableauMois" => $nouveauTableau,
                     "elemExistant" => $elemExistant,
                     "repartitions" => $newChilds,
                     "lettreReleve" => $lettreReleve,
@@ -1416,10 +1416,10 @@ class PrestationController extends AbstractController
                         $tableauMois[$i]["montantInitial"] = 0 ;
                     }
                 }
-                array_shift($tableauMois) ;
+                $nouveauTableau = array_slice($tableauMois, 1);
                 $response = $this->renderView("prestations/location/loyer/paiementJournaliere.html.twig",[
                     // "item" => $item,
-                    "tableauMois" => $tableauMois,
+                    "tableauMois" => $nouveauTableau,
                     "elemExistant" => $elemExistant,
                     "repartitions" => $newChilds,
                     "lettreReleve" => $lettreReleve,
