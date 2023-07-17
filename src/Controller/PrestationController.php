@@ -1311,9 +1311,24 @@ class PrestationController extends AbstractController
     {
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-            "contrat" => $contrat 
+        
+        $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+            "reference" => "PAYE"
         ]) ;
+
+        $statutLoyerAcompte = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+            "reference" => "ACOMPTE"
+        ]) ;
+
+        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+            "contrat" => $contrat,
+            "statut" => $statutLoyerPaye
+        ]) ;
+
+        $lastRepartition = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
+            "contrat" => $contrat,
+            "statut" => $statutLoyerAcompte
+        ],["id" => "DESC"]) ;
 
         $childs = [] ;
         
@@ -1346,48 +1361,66 @@ class PrestationController extends AbstractController
             $totalReleve += $repartition->getMontant() ; 
             array_push($childs,$item) ;
         }
-        
+
+        if(!is_null($lastRepartition))
+        {
+            $lastItem = [
+                "designation" => $lastRepartition->getDesignation() ,
+                "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
+                "dateLimite" => is_null($lastRepartition->getDateLimite()) ? "" : $lastRepartition->getDateLimite()->format("d/m/Y") ,
+                "datePaiement" => $lastRepartition->getPaiement()->getDate()->format("d/m/Y"),
+                "mois" => is_null($lastRepartition->getMois()) ? "" : $tabMois[$lastRepartition->getMois() - 1] ,
+                "annee" => $lastRepartition->getAnnee(),
+                "dateDebut" => is_null($lastRepartition->getDateDebut()) ? "NONE" : $lastRepartition->getDateDebut()->format("d/m/Y"),
+                "montant" => $lastRepartition->getMontant(),
+                "statut" => $lastRepartition->getStatut()->getReference(),
+            ] ;
+
+            $totalReleve += $lastRepartition->getMontant() ; 
+            array_push($childs,$lastItem) ;
+        }
+
         $listeForfait = $childs ;
 
-        $resultat = array_reduce($childs, function($carry, $contenu) {
-            $dateDebut = $contenu['dateDebut'];
+        // $resultat = array_reduce($childs, function($carry, $contenu) {
+        //     $dateDebut = $contenu['dateDebut'];
             
-            if (!isset($carry[$dateDebut])) {
-                $carry[$dateDebut] = $contenu;
-            } else {
-                $carry[$dateDebut]['montant'] += $contenu['montant'];
-            }
+        //     if (!isset($carry[$dateDebut])) {
+        //         $carry[$dateDebut] = $contenu;
+        //     } else {
+        //         $carry[$dateDebut]['montant'] += $contenu['montant'];
+        //     }
             
-            return $carry;
-        }, []);
+        //     return $carry;
+        // }, []);
         
-        $childs = array_values($resultat); 
-        $newChilds = [] ;
+        // $childs = array_values($resultat); 
+        // $newChilds = [] ;
 
-        foreach ($childs as $child) {
-            $elem = [] ;
+        // foreach ($childs as $child) {
+        //     $elem = [] ;
             
-            // $elem["moment"] = $child["moment"] ;
-            $elem["debutLimite"] = $child["debutLimite"] ;
-            $elem["dateLimite"] = $child["dateLimite"] ;
-            $elem["datePaiement"] = $child["datePaiement"] ;
-            $elem["mois"] = $child["mois"] ;
-            $elem["annee"] = $child["annee"] ;
-            $elem["dateDebut"] = $child["dateDebut"] ;
-            $elem["montant"] = $child["montant"] ;
+        //     // $elem["moment"] = $child["moment"] ;
+        //     $elem["debutLimite"] = $child["debutLimite"] ;
+        //     $elem["dateLimite"] = $child["dateLimite"] ;
+        //     $elem["datePaiement"] = $child["datePaiement"] ;
+        //     $elem["mois"] = $child["mois"] ;
+        //     $elem["annee"] = $child["annee"] ;
+        //     $elem["dateDebut"] = $child["dateDebut"] ;
+        //     $elem["montant"] = $child["montant"] ;
 
-            if($child["montant"] == $contrat->getMontantForfait())
-            {
-                $elem["designation"] = "Paiement. ".$child["designation"] ;
-                $elem["statut"] = "Payée" ;
-            }
-            else
-            {
-                $elem["designation"] = "Acompte. ".$child["designation"] ;
-                $elem["statut"] = "Acompte" ;
-            }
-            array_push($newChilds,$elem) ;
-        }
+        //     if($child["montant"] == $contrat->getMontantForfait())
+        //     {
+        //         $elem["designation"] = "Paiement. ".$child["designation"] ;
+        //         $elem["statut"] = "Payée" ;
+        //     }
+        //     else
+        //     {
+        //         $elem["designation"] = "Acompte. ".$child["designation"] ;
+        //         $elem["statut"] = "Acompte" ;
+        //     }
+        //     array_push($newChilds,$elem) ;
+        // }
 
         $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
 
@@ -1424,7 +1457,7 @@ class PrestationController extends AbstractController
                 $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
                     // "item" => $item,
                     "tableauMois" => $tableauMois,
-                    "repartitions" => $newChilds,
+                    "repartitions" => $childs,
                     "lettreReleve" => $lettreReleve,
                 ]) ;
             } 
@@ -1447,7 +1480,7 @@ class PrestationController extends AbstractController
 
                 $response = $this->renderView("prestations/location/loyer/paiementJournaliere.html.twig",[
                     "tableauMois" => $tableauMois,
-                    "repartitions" => $newChilds,
+                    "repartitions" => $childs,
                     "lettreReleve" => $lettreReleve,
                 ]) ;
             }

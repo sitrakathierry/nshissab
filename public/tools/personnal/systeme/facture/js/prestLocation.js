@@ -83,7 +83,7 @@ $(document).ready(function(){
                 totalPayee += montantPayee ;
                 captionMtnPayee = montantPayee ;
                 captionStatut = '<span class="text-info font-weight-bold">ACOMPTE</span>' ;
-                valMontantPayee = montantPayee - montantInitial ;
+                valMontantPayee = montantPayee  ;
                 valStatut = "ACOMPTE" ; 
                 captionDesignation = "ACOMPTE. "
                 // ligne.find(".montantPayee").text(montantPayee)
@@ -96,7 +96,7 @@ $(document).ready(function(){
                 totalPayee += montantparMois ;
                 captionMtnPayee = montantparMois ;
                 captionStatut = '<span class="text-success font-weight-bold">PAYEE</span>' ;
-                valMontantPayee = montantparMois - montantInitial ;
+                valMontantPayee = montantparMois ;
                 valStatut = "PAYE" ; 
                 captionDesignation = "PAIEMENT. "
                 // ligne.find(".statutPment").empty().html() ;
