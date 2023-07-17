@@ -1797,7 +1797,7 @@ class AppService extends AbstractController
         return $dateFormatee;
     }
 
-    public function genererTableauMois($dateInitiale, $nombreMois, $dateLimite) {
+    public function genererTableauMois($dateInitiale, $nombreMois, $dateLimite,$moisExist) {
         $tableauDates = array();
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         $date = \DateTime::createFromFormat('d/m/Y', $dateInitiale);
@@ -1812,6 +1812,8 @@ class AppService extends AbstractController
             if($mois == null)
             {
                 $mois = intval(explode("/",$dateApresNJours)[1]); 
+                if(!is_null($moisExist))
+                    $mois = $moisExist ;
             }
             else if($mois == (12 + 1))
             {

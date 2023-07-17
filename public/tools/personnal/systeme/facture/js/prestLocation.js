@@ -19,7 +19,9 @@ $(document).ready(function(){
                     realinstance.close()
                     var contrat = response.split("@##@")[1] ;
                     var tableau = JSON.parse(contrat)[0] ;
+                    
                     tableauDates = JSON.parse(response.split("@##@")[2]) ;
+
                     $("#fact_prest_lct_bailleur").val(tableau.bailleur)
                     $("#fact_prest_lct_bail").val(tableau.bail)
                     $("#fact_prest_lct_locataire").val(tableau.locataire)

@@ -1037,8 +1037,10 @@ class FactureController extends AbstractController
         $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
             "reference" => "PAYE"
         ]) ;
+        
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
+            $moisExist = null ;
             if($contrat->getForfait()->getReference() == "FMOIS")
             {
                 $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
@@ -1046,7 +1048,7 @@ class FactureController extends AbstractController
                 ],["id" => "DESC"]) ;
 
                 $elemExistant = [] ;
-
+                    
                 if(!is_null($lastPaiement))
                 {
                     $moisEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
@@ -1079,6 +1081,8 @@ class FactureController extends AbstractController
                         $moisEcoule = 0 ;
                         $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
                     }
+
+                    $moisExist = $lastRepart->getMois() ;
                 }
                 else
                 {
@@ -1094,8 +1098,19 @@ class FactureController extends AbstractController
                 $duree -= $moisEcoule ;
 
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
-                $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
-                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite()) ;
+                if($contrat->getModePaiement()->getReference() == "DEBUT")
+                {
+                    $dateGenere =  $dateAvant ;
+                }
+                else
+                {
+                    if(!is_null($lastPaiement))
+                        $dateGenere = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
+                    else
+                        $dateGenere = $dateDebut ;
+                }
+                
+                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(), $moisExist) ;
                 
                 if(!empty($elemExistant))
                 {
