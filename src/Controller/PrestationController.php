@@ -1401,92 +1401,29 @@ class PrestationController extends AbstractController
             "isCaution" => !empty($contrat->getCaution()),
         ] ;
 
-        $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
-            "reference" => "PAYE"
-        ]) ;
 
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
             if($contrat->getForfait()->getReference() == "FMOIS")
             {
-                $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
-                    "contrat" => $contrat
-                ],["id" => "DESC"]) ;
-
-                $elemExistant = [] ;
-
-                if(!is_null($lastPaiement))
-                {
-                    $moisEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-                        "contrat" => $contrat,
-                        "statut" => $statutLoyerPaye
-                    ]) ;
-                    
-                    $moisEcoule = !is_null($moisEcoule) ? count($moisEcoule) : 0 ;
-
-                    $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
-                        "paiement" => $lastPaiement
-                    ],["id" => "DESC"]) ;
-
-                    $statutLastRpt = $lastRepart->getStatut()->getReference() ;
-                    
-                    if($statutLastRpt == "ACOMPTE")
-                    {
-                        $elemExistant = [
-                            "montant" => $lastRepart->getMontant(),
-                            "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
-                        ] ;
-                        $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
-                    }
-                    else if($statutLastRpt == "PAYE")
-                    {
-                        $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),30) ;
-                    }
-                    else
-                    {
-                        $moisEcoule = 0 ;
-                        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                    }
-                }
-                else
-                {
-                    $moisEcoule = 0 ;
-                    $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                }
+                $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
 
                 if($contrat->getPeriode()->getReference() == "M")
                     $duree = $contrat->getDuree() ;  
                 else if($contrat->getPeriode()->getReference() == "A")
                     $duree = $contrat->getDuree() * 12 ; 
-                
-                $duree -= $moisEcoule ;
 
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
                 $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
-                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(),$contrat->getModePaiement()->getReference()) ;
+                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite()) ;
                 
-                if(!empty($elemExistant))
-                {
-                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
-                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
-                }
-                else
-                {
-                    $tableauMois[0]["montantInitial"] = 0 ;
-                }
-
                 for ($i=0; $i < count($tableauMois); $i++) { 
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-                    if($i != 0)
-                    {
-                        $tableauMois[$i]["montantInitial"] = 0 ;
-                    }
                 }
-                $nouveauTableau = empty($newChilds) ? $tableauMois : array_slice($tableauMois, 1);
+
                 $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
                     // "item" => $item,
-                    "tableauMois" => $nouveauTableau,
-                    "elemExistant" => $elemExistant,
+                    "tableauMois" => $tableauMois,
                     "repartitions" => $newChilds,
                     "lettreReleve" => $lettreReleve,
                 ]) ;
@@ -1496,77 +1433,20 @@ class PrestationController extends AbstractController
         { 
             if($contrat->getForfait()->getReference() == "FJOUR")
             {
-                $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
-                    "contrat" => $contrat
-                ],["id" => "DESC"]) ;
 
-                $elemExistant = [] ;
-
-                if(!is_null($lastPaiement))
-                {
-                    $jourEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-                        "contrat" => $contrat,
-                        "statut" => $statutLoyerPaye
-                    ]) ;
-                    
-                    $jourEcoule = !is_null($jourEcoule) ? count($jourEcoule) : 0 ;
-
-                    $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
-                        "paiement" => $lastPaiement
-                    ],["id" => "DESC"]) ;
-
-                    $statutLastRpt = $lastRepart->getStatut()->getReference() ;
-                    if($statutLastRpt == "ACOMPTE")
-                    {
-                        $elemExistant = [
-                            "montant" => $lastRepart->getMontant(),
-                            "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
-                        ] ;
-                        $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
-                    }
-                    else if($statutLastRpt == "PAYE")
-                    {
-                        $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),1) ;
-                    }
-                    else
-                    {
-                        $moisEcoule = 0 ;
-                        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                    }
-                }
-                else
-                {
-                    $jourEcoule = 0 ;
-                    $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                }
-
+                $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+                
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,1) ;
                 $dateGenere = $dateAvant ;
-                $duree = $contrat->getDuree() - $jourEcoule ;
+                $duree = $contrat->getDuree() ;
                 $tableauMois = $this->appService->genererTableauJour($dateGenere,$duree) ;
-                
-                if(!empty($elemExistant))
-                {
-                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
-                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
-                }
-                else
-                {
-                    $tableauMois[0]["montantInitial"] = 0 ;
-                }
 
                 for ($i=0; $i < count($tableauMois); $i++) { 
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-                    if($i != 0)
-                    {
-                        $tableauMois[$i]["montantInitial"] = 0 ;
-                    }
                 }
-                $nouveauTableau = empty($newChilds) ? $tableauMois :  array_slice($tableauMois, 1);
+
                 $response = $this->renderView("prestations/location/loyer/paiementJournaliere.html.twig",[
-                    // "item" => $item,
-                    "tableauMois" => $nouveauTableau,
-                    "elemExistant" => $elemExistant,
+                    "tableauMois" => $tableauMois,
                     "repartitions" => $newChilds,
                     "lettreReleve" => $lettreReleve,
                 ]) ;
@@ -1576,9 +1456,6 @@ class PrestationController extends AbstractController
         if($contrat->getForfait()->getReference() == "FORFAIT")
         {
             $response = $this->renderView("prestations/location/loyer/paiementForfaitaire.html.twig",[
-                // "item" => $item,
-                // "tableauMois" => $tableauMois,
-                // "elemExistant" => $elemExistant,
                 "repartitions" => $listeForfait,
                 "lettreReleve" => $lettreReleve,
                 "parentContrat" => $parent,

@@ -11,22 +11,32 @@
         </thead>
         <tbody>
             {% set totalPayee = 0 %}
-            {% for repartition in repartitions %}
-                <tr>
-                    <td>{{ repartition.designation | upper}}</td>
-                    <td>{{ repartition.debutLimite}}</td>
-                    <td>{{ repartition.datePaiement}}</td>
-                    <th>{{ repartition.montant }}</th>
-                    {# <th>{{ repartition.statut | upper }}</th> #}
-                </tr>
-                {% set totalPayee = totalPayee + repartition.montant %}
-            {% endfor %}
             {% for jourrestant in tableauMois %}
+                {% set debutLimite = jourrestant.debutLimite %}
+                {% set datePaiement = "-" %}
+                {% set designation = jourrestant.designation %}
+                {% set montant = "-" %}
+                {% set break = false %}
+                {% set lenRepart = repartitions | length %}
+                {% for repartition in repartitions %}
+                    {% if lenRepart > 0 %}
+                        {% if not break %}
+                            {% if jourrestant.debutLimite == repartition.debutLimite %}
+                                {% set montant = repartition.montant %}
+                                {% set designation = repartition.designation %}
+                                {% set datePaiement = repartition.datePaiement %}
+                                {% set totalPayee = totalPayee + repartition.montant %}
+                                {% set lenRepart = lenRepart - 1 %}
+                                {% set break = true %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
                 <tr>
-                    <td>{{ jourrestant.designation | upper}}</td>
-                    <td>{{ jourrestant.debutLimite}}</td>
-                    <td>-</td>
-                    <th>-</th>
+                    <td>{{ designation | upper }}</td>
+                    <td>{{ jourrestant.debutLimite }}</td>
+                    <td>{{ datePaiement }}</td>
+                    <th>{{ montant }}</th>
                     {# <th>{{ repartition.statut | upper }}</th> #}
                 </tr>
             {% endfor %}
