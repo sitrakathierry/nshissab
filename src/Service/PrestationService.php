@@ -35,7 +35,7 @@ class PrestationService
             $plusPetit = $this->appService->compareDates($dateFin,$dateNow,"P") || $this->appService->compareDates($dateFin,$dateNow,"P") ;
             if($plusPetit)
             {
-                if($contrat->getRenouvellement()->getReference() == "RVL")
+                if($contrat->getRenouvellement()->getReference() != "TCT")
                 {
                     $newStatut = $entityManager->getRepository(LctStatut::class)->findOneBy([
                         "reference" => "EXP"
