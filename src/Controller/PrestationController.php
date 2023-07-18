@@ -26,8 +26,9 @@ use App\Entity\Service;
 use App\Entity\SrvDuree;
 use App\Entity\SrvFormat;
 use App\Entity\SrvTarif;
-use App\Entity\User;
+use App\Entity\User; 
 use App\Service\AppService;
+use App\Service\PrestationService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,7 +49,9 @@ class PrestationController extends AbstractController
     private $nameAgence ; 
     private $nameUser ; 
     private $userObj ; 
-    public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
+    private $prestService ;
+
+    public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService,PrestationService $prestService)
     {
         $this->session = $session;
         $this->entityManager = $entityManager;
@@ -62,6 +65,7 @@ class PrestationController extends AbstractController
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
             "username" => $this->user["username"] 
         ]) ;
+        $this->prestService = $prestService ;
     }
 
     #[Route('/prestation/service/creation', name: 'prest_creation_prestation')]
@@ -668,6 +672,8 @@ class PrestationController extends AbstractController
 
         $contrats = json_decode(file_get_contents($filename)) ;
 
+        $this->prestService->checkContrat($this->entityManager, $this) ;
+
         return $this->render('prestations/location/listeContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Liste des contrats",
@@ -1201,6 +1207,7 @@ class PrestationController extends AbstractController
         $contrat = new LctContrat() ;
 
         $contrat->setAgence($this->agence) ;
+        $contrat->setCtrParent(null) ;
         $contrat->setBailleur($bailleur) ;
         $contrat->setBail($bail) ;
         $contrat->setLocataire($locataire) ;
@@ -1225,6 +1232,7 @@ class PrestationController extends AbstractController
         $contrat->setLieuContrat($ctr_lieu) ;
         $contrat->setDateContrat(\DateTime::createFromFormat('j/m/Y',$ctr_date)) ;
         $contrat->setStatut($statut) ;
+        $contrat->setStatutGen(True) ;
         $contrat->setCreatedAt(new \DateTimeImmutable) ; 
         $contrat->setUpdatedAt(new \DateTimeImmutable) ; 
 
@@ -1271,6 +1279,7 @@ class PrestationController extends AbstractController
         ] ;
 
         $parent = [
+            "id" => $contrat->getId(),
             "typeLocation" => $contrat->getTypeLocation()->getNom(),
             "cycle" => $contrat->getCycle()->getNom(),
             "typePaiement" => $contrat->getForfait()->getNom(),
@@ -1290,6 +1299,7 @@ class PrestationController extends AbstractController
             "caution" => empty($contrat->getCaution()) ? "" : $contrat->getCaution(),
             "isCaution" => !empty($contrat->getCaution()),
             "montantContrat" => $contrat->getMontantContrat(),
+            "refStatut" => $contrat->getStatut()->getReference(),
             "changement" => empty($contrat->getDelaiChgFin()) ? "" : $contrat->getDelaiChgFin()." Jours avant la fin du contrat"
         ] ;
 
@@ -1302,8 +1312,6 @@ class PrestationController extends AbstractController
             "locataire" => $locataire,
             "bail" => $bail,
         ]);
-        
-        
     }
 
     #[Route('/prestation/location/contrat/releve/loyer/{id}', name: 'prest_location_contrat_releve_loyer')]
@@ -1347,7 +1355,7 @@ class PrestationController extends AbstractController
             // else 
             //     $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
 
-            $item["designation"] = $repartition->getDesignation() ;
+            $item["designation"] = "Paiement. ".$repartition->getDesignation() ;
             $item["debutLimite"] = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y") ;
             $item["dateLimite"] = is_null($repartition->getDateLimite()) ? "" : $repartition->getDateLimite()->format("d/m/Y") ;
             $item["datePaiement"] = $repartition->getPaiement()->getDate()->format("d/m/Y") ;
@@ -1364,63 +1372,26 @@ class PrestationController extends AbstractController
 
         if(!is_null($lastRepartition))
         {
-            $lastItem = [
-                "designation" => $lastRepartition->getDesignation() ,
-                "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
-                "dateLimite" => is_null($lastRepartition->getDateLimite()) ? "" : $lastRepartition->getDateLimite()->format("d/m/Y") ,
-                "datePaiement" => $lastRepartition->getPaiement()->getDate()->format("d/m/Y"),
-                "mois" => is_null($lastRepartition->getMois()) ? "" : $tabMois[$lastRepartition->getMois() - 1] ,
-                "annee" => $lastRepartition->getAnnee(),
-                "dateDebut" => is_null($lastRepartition->getDateDebut()) ? "NONE" : $lastRepartition->getDateDebut()->format("d/m/Y"),
-                "montant" => $lastRepartition->getMontant(),
-                "statut" => $lastRepartition->getStatut()->getReference(),
-            ] ;
-
-            $totalReleve += $lastRepartition->getMontant() ; 
-            array_push($childs,$lastItem) ;
+            if($lastRepartition->getStatut()->getReference() == "ACOMPTE")
+            {
+                $lastItem = [
+                    "designation" => "Acompte. ".$lastRepartition->getDesignation() ,
+                    "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
+                    "dateLimite" => is_null($lastRepartition->getDateLimite()) ? "" : $lastRepartition->getDateLimite()->format("d/m/Y") ,
+                    "datePaiement" => $lastRepartition->getPaiement()->getDate()->format("d/m/Y"),
+                    "mois" => is_null($lastRepartition->getMois()) ? "" : $tabMois[$lastRepartition->getMois() - 1] ,
+                    "annee" => $lastRepartition->getAnnee(),
+                    "dateDebut" => is_null($lastRepartition->getDateDebut()) ? "NONE" : $lastRepartition->getDateDebut()->format("d/m/Y"),
+                    "montant" => $lastRepartition->getMontant(),
+                    "statut" => $lastRepartition->getStatut()->getReference(),
+                ] ;
+    
+                $totalReleve += $lastRepartition->getMontant() ; 
+                array_push($childs,$lastItem) ;
+            }
         }
 
         $listeForfait = $childs ;
-
-        // $resultat = array_reduce($childs, function($carry, $contenu) {
-        //     $dateDebut = $contenu['dateDebut'];
-            
-        //     if (!isset($carry[$dateDebut])) {
-        //         $carry[$dateDebut] = $contenu;
-        //     } else {
-        //         $carry[$dateDebut]['montant'] += $contenu['montant'];
-        //     }
-            
-        //     return $carry;
-        // }, []);
-        
-        // $childs = array_values($resultat); 
-        // $newChilds = [] ;
-
-        // foreach ($childs as $child) {
-        //     $elem = [] ;
-            
-        //     // $elem["moment"] = $child["moment"] ;
-        //     $elem["debutLimite"] = $child["debutLimite"] ;
-        //     $elem["dateLimite"] = $child["dateLimite"] ;
-        //     $elem["datePaiement"] = $child["datePaiement"] ;
-        //     $elem["mois"] = $child["mois"] ;
-        //     $elem["annee"] = $child["annee"] ;
-        //     $elem["dateDebut"] = $child["dateDebut"] ;
-        //     $elem["montant"] = $child["montant"] ;
-
-        //     if($child["montant"] == $contrat->getMontantForfait())
-        //     {
-        //         $elem["designation"] = "Paiement. ".$child["designation"] ;
-        //         $elem["statut"] = "Payée" ;
-        //     }
-        //     else
-        //     {
-        //         $elem["designation"] = "Acompte. ".$child["designation"] ;
-        //         $elem["statut"] = "Acompte" ;
-        //     }
-        //     array_push($newChilds,$elem) ;
-        // }
 
         $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
 
@@ -1625,4 +1596,267 @@ class PrestationController extends AbstractController
             "message" => "La caution a été enregistré"
         ]) ;
     }
+
+    #[Route('/prestation/location/contrat/edit/{id}', name: 'prest_edit_contrat_location')]
+    public function prestEditContratLocation($id)
+    {
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+
+        $bail = [
+            "nom" => $contrat->getBail()->getNom(),
+            "adresse" => $contrat->getBail()->getLieux(),
+            "dimension" => $contrat->getBail()->getDimension(),
+        ] ;
+
+        $parent = [
+            "id" => $contrat->getId(),
+            "bailleur" => $contrat->getBailleur()->getNom(),
+            "locataire" => $contrat->getLocataire()->getNom(),
+            "codeTypeLocation" => $contrat->getTypeLocation()->getId(),
+            "typeLocation" => $contrat->getTypeLocation()->getNom(),
+            "cycle" => $contrat->getCycle()->getNom(),
+            "typePaiement" => $contrat->getForfait()->getNom(),
+            "montantForfait" => $contrat->getMontantForfait(),
+            "numContrat" => $contrat->getNumContrat(),
+            "duree" => $contrat->getDuree(),
+            "date" => $contrat->getDateContrat()->format("d/m/Y"),
+            "lieu" => $contrat->getLieuContrat(),
+            "periode" => $contrat->getPeriode()->getNom(),
+            "dateDebut" => $contrat->getDateDebut()->format("d/m/Y") ,
+            "dateFin" => $contrat->getDateFin()->format("d/m/Y") ,
+            "retenu" => is_null($contrat->getPourcentage()) ? "" : $contrat->getPourcentage(),
+            "codeRenouveau" => empty($contrat->getRenouvellement()) ? "" : $contrat->getRenouvellement()->getId(),
+            "renouveau" => empty($contrat->getRenouvellement()) ? "" : $contrat->getRenouvellement()->getNom(),
+            "modePaiement" => is_null($contrat->getModePaiement()) ? "" : $contrat->getModePaiement()->getNom(),
+            "isModeP" => !is_null($contrat->getModePaiement()),
+            "dateLimite" => is_null($contrat->getDateLimite()) ? "" : "Jusqu'au ".$contrat->getDateLimite()." du mois",
+            "caution" => empty($contrat->getCaution()) ? "" : $contrat->getCaution(),
+            "isCaution" => !empty($contrat->getCaution()),
+            "montantContrat" => $contrat->getMontantContrat(),
+            "changement" => empty($contrat->getDelaiChgFin()) ? "" : $contrat->getDelaiChgFin()
+        ] ;    
+    
+        $type_locs = $this->entityManager->getRepository(LctTypeLocation::class)->findAll() ;
+        $renouvs = $this->entityManager->getRepository(LctRenouvellement::class)->findAll() ;
+
+        return $this->render('prestations/location/modifierContrat.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Modification contrat ",
+            "with_foot" => true,
+            "type_locs" => $type_locs,
+            "contrat" => $parent,
+            "bail" => $bail,
+            "renouvs" => $renouvs,
+        ]);
+    }
+
+    #[Route('/prestation/location/contrat/valid', name: 'prest_location_edit_contrat_valid')]
+    public function prestValidEditContratLocation(Request $request)
+    {
+        $prest_ctr_id = $request->request->get("prest_ctr_id") ;
+        $prest_ctr_bail_type_location = $request->request->get("prest_ctr_bail_type_location") ;
+        $prest_ctr_pourcentage = $request->request->get("prest_ctr_pourcentage") ;
+        $prest_ctr_renouvellement = $request->request->get("prest_ctr_renouvellement") ;
+        $prest_ctr_caution = $request->request->get("prest_ctr_caution") ;
+        $prest_ctr_changement = $request->request->get("prest_ctr_changement") ;
+
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($prest_ctr_id) ;
+
+        $type_loc = $this->entityManager->getRepository(LctTypeLocation::class)->find($prest_ctr_bail_type_location) ;
+        $renouv = $this->entityManager->getRepository(LctRenouvellement::class)->find($prest_ctr_renouvellement) ;
+
+        $statutLoyer = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+            "reference" => "CAUTION"
+        ]) ;
+
+        $repartition = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
+            "contrat" => $contrat, 
+            "statut" => $statutLoyer
+        ]) ;
+
+        $contrat->setTypeLocation($type_loc) ;
+        $contrat->setRenouvellement($renouv) ;
+        $contrat->setPourcentage(empty($prest_ctr_pourcentage) ? null : $prest_ctr_pourcentage) ;
+        $contrat->setDelaiChgFin(empty($prest_ctr_changement) ? null : $prest_ctr_changement) ;
+
+        if(is_null($repartition))
+        {
+            $contrat->setCaution(empty($prest_ctr_caution) ? null : $prest_ctr_caution) ;
+            $plusMsg = "" ;
+        }
+        else
+        {
+            $plusMsg = "La caution a déjà été payé et ne peut être modifié " ;
+        }
+        
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué.".$plusMsg,
+            ]) ;
+    }
+
+    #[Route('/prestation/location/contrat/delete', name: 'prest_location_contrat_delete')]
+    public function prestDeleteContratLocation(Request $request)
+    {
+        $id = $request->request->get("id") ;
+
+        $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+            "reference" => "DEL"
+        ]) ;
+
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+
+        $contrat->setStatut($statut) ;
+        $contrat->setStatutGen(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué.",
+        ]) ;
+    }
+
+    #[Route('/prestation/location/contrat/annule', name: 'prest_location_contrat_annule')]
+    public function prestAnnuleContratLocation(Request $request)
+    {
+        $id = $request->request->get("id") ;
+
+        $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+            "reference" => "ANL"
+        ]) ;
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+        $contrat->setStatut($statut) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Annulation effectué.",
+        ]) ;
+    }
+
+    #[Route('/prestation/location/contrat/active', name: 'prest_location_contrat_active')]
+    public function prestActiveContratLocation(Request $request)
+    {
+        $id = $request->request->get("id") ;
+
+        $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+            "reference" => "ENCR"
+        ]) ;
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+        $contrat->setStatut($statut) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Activation effectué.",
+        ]) ;
+    }
+
+    #[Route('/prestation/location/contrat/renouvellement', name: 'prest_location_contrat_renouvellement')]
+    public function prestRenouvContratLocation(Request $request = null, $refContrat = null)
+    {
+        $id = $refContrat ;
+        if(!is_null($request))
+            $id = $request->request->get("id") ;
+
+        $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+            "reference" => "RNV"
+        ]) ;
+
+        $statutActive = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+            "reference" => "ENCR"
+        ]) ;
+
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+
+        $contrat->setStatut($statut) ;
+        $contrat->setStatutGen(False) ;
+        $this->entityManager->flush() ;
+
+        $cycleRef = $contrat->getCycle()->getReference() ;
+        $periodeRef = $contrat->getPeriode()->getReference() ;
+        // $forfaitRef = $contrat->getForfait()->getReference() ;
+        $duree = $contrat->getDuree() ; 
+
+        $nbJour = 0 ;
+        $dateDebut = $contrat->getDateFin()->format("d/m/Y") ;
+        $dateFin = "" ;
+
+        if($cycleRef == "CJOUR")
+        {
+            $nbJour = $duree ;
+        }
+        else if($cycleRef == "CMOIS")
+        {
+            if($periodeRef == "M")
+            {
+                $nbJour = 30 * $duree ;
+            }
+            else if($periodeRef == "A") 
+            {
+                $nbJour =  365 * $duree ;
+            }
+        }
+
+        $dateFin = $this->appService->calculerDateApresNjours($dateDebut,$nbJour) ;
+
+        $newContrat = new LctContrat() ;
+        
+        $newContrat->setAgence($contrat->getAgence()) ;
+        $newContrat->setCtrParent(is_null($contrat->getCtrParent()) ? $contrat : $contrat->getCtrParent()) ;
+        $newContrat->setBailleur($contrat->getBailleur()) ;
+        $newContrat->setBail($contrat->getBail()) ;
+        $newContrat->setLocataire($contrat->getLocataire()) ;
+        $newContrat->setNumContrat($contrat->getNumContrat()) ;
+        $newContrat->setMontantContrat($contrat->getMontantContrat()) ;
+        $newContrat->setCycle($contrat->getCycle()) ;
+        $newContrat->setForfait($contrat->getForfait()) ;
+        $newContrat->setMontantForfait($contrat->getMontantForfait()) ;
+        $newContrat->setDuree($contrat->getDuree()) ;
+        $newContrat->setPeriode($contrat->getPeriode()) ;
+        $newContrat->setPourcentage($contrat->getPourcentage()) ;
+        $newContrat->setRenouvellement($contrat->getRenouvellement()) ;
+        $newContrat->setCaptionRenouv($contrat->getCaptionRenouv()) ;
+        $newContrat->setTypeLocation($contrat->getTypeLocation()) ;
+        $newContrat->setDateDebut(\DateTime::createFromFormat('j/m/Y',$dateDebut)) ;
+        $newContrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$dateFin)) ;
+        $newContrat->setModePaiement($contrat->getModePaiement()) ;
+        $newContrat->setDateLimite($contrat->getDateLimite()) ;
+        $newContrat->setCaution($contrat->getCaution()) ;
+        $newContrat->setDelaiChgFin($contrat->getDelaiChgFin()) ;
+        $newContrat->setNote("Renouvellement de contrat") ;
+        $newContrat->setLieuContrat($contrat->getLieuContrat()) ;
+        $newContrat->setDateContrat($contrat->getDateContrat()) ;
+        $newContrat->setStatut($statutActive) ;
+        $newContrat->setStatutGen(True) ;
+        $newContrat->setCreatedAt(new \DateTimeImmutable) ; 
+        $newContrat->setUpdatedAt(new \DateTimeImmutable) ; 
+
+        $this->entityManager->persist($newContrat) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Renouvellement effectué.",
+        ]) ;
+    }
 }
+

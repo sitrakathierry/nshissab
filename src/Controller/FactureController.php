@@ -1071,9 +1071,11 @@ class FactureController extends AbstractController
                             "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
                         ] ;
                         $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
+                        $moisExist = $lastRepart->getMois() ;
                     }
                     else if($statutLastRpt == "PAYE")
                     {
+                        $moisExist = $lastRepart->getMois() + 1 ;
                         $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),30) ;
                     }
                     else
@@ -1081,8 +1083,6 @@ class FactureController extends AbstractController
                         $moisEcoule = 0 ;
                         $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
                     }
-
-                    $moisExist = $lastRepart->getMois() ;
                 }
                 else
                 {

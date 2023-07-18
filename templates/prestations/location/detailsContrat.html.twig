@@ -96,8 +96,8 @@
                     <label class="font-weight-bold mt-3">Montant Contrat</label>
                     <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="{{contrat.montantContrat}}" >
                 </div>
-                <div class="col-md-3">
-                    <label class="font-weight-bold mt-3">Changement avant fin du mois</label>
+                <div class="col-md-4">
+                    <label class="font-weight-bold mt-3">Changement avant fin du contrat</label>
                     <input type="text" class="form-control" readonly id="recap_ctr_changement" value="{{contrat.changement}}" >
                 </div>
             </div>
@@ -109,14 +109,17 @@
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                {# {% if contrat.isCaution %}
-                    <button type="button" class="btn btn-sm btn-purple text-white"><i class="fa fa-print"></i>&nbsp;Fiche de caution</button>
-                {% endif %} #}
+                {% if contrat.refStatut == "ENCR" %}
+                    <button type="button" class="btn btn-sm btn-danger btn_delete_contrat text-white" value="{{contrat.id}}"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
+                    <a href="{{path('prest_edit_contrat_location',{'id':contrat.id})}}" type="button" class="btn btn-sm ml-3 btn-purple text-white"><i class="fa fa-edit"></i>&nbsp;Modifier</a>
+                    <button type="button" class="btn btn-sm ml-3 btn-secondary btn_annule_contrat text-white" value="{{contrat.id}}"><i class="fa fa-times"></i>&nbsp;Annuler</button>
+                {% elseif contrat.refStatut == "ANL" or contrat.refStatut == "EXP" %}
+                    <button type="button" class="btn btn-sm btn-danger btn_delete_contrat text-white" value="{{contrat.id}}"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
+                {% endif %}
                 <button type="button" class="btn btn-sm ml-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
         {% endif %} 
+
     </div>
 </div>
 {% endblock %}
-
-

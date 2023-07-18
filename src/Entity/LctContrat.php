@@ -103,10 +103,20 @@ class LctContrat
     #[ORM\OneToMany(mappedBy: 'contrat', targetEntity: LctRepartition::class)]
     private Collection $lctRepartitions;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $statutGen = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'lctContrats')]
+    private ?self $ctrParent = null;
+
+    #[ORM\OneToMany(mappedBy: 'ctrParent', targetEntity: self::class)]
+    private Collection $lctContrats;
+
     public function __construct()
     {
         $this->lctPaiements = new ArrayCollection();
         $this->lctRepartitions = new ArrayCollection();
+        $this->lctContrats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -492,6 +502,60 @@ class LctContrat
             // set the owning side to null (unless already changed)
             if ($lctRepartition->getContrat() === $this) {
                 $lctRepartition->setContrat(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isStatutGen(): ?bool
+    {
+        return $this->statutGen;
+    }
+
+    public function setStatutGen(?bool $statutGen): self
+    {
+        $this->statutGen = $statutGen;
+
+        return $this;
+    }
+
+    public function getCtrParent(): ?self
+    {
+        return $this->ctrParent;
+    }
+
+    public function setCtrParent(?self $ctrParent): self
+    {
+        $this->ctrParent = $ctrParent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getLctContrats(): Collection
+    {
+        return $this->lctContrats;
+    }
+
+    public function addLctContrat(self $lctContrat): self
+    {
+        if (!$this->lctContrats->contains($lctContrat)) {
+            $this->lctContrats->add($lctContrat);
+            $lctContrat->setCtrParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctContrat(self $lctContrat): self
+    {
+        if ($this->lctContrats->removeElement($lctContrat)) {
+            // set the owning side to null (unless already changed)
+            if ($lctContrat->getCtrParent() === $this) {
+                $lctContrat->setCtrParent(null);
             }
         }
 

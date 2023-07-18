@@ -1,0 +1,151 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{contrat.numContrat}}</span></h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="w-100 box_content p-3">
+                    <h5 class="title_form text-black text-uppercase">Le Bailleur</h5>
+                    <label for="nom" class="font-weight-bold">Nom</label>
+                    <input type="text" name="nom" readonly value="{{ contrat.bailleur | upper }}" id="nom" class="form-control" placeholder=". . .">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="w-100 box_content p-3">
+                    <h5 class="title_form text-black text-uppercase">Le Locataire</h5>
+                    <label for="nom" class="font-weight-bold">Nom</label>
+                    <input type="text" name="nom" readonly value="{{ contrat.locataire | upper }}" id="nom" class="form-control" placeholder=". . .">
+                    <input type="hidden" name="prest_ctr_id" value="{{contrat.id}}" id="prest_ctr_id" >
+                </div>
+            </div>
+        </div>
+        <div class="w-100 p-3 mt-3 box_content">
+            <h5 class="title_form text-black text-uppercase">Le Bail</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="prest_ctr_bail_type_location" class="font-weight-bold">Type de location</label>
+                    <select name="prest_ctr_bail_type_location" class="custom-select custom-select-sm chosen_select" id="prest_ctr_bail_type_location">
+                        <option value="">-</option>
+                        {% for type_loc in type_locs %}
+                            <option value="{{type_loc.id}}" {{ type_loc.id == contrat.codeTypeLocation ? "selected" : "" }} >{{type_loc.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="nom" class="font-weight-bold">Nom</label>
+                    <input type="text" readonly name="nom" id="nom" value="{{ bail.nom | upper }}" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="nom" class="font-weight-bold">Adresse</label>
+                    <input type="text" readonly name="nom" id="nom" value="{{ bail.adresse|upper }}" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="nom" class="font-weight-bold">Dimension</label>
+                    <input type="text" readonly name="nom" id="nom" value="{{ bail.dimension }}" class="form-control" placeholder=". . .">
+                </div>
+            </div>
+        </div>
+        <div class="w-100 box_content p-3 mt-3">
+            <h5 class="title_form text-black text-uppercase">Le Contrat</h5>
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="font-weight-bold">Cycle</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_cycle" value="{{contrat.cycle|upper}}" >
+                </div>
+                <div class="col-md-2">
+                    <label class="font-weight-bold">Type de paiement</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_forfait" value="{{contrat.typePaiement|upper}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold">Montant par Mois</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_montant_forfait" value="{{contrat.montantForfait}}" >
+                </div>
+                <div class="col-md-2">
+                    <label class="font-weight-bold">Durée du contrat</label>
+                    <input type="text" class="form-control" id="recap_ctr_duree" readonly value="{{contrat.duree}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold">Période du contrat</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_periode" value="{{contrat.periode}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Date Début</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_date_debut" value="{{contrat.dateDebut}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Date Fin</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_date_fin" value="{{contrat.dateFin}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Pourcentage à retenir(%)</label>
+                    <input type="number" class="form-control" id="prest_ctr_pourcentage" value="{{contrat.retenu}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Renouvellement</label>
+                    <select name="prest_ctr_renouvellement" class="custom-select chosen_select custom-select-sm" id="prest_ctr_renouvellement">
+                        <option value="" data-reference="">-</option>
+                        {% for renouv in renouvs %}
+                            <option value="{{renouv.id}}" {{ renouv.id == contrat.codeRenouveau ? "selected" : "" }} data-reference="{{renouv.reference}}">{{renouv.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if contrat.isModeP %}
+                    <div class="col-md-3">
+                        <label class="font-weight-bold mt-3">Mode de paiement Loyer</label>
+                        <input type="text" class="form-control" readonly id="recap_ctr_mode" value="{{contrat.modePaiement|upper}}" >
+                    </div>
+                    <div class="col-md-3">
+                        <label class="font-weight-bold mt-3">Date Limite Paiement</label>
+                        <input type="text" class="form-control" readonly id="recap_ctr_date_limite" value="{{contrat.dateLimite}}" >
+                    </div>
+                {% endif %}
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Caution</label>
+                    <input type="number" class="form-control" id="prest_ctr_caution" value="{{contrat.caution}}" >
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Montant Contrat</label>
+                    <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="{{contrat.montantContrat}}" >
+                </div>
+                <div class="col-md-4">
+                    <label class="font-weight-bold mt-3">Changement avant fin du contrat</label>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="number" class="form-control" id="prest_ctr_changement" value="{{contrat.changement}}" >
+                        </div>
+                        <div class="col-md-6 pt-2">
+                            <b>Jours(s)</b>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <div class="w-100 mt-3">
+                <label class="font-weight-bold">Description</label>
+                <textarea name="paiement_editor" class="form-control"  id="paiement_editor" cols="30" rows="10"></textarea>
+            </div>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm ml-3 btn-perso-one btn_edit_contrat"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

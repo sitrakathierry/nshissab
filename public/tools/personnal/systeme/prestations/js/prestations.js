@@ -149,4 +149,170 @@ $(document).ready(function(){
       return false;
     });
     
+    $(".btn_edit_contrat").click(function(){
+      var self = $(this)
+      $.confirm({
+          title: "Confirmation",
+          content:"Vous êtes sûre ?",
+          type:"orange",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-orange',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      var dataArray = {
+                          prest_ctr_id:$("#prest_ctr_id").val(),
+                          prest_ctr_bail_type_location:$("#prest_ctr_bail_type_location").val(),
+                          prest_ctr_pourcentage:$("#prest_ctr_pourcentage").val(),
+                          prest_ctr_renouvellement:$("#prest_ctr_renouvellement").val(),
+                          prest_ctr_caution:$("#prest_ctr_caution").val(),
+                          prest_ctr_changement:$("#prest_ctr_changement").val()
+                      }
+                      $.ajax({
+                          url: routes.prest_location_edit_contrat_valid,
+                          type:'post',
+                          cache: false,
+                          data:dataArray,
+                          dataType: 'json',
+                          success: function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.assign(routes.prest_location_contrat_liste)
+                                        }
+                                    }
+                                }
+                            });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+    })
+
+    $(".btn_delete_contrat").click(function(){
+      var self = $(this)
+      $.confirm({
+          title: "Confirmation",
+          content:"Vous êtes sûre ?",
+          type:"red",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-red',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      var dataArray = {
+                          id:self.attr("value"),
+                      }
+                      $.ajax({
+                          url: routes.prest_location_contrat_delete,
+                          type:'post',
+                          cache: false,
+                          data:dataArray,
+                          dataType: 'json',
+                          success: function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.assign(routes.prest_location_contrat_liste)
+                                        }
+                                    }
+                                }
+                            });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+    })
+
+    $(".btn_annule_contrat").click(function(){
+      var self = $(this)
+      $.confirm({
+          title: "Confirmation",
+          content:"Vous êtes sûre ?",
+          type:"dark",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-dark',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      var dataArray = {
+                          id:self.attr("value"),
+                      }
+                      $.ajax({
+                          url: routes.prest_location_contrat_annule,
+                          type:'post',
+                          cache: false,
+                          data:dataArray,
+                          dataType: 'json',
+                          success: function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.assign(routes.prest_location_contrat_liste)
+                                        }
+                                    }
+                                }
+                            });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+    })
 })

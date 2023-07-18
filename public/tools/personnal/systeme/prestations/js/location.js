@@ -1153,4 +1153,128 @@ $(document).ready(function(){
             $("#captionCtrRenouvAutre").remove()
         }
     })
+
+    $(".active_contrat").mouseenter(function(){
+        if($(this).find("i").hasClass("fa-toggle-off"))
+        {
+            $(this).find("i").removeClass("fa-toggle-off");
+            $(this).find("i").addClass("fa-toggle-on");
+        }
+    });
+    
+    $(".active_contrat").mouseleave(function(){
+        if($(this).find("i").hasClass("fa-toggle-on"))
+        {
+            $(this).find("i").removeClass("fa-toggle-on");
+            $(this).find("i").addClass("fa-toggle-off");
+        }
+    });
+
+    $(".active_contrat").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation activation",
+            content:"Vous êtes sûre ?",
+            type:"green",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-green',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var dataArray = {
+                            id:self.attr("value"),
+                        }
+                        $.ajax({
+                            url: routes.prest_location_contrat_active,
+                            type:'post',
+                            cache: false,
+                            data:dataArray,
+                            dataType: 'json',
+                            success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                              location.assign(routes.prest_location_contrat_liste)
+                                          }
+                                      }
+                                  }
+                              });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    })
+
+    $(".refresh_contrat").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation renouvellement",
+            content:"Vous êtes sûre ?",
+            type:"purple",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-purple',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var dataArray = {
+                            id:self.attr("value"),
+                        }
+                        $.ajax({
+                            url: routes.prest_location_contrat_renouvellement,
+                            type:'post',
+                            cache: false,
+                            data:dataArray,
+                            dataType: 'json',
+                            success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                              location.assign(routes.prest_location_contrat_liste)
+                                          }
+                                      }
+                                  }
+                              });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    })
 })

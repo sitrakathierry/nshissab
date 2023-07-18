@@ -79,6 +79,16 @@ class AppService extends AbstractController
         }
             
     }
+
+    public function getnameAgence()
+    {
+        return $this->nameAgence ;
+    }
+
+    public function getAgence()
+    {
+        return $this->agence ;
+    }
     
     public function getHappyMessage(): string
     {
@@ -1255,7 +1265,8 @@ class AppService extends AbstractController
     public function generateLocationContrat($filename, $agence) 
     {
         $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
-            "agence" => $agence
+            "agence" => $agence,
+            "statutGen" => True,
             ]) ;
 
         $items = [] ;
@@ -1288,6 +1299,7 @@ class AppService extends AbstractController
             $item["dureeContrat"] = $contrat->getDuree()." ".$periode ;
             $item["montantContrat"] = $contrat->getMontantContrat() ;
             $item["statut"] = $contrat->getStatut()->getNom() ;
+            $item["refStatut"] = $contrat->getStatut()->getReference() ;
             array_push($items,$item) ;
         }
 
@@ -1741,7 +1753,7 @@ class AppService extends AbstractController
         }
     }
 
-    function convertirFormatDate($dateString) {
+    public function convertirFormatDate($dateString) {
         // Séparer la date en jour, mois et année
         $dateParts = explode('/', $dateString);
         $jour = $dateParts[0];
@@ -1838,7 +1850,8 @@ class AppService extends AbstractController
                 "indexMois" => $mois,
                 "annee" => $annee,
                 "statut" =>'<span class="text-danger font-weight-bold">'.strtoupper($statut).'</span>',
-            ];
+            ] ;
+            
             $mois++ ;
         }
         
