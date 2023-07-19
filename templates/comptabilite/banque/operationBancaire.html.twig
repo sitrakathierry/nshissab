@@ -17,17 +17,78 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <h5 class="title_form text-black text-uppercase">Information société</h5>
-
-        <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+        <form id="formOperation">
+            <div class="px-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="cmp_operation_banque" class="font-weight-bold">Banque</label>
+                        <select name="cmp_operation_banque" class="custom-select chosen_select custom-select-sm" id="cmp_operation_banque">
+                            <option value="" >-</option>
+                            {% for banque in banques %}
+                                <option value="{{banque.id}}" >{{banque.nom|upper}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cmp_operation_compte" class="font-weight-bold">Compte Bancaire</label>
+                        <select name="cmp_operation_compte" class="custom-select chosen_select custom-select-sm" id="cmp_operation_compte">
+                            <option value="" >-</option>
+                            
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cmp_operation_solde" class="font-weight-bold">Solde du compte</label>
+                        <input type="text"  readonly name="cmp_operation_solde" id="cmp_operation_solde" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cmp_operation_categorie" class="font-weight-bold">Opération</label>
+                        <select name="cmp_operation_categorie" class="custom-select chosen_select custom-select-sm" id="cmp_operation_categorie">
+                            <option value="" >-</option>
+                            {% for categorie in categories %}
+                                <option value="{{categorie.id}}" >{{categorie.nom|upper}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row  mt-3">
+                    <div class="col-md-3">
+                        <label for="cmp_operation_numero" class="font-weight-bold">Numéro Opération</label>
+                        <input type="text" name="cmp_operation_numero" id="cmp_operation_numero" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cmp_operation_type" class="font-weight-bold">Type</label>
+                        <select name="cmp_operation_type" class="custom-select chosen_select custom-select-sm" id="cmp_operation_type">
+                            <option value="" >-</option>
+                            {% for type in types %}
+                                <option value="{{type.id}}" >{{type.nom|upper}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cmp_operation_montant" class="font-weight-bold">Montant Opération</label>
+                        <input type="number" step="any" name="cmp_operation_montant" id="cmp_operation_montant" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cmp_operation_date" class="font-weight-bold">Date</label>
+                        <input type="text" name="cmp_operation_date" id="cmp_operation_date" class="form-control" placeholder=". . .">
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6">
+                        <h5 class="title_form text-black text-uppercase">Personne Concerné</h5>
+                        <label for="cmp_operation_personne" class="font-weight-bold">Nom et Prénom(s)</label>
+                        <input type="text" name="cmp_operation_personne" id="cmp_operation_personne" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
+                    </div>
+                </div>
             </div>
-        {% endif %} 
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    {# <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button> #}
+                    <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}

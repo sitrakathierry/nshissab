@@ -154,6 +154,15 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctPaiement::class)]
     private Collection $lctPaiements;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CmpBanque::class)]
+    private Collection $cmpBanques;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CmpCompte::class)]
+    private Collection $cmpComptes;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CmpOperation::class)]
+    private Collection $cmpOperations;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -190,6 +199,9 @@ class Agence
         $this->lctLocataires = new ArrayCollection();
         $this->lctContrats = new ArrayCollection();
         $this->lctPaiements = new ArrayCollection();
+        $this->cmpBanques = new ArrayCollection();
+        $this->cmpComptes = new ArrayCollection();
+        $this->cmpOperations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1354,6 +1366,96 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($lctPaiement->getAgence() === $this) {
                 $lctPaiement->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmpBanque>
+     */
+    public function getCmpBanques(): Collection
+    {
+        return $this->cmpBanques;
+    }
+
+    public function addCmpBanque(CmpBanque $cmpBanque): self
+    {
+        if (!$this->cmpBanques->contains($cmpBanque)) {
+            $this->cmpBanques->add($cmpBanque);
+            $cmpBanque->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCmpBanque(CmpBanque $cmpBanque): self
+    {
+        if ($this->cmpBanques->removeElement($cmpBanque)) {
+            // set the owning side to null (unless already changed)
+            if ($cmpBanque->getAgence() === $this) {
+                $cmpBanque->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmpCompte>
+     */
+    public function getCmpComptes(): Collection
+    {
+        return $this->cmpComptes;
+    }
+
+    public function addCmpCompte(CmpCompte $cmpCompte): self
+    {
+        if (!$this->cmpComptes->contains($cmpCompte)) {
+            $this->cmpComptes->add($cmpCompte);
+            $cmpCompte->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCmpCompte(CmpCompte $cmpCompte): self
+    {
+        if ($this->cmpComptes->removeElement($cmpCompte)) {
+            // set the owning side to null (unless already changed)
+            if ($cmpCompte->getAgence() === $this) {
+                $cmpCompte->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmpOperation>
+     */
+    public function getCmpOperations(): Collection
+    {
+        return $this->cmpOperations;
+    }
+
+    public function addCmpOperation(CmpOperation $cmpOperation): self
+    {
+        if (!$this->cmpOperations->contains($cmpOperation)) {
+            $this->cmpOperations->add($cmpOperation);
+            $cmpOperation->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCmpOperation(CmpOperation $cmpOperation): self
+    {
+        if ($this->cmpOperations->removeElement($cmpOperation)) {
+            // set the owning side to null (unless already changed)
+            if ($cmpOperation->getAgence() === $this) {
+                $cmpOperation->setAgence(null);
             }
         }
 

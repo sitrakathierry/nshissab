@@ -12,6 +12,9 @@ use App\Entity\BtpEnoncee;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\CmdBonCommande;
+use App\Entity\CmpBanque;
+use App\Entity\CmpCompte;
+use App\Entity\CmpOperation;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\CrdStatut;
@@ -1300,6 +1303,79 @@ class AppService extends AbstractController
             $item["montantContrat"] = $contrat->getMontantContrat() ;
             $item["statut"] = $contrat->getStatut()->getNom() ;
             $item["refStatut"] = $contrat->getStatut()->getReference() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateCmpBanque($filename, $agence) 
+    {
+        $banques = $this->entityManager->getRepository(CmpBanque::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($banques as $banque) {
+            $item = [] ;
+
+            $item["id"] = $banque->getId() ;
+            $item["agence"] = $banque->getAgence()->getId() ;
+            $item["nom"] = $banque->getNom() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateCmpCompte($filename, $agence) 
+    {
+        $comptes = $this->entityManager->getRepository(CmpCompte::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($comptes as $compte) {
+            $item = [] ;
+
+            $item["id"] = $compte->getId() ;
+            $item["agence"] = $compte->getAgence()->getId() ;
+            $item["banque"] = $compte->getBanque()->getNom() ;
+            $item["numero"] = $compte->getNumero() ;
+            $item["solde"] = $compte->getSolde() ;
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateCmpOperation($filename, $agence) 
+    {
+        $operations = $this->entityManager->getRepository(CmpOperation::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($operations as $operation) {
+            $item = [] ;
+
+            $item["id"] = $operation->getId() ;
+            $item["agence"] = $operation->getAgence()->getId() ;
+            $item["banque"] = $operation->getBanque()->getNom() ;
+            $item["compte"] = $operation->getCompte()->getNumero() ;
+            $item["categorie"] = $operation->getCategorie()->getNom() ;
+            $item["refCategorie"] = $operation->getCategorie()->getReference() ;
+            $item["type"] = $operation->getType()->getNom() ;
+            $item["numero"] = $operation->getNumero() ;
+            $item["montant"] = $operation->getMontant() ;
+            $item["personne"] = $operation->getPersonne() ;
+            $item["date"] = $operation->getDate()->format("d/m/Y") ;
             array_push($items,$item) ;
         }
 

@@ -17,11 +17,68 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <h5 class="title_form text-black text-uppercase">Information société</h5>
-
-        <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-
+        <form id="formCompte">
+            <h5 class="title_form text-black text-uppercase">Ajout Compte bancaire</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="cmp_compte_banque" class="font-weight-bold">Banque</label>
+                    <select name="cmp_compte_banque" class="custom-select chosen_select custom-select-sm" id="cmp_compte_banque">
+                        <option value="" >-</option>
+                        {% for banque in banques %}
+                            <option value="{{banque.id}}" >{{banque.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="cmp_compte_numero" class="font-weight-bold">Numéro de compte</label>
+                    <input type="text" name="cmp_compte_numero" id="cmp_compte_numero" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="cmp_compte_solde" class="font-weight-bold">Solde du compte</label>
+                    <input type="number" step="any" name="cmp_compte_solde" id="cmp_compte_solde" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold">&nbsp;</label>
+                    <button class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            </div>
+        </form>
+        <div class="barre_dashed mt-3 py-3">
+            <h5 class="title_form text-black text-uppercase">Liste des comptes bancaires</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Banque</th>
+                            <th>Numéro de compte</th>
+                            <th>Solde</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = 0 %}
+                        {% for compte in comptes %}
+                            <tr>
+                                <td>{{compte.banque}}</td>
+                                <td>{{compte.numero}}</td>
+                                <td>{{compte.solde}}</td>
+                                <td class="text-center align-middle">
+                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            {% set total = total + compte.solde %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="2">Montant Total</th>
+                            <th colspan="2" class="text-white bg-primary">{{total}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                 <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
