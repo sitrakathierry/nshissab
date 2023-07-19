@@ -315,4 +315,8 @@ $(document).ready(function(){
           }
       })
     })
+
+    $(".fiche_caution_display").click(function(){
+      
+    })
 })

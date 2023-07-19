@@ -8,7 +8,9 @@
             <select name="fact_prest_lct_numContrat" class="custom-select chosen_select fact_client custom-select-sm" id="fact_prest_lct_numContrat">
                 <option value="">-</option>
                 {% for contrat in contrats %}
-                    <option value="{{contrat.id}}">{{contrat.numContrat}} | BAIL : {{contrat.bail|upper}}</option>
+                    {% if contrat.refStatut == "ENCR" %}
+                        <option value="{{contrat.id}}">{{contrat.numContrat}} | BAIL : {{contrat.bail|upper}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </div>

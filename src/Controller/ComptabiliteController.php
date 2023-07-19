@@ -39,11 +39,41 @@ class ComptabiliteController extends AbstractController
     }
     
     #[Route('/comptabilite/banque/etablissement', name: 'compta_banque_etablissement')]
-    public function index(): Response
+    public function comptaBanqueEtablissement()
     {
         return $this->render('comptabilite/banque/etablissementBancaire.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Etablissement bancaire",
+            "with_foot" => false,
+        ]);
+    }
+
+    #[Route('/comptabilite/banque/compte/bancaire', name: 'compta_banque_compte_bancaire')]
+    public function comptaBanqueCompteBancaire()
+    {
+        return $this->render('comptabilite/banque/compteBancaire.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Compte bancaire",
+            "with_foot" => false,
+        ]);
+    }
+
+    #[Route('/comptabilite/banque/operation/bancaire', name: 'compta_banque_operation_bancaire')]
+    public function comptaBanqueOperationBancaire()
+    {
+        return $this->render('comptabilite/banque/operationBancaire.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Opération bancaire",
+            "with_foot" => false,
+        ]);
+    }
+
+    #[Route('/comptabilite/banque/mouvement/compte', name: 'compta_banque_mouvement_compte')]
+    public function comptaBanqueMouvementCompte()
+    {
+        return $this->render('comptabilite/banque/mouvementCompte.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Mouvement des comptes",
             "with_foot" => false,
         ]);
     }

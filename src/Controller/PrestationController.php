@@ -691,12 +691,15 @@ class PrestationController extends AbstractController
 
         // $contrats = json_decode(file_get_contents($filename)) ;
 
-        $contrats = $this->entityManager->getRepository(LctContrat::class)->findAll() ;
+        $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
+            "agence" => $this->agence,
+            "statutGen" => True,
+        ]) ;
 
         $tabContrats = [] ;
 
             foreach ($contrats as $contrat) {
-                if((is_null($contrat->getPourcentage()) || empty($contrat->getPourcentage())))
+                if((is_null($contrat->getPourcentage()) || empty($contrat->getPourcentage())) || $contrat->getStatut()->getReference() != "ENCR")
                     continue ;
 
                 if($contrat->getForfait()->getReference() == "FORFAIT")
