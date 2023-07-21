@@ -58,7 +58,12 @@
             <div class="row">
                 <div class="col-md-5">
                     <label for="nom" class="font-weight-bold">Marchandise</label>
-                    <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                    <select name="cmd_bon_search_date" class="custom-select chosen_select cmd_bon_search_date custom-select-sm" id="cmd_bon_search_date">
+                    <option value="" >-</option>
+                    {# {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %} #}
+                </select>
                 </div>
                 <div class="col-md-1">
                     <label for="" class="font-weight-bold">&nbsp;</label>
