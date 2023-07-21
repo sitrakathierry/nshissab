@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
+    var compta_achat_editor = new LineEditor("#compta_achat_editor") ;
+
     $("#cmp_operation_date").datepicker()
 
     // $("#cmp_banque_nom").val("")
@@ -212,4 +214,6 @@ $(document).ready(function(){
             }
         })
     })
+
+
 })

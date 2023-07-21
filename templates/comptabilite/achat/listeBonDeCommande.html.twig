@@ -1,0 +1,71 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">N° Commande</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">Fournisseur</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">Type de paiement</label>
+                <select name="cmd_bon_search_date" class="custom-select chosen_select cmd_bon_search_date custom-select-sm" id="cmd_bon_search_date">
+                    <option value="" >-</option>
+                    <option value="" >PAIEMENT EN TOTALITE</option>
+                    <option value="" >PAIEMENT PARTIELLE</option>
+                    {# {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %} #}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">Mode de paiement</label>
+                <select name="cmd_bon_search_date" class="custom-select chosen_select cmd_bon_search_date custom-select-sm" id="cmd_bon_search_date">
+                    <option value="" >-</option>
+                    <option value="" >ESPECE</option>
+                    <option value="" >SOUS CREDIT</option>
+                    {# {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %} #}
+                </select>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <thead class="thead-dark">
+                <tr>
+                    <th>N° Bon Commande</th>
+                    <th>Fournisseur</th>
+                    <th>Fournisseur</th>
+                </tr>
+            </thead>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

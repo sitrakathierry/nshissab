@@ -312,18 +312,6 @@ class ComptabiliteController extends AbstractController
             return new JsonResponse($result) ;
         
         $compte = $this->entityManager->getRepository(CmpCompte::class)->find($cmp_operation_compte) ;
-        
-        $solde = $compte->getSolde() ;
-
-        if(floatval($cmp_operation_montant) > $solde)
-        {
-            return new JsonResponse([
-                "type" => "orange",
-                "message" => "Désole, le montant spécifié est supérieur au solde du compte"
-                ]) ;
-        }
-
-
         $banque = $this->entityManager->getRepository(CmpBanque::class)->find($cmp_operation_banque) ;
         $categorie = $this->entityManager->getRepository(CmpCategorie::class)->find($cmp_operation_categorie) ;
         $type = $this->entityManager->getRepository(CmpType::class)->find($cmp_operation_type) ;
@@ -334,6 +322,15 @@ class ComptabiliteController extends AbstractController
         }
         else if($categorie->getReference() == "RET")
         {
+            $solde = $compte->getSolde() ;
+
+            if(floatval($cmp_operation_montant) > $solde)
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Désole, le montant spécifié est supérieur au solde du compte"
+                    ]) ;
+            }
             $compte->setSolde($compte->getSolde() - floatval($cmp_operation_montant)) ;
         }
         $this->entityManager->flush() ;
@@ -368,7 +365,6 @@ class ComptabiliteController extends AbstractController
         return new JsonResponse($result) ;
         
     }
-
     
     #[Route('/comptabilite/banque/compte/solde/get', name: 'compta_banque_compte_solde_get')]
     public function comptaBanqueGetSoldeCompte(Request $request)
@@ -386,5 +382,25 @@ class ComptabiliteController extends AbstractController
         return new JsonResponse([
             "solde" => $compte->getSolde()
             ]) ;
+    }
+
+    #[Route('/comptabilite/achat/bon/commande/creation', name: 'compta_achat_bon_commande_creation')]
+    public function comptaAchatsCreationBondeCommande()
+    {
+        return $this->render('comptabilite/achat/creationBonDeCommande.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Création bon de commande (achat)",
+            "with_foot" => true,
+        ]);
+    }
+
+    #[Route('/comptabilite/achat/bon/commande/liste', name: 'compta_achat_bon_commande_liste')]
+    public function comptaAchatsListeBondeCommande()
+    {
+        return $this->render('comptabilite/achat/listeBonDeCommande.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Consultation bon de commande (achat)",
+            "with_foot" => false,
+        ]);
     }
 }

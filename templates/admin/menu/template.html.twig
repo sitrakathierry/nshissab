@@ -30,12 +30,12 @@
                                     <i class="fa {{itemA.icone}}"></i>&nbsp;
                                     <span class="text-uppercase">{{itemA.nom}}</span>
                                     {% if itemA.submenu is defined and itemA.submenu|length > 0 %} 
-                                        <i class="fa fa-plus float-right ml-2 mt-1 menuPlus" data-toggle="collapse" data-target="#menuCollapseB{{j}}{{k}}" aria-expanded="true" aria-controls="menuCollapseB{{j}}{{k}}"></i>
+                                        <i class="fa fa-plus float-right ml-2 mt-1 menuPlus" data-toggle="collapse" data-target="#menuCollapseB{{i}}{{j}}{{k}}" aria-expanded="true" aria-controls="menuCollapseB{{i}}{{j}}{{k}}"></i>
                                     {% endif %}
                                     <i class="far fa-check-circle float-right ml-2 mt-1 menuCheck" value="{{itemA.id}}"></i>
                                 </li>
                                 {% if itemA.submenu is defined and itemA.submenu|length > 0 %} 
-                                    <ul class="list-unstyled ml-3 collapse" id="menuCollapseB{{j}}{{k}}">
+                                    <ul class="list-unstyled ml-3 collapse" id="menuCollapseB{{i}}{{j}}{{k}}">
                                         {% for itemB in itemA.submenu %}
                                             <li class="py-1 menu_item px-3 w-100 rounded border font-weight-bold mt-2" value="{{itemB.id}}">
                                                 <i class="fa {{itemB.icone}}"></i>&nbsp;
