@@ -57,12 +57,19 @@ class StockController extends AbstractController
     public function stockCreationproduit(): Response
     {
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename, $this->agence) ;
+
         $preferences = json_decode(file_get_contents($filename)) ;
 
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockEntrepot($filename, $this->agence) ;
         $entrepots = (json_decode(file_get_contents($filename))) ;
 
         $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockFournisseur($filename, $this->agence) ;
         $fournisseurs = json_decode(file_get_contents($filename)) ;
         
         $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findBy([

@@ -51,10 +51,14 @@ class PrdFournisseur
     #[ORM\OneToMany(mappedBy: 'fournisseur', targetEntity: PrdApproFournisseur::class)]
     private Collection $prdApproFournisseurs;
 
+    #[ORM\OneToMany(mappedBy: 'fournisseur', targetEntity: AchBonCommande::class)]
+    private Collection $achBonCommandes;
+
     public function __construct()
     {
         $this->prdHistoFournisseurs = new ArrayCollection();
         $this->prdApproFournisseurs = new ArrayCollection();
+        $this->achBonCommandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,6 +240,36 @@ class PrdFournisseur
             // set the owning side to null (unless already changed)
             if ($prdApproFournisseur->getFournisseur() === $this) {
                 $prdApproFournisseur->setFournisseur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AchBonCommande>
+     */
+    public function getAchBonCommandes(): Collection
+    {
+        return $this->achBonCommandes;
+    }
+
+    public function addAchBonCommande(AchBonCommande $achBonCommande): self
+    {
+        if (!$this->achBonCommandes->contains($achBonCommande)) {
+            $this->achBonCommandes->add($achBonCommande);
+            $achBonCommande->setFournisseur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAchBonCommande(AchBonCommande $achBonCommande): self
+    {
+        if ($this->achBonCommandes->removeElement($achBonCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($achBonCommande->getFournisseur() === $this) {
+                $achBonCommande->setFournisseur(null);
             }
         }
 

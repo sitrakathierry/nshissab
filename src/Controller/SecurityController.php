@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,23 +47,37 @@ class SecurityController extends AbstractController
         $error = null ;
         $allow = True ;
         $type = "success" ;
+
         $csrfToken = $request->request->get('_csrf_token');
         if (!$this->isCsrfTokenValid('authenticate', $csrfToken)) {
             $error = 'CSRF token invalide';
             $type = "danger" ;
             $allow = False ;
         }
-
-        $username = $request->request->get("username") ; 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy([
-            "username" => strtoupper($username)
-        ]) ;
-
-        if(is_null($user))
+        try
         {
-            $error = "Le nom d'utilisateur n'existe pas";
-            $type = "warning" ;
+            $username = $request->request->get("username") ; 
+            $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                "username" => strtoupper($username)
+            ]) ;
+
+            if(is_null($user))
+            {
+                $error = "Le nom d'utilisateur n'existe pas";
+                $type = "warning" ;
+                $allow = False ;
+            }
+        }
+        catch(Exception $e)
+        {
+            $error = "Désolé, problème de connexion au serveur. Veuiller réessayer s'il vous plait ...";
+            $type = "danger" ;
             $allow = False ;
+            dd($error) ;
+            // return $this->redirectToRoute('problem_occured',[
+            //     "error" => $error,
+            //     "type" => $type
+            // ]);
         }
 
         if(!$allow)
@@ -122,5 +137,13 @@ class SecurityController extends AbstractController
         $this->session->set("user", $data) ;
 
         return $this->redirectToRoute($route);
+    }
+
+    /**
+     * @Route("/login/problem/{error}/{type}", name="problem_occured", defaults = {"error" : null,"type" : null})
+     */
+    public function problemOccuredLogin($error, $type)
+    {
+        return $this->render('security/problem.html.twig', ['error' => $error,'type' => $type ]);
     }
 }

@@ -163,6 +163,18 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CmpOperation::class)]
     private Collection $cmpOperations;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AchBonCommande::class)]
+    private Collection $achBonCommandes;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AchHistoPaiement::class)]
+    private Collection $achHistoPaiements;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AchMarchandise::class)]
+    private Collection $achMarchandises;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AchDetails::class)]
+    private Collection $achDetails;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -202,6 +214,10 @@ class Agence
         $this->cmpBanques = new ArrayCollection();
         $this->cmpComptes = new ArrayCollection();
         $this->cmpOperations = new ArrayCollection();
+        $this->achBonCommandes = new ArrayCollection();
+        $this->achHistoPaiements = new ArrayCollection();
+        $this->achMarchandises = new ArrayCollection();
+        $this->achDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1456,6 +1472,126 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($cmpOperation->getAgence() === $this) {
                 $cmpOperation->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AchBonCommande>
+     */
+    public function getAchBonCommandes(): Collection
+    {
+        return $this->achBonCommandes;
+    }
+
+    public function addAchBonCommande(AchBonCommande $achBonCommande): self
+    {
+        if (!$this->achBonCommandes->contains($achBonCommande)) {
+            $this->achBonCommandes->add($achBonCommande);
+            $achBonCommande->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAchBonCommande(AchBonCommande $achBonCommande): self
+    {
+        if ($this->achBonCommandes->removeElement($achBonCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($achBonCommande->getAgence() === $this) {
+                $achBonCommande->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AchHistoPaiement>
+     */
+    public function getAchHistoPaiements(): Collection
+    {
+        return $this->achHistoPaiements;
+    }
+
+    public function addAchHistoPaiement(AchHistoPaiement $achHistoPaiement): self
+    {
+        if (!$this->achHistoPaiements->contains($achHistoPaiement)) {
+            $this->achHistoPaiements->add($achHistoPaiement);
+            $achHistoPaiement->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAchHistoPaiement(AchHistoPaiement $achHistoPaiement): self
+    {
+        if ($this->achHistoPaiements->removeElement($achHistoPaiement)) {
+            // set the owning side to null (unless already changed)
+            if ($achHistoPaiement->getAgence() === $this) {
+                $achHistoPaiement->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AchMarchandise>
+     */
+    public function getAchMarchandises(): Collection
+    {
+        return $this->achMarchandises;
+    }
+
+    public function addAchMarchandise(AchMarchandise $achMarchandise): self
+    {
+        if (!$this->achMarchandises->contains($achMarchandise)) {
+            $this->achMarchandises->add($achMarchandise);
+            $achMarchandise->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAchMarchandise(AchMarchandise $achMarchandise): self
+    {
+        if ($this->achMarchandises->removeElement($achMarchandise)) {
+            // set the owning side to null (unless already changed)
+            if ($achMarchandise->getAgence() === $this) {
+                $achMarchandise->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AchDetails>
+     */
+    public function getAchDetails(): Collection
+    {
+        return $this->achDetails;
+    }
+
+    public function addAchDetail(AchDetails $achDetail): self
+    {
+        if (!$this->achDetails->contains($achDetail)) {
+            $this->achDetails->add($achDetail);
+            $achDetail->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAchDetail(AchDetails $achDetail): self
+    {
+        if ($this->achDetails->removeElement($achDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($achDetail->getAgence() === $this) {
+                $achDetail->setAgence(null);
             }
         }
 

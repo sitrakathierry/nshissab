@@ -383,24 +383,4 @@ class ComptabiliteController extends AbstractController
             "solde" => $compte->getSolde()
             ]) ;
     }
-
-    #[Route('/comptabilite/achat/bon/commande/creation', name: 'compta_achat_bon_commande_creation')]
-    public function comptaAchatsCreationBondeCommande()
-    {
-        return $this->render('comptabilite/achat/creationBonDeCommande.html.twig', [
-            "filename" => "comptabilite",
-            "titlePage" => "Création bon de commande (achat)",
-            "with_foot" => true,
-        ]);
-    }
-
-    #[Route('/comptabilite/achat/bon/commande/liste', name: 'compta_achat_bon_commande_liste')]
-    public function comptaAchatsListeBondeCommande()
-    {
-        return $this->render('comptabilite/achat/listeBonDeCommande.html.twig', [
-            "filename" => "comptabilite",
-            "titlePage" => "Consultation bon de commande (achat)",
-            "with_foot" => false,
-        ]);
-    }
 }
