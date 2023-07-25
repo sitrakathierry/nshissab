@@ -672,7 +672,7 @@ class PrestationController extends AbstractController
 
         $contrats = json_decode(file_get_contents($filename)) ;
 
-        $this->prestService->checkContrat($this->entityManager, $this) ;
+        // $this->prestService->checkContrat($this->entityManager, $this) ;
 
         return $this->render('prestations/location/listeContrat.html.twig', [
             "filename" => "prestations",
