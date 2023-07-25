@@ -240,6 +240,7 @@ $(document).ready(function(){
                             data:data,
                             dataType: 'json',
                             success: function(json){
+                                realinstance.close()
                                 $.alert({
                                     title: 'Message',
                                     content: json.message,
