@@ -1,0 +1,33 @@
+<div class="row">
+    <div class="col-md-5">
+        <label for="achat_bon_designation" class="font-weight-bold">Marchandise</label>
+        <select name="achat_bon_designation" class="custom-select chosen_select achat_bon_designation custom-select-sm" id="achat_bon_designation">
+            <option value="" >-</option>
+            {% for marchandise in marchandises %}
+                <option value="{{marchandise.id}}">{{marchandise.designation|upper}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="new_marchandise" id="new_marchandise" value="NON">
+    </div>
+    <div class="col-md-1">
+        <label for="" class="font-weight-bold">&nbsp;</label>
+    <button class="btn btn-sm btn-primary btn-block text-uppersace" id="achat_bon_new_marchandise"><i class="fa fa-plus-circle"></i></button>
+    </div>
+    <div class="col-md-2">
+        <label for="achat_bon_quantite" class="font-weight-bold">Quantité</label>
+        <input type="text" name="achat_bon_quantite" id="achat_bon_quantite" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-2">
+        <label for="achat_bon_prix" class="font-weight-bold">Prix Unitaire</label>
+        <input type="text" name="achat_bon_prix" readonly id="achat_bon_prix" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-2">
+        <label for="" class="font-weight-bold">&nbsp;</label>
+        <button class="btn btn-sm btn-success btn-block text-uppersace" id="ajout_marchandise"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

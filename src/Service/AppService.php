@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\AchBonCommande;
+use App\Entity\AchDetails;
+use App\Entity\AchMarchandise;
 use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
@@ -1380,6 +1383,70 @@ class AppService extends AbstractController
         }
 
         file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateAchMarchandise($filename, $agence) 
+    {
+        $marchandises = $this->entityManager->getRepository(AchMarchandise::class)->findBy([
+            "agence" => $agence,
+            "statutGen" => True,
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($marchandises as $marchandise) {
+            $item = [] ;
+
+            $item["id"] = $marchandise->getId() ;
+            $item["agence"] = $marchandise->getAgence()->getId() ;
+            $item["designation"] = $marchandise->getDesignation() ;
+            $item["prix"] = $marchandise->getPrix();
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateAchListBonCommande($filename, $agence) 
+    {
+        $bonCommandes = $this->entityManager->getRepository(AchBonCommande::class)->findBy([
+            "agence" => $agence,
+            "statutGen" => True
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($bonCommandes as $bonCommande) {
+            $achatDetails = $this->entityManager->getRepository(AchDetails::class)->findBy([
+                "statutGen" => True,
+                "bonCommande" => $bonCommande
+            ]) ;
+
+            foreach ($achatDetails as $achatDetail) {
+                $element = [] ;
+
+                $element["id"] = $bonCommande->getId() ;
+                $element["agence"] = $bonCommande->getAgence()->getId() ;
+                $element["date"] = $bonCommande->getDate()->format('d/m/Y') ;
+                $element["lieu"] = $bonCommande->getLieu() ;
+                $element["fournisseur"] = $bonCommande->getFournisseur()->getNom() ;
+                $element["type"] = $bonCommande->getType()->getNom() ;
+                $element["description"] = $bonCommande->getDescription() ;
+                $element["numero"] = $bonCommande->getNumero() ;
+                $element["designation"] = $achatDetail->getDesignation() ;
+                $element["quantite"] = $achatDetail->getQuantite() ;
+                $element["prix"] = $achatDetail->getPrix() ;
+                $element["totalTtc"] = $bonCommande->getMontant() ;
+                $element["statut"] = $bonCommande->getStatut()->getNom() ;
+                $element["statutBon"] = $bonCommande->getStatutBon()->getNom() ;
+                $element["refStatut"] = $bonCommande->getStatut()->getreference() ;
+                $element["refStatutBon"] = $bonCommande->getStatutBon()->getreference() ;
+
+                array_push($elements,$element) ;
+            }
+        } 
+
+        file_put_contents($filename,json_encode($elements)) ;
     }
 
     public function updateStatutFinance($finance)

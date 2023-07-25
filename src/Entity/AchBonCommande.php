@@ -31,14 +31,8 @@ class AchBonCommande
     #[ORM\ManyToOne(inversedBy: 'achBonCommandes')]
     private ?PrdFournisseur $fournisseur = null;
 
-    #[ORM\Column(length: 500, nullable: true)]
-    private ?string $nomConcerne = null;
-
     #[ORM\ManyToOne(inversedBy: 'achBonCommandes')]
     private ?AchType $type = null;
-
-    #[ORM\ManyToOne(inversedBy: 'achBonCommandes')]
-    private ?AchMode $mode = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -138,18 +132,6 @@ class AchBonCommande
         return $this;
     }
 
-    public function getNomConcerne(): ?string
-    {
-        return $this->nomConcerne;
-    }
-
-    public function setNomConcerne(?string $nomConcerne): self
-    {
-        $this->nomConcerne = $nomConcerne;
-
-        return $this;
-    }
-
     public function getType(): ?AchType
     {
         return $this->type;
@@ -158,18 +140,6 @@ class AchBonCommande
     public function setType(?AchType $type): self
     {
         $this->type = $type;
-
-        return $this;
-    }
-
-    public function getMode(): ?AchMode
-    {
-        return $this->mode;
-    }
-
-    public function setMode(?AchMode $mode): self
-    {
-        $this->mode = $mode;
 
         return $this;
     }
