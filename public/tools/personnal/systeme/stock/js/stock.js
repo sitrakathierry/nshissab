@@ -174,38 +174,95 @@ $(document).ready(function(){
         location.assign(routes.stock_cat_consultation+"/"+$("#rch_nom").val())
     })
 
+    // IMPRESSION DE LA CODE BARRE
+    // $("#stock_print_barcode").click(function(){
+    //     $.confirm({
+    //         title: 'Confirmation',
+    //         content:"Êtes-vous sure ?",
+    //         type:"blue",
+    //         theme:"modern",
+    //         buttons : {
+    //             NON : function(){},
+    //             OUI : 
+    //             {
+    //                 text: 'OUI',
+    //                 btnClass: 'btn-blue',
+    //                 keys: ['enter', 'shift'],
+    //                 action: function(){
+    //                     var realinstance = instance.loading()
+    //                     $.ajax({
+    //                         url: routes.stock_generate_barcode,
+    //                         type:"post",
+    //                         dataType:"json",
+    //                         success : function(json){
+    //                             realinstance.close()
+    //                             console.log(json.test)
+    //                         },
+    //                         error: function(resp){
+    //                             realinstance.close()
+    //                             $.alert(JSON.stringify(resp)) ;
+    //                         }
+    //                     })
+    //                 }
+    //             }
+    //         }
+    //     })
+    // })
+
     $("#stock_print_barcode").click(function(){
-        $.confirm({
-            title: 'Confirmation',
-            content:"Êtes-vous sure ?",
-            type:"blue",
-            theme:"modern",
-            buttons : {
-                NON : function(){},
-                OUI : 
-                {
-                    text: 'OUI',
-                    btnClass: 'btn-blue',
-                    keys: ['enter', 'shift'],
-                    action: function(){
-                        var realinstance = instance.loading()
-                        $.ajax({
-                            url: routes.stock_generate_barcode,
-                            type:"post",
-                            dataType:"json",
-                            success : function(json){
-                                realinstance.close()
-                                console.log(json.test)
-                            },
-                            error: function(resp){
-                                realinstance.close()
-                                $.alert(JSON.stringify(resp)) ;
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.stock_get_printers,
+            type:"post",
+            dataType:"html",
+            processData: false,
+            contentType: false,
+            success : function(response){
+                realinstance.close()
+                listPrinters = response
+                $.confirm({
+                    title: 'Liste des Imprimantes',
+                    content:`
+                        <select class="custom-select custom-select-sm" id="stock_printers">
+                        `+listPrinters+`
+                        </select>
+                        `,
+                    type:"blue",
+                    theme:"modern",
+                    buttons : {
+                        Annuler : function(){},
+                        btn2 : 
+                        {
+                            text: 'Imprimer',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var realinstance = instance.loading()
+                                $.ajax({
+                                    url: routes.stock_generate_barcode,
+                                    type:"post",
+                                    data: {ipaddr:$("#stock_printers").val()},
+                                    dataType:"json",
+                                    success : function(json){
+                                        realinstance.close()
+                                        console.log(json.test)
+                                    },
+                                    error: function(resp){
+                                        realinstance.close()
+                                        $.alert(JSON.stringify(resp)) ;
+                                    }
+                                })
                             }
-                        })
+                        }
                     }
-                }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
             }
         })
+        
     })
 
     $("#formEntrepot").submit(function(event){
