@@ -174,6 +174,40 @@ $(document).ready(function(){
         location.assign(routes.stock_cat_consultation+"/"+$("#rch_nom").val())
     })
 
+    $("#stock_print_barcode").click(function(){
+        $.confirm({
+            title: 'Confirmation',
+            content:"Êtes-vous sure ?",
+            type:"blue",
+            theme:"modern",
+            buttons : {
+                NON : function(){},
+                OUI : 
+                {
+                    text: 'OUI',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.stock_generate_barcode,
+                            type:"post",
+                            dataType:"json",
+                            success : function(json){
+                                realinstance.close()
+                                console.log(json.test)
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    })
+
     $("#formEntrepot").submit(function(event){
         event.preventDefault()
         var data = $(this).serialize();

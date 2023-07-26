@@ -16,6 +16,7 @@ use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
 use App\Service\ExcelGenService;
+use App\Service\PdfGenService;
 use App\Service\PdfGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Laminas\Diactoros\Response\RedirectResponse;
@@ -305,6 +306,13 @@ class StockController extends AbstractController
 
         return new JsonResponse($result) ;
 
+    }
+
+    #[Route('/stock/generate/barcode', name: 'stock_generate_barcode')]
+    public function stockGenerateBarCode(PdfGenService $pdfGen)
+    {
+        $pdfGen->printBarCode() ;
+        return new JsonResponse(["test" => "test"]) ;
     }
 
     #[Route('/stock/creationproduit/code/check', name: 'stock_check_codeProduit')]

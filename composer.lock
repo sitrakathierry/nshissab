@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a7d0cf8f843f842ae15b47849a22b5f",
+    "content-hash": "6a8d0838717935cc2ef29cd0d5f96eed",
     "packages": [
         {
             "name": "box/spout",
@@ -3137,6 +3137,59 @@
                 "source": "https://github.com/ralouphie/getallheaders/tree/develop"
             },
             "time": "2019-03-08T08:55:37+00:00"
+        },
+        {
+            "name": "ramytalal/label-printer",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RamyTalal/Label-Printer.git",
+                "reference": "ace47e93189c80584f1a2f10d5333cb69e7483a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RamyTalal/Label-Printer/zipball/ace47e93189c80584f1a2f10d5333cb69e7483a3",
+                "reference": "ace47e93189c80584f1a2f10d5333cb69e7483a3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "scrutinizer/ocular": "~1.1",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Talal\\LabelPrinter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ramy Talal",
+                    "email": "ramy@thinkquality.nl",
+                    "homepage": "https://thinkquality.nl"
+                }
+            ],
+            "description": "An implementation of the Brother label printer API.",
+            "homepage": "https://github.com/RamyTalal/Label-Printer",
+            "keywords": [
+                "brother",
+                "label",
+                "label printer",
+                "printer"
+            ],
+            "support": {
+                "issues": "https://github.com/RamyTalal/Label-Printer/issues",
+                "source": "https://github.com/RamyTalal/Label-Printer/tree/1.1.0"
+            },
+            "time": "2022-01-10T10:50:42+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
