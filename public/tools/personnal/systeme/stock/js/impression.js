@@ -44,8 +44,7 @@ $(document).ready(function(){
             // Gen sample label featuring logo/image, barcode, QRCode, text, etc by using JSESCPOSBuilder.js
 
             var escpos = Neodynamic.JSESCPOSBuilder;
-            var doc = new escpos.Document();
-            var escposCommands = doc
+            var doc = new escpos.Document()
                 // .image(logo, escpos.BitmapDensity.D24)
                 // .font(escpos.FontFamily.A)
                 // .align(escpos.TextAlignment.Center)
@@ -54,15 +53,15 @@ $(document).ready(function(){
                 // .text("This is a BIG text")
                 // .font(escpos.FontFamily.B)
                 // .size(0, 0)
-                // .text("Normal-small text")
-                .linearBarcode('1234567', escpos.Barcode1DType.EAN8, new escpos.Barcode1DOptions(2, 100, true, escpos.BarcodeTextPosition.Below, escpos.BarcodeFont.A))
+                .text("Test Lettre sur QL-800")
+                // .linearBarcode('1234567', escpos.Barcode1DType.EAN8, new escpos.Barcode1DOptions(2, 100, true, escpos.BarcodeTextPosition.Below, escpos.BarcodeFont.A))
                 // .qrCode('https://mycompany.com', new escpos.BarcodeQROptions(escpos.QRLevel.L, 6))
                 // .pdf417('PDF417 data to be encoded here', new escpos.BarcodePDF417Options(3, 3, 0, 0.1, false))
                 // .feed(5)
                 // .cut()
                 .generateUInt8Array();
 
-
+            var escposCommands = new Uint8Array([ ...doc]);
             // create ClientPrintJob
             var cpj = new JSPM.ClientPrintJob();
 
