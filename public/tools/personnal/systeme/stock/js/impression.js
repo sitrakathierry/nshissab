@@ -37,6 +37,46 @@ $(document).ready(function(){
 	    };
 	}
 
+    function doPrinting(printerName)
+    {
+        if (jspmWSStatus()) {
+
+            // Gen sample label featuring logo/image, barcode, QRCode, text, etc by using JSESCPOSBuilder.js
+
+            var escpos = Neodynamic.JSESCPOSBuilder;
+            var doc = new escpos.Document();
+            var escposCommands = doc
+                // .image(logo, escpos.BitmapDensity.D24)
+                // .font(escpos.FontFamily.A)
+                // .align(escpos.TextAlignment.Center)
+                // .style([escpos.FontStyle.Bold])
+                // .size(1, 1)
+                // .text("This is a BIG text")
+                // .font(escpos.FontFamily.B)
+                // .size(0, 0)
+                // .text("Normal-small text")
+                .linearBarcode('1234567', escpos.Barcode1DType.EAN8, new escpos.Barcode1DOptions(2, 100, true, escpos.BarcodeTextPosition.Below, escpos.BarcodeFont.A))
+                // .qrCode('https://mycompany.com', new escpos.BarcodeQROptions(escpos.QRLevel.L, 6))
+                // .pdf417('PDF417 data to be encoded here', new escpos.BarcodePDF417Options(3, 3, 0, 0.1, false))
+                // .feed(5)
+                // .cut()
+                .generateUInt8Array();
+
+
+            // create ClientPrintJob
+            var cpj = new JSPM.ClientPrintJob();
+
+            // Set Printer info
+            var myPrinter = new JSPM.InstalledPrinter(printerName);
+            cpj.clientPrinter = myPrinter;
+
+            // Set the ESC/POS commands
+            cpj.binaryPrinterCommands = escposCommands;
+
+            // Send print job to printer!
+            cpj.sendToClient();
+        }
+    }
     $("#stock_print_barcode").click(function(){
         initJspm();
         if(clientPrinters == null)
@@ -71,21 +111,21 @@ $(document).ready(function(){
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
                     action: function(){
-                        var realinstance = instance.loading()
-                        $.ajax({
-                            url: routes.stock_generate_barcode,
-                            type:"post",
-                            data: {printerName:$("#stock_printers").val()},
-                            dataType:"json",
-                            success : function(json){
-                                realinstance.close()
-                                console.log(json.test)
-                            },
-                            error: function(resp){
-                                realinstance.close()
-                                $.alert(JSON.stringify(resp)) ;
-                            }
-                        })
+                        doPrinting($("#stock_printers").val())
+                        // $.ajax({
+                        //     url: routes.stock_generate_barcode,
+                        //     type:"post",
+                        //     data: {printerName:$("#stock_printers").val()},
+                        //     dataType:"json",
+                        //     success : function(json){
+                        //         realinstance.close()
+                        //         console.log(json.test)
+                        //     },
+                        //     error: function(resp){
+                        //         realinstance.close()
+                        //         $.alert(JSON.stringify(resp)) ;
+                        //     }
+                        // })
                     }
                 }
             }
