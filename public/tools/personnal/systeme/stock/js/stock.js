@@ -518,7 +518,7 @@ $(document).ready(function(){
             $(this).val(self.val()) ;
         })
     })
-    
+
     $(".qr_block").qrcode({
         // render method: 'canvas', 'image' or 'div'
         render: 'image',

@@ -76,6 +76,12 @@ $(document).ready(function(){
             cpj.sendToClient();
         }
     }
+
+    $("#mybarCode").barcode(
+        "000000000000", // Value barcode (dependent on the type of barcode)
+        "ean13" // type (string)
+    );
+
     $("#stock_print_barcode").click(function(){
         initJspm();
         if(clientPrinters == null)
@@ -101,7 +107,7 @@ $(document).ready(function(){
                     `+options+`
                     </select>
 
-                    <label for="text_to_print" class="mt-3 font-weight-bold">Texte à imprimer</label>
+                    <label for="text_to_print" class="mt-3 font-weight-bold">Numéro du code barre</label>
                     <input type="text" name="text_to_print" id="text_to_print" class="form-control" placeholder=". . .">
                 </div>
                 `,
@@ -127,19 +133,38 @@ $(document).ready(function(){
                             return false ;
                         }
                         console.log(myprinter)
+                        // qz.websocket.disconnect() ;
                         qz.websocket.connect().then(function() {
                             return qz.printers.find(myprinter)
                         }).then(function(found) {
-                                var config = qz.configs.create(found); 
+                            var config = qz.configs.create(found); 
 
-                                var data = [{
-                                    type : 'pixel',
-                                    format : 'html',
-                                    flavor : 'plain',
-                                    data : text_to_print,
-                                }] ;
-                                qz.print(config, data) ;
-                            });
+                            var data = [{
+                                type : 'pixel',
+                                format : 'text',
+                                flavor : 'plain',
+                                data : text_to_print,
+                            }] ;
+
+                            // //barcode data
+                            // var code = text_to_print;
+
+                            // //convenience method
+                            // var chr = function(n) { return String.fromCharCode(n); };
+
+                            // var barcode = '\x1D' + 'h' + chr(80) +   //barcode height
+                            // '\x1D' + 'f' + chr(0) +              //font for printed number
+                            // '\x1D' + 'k' + chr(69) + chr(code.length) + code + chr(0); //code39
+
+                            qz.print(config, data) ;
+                            // qz.print(config, ['\n\n\n\n\n' + barcode + '\n\n\n\n\n']);
+                            
+                        });
+
+                        // qz.websocket.connect().then(function() {
+                        // var config = qz.configs.create("Epson TM88V");
+                        // return qz.print(config, ['\n\n\n\n\n' + barcode + '\n\n\n\n\n']);
+                        // }).catch(function(err) { alert(err); });
                          
                         // doPrinting($("#stock_printers").val())
                         // $.ajax({
