@@ -44,7 +44,7 @@ $(document).ready(function(){
             // Gen sample label featuring logo/image, barcode, QRCode, text, etc by using JSESCPOSBuilder.js
 
             var escpos = Neodynamic.JSESCPOSBuilder;
-            var doc = new escpos.Document()
+            var escposCommands = new escpos.Document()
                 // .image(logo, escpos.BitmapDensity.D24)
                 // .font(escpos.FontFamily.A)
                 // .align(escpos.TextAlignment.Center)
@@ -53,15 +53,15 @@ $(document).ready(function(){
                 // .text("This is a BIG text")
                 // .font(escpos.FontFamily.B)
                 // .size(0, 0)
-                .text("Test Lettre sur QL-800")
+                // .text("Test Lettre sur QL-800")
                 // .linearBarcode('1234567', escpos.Barcode1DType.EAN8, new escpos.Barcode1DOptions(2, 100, true, escpos.BarcodeTextPosition.Below, escpos.BarcodeFont.A))
                 // .qrCode('https://mycompany.com', new escpos.BarcodeQROptions(escpos.QRLevel.L, 6))
-                // .pdf417('PDF417 data to be encoded here', new escpos.BarcodePDF417Options(3, 3, 0, 0.1, false))
+                .pdf417('PDF417 data to be encoded here', new escpos.BarcodePDF417Options(3, 3, 0, 0.1, false))
                 // .feed(5)
                 // .cut()
-                .generateUInt8Array();
+                // .generateUInt8Array();
 
-            var escposCommands = new Uint8Array([ ...doc]);
+            // var escposCommands = new Uint8Array([ ...doc]);
             // create ClientPrintJob
             var cpj = new JSPM.ClientPrintJob();
 
@@ -80,7 +80,6 @@ $(document).ready(function(){
         initJspm();
         if(clientPrinters == null)
         {
-
             $.alert({
                 title: 'Message',
                 content: "Le navigateur n'arrive pas à se connecter à l'imprimante ",
@@ -89,16 +88,22 @@ $(document).ready(function(){
             return false ;
         }
 
-        var options = '<option>-</option>' ;
+        var options = '<option></option>' ;
         for (var i = 0; i < clientPrinters.length; i++) {
             options += '<option>' + clientPrinters[i] + '</option>';
         }
         $.confirm({
-            title: 'Liste des Imprimantes',
+            title: 'Configuration',
             content:`
-                <select class="custom-select custom-select-sm" id="stock_printers">
-                `+options+`
-                </select>
+                <div class="w-100 text-left">
+                    <label for="stock_printers" class="font-weight-bold">Imprimante</label>  
+                    <select class="custom-select custom-select-sm" id="stock_printers">
+                    `+options+`
+                    </select>
+
+                    <label for="text_to_print" class="mt-3 font-weight-bold">Texte à imprimer</label>
+                    <input type="text" name="text_to_print" id="text_to_print" class="form-control" placeholder=". . .">
+                </div>
                 `,
             type:"blue",
             theme:"modern",
@@ -110,7 +115,33 @@ $(document).ready(function(){
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
                     action: function(){
-                        doPrinting($("#stock_printers").val())
+                        var myprinter = $("#stock_printers").val()
+                        var text_to_print = $("#text_to_print").val()
+                        if(myprinter == "" || text_to_print == "")
+                        {
+                            $.alert({
+                                title: 'Message',
+                                content: "Veuiller remplir les champs",
+                                type: "red",
+                            });
+                            return false ;
+                        }
+                        console.log(myprinter)
+                        qz.websocket.connect().then(function() {
+                            return qz.printers.find(myprinter)
+                        }).then(function(found) {
+                                var config = qz.configs.create(found); 
+
+                                var data = [{
+                                    type : 'pixel',
+                                    format : 'html',
+                                    flavor : 'plain',
+                                    data : text_to_print,
+                                }] ;
+                                qz.print(config, data) ;
+                            });
+                         
+                        // doPrinting($("#stock_printers").val())
                         // $.ajax({
                         //     url: routes.stock_generate_barcode,
                         //     type:"post",
