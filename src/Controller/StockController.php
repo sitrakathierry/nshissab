@@ -311,20 +311,8 @@ class StockController extends AbstractController
     #[Route('/stock/generate/barcode', name: 'stock_generate_barcode')]
     public function stockGenerateBarCode(PdfGenService $pdfGen, Request $request)
     {
-        $pdfGen->printBarCode($request->request->get("ipaddr")) ;
+        $pdfGen->printBarCode($request->request->get("printerName")) ;
         return new JsonResponse(["test" => "test"]) ;
-    }
-
-    #[Route('/stock/printer/get', name: 'stock_get_printers')]
-    public function stockGetPrinters(PdfGenService $pdfGen)
-    {
-        $result = $pdfGen->discoverPrinters() ;
-
-        $response = $this->renderView("stock/listPrinters.html.twig",[
-            "printers" => $result
-        ]) ;
-
-        return new Response($response) ;
     }
 
     #[Route('/stock/creationproduit/code/check', name: 'stock_check_codeProduit')]

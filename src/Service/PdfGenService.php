@@ -2,10 +2,11 @@
 
 namespace App\Service;
 use Dompdf\Dompdf;
-use Talal\LabelPrinter\Printer;
-use Talal\LabelPrinter\Mode\Template;
-use Talal\LabelPrinter\Command\Barcode;
-// use Mike42\Escpos\Printer;
+
+use Mike42\Escpos\CapabilityProfile;
+use Mike42\Escpos\Printer;
+use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
+
 use Symfony\Component\Process\Process;
 use phpseclib\Net\SNMP;
 
@@ -26,104 +27,46 @@ class PdfGenService
         $this->pdf->stream($filename, array('Attachment' => false));
     }
 
-    public function printBarCode($ipAdress)
+    public function printBarCode($printerName)
     {
-        dd($ipAdress) ;
-        // $stream = stream_socket_client('tcp://192.168.1.8:9100');
+        // Remplacez ces valeurs par l'adresse IP et le port réels de l'imprimante
+        $printerIp = '127.0.0.1';
+        $printerPort = 26443;
 
-        // $printer = new Printer(new Template(2, $stream));
-        // $printer->addCommand(new Barcode('48130', 80, Barcode::WIDTH_SMALL, 'code39', false, 2.5));
+        // Spécifiez le nom de l'imprimante (vous pouvez utiliser n'importe quel nom que vous souhaitez)
+        $printerName = 'NomDeVotreImprimante';
 
-        // or QR code
-        // $printer->addCommand(new Command\QrCode('https://example.com'));
+        // Créer un tableau avec les options supplémentaires, y compris le nom de l'imprimante
+        $options = array('printer' => $printerName);
 
-        // $printer->printLabel();
-        // fclose($stream);
-    } 
+        // Créer un nouveau connecteur d'impression réseau avec les options spécifiées
+        $connector = new NetworkPrintConnector($printerIp, $printerPort);
 
-    function getPrinterIp($printerName)
-    {
-        $output = [];
-        $return_var = 0;
-        exec("ping -n 1 $printerName", $output, $return_var);
+        // Créer un nouveau profil de capacité (vous pouvez l'ajuster en fonction des capacités de votre imprimante)
+        $profile = CapabilityProfile::load("simple");
 
-        if ($return_var === 0) {
-            // Le ping a réussi, obtenir l'adresse IP à partir de la première ligne du résultat du ping
-            preg_match('/\[(.*?)\]/', $output[0], $matches);
-            if (isset($matches[1])) {
-                return $matches[1];
-            }
-        }
+        // Créer une nouvelle instance d'imprimante
+        $printer = new Printer($connector, $profile);
 
-        return null;
-    }
-
-    public function discoverPrinters()
-    {  
-        $printersWithKeys = array();
-        if (stristr(PHP_OS, 'win')) {
-            $command = 'wmic printer get name';
-            $output = shell_exec($command);
+        try {
+            // Début de l'impression
+            $printer->initialize();
             
-            $lines = explode(PHP_EOL, $output); // Divise la sortie en lignes
+            // Ajoutez vos commandes d'impression d'étiquettes ici
+            $printer->text("Bonjour, ceci est une étiquette !");
 
-            // $printers = array_filter($lines);
-            $printers = array_filter(array_map('trim', $lines));
+            // Fin de l'impression
+            $printer->finalize();
 
-            // Créer un nouveau tableau avec la clé "name" pour chaque élément
-            foreach ($printers as $printer) {
-                $printerIp = $this->getPrinterIp($printer) ;
-                if(is_null($printerIp)){
-                    $printerIp = "-" ;
-                }
-                $printersWithKeys[] = array('name' => $printer,'ip' => $printerIp);
-            }
-
-        } else {
-            echo "Cette fonctionnalité n'est disponible que sur Windows.";
+        } catch (\Exception $e) {
+            // Gérer les exceptions qui surviennent pendant l'impression
+            // Vous pouvez enregistrer ou afficher l'erreur selon vos besoins
+            echo "Erreur : " . $e->getMessage();
         }
 
-        return $printersWithKeys  ;
-    }
-
-    // public function discoverPrinters()
-    // {
-    //     $printers = array();
-
-    //     // IP range to scan (adjust as needed)
-    //     $startIP = '192.168.1.1';
-    //     $endIP = '192.168.1.255';
-
-    //     // SNMP community (default is 'public')
-    //     $community = 'public';
-
-    //     // SNMP OID for printer name
-    //     $oidName = '1.3.6.1.2.1.1.5.0';
-
-    //     // Loop through IP range and query printers
-    //     $currentIP = ip2long($startIP);
-    //     $endIP = ip2long($endIP);
-
-    //     while ($currentIP <= $endIP) {
-    //         $ip = long2ip($currentIP);
-
-    //         // Use phpseclib to perform SNMP query
-    //         $snmp = new SNMP(SNMP::VERSION_2C, $ip, $community);
-    //         $printerName = $snmp->get($oidName);
-
-    //         if ($printerName !== false) {
-    //             $printers[] = array(
-    //                 'ip' => $ip,
-    //                 'name' => $printerName,
-    //             );
-    //         }
-
-    //         // Increment the IP address
-    //         $currentIP = ($currentIP + 1) & 0xFFFFFFFF;
-    //     }
-
-    //     return $printers;
-    // }
+        // Fermer la connexion après l'impression
+        $printer->close();
+    } 
 
 }
 
