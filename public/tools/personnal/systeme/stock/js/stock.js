@@ -572,31 +572,45 @@ $(document).ready(function(){
         $(".crt_code").each(function(){
             $(this).val(dataValue) ;
         })
-        var barCodeVal = appBase.str_pad(dataValue,12,'0')
+        // var barCodeVal = appBase.str_pad(dataValue,12,'0')
+        var barCodeVal = dataValue
         $(".mybarCode").html("")
-        if(!appBase.isNumeric(barCodeVal))
-        {
-            $.alert({
-                title: 'Message',
-                content: "Désolé, impossible de générer une code barre.<br>Vérifier si tous les caractères sont numériques",
-                type: "orange",
-            });
-            return false ;
-        }
+        // if(!appBase.isNumeric(barCodeVal))
+        // {
+        //     $.alert({
+        //         title: 'Message',
+        //         content: "Désolé, impossible de générer une code barre.<br>Vérifier si tous les caractères sont numériques",
+        //         type: "orange",
+        //     });
+        //     return false ;
+        // }
         $(".mybarCode").barcode(
             {
                 code: barCodeVal,
                 rect: false,
             },
-            "ean13",
+            "code128",
             {
                 output: "svg",
                 barWidth: 3,
-                barHeight: 70,
+                barHeight: 100,
             }
         );
         $(".barcode_produit").val($(".mybarCode img").attr("src"))
     }
+
+    $("#mybarCode").barcode(
+        {
+            code:"000000000000",
+            rect: false,
+        },
+        "code128",
+        {
+            output: "svg",
+            barWidth: 3,
+            barHeight: 100,
+        }
+    );
 
     $(document).on('keyup',".code_produit",function(){
         var self = $(this)

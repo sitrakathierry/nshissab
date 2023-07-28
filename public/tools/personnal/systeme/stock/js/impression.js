@@ -106,19 +106,6 @@ $(document).ready(function(){
         }
     }
 
-    $("#mybarCode").barcode(
-        {
-            code:"000000000000",
-            rect: false,
-        },
-        "ean13",
-        {
-            output: "svg",
-            barWidth: 3,
-            barHeight: 70,
-        }
-    );
-
     initJspm();
     $("#stock_print_barcode_test").click(function(){
         if(clientPrinters == null)
@@ -194,10 +181,12 @@ $(document).ready(function(){
 
     function telechargerImage()
     {
+        var pixelRatio = 2;
         html2canvas(document.getElementById('mybarCode'), {
+            scale: pixelRatio, // Set the scale (pixel ratio)
             onrendered: function(canvas) {
                 // Convert the canvas to a data URL
-                var imgData = canvas.toDataURL("image/png");
+                var imgData = canvas.toDataURL("image/png", 1.0);
 
                 // Create a temporary anchor element to trigger the download
                 var link = document.createElement('a');
