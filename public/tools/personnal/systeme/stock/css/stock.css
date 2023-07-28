@@ -39,3 +39,11 @@
     object-fit: cover;
 }
 
+.mybarCode div:last-child
+{
+    font-family: 'Century Gothic';
+    font-size: 1.5em !important;
+    letter-spacing: 5px;
+    margin-top: 0 !important;
+}
+

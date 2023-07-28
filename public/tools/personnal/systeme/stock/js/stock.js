@@ -592,7 +592,9 @@ $(document).ready(function(){
             "code128",
             {
                 output: "svg",
+                fontSize: 25,
                 barWidth: 3,
+                bgColor: "transparent",
                 barHeight: 100,
             }
         );
@@ -607,6 +609,8 @@ $(document).ready(function(){
         "code128",
         {
             output: "svg",
+            fontSize: 25,
+            bgColor: "transparent",
             barWidth: 3,
             barHeight: 100,
         }
