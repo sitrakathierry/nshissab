@@ -520,7 +520,8 @@ $(document).ready(function(){
                 contentType: false,
                 success: function(response){
                     realinstance.close()
-                    $("#contentMarchandise").empty().html(response)
+                    $("#contentScanner").empty().html(response) 
+                    generateCode($(".code_produit").val())
                 },
                 error: function(resp){
                     realinstance.close()
@@ -538,7 +539,7 @@ $(document).ready(function(){
             var realinstance = instance.loading()
             var self = $(this)
             $.ajax({
-                url: routes.stock_code_to_scan_generer,
+                url: routes.stock_code_to_scan_nouveau,
                 type:'post',
                 cache: false,
                 dataType: 'html',
@@ -546,7 +547,8 @@ $(document).ready(function(){
                 contentType: false,
                 success: function(response){
                     realinstance.close()
-                    $("#contentMarchandise").empty().html(response)
+                    $("#contentScanner").empty().html(response)
+                    generateCode("000000000000")
                 },
                 error: function(resp){
                     realinstance.close()
@@ -557,21 +559,20 @@ $(document).ready(function(){
         $(this).prop("disabled", true);
     })
 
-
-    $(".code_produit").keyup(function(){
-        var self = $(this)
+    function generateCode(dataValue)
+    {
         $(".qr_block").html("")
         $(".qr_block").qrcode({
             // render method: 'canvas', 'image' or 'div'
             render: 'image',
             size: 2400,
-            text: self.val(),
+            text: dataValue,
         });
         $(".qr_code_produit").val($(".qr_block img").attr("src"))
         $(".crt_code").each(function(){
-            $(this).val(self.val()) ;
+            $(this).val(dataValue) ;
         })
-        var barCodeVal = appBase.str_pad(self.val(),12,'0')
+        var barCodeVal = appBase.str_pad(dataValue,12,'0')
         $(".mybarCode").html("")
         if(!appBase.isNumeric(barCodeVal))
         {
@@ -595,6 +596,11 @@ $(document).ready(function(){
             }
         );
         $(".barcode_produit").val($(".mybarCode object").attr("data"))
+    }
+
+    $(".code_produit").keyup(function(){
+        var self = $(this)
+        generateCode(self.val())
     })
 
     $(".qr_block").qrcode({

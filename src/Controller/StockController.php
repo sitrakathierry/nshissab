@@ -315,6 +315,27 @@ class StockController extends AbstractController
         return new JsonResponse(["test" => "test"]) ;
     }
 
+    #[Route('/stock/code/scan/generer', name: 'stock_code_to_scan_generer')]
+    public function stockGenererCodeToScan()
+    {
+        $lastRecordProduit = $this->entityManager->getRepository(Produit::class)->findOneBy([], ['id' => 'DESC']);
+        $numCodeScan = !is_null($lastRecordProduit) ? ($lastRecordProduit->getId()+1) : 1 ;
+        $numCodeScan = date('im').str_pad($numCodeScan, 4, "0", STR_PAD_LEFT).date('di') ;
+
+        $response = $this->renderView("stock/scan/generateCodeToScan.html.twig",[
+            "numCodeScan" => $numCodeScan
+            ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/stock/code/scan/nouveau', name: 'stock_code_to_scan_nouveau')]
+    public function stockNouveauCodeToScan()
+    {
+        $response = $this->renderView("stock/scan/nouveauCodeToScan.html.twig",[]) ;
+        return new Response($response) ;
+    }
+
     #[Route('/stock/creationproduit/code/check', name: 'stock_check_codeProduit')]
     public function stockCheckCodeProduit(Request $request)
     {

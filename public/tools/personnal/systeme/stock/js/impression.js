@@ -23,19 +23,9 @@ $(document).ready(function(){
         // Établir la connexion WebSocket en spécifiant l'URL du serveur
         const socket = new WebSocket('ws://192.168.1.200:9100');
 
-        // Événement déclenché lors de l'ouverture de la connexion
-        // socket.onopen = () => {
-        //     console.log('Connexion établie.');
-        //     // Vous pouvez envoyer des messages une fois la connexion établie
-        //     socket.send(data);
-        // };
-
         // Event listener for when the connection is established
         socket.addEventListener('open', () => {
             console.log('WebSocket connection established.');
-        
-            // Send a message to the server
-            const message = 'Hello, server!';
             socket.send(data);
         });
         
@@ -54,27 +44,6 @@ $(document).ready(function(){
         socket.addEventListener('close', (event) => {
             console.log('WebSocket connection closed with code:', event.code, 'Reason:', event.reason);
         });
-
-
-
-        // send data to printer
-        // var socket = new net.Socket();
-        // socket.on('close', function() {
-        // console.log('Connection closed');
-        // });
-    
-        // socket.connect(9100, '192.168.1.200', function(err) {
-        //     if (err) {
-        //         return console.log(err);
-        //     }
-        //     socket.write(data, function(err) {
-        //         if (err) {
-        //         return console.log(err);
-        //         }
-        //         console.log('data sent');
-        //         socket.destroy();
-        //     });
-        // });
     
     })
 
@@ -91,11 +60,6 @@ $(document).ready(function(){
 	            //get client installed printers
 	            JSPM.JSPrintManager.getPrinters().then(function (printersList) {
 	                clientPrinters = printersList;
-	                var options = '';
-	                for (var i = 0; i < clientPrinters.length; i++) {
-	                    options += '<option>' + clientPrinters[i] + '</option>';
-	                }
-	                $('#printer_name').html(options);
 	            });
 	        }
             
@@ -176,7 +140,7 @@ $(document).ready(function(){
                 <div class="w-100 text-left">
                     <label for="stock_printers" class="font-weight-bold">Imprimante</label>  
                     <select class="custom-select custom-select-sm" id="stock_printers">
-                    `+options+`
+                        `+options+`
                     </select>
                 </div>
                 `,
@@ -200,70 +164,27 @@ $(document).ready(function(){
                             });
                             return false ;
                         }
-                        if (!qz.websocket.isActive()){
-                            qz.websocket.connect().then(function() {
-                                return qz.printers.find(myprinter)
-                            }).then(function(found) {
-                                var config = qz.configs.create(found); 
-                                barcodeImg = $("#mybarCode").find("object").attr('data').split(";base64,")[1]
-                                // console.log(barcodeImg)
-                                // var data = [{
-                                //     type : 'pixel',
-                                //     format : 'text',
-                                //     flavor : 'plain',
-                                //     data : text_to_print,
-                                // }] ;
-                                var printData = [
-                                    {
-                                        type: 'image',
-                                        format: 'base64',
-                                        data: barcodeImg
-                                    }
-                                ];
-                                qz.print(config, printData)
-                            });
-                        }
-                        else
-                        {
-                            var config = qz.configs.create(myprinter); 
-                            barcodeImg = $("#mybarCode").find("object").attr('data').split(";base64,")[1]
-                            // console.log(barcodeImg)
-                            // var data = [{
-                            //     type : 'pixel',
-                            //     format : 'text',
-                            //     flavor : 'plain',
-                            //     data : text_to_print,
-                            // }] ;
-                            var printData = [
-                                {
-                                    type: 'image',
-                                    format: 'base64',
-                                    data: barcodeImg
-                                }
-                            ];
-                            qz.print(config, printData)
-                        }
+                        
+                        if (!qz.websocket.isActive())
+                            qz.websocket.connect() ;
 
-                        // qz.websocket.connect().then(function() {
-                        // var config = qz.configs.create("Epson TM88V");
-                        // return qz.print(config, ['\n\n\n\n\n' + barcode + '\n\n\n\n\n']);
-                        // }).catch(function(err) { alert(err); });
-                         
-                        // doPrinting($("#stock_printers").val())
-                        // $.ajax({
-                        //     url: routes.stock_generate_barcode,
-                        //     type:"post",
-                        //     data: {printerName:$("#stock_printers").val()},
-                        //     dataType:"json",
-                        //     success : function(json){
-                        //         realinstance.close()
-                        //         console.log(json.test)
-                        //     },
-                        //     error: function(resp){
-                        //         realinstance.close()
-                        //         $.alert(JSON.stringify(resp)) ;
-                        //     }
-                        // })
+                        var config = qz.configs.create(myprinter); 
+                        barcodeImg = $("#mybarCode").find("object").attr('data').split(";base64,")[1]
+                        // console.log(barcodeImg)
+                        // var data = [{
+                        //     type : 'pixel',
+                        //     format : 'text',
+                        //     flavor : 'plain',
+                        //     data : text_to_print,
+                        // }] ;
+                        var printData = [
+                            {
+                                type: 'image',
+                                format: 'base64',
+                                data: barcodeImg
+                            }
+                        ];
+                        qz.print(config, printData)
                     }
                 }
             }
