@@ -504,6 +504,60 @@ $(document).ready(function(){
         })
     })
 
+
+    // GENERER CODE BARRE ET QR CODE
+    $(document).on('click',"#stock_generer_code_scan", function(){
+        if(!$(this).attr("disabled"))
+        {
+            var realinstance = instance.loading()
+            var self = $(this)
+            $.ajax({
+                url: routes.stock_code_to_scan_generer,
+                type:'post',
+                cache: false,
+                dataType: 'html',
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    realinstance.close()
+                    $("#contentMarchandise").empty().html(response)
+                },
+                error: function(resp){
+                    realinstance.close()
+                    $.alert(JSON.stringify(resp)) ;
+                }
+            })
+        }
+        $(this).prop("disabled", true);
+    })
+
+    // NOUVEAU (MANUEL) CODE BARRE ET QR CODE
+    $(document).on('click',"#stock_nouveau_code_scan", function(){
+        if(!$(this).attr("disabled"))
+        {
+            var realinstance = instance.loading()
+            var self = $(this)
+            $.ajax({
+                url: routes.stock_code_to_scan_generer,
+                type:'post',
+                cache: false,
+                dataType: 'html',
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    realinstance.close()
+                    $("#contentMarchandise").empty().html(response)
+                },
+                error: function(resp){
+                    realinstance.close()
+                    $.alert(JSON.stringify(resp)) ;
+                }
+            })
+        }
+        $(this).prop("disabled", true);
+    })
+
+
     $(".code_produit").keyup(function(){
         var self = $(this)
         $(".qr_block").html("")
@@ -517,6 +571,30 @@ $(document).ready(function(){
         $(".crt_code").each(function(){
             $(this).val(self.val()) ;
         })
+        var barCodeVal = appBase.str_pad(self.val(),12,'0')
+        $(".mybarCode").html("")
+        if(!appBase.isNumeric(barCodeVal))
+        {
+            $.alert({
+                title: 'Message',
+                content: "Désolé, impossible de générer une code barre.<br>Vérifier si tous les caractères sont numériques",
+                type: "orange",
+            });
+            return false ;
+        }
+        $(".mybarCode").barcode(
+            {
+                code: barCodeVal,
+                rect: false,
+            },
+            "ean13",
+            {
+                output: "bmp",
+                barWidth: 2,
+                barHeight: 50,
+            }
+        );
+        $(".barcode_produit").val($(".mybarCode object").attr("data"))
     })
 
     $(".qr_block").qrcode({

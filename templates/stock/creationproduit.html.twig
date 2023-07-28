@@ -29,25 +29,35 @@
                 </select>
 
                 <label for="code_produit" class="mt-2 font-weight-bold">Code</label>
-                <input type="text" name="code_produit" id="code_produit" oninput="this.value = this.value.toUpperCase();" class="form-control code_produit" placeholder=". . .">
-                
+                <div id="contentScanner" class="w-100">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <input type="number" name="code_produit" id="code_produit" class="form-control code_produit" placeholder=". . .">
+                        </div>
+                        <div class="col-md-5">
+                            <button type="button" class="btn btn-sm btn-success btn-block" id="stock_generer_code_scan"><i class="fa fa-qrcode"></i>&nbsp;<i class="fa fa-barcode"></i>&nbsp;Générer</button>
+                        </div>
+                    </div>
+                </div>
                 <input type="hidden" name="qr_code_produit" value="exemple" class="qr_code_produit">
+                <input type="hidden" name="barcode_produit" value="exemple" class="barcode_produit">
 
                 <label for="prod_nom" class="mt-2 font-weight-bold">Nom</label>
                 <input type="text" name="prod_nom" oninput="this.value = this.value.toUpperCase();" id="prod_nom" class="form-control" placeholder=". . .">
+
+                <label for="unite_produit" class="mt-2 unite_produitunite_produit font-weight-bold">Unité</label>
+                <input type="text" name="unite_produit" id="unite_produit" class="form-control" placeholder=". . .">
             </div>
             <div class="col-md-6 px-5">
                 <div class="qr_block mt-2 w-100 d-flex flex-row align-items-center justify-content-center">
                 </div>
-                <div id="mybarCode" class="my-3 w-100 d-flex flex-row align-items-center justify-content-center"></div>
-                <div class="p-5 w-100 text-center">
-                    <button type="button" class="btn btn-sm btn-outline-info" id="stock_print_barcode"><i class="fa fa-print"></i>&nbsp;Imprimer Code Barre</button>
+                <div id="mybarCode" class="mt-5 w-100 mybarCode d-flex flex-row align-items-center justify-content-center"></div>
+                <div class="mt-2 w-100 text-center">
+                    <button type="button" class="btn btn-sm btn-outline-info" id="stock_print_barcode"><i class="fa fa-print"></i>&nbsp;<i class="fa fa-barcode"></i>&nbsp;Imprimer</button>
                 </div>
-                <label for="unite_produit" class="unite_produitunite_produit font-weight-bold">Unité</label>
-                <input type="text" name="unite_produit" id="unite_produit" class="form-control" placeholder=". . .">
             </div>
         </div>
-        <div class="w-100 px-4">
+        <div class="w-100 mt-3 px-4">
             <label for="produit_editor" class="mt-2 font-weight-bold text-uppercase">Description</label>
             <textarea name="produit_editor" class="form-control produit_editor" id="produit_editor" cols="10" rows="5"></textarea>
         </div>
