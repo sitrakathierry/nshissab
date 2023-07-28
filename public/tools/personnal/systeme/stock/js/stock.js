@@ -598,7 +598,7 @@ $(document).ready(function(){
         $(".barcode_produit").val($(".mybarCode object").attr("data"))
     }
 
-    $(".code_produit").keyup(function(){
+    $(document).on('keyup',".code_produit",function(){
         var self = $(this)
         generateCode(self.val())
     })
@@ -610,7 +610,7 @@ $(document).ready(function(){
         text: "DEFAULT",
     });
 
-    $(".code_produit").change(function(){
+    $(document).on('change',".code_produit",function(){
         var self = $(this)
         $.ajax({
             url: routes.stock_check_codeProduit,
