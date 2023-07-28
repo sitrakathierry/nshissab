@@ -113,7 +113,7 @@ $(document).ready(function(){
         },
         "ean13",
         {
-            output: "bmp",
+            output: "svg",
             barWidth: 2,
             barHeight: 70,
         }
