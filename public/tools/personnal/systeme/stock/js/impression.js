@@ -114,7 +114,7 @@ $(document).ready(function(){
         "ean13",
         {
             output: "svg",
-            barWidth: 2,
+            barWidth: 3,
             barHeight: 70,
         }
     );
@@ -192,8 +192,24 @@ $(document).ready(function(){
         })
     })
 
+    function telechargerImage()
+    {
+        html2canvas(document.getElementById('mybarCode'), {
+            onrendered: function(canvas) {
+                // Convert the canvas to a data URL
+                var imgData = canvas.toDataURL("image/png");
+
+                // Create a temporary anchor element to trigger the download
+                var link = document.createElement('a');
+                link.download = 'barcode.png';
+                link.href = imgData;
+                link.click();
+            }
+        });
+    }
+
     // Fonction pour télécharger l'image
-    function téléchargerImage(base64Image) {
+    function telechargerBase64Image(base64Image) {
         // Convertir la chaîne Base64 en données binaires
         const byteCharacters = atob(base64Image.split(',')[1]);
     
@@ -228,8 +244,9 @@ $(document).ready(function(){
     }
 
     $("#stock_print_barcode").click(function(){
-        barcodeImg = $("#mybarCode").find("object").attr('data')
-        téléchargerImage(barcodeImg) ;
+        // barcodeImg = $("#mybarCode").find("img").attr('src')
+        // telechargerBase64Image(barcodeImg) ;
+        telechargerImage()
     })
 
 })

@@ -591,11 +591,11 @@ $(document).ready(function(){
             "ean13",
             {
                 output: "svg",
-                barWidth: 2,
+                barWidth: 3,
                 barHeight: 70,
             }
         );
-        $(".barcode_produit").val($(".mybarCode object").attr("data"))
+        $(".barcode_produit").val($(".mybarCode img").attr("src"))
     }
 
     $(document).on('keyup',".code_produit",function(){
