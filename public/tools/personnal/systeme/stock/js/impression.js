@@ -14,7 +14,7 @@ $(document).ready(function(){
         }
     }
 
-    $("#stock_print_barcode").click(function(){
+    $("#stock_print_barcode_test_2").click(function(){
         // generate ptouch code
         var ptouch = new Ptouch(1, {copies: 2}); // select template 1 for two copies
         ptouch.insertData('myObjectName', 'hello world'); // insert 'hello world' in myObjectName
@@ -115,9 +115,10 @@ $(document).ready(function(){
         {
             output: "bmp",
             barWidth: 2,
-            barHeight: 50,
+            barHeight: 70,
         }
     );
+
     initJspm();
     $("#stock_print_barcode_test").click(function(){
         if(clientPrinters == null)
@@ -191,5 +192,44 @@ $(document).ready(function(){
         })
     })
 
+    // Fonction pour télécharger l'image
+    function téléchargerImage(base64Image) {
+        // Convertir la chaîne Base64 en données binaires
+        const byteCharacters = atob(base64Image.split(',')[1]);
+    
+        // Convertir les données binaires en tableau d'octets (Uint8Array)
+        const byteArray = new Uint8Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+        byteArray[i] = byteCharacters.charCodeAt(i);
+        }
+    
+        // Créer un blob à partir du tableau d'octets
+        const blob = new Blob([byteArray], { type: 'image/png' });
+    
+        // Créer un URL object à partir du blob
+        const urlObject = URL.createObjectURL(blob);
+    
+        // Créer un lien de téléchargement
+        const downloadLink = document.createElement('a');
+        downloadLink.href = urlObject;
+        downloadLink.download = 'barcode.png'; // Nom du fichier à télécharger
+    
+        // Ajouter le lien de téléchargement à la page (facultatif)
+        document.body.appendChild(downloadLink);
+    
+        // Simuler un clic sur le lien pour déclencher le téléchargement
+        downloadLink.click();
+    
+        // Nettoyer l'URL object après le téléchargement
+        URL.revokeObjectURL(urlObject);
+    
+        // Facultatif : supprimer le lien de téléchargement de la page
+        document.body.removeChild(downloadLink);
+    }
+
+    $("#stock_print_barcode").click(function(){
+        barcodeImg = $("#mybarCode").find("object").attr('data')
+        téléchargerImage(barcodeImg) ;
+    })
 
 })

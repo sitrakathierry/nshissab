@@ -592,7 +592,7 @@ $(document).ready(function(){
             {
                 output: "bmp",
                 barWidth: 2,
-                barHeight: 50,
+                barHeight: 70,
             }
         );
         $(".barcode_produit").val($(".mybarCode object").attr("data"))
