@@ -107,7 +107,7 @@ $(document).ready(function(){
     }
 
     initJspm();
-    $("#stock_print_barcode_test").click(function(){
+    $("#stock_print_barcode").click(function(){
         if(clientPrinters == null)
         {
             $.alert({
@@ -153,26 +153,42 @@ $(document).ready(function(){
                             return false ;
                         }
                         
-                        if (!qz.websocket.isActive())
-                            qz.websocket.connect() ;
+                        qz.websocket.connect().then(function(){
+                            var config = qz.configs.create(myprinter); 
+                            var barcodeImg = '' ;
+                            // console.log(barcodeImg)
+                            // var data = [{
+                            //     type : 'pixel',
+                            //     format : 'text',
+                            //     flavor : 'plain',
+                            //     data : text_to_print,
+                            // }] ;
+                            var pixelRatio = 2;
+                            html2canvas(document.getElementById('mybarCode'), {
+                                scale: pixelRatio, // Set the scale (pixel ratio)
+                                onrendered: function(canvas) {
+                                    // Convert the canvas to a data URL
+                                    var imgData = canvas.toDataURL("image/png", 1.0);
+                                    // console.log(imgData)
+                                    barcodeImg = imgData.split(";base64,")[1]
+                                    // Create a temporary anchor element to trigger the download
+                                    // var link = document.createElement('a');
+                                    // link.download = 'barcode.png';
+                                    // link.href = imgData;
+                                    // link.click();
+                                    var printData = [
+                                        {
+                                            type: 'image',
+                                            format: 'base64',
+                                            data: barcodeImg
+                                        }
+                                    ];
+                                    qz.print(config, printData)
+                                }
+                            });
+                            
+                        }) ;
 
-                        var config = qz.configs.create(myprinter); 
-                        barcodeImg = $("#mybarCode").find("object").attr('data').split(";base64,")[1]
-                        // console.log(barcodeImg)
-                        // var data = [{
-                        //     type : 'pixel',
-                        //     format : 'text',
-                        //     flavor : 'plain',
-                        //     data : text_to_print,
-                        // }] ;
-                        var printData = [
-                            {
-                                type: 'image',
-                                format: 'base64',
-                                data: barcodeImg
-                            }
-                        ];
-                        qz.print(config, printData)
                     }
                 }
             }
@@ -187,7 +203,7 @@ $(document).ready(function(){
             onrendered: function(canvas) {
                 // Convert the canvas to a data URL
                 var imgData = canvas.toDataURL("image/png", 1.0);
-
+                console.log(imgData)
                 // Create a temporary anchor element to trigger the download
                 var link = document.createElement('a');
                 link.download = 'barcode.png';
@@ -232,10 +248,12 @@ $(document).ready(function(){
         document.body.removeChild(downloadLink);
     }
 
-    $("#stock_print_barcode").click(function(){
+    $("#stock_print_barcode_test").click(function(){
         // barcodeImg = $("#mybarCode").find("img").attr('src')
         // telechargerBase64Image(barcodeImg) ;
         telechargerImage()
     })
+
+
 
 })
