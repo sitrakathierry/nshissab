@@ -75,6 +75,7 @@
                         <th>Date Début</th>
                         <th>Date Fin</th>
                         <th>Durée contrat</th>
+                        <th class="text-center">Nb. Renouv</th>
                         <th>Montant contrat</th>
                         <th class="text-center">Statut</th>
                         <th></th>
@@ -99,29 +100,30 @@
                             <td class="align-middle">{{contrat.dateDebut}}</td>
                             <td class="align-middle">{{contrat.dateFin}}</td>
                             <td class="align-middle">{{contrat.dureeContrat}}</td>
+                            <td class="align-middle text-center">{{contrat.frequence}}</td>
                             <td class="align-middle">{{contrat.montantContrat}}</td>
                             <th class="text-center {{statutClass}} align-middle">{{contrat.statut|upper}}</th>
                             <td class="text-center align-middle">
                                 <div class="d-flex flex-column align-items-center justify-content-center p-2">
                                     {% if contrat.refStatut == "ENCR" %}
-                                        <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.id})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
+                                        <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.encodedId})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
                                     {% elseif contrat.refStatut == "ANL" %}
                                         <button class="btn btn-sm btn-outline-success active_contrat font-smaller" value="{{contrat.id}}"><i class="fa fa-toggle-off"></i></button>
                                     {% else %}
-                                        <button class="btn btn-sm btn-outline-purple refresh_contrat font-smaller" value="{{contrat.id}}"><i class="fa fa-refresh"></i></button>
+                                        <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.encodedId})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
+                                        <button class="btn btn-sm btn-outline-purple refresh_contrat mt-2 font-smaller" value="{{contrat.id}}"><i class="fa fa-refresh"></i></button>
                                     {% endif %}
                                     <a href="{{path('prest_location_contrat_detail',{'id':contrat.id})}}" class="btn btn-sm mt-2 btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <th colspan="12" class="p-1 bg-light"> </th>
+                            <th colspan="13" class="p-1 bg-light"> </th>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                 <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>

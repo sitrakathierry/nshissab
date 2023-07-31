@@ -1293,6 +1293,7 @@ class AppService extends AbstractController
             }
 
             $item["id"] = $contrat->getId() ;
+            $item["encodedId"] = $this->encodeChiffre($contrat->getId()) ;
             $item["agence"] = $contrat->getAgence()->getId() ;
             $item["numContrat"] = $contrat->getNumContrat() ;
             $item["dateContrat"] = $contrat->getDateContrat()->format("d/m/Y") ;
@@ -1302,6 +1303,7 @@ class AppService extends AbstractController
             $item["cycle"] = $contrat->getCycle()->getNom() ;
             $item["dateDebut"] = $contrat->getDateDebut()->format("d/m/Y") ;
             $item["dateFin"] = $contrat->getDateFin()->format("d/m/Y") ;
+            $item["frequence"] = is_null($contrat->getFrequenceRenouv()) ? "Aucun" : $contrat->getFrequenceRenouv()-1;
             $item["dureeContrat"] = $contrat->getDuree()." ".$periode ;
             $item["montantContrat"] = $contrat->getMontantContrat() ;
             $item["statut"] = $contrat->getStatut()->getNom() ;

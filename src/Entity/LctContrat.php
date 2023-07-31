@@ -106,17 +106,13 @@ class LctContrat
     #[ORM\Column(nullable: true)]
     private ?bool $statutGen = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'lctContrats')]
-    private ?self $ctrParent = null;
-
-    #[ORM\OneToMany(mappedBy: 'ctrParent', targetEntity: self::class)]
-    private Collection $lctContrats;
+    #[ORM\Column(nullable: true)]
+    private ?int $frequenceRenouv = null;
 
     public function __construct()
     {
         $this->lctPaiements = new ArrayCollection();
         $this->lctRepartitions = new ArrayCollection();
-        $this->lctContrats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -520,44 +516,14 @@ class LctContrat
         return $this;
     }
 
-    public function getCtrParent(): ?self
+    public function getFrequenceRenouv(): ?int
     {
-        return $this->ctrParent;
+        return $this->frequenceRenouv;
     }
 
-    public function setCtrParent(?self $ctrParent): self
+    public function setFrequenceRenouv(?int $frequenceRenouv): self
     {
-        $this->ctrParent = $ctrParent;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getLctContrats(): Collection
-    {
-        return $this->lctContrats;
-    }
-
-    public function addLctContrat(self $lctContrat): self
-    {
-        if (!$this->lctContrats->contains($lctContrat)) {
-            $this->lctContrats->add($lctContrat);
-            $lctContrat->setCtrParent($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLctContrat(self $lctContrat): self
-    {
-        if ($this->lctContrats->removeElement($lctContrat)) {
-            // set the owning side to null (unless already changed)
-            if ($lctContrat->getCtrParent() === $this) {
-                $lctContrat->setCtrParent(null);
-            }
-        }
+        $this->frequenceRenouv = $frequenceRenouv;
 
         return $this;
     }

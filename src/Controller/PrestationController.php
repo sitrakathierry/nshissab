@@ -672,7 +672,7 @@ class PrestationController extends AbstractController
 
         $contrats = json_decode(file_get_contents($filename)) ;
 
-        // $this->prestService->checkContrat($this->entityManager, $this) ;
+        $this->prestService->checkContrat($this->entityManager, $this) ;
 
         return $this->render('prestations/location/listeContrat.html.twig', [
             "filename" => "prestations",
@@ -1262,6 +1262,36 @@ class PrestationController extends AbstractController
     {
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
         
+        // $cycleRef = $contrat->getCycle()->getReference() ;
+        // $periodeRef = $contrat->getPeriode()->getReference() ;
+        // // $forfaitRef = $contrat->getForfait()->getReference() ;
+
+        // $frequence = is_null($contrat->getFrequenceRenouv()) ? 2 : $contrat->getFrequenceRenouv() + 1 ;
+        // $duree = $contrat->getDuree() ; 
+
+        // $nbJour = 0 ;
+        // $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ; 
+
+        // if($cycleRef == "CJOUR")
+        // {
+        //     $nbJour = $duree ;
+        // }
+        // else if($cycleRef == "CMOIS")
+        // {
+        //     if($periodeRef == "M")
+        //     {
+        //         $nbJour = 30 * $duree ;
+        //     }
+        //     else if($periodeRef == "A") 
+        //     {
+        //         $nbJour =  365 * $duree ;
+        //     }
+        // }
+
+        // $dateFin = $this->appService->calculerDateApresNjours($dateDebut,$nbJour) ;
+
+        // dd($dateFin) ;
+
         $bailleur = [
             "nom" => $contrat->getBailleur()->getNom(),
             "telephone" => $contrat->getBailleur()->getTelephone(),
@@ -1320,6 +1350,7 @@ class PrestationController extends AbstractController
     #[Route('/prestation/location/contrat/releve/loyer/{id}', name: 'prest_location_contrat_releve_loyer')]
     public function prestReleveLoyerContratLocation($id)
     {
+        $id = $this->appService->decoderChiffre($id) ;
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
@@ -1408,6 +1439,7 @@ class PrestationController extends AbstractController
             "isCaution" => !empty($contrat->getCaution()),
         ] ;
 
+        $frequence = is_null($contrat->getFrequenceRenouv()) ? 1 : $contrat->getFrequenceRenouv() ; 
 
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
@@ -1416,9 +1448,9 @@ class PrestationController extends AbstractController
                 $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
 
                 if($contrat->getPeriode()->getReference() == "M")
-                    $duree = $contrat->getDuree() ;  
+                    $duree = $contrat->getDuree() * $frequence; 
                 else if($contrat->getPeriode()->getReference() == "A")
-                    $duree = $contrat->getDuree() * 12 ; 
+                    $duree = $contrat->getDuree() * $frequence * 12 ;
 
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
                 $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
@@ -1445,7 +1477,7 @@ class PrestationController extends AbstractController
                 
                 $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,1) ;
                 $dateGenere = $dateAvant ;
-                $duree = $contrat->getDuree() ;
+                $duree = $contrat->getDuree() * $frequence;
                 $tableauMois = $this->appService->genererTableauJour($dateGenere,$duree) ;
 
                 for ($i=0; $i < count($tableauMois); $i++) { 
@@ -1776,9 +1808,9 @@ class PrestationController extends AbstractController
         if(!is_null($request))
             $id = $request->request->get("id") ;
 
-        $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
-            "reference" => "RNV"
-        ]) ;
+        // $statut = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
+        //     "reference" => "RNV"
+        // ]) ;
 
         $statutActive = $this->entityManager->getRepository(LctStatut::class)->findOneBy([
             "reference" => "ENCR"
@@ -1786,18 +1818,19 @@ class PrestationController extends AbstractController
 
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
 
-        $contrat->setStatut($statut) ;
-        $contrat->setStatutGen(False) ;
-        $this->entityManager->flush() ;
+        // $contrat->setStatut($statut) ;
+        // $contrat->setStatutGen(False) ;
+        // $this->entityManager->flush() ;
 
         $cycleRef = $contrat->getCycle()->getReference() ;
         $periodeRef = $contrat->getPeriode()->getReference() ;
         // $forfaitRef = $contrat->getForfait()->getReference() ;
-        $duree = $contrat->getDuree() ; 
+
+        $frequence = is_null($contrat->getFrequenceRenouv()) ? 2 : $contrat->getFrequenceRenouv() + 1 ;
+        $duree = $contrat->getDuree() * $frequence ; 
 
         $nbJour = 0 ;
-        $dateDebut = $contrat->getDateFin()->format("d/m/Y") ;
-        $dateFin = "" ;
+        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ; 
 
         if($cycleRef == "CJOUR")
         {
@@ -1817,39 +1850,10 @@ class PrestationController extends AbstractController
 
         $dateFin = $this->appService->calculerDateApresNjours($dateDebut,$nbJour) ;
 
-        $newContrat = new LctContrat() ;
-        
-        $newContrat->setAgence($contrat->getAgence()) ;
-        $newContrat->setCtrParent(is_null($contrat->getCtrParent()) ? $contrat : $contrat->getCtrParent()) ;
-        $newContrat->setBailleur($contrat->getBailleur()) ;
-        $newContrat->setBail($contrat->getBail()) ;
-        $newContrat->setLocataire($contrat->getLocataire()) ;
-        $newContrat->setNumContrat($contrat->getNumContrat()) ;
-        $newContrat->setMontantContrat($contrat->getMontantContrat()) ;
-        $newContrat->setCycle($contrat->getCycle()) ;
-        $newContrat->setForfait($contrat->getForfait()) ;
-        $newContrat->setMontantForfait($contrat->getMontantForfait()) ;
-        $newContrat->setDuree($contrat->getDuree()) ;
-        $newContrat->setPeriode($contrat->getPeriode()) ;
-        $newContrat->setPourcentage($contrat->getPourcentage()) ;
-        $newContrat->setRenouvellement($contrat->getRenouvellement()) ;
-        $newContrat->setCaptionRenouv($contrat->getCaptionRenouv()) ;
-        $newContrat->setTypeLocation($contrat->getTypeLocation()) ;
-        $newContrat->setDateDebut(\DateTime::createFromFormat('j/m/Y',$dateDebut)) ;
-        $newContrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$dateFin)) ;
-        $newContrat->setModePaiement($contrat->getModePaiement()) ;
-        $newContrat->setDateLimite($contrat->getDateLimite()) ;
-        $newContrat->setCaution($contrat->getCaution()) ;
-        $newContrat->setDelaiChgFin($contrat->getDelaiChgFin()) ;
-        $newContrat->setNote("Renouvellement de contrat") ;
-        $newContrat->setLieuContrat($contrat->getLieuContrat()) ;
-        $newContrat->setDateContrat($contrat->getDateContrat()) ;
-        $newContrat->setStatut($statutActive) ;
-        $newContrat->setStatutGen(True) ;
-        $newContrat->setCreatedAt(new \DateTimeImmutable) ; 
-        $newContrat->setUpdatedAt(new \DateTimeImmutable) ; 
+        $contrat->setStatut($statutActive) ;
+        $contrat->setDateFin(\DateTime::createFromFormat('j/m/Y',$dateFin)) ;
+        $contrat->setFrequenceRenouv($frequence) ; // doit être diminué de 1 à l'affichage
 
-        $this->entityManager->persist($newContrat) ;
         $this->entityManager->flush() ;
 
         $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
