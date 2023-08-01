@@ -115,3 +115,15 @@ var self = $(this)
         })
 
         
+        $filename = $this->filename."releveloyer(agence)/".$this->nameAgence."_relevePL_".$id  ;
+        if(!file_exists($filename))
+            $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
+
+        $relevePaiements = json_decode(file_get_contents($filename)) ;
+
+
+        #[Route('/prestation/location/paiement/search', name: 'prest_location_paiement_search')]
+    public function prestSearchPaiementLocation(Request $request)
+    {
+        
+    }

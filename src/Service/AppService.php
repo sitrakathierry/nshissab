@@ -703,6 +703,11 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public function generateLctRelevePaiementLoyer($filename, $contratId)
+    {
+        
+    }
+
     public function filterProdPreferences($path,$nameAgence,$nameUser,$user)
     {
         $filename = $path."categorie(agence)/".$nameAgence ;

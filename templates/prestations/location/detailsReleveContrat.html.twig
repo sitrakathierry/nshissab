@@ -38,7 +38,7 @@
         </div>
         <h5 class="title_form text-black text-uppercase mt-4">Critère de recherche</h5>
         <div class="row">
-            <div class="col-md-2">
+            {# <div class="col-md-2">
                 <label for="prest_ctr_critere_jour" class="font-weight-bold">Jour</label>
                 <input type="number" name="prest_ctr_critere_jour" id="prest_ctr_critere_jour" class="form-control" placeholder=". . .">
             </div>
@@ -52,10 +52,14 @@
                         {% set idMois = idMois + 1 %}
                     {% endfor %}
                 </select>
-            </div>
-            <div class="col-md-2">
+            </div> #}
+            <div class="col-md-3">
                 <label for="prest_ctr_critere_annee" class="font-weight-bold">Année</label>
                 <input type="number" name="prest_ctr_critere_annee" id="prest_ctr_critere_annee" value="{{ 'now'|date('Y') }}" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="prest_ctr_critere_annee" class="font-weight-bold">&nbsp;</label>
+                <button class="btn btn-sm btn-success btn-block"><i class="fa fa-file-excel"></i>&nbsp;Exporter en Excel</button>
             </div>
         </div>
         {{ template | raw }}
