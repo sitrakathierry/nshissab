@@ -13,36 +13,24 @@
         </thead>
         <tbody>
             {% set totalPayee = 0 %}
-            {% for moisrestant in tableauMois %}
-                {% set debutLimite = moisrestant.debutLimite %}
-                {% set debutPaiement = "-" %}
-                {% set designation = moisrestant.designation %}
-                {% set montant = "-" %}
-                {% set break = false %}
-                {% set lenRepart = repartitions | length %}
-                {% for repartition in repartitions %}
-                    {% if lenRepart > 0 %}
-                        {% if not break %}
-                            {% if moisrestant.debutLimite == repartition.debutLimite %}
-                                {% set montant = repartition.montant %}
-                                {% set designation = repartition.designation %}
-                                {% set debutPaiement = repartition.datePaiement %}
-                                {% set totalPayee = totalPayee + repartition.montant %}
-                                {% set lenRepart = lenRepart - 1 %}
-                                {% set break = true %}
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
+            {% for relevePaiement in relevePaiements %}
+                {% if relevePaiement.montant is defined  %}
+                    {% set montant = relevePaiement.montant %}
+                    {% set valMontant = relevePaiement.montant %}
+                {% else %}
+                    {% set montant = "-" %}
+                    {% set valMontant = 0 %}
+                {% endif %}
                 <tr>
-                    <td>{{ designation | upper }}</td>
-                    <td>{{ moisrestant.finLimite }}</td>
-                    <td>{{ debutPaiement }}</td>
-                    <td>{{ moisrestant.mois | upper }}</td>
-                    <td>{{ moisrestant.annee | upper }}</td>
+                    <td>{{ relevePaiement.designation | upper }}</td>
+                    <td>{{ relevePaiement.finLimite }}</td>
+                    <td>{{ relevePaiement.datePaiement }}</td>
+                    <td>{{ relevePaiement.mois | upper }}</td>
+                    <td>{{ relevePaiement.annee | upper }}</td>
                     <th>{{ montant }}</th>
                     {# <th>{{ repartition.statut | upper }}</th> #}
                 </tr>
+                {% set totalPayee = totalPayee + valMontant %}
             {% endfor %}
         </tbody>
     </table>
