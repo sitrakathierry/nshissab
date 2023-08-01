@@ -1351,7 +1351,9 @@ class PrestationController extends AbstractController
     public function prestReleveLoyerContratLocation($id)
     {
         $id = $this->appService->decoderChiffre($id) ;
+
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
         $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
@@ -1362,69 +1364,87 @@ class PrestationController extends AbstractController
             "reference" => "ACOMPTE"
         ]) ;
 
-        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-            "contrat" => $contrat,
-            "statut" => $statutLoyerPaye
-        ]) ;
+        // $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+        //     "contrat" => $contrat,
+        //     "statut" => $statutLoyerPaye
+        // ]) ;
 
         $lastRepartition = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
             "contrat" => $contrat,
-            "statut" => $statutLoyerAcompte
+            // "statut" => $statutLoyerAcompte
         ],["id" => "DESC"]) ;
 
         $childs = [] ;
         
         $totalReleve = 0 ;
 
-        foreach ($repartitions as $repartition) {
-            $item = [] ;
+        // foreach ($repartitions as $repartition) {
+        //     $item = [] ;
 
-            $statutRepart = $repartition->getStatut()->getReference() ; 
-            if($statutRepart == "CAUTION")
-                continue ;
+        //     $statutRepart = $repartition->getStatut()->getReference() ; 
+        //     if($statutRepart == "CAUTION")
+        //         continue ;
 
-            // $refForfait =  $contrat->getForfait()->getReference() ;
-            // if($refForfait == "FJOUR")
-            //     $moment = $repartition->getDateDebut()->format("d/m/Y") ;
-            // else 
-            //     $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
+        //     // $refForfait =  $contrat->getForfait()->getReference() ;
+        //     // if($refForfait == "FJOUR")
+        //     //     $moment = $repartition->getDateDebut()->format("d/m/Y") ;
+        //     // else 
+        //     //     $moment = $tabMois[$repartition->getMois() - 1] ." ". $repartition->getAnnee() ;
 
-            $item["designation"] = "Paiement. ".$repartition->getDesignation() ;
-            $item["debutLimite"] = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y") ;
-            $item["dateLimite"] = is_null($repartition->getDateLimite()) ? "" : $repartition->getDateLimite()->format("d/m/Y") ;
-            $item["datePaiement"] = $repartition->getPaiement()->getDate()->format("d/m/Y") ;
-            $item["mois"] = is_null($repartition->getMois()) ? "" : $tabMois[$repartition->getMois() - 1]  ;
-            $item["annee"] = $repartition->getAnnee() ;
-            // $item["moment"] = $moment ;
-            $item["dateDebut"] = is_null($repartition->getDateDebut()) ? "NONE" : $repartition->getDateDebut()->format("d/m/Y") ;
-            $item["montant"] = $repartition->getMontant() ;
-            $item["statut"] = $repartition->getStatut()->getReference() ;
+        //     $item["designation"] = "Paiement. ".$repartition->getDesignation() ;
+        //     $item["debutLimite"] = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y") ;
+        //     $item["dateLimite"] = is_null($repartition->getDateLimite()) ? "" : $repartition->getDateLimite()->format("d/m/Y") ;
+        //     $item["datePaiement"] = $repartition->getPaiement()->getDate()->format("d/m/Y") ;
+        //     $item["mois"] = is_null($repartition->getMois()) ? "" : $tabMois[$repartition->getMois() - 1]  ;
+        //     $item["annee"] = $repartition->getAnnee() ;
+        //     // $item["moment"] = $moment ;
+        //     $item["dateDebut"] = is_null($repartition->getDateDebut()) ? "NONE" : $repartition->getDateDebut()->format("d/m/Y") ;
+        //     $item["montant"] = $repartition->getMontant() ;
+        //     $item["statut"] = $repartition->getStatut()->getReference() ;
 
-            $totalReleve += $repartition->getMontant() ; 
-            array_push($childs,$item) ;
-        }
+        //     $totalReleve += $repartition->getMontant() ; 
+        //     array_push($childs,$item) ;
+        // }
 
         if(!is_null($lastRepartition))
         {
             if($lastRepartition->getStatut()->getReference() == "ACOMPTE")
             {
-                $lastItem = [
-                    "designation" => "Acompte. ".$lastRepartition->getDesignation() ,
-                    "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
-                    "dateLimite" => is_null($lastRepartition->getDateLimite()) ? "" : $lastRepartition->getDateLimite()->format("d/m/Y") ,
-                    "datePaiement" => $lastRepartition->getPaiement()->getDate()->format("d/m/Y"),
-                    "mois" => is_null($lastRepartition->getMois()) ? "" : $tabMois[$lastRepartition->getMois() - 1] ,
-                    "annee" => $lastRepartition->getAnnee(),
-                    "dateDebut" => is_null($lastRepartition->getDateDebut()) ? "NONE" : $lastRepartition->getDateDebut()->format("d/m/Y"),
-                    "montant" => $lastRepartition->getMontant(),
-                    "statut" => $lastRepartition->getStatut()->getReference(),
-                ] ;
-    
-                $totalReleve += $lastRepartition->getMontant() ; 
-                array_push($childs,$lastItem) ;
+                $textDesignation = "Acompte. ".$lastRepartition->getDesignation() ;
             }
+            else
+            {
+                $textDesignation = "Paiement. ".$lastRepartition->getDesignation() ;
+            }
+
+            $lastItem = [
+                "designation" => $textDesignation,
+                "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
+                "dateLimite" => is_null($lastRepartition->getDateLimite()) ? "" : $lastRepartition->getDateLimite()->format("d/m/Y") ,
+                "datePaiement" => $lastRepartition->getPaiement()->getDate()->format("d/m/Y"),
+                "mois" => is_null($lastRepartition->getMois()) ? "" : $tabMois[$lastRepartition->getMois() - 1] ,
+                "annee" => $lastRepartition->getAnnee(),
+                "dateDebut" => is_null($lastRepartition->getDateDebut()) ? "NONE" : $lastRepartition->getDateDebut()->format("d/m/Y"),
+                "montant" => $lastRepartition->getMontant(),
+                "statut" => $lastRepartition->getStatut()->getReference(),
+            ] ;
+
+            $totalReleve += $lastRepartition->getMontant() ; 
+            array_push($childs,$lastItem) ;
+
+            // $moisExist = $lastRepartition->getMois() ;
+            $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
+            // $dateDebut = $lastRepartition->getDateDebut()->format("d/m/Y") ;
+            // $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
+            // $dateDebut = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
+        }
+        else
+        {
+            // $moisExist = null ;
+            $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
         }
 
+        
         $listeForfait = $childs ;
 
         $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
@@ -1445,24 +1465,35 @@ class PrestationController extends AbstractController
         {
             if($contrat->getForfait()->getReference() == "FMOIS")
             {
-                $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-
                 if($contrat->getPeriode()->getReference() == "M")
                     $duree = $contrat->getDuree() * $frequence; 
                 else if($contrat->getPeriode()->getReference() == "A")
                     $duree = $contrat->getDuree() * $frequence * 12 ;
 
-                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
+                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ; 
                 $dateGenere = $contrat->getModePaiement()->getReference() == "DEBUT" ? $dateAvant : $dateDebut ;
                 $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(),null) ;
                 
-                for ($i=0; $i < count($tableauMois); $i++) { 
-                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                $count = count($tableauMois);
+                $newTabMois = [] ;
+                for ($i=0; $i < $count; $i++) { 
+                    if ($i + 1 < $count && $tableauMois[$i]["indexMois"] > $tableauMois[$i + 1]["indexMois"]) {
+                        // dd("passe".$i) ;
+                        $tableauMois[$i + 1]["annee"] = $tableauMois[$i]["annee"] + 1;
+                    }
+
+                    if($tableauMois[$i]["annee"] <= intval(date("Y")))
+                    {
+                        $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                        $newTabMois[] = $tableauMois[$i] ;
+                    }
                 }
 
+                // dd($childs,$newTabMois) ;
+                
                 $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
                     // "item" => $item,
-                    "tableauMois" => $tableauMois,
+                    "tableauMois" => $newTabMois,
                     "repartitions" => $childs,
                     "lettreReleve" => $lettreReleve,
                 ]) ;
@@ -1507,6 +1538,7 @@ class PrestationController extends AbstractController
             "with_foot" => true,
             "contrat" => $parent,
             "template" => $response,
+            "tabMois" => $tabMois,
         ]);
     }
 
@@ -1864,6 +1896,24 @@ class PrestationController extends AbstractController
             "type" => "green",
             "message" => "Renouvellement effectué.",
         ]) ;
+    }
+
+    #[Route('/prestation/location/paiement/search', name: 'prest_location_paiement_search')]
+    public function prestSearchPaiementLocation(Request $request)
+    {
+        $jour= $request->request->get("jour") ;
+        $mois= $request->request->get("mois") ;
+        $annee= $request->request->get("annee") ;
+
+        // $randomNumber = mt_rand(0, 1);
+        // if ($randomNumber === 0) {
+        //     trigger_error("Erreur", E_USER_ERROR);
+        // } else {
+        //     trigger_error("Avertissement", E_USER_WARNING);
+        // }
+
+        dd($request->server) ;
+        return new Response("") ;
     }
 }
 

@@ -1278,4 +1278,24 @@ class StockController extends AbstractController
             "with_foot" => false
         ]);
     }
+
+    #[Route('/stock/general/produit/details/{id}', name: 'stock_general_details', defaults: ["id" => null])]
+    public function stockDetailsProduitsGeneral($id): Response
+    {
+        $id = $this->appService->decoderChiffre($id) ;
+
+        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename, $this->agence) ;
+
+        $preferences = json_decode(file_get_contents($filename)) ;
+
+        return $this->render('stock/general/details.html.twig', [
+            "filename" => "stock",
+            "titlePage" => "Details Produit",
+            "with_foot" => true,
+            "categories" => $preferences,
+        ]);
+    }
+
 }

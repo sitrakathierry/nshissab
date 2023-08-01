@@ -32,11 +32,24 @@ $.ajax({
     type:'post',
     cache: false,
     data: ,
-    dataType: 'json',
+    dataType: 'html',
     processData: false,
     contentType: false,
-    success: function(){
-
+    success: function(response){
+        realinstance.close()
+        $.alert({
+            title: 'Message',
+            content: json.message,
+            type: json.type,
+            buttons: {
+                OK: function(){
+                    if(json.type == "green")
+                    {
+                        location.reload()
+                    }
+                }
+            }
+        });
     },
     error: function(resp){
         realinstance.close()

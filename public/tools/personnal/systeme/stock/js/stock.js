@@ -573,7 +573,7 @@ $(document).ready(function(){
             $(this).val(dataValue) ;
         })
         // var barCodeVal = appBase.str_pad(dataValue,12,'0')
-        var barCodeVal = dataValue
+        var barCodeVal = dataValue == "" ? "000000000000": dataValue
         $(".mybarCode").html("")
         // if(!appBase.isNumeric(barCodeVal))
         // {

@@ -107,7 +107,7 @@ $(document).ready(function(){
     }
 
     initJspm();
-    $("#stock_print_barcode").click(function(){
+    $("#stock_print_barcode_test").click(function(){
         if(clientPrinters == null)
         {
             $.alert({
@@ -248,7 +248,7 @@ $(document).ready(function(){
         document.body.removeChild(downloadLink);
     }
 
-    $("#stock_print_barcode_test").click(function(){
+    $("#stock_print_barcode").click(function(){
         // barcodeImg = $("#mybarCode").find("img").attr('src')
         // telechargerBase64Image(barcodeImg) ;
         telechargerImage()

@@ -270,12 +270,44 @@ class AppService extends AbstractController
             $this->getMenuUser($menuUsers, $id,$menus) ;
     }
 
+    public function chiffrementCesar($texte_clair, $decalage) {
+        $texte_chiffre = '';
+        
+        // Assurez-vous que le décalage est un entier
+        $decalage = intval($decalage);
+    
+        // Convertir le décalage en une valeur positive dans l'intervalle [0, 25]
+        $decalage = $decalage % 26;
+    
+        for ($i = 0; $i < strlen($texte_clair); $i++) {
+            $char = $texte_clair[$i];
+    
+            if (ctype_alpha($char)) { // Vérifier si le caractère est une lettre
+                $asciiOffset = ord(ctype_upper($char) ? 'A' : 'a');
+                $chiffre_ascii = (($char - $asciiOffset + $decalage) % 26) + $asciiOffset;
+                $texte_chiffre .= chr($chiffre_ascii);
+            } else {
+                // Conserver les caractères qui ne sont pas des lettres inchangés
+                $texte_chiffre .= $char;
+            }
+        }
+    
+        return $texte_chiffre;
+    }
+
+    function dechiffrementCesar($texte_chiffre, $decalage) {
+        // Utilisez le décalage négatif pour déchiffrer le texte
+        return $this->chiffrementCesar($texte_chiffre, -$decalage);
+    }
+
     public function encodeChiffre($chiffre) {
         $result = dechex($chiffre) ;
         return base64_encode($result) ;
+        // return $this->chiffrementCesar($result,7) ; 
     }
 
     public function decoderChiffre($chiffrement) {
+        // $result = $this->dechiffrementCesar(strval($chiffrement),7) ;
         $result = base64_decode($chiffrement) ;
         return hexdec($result) ;
     }
@@ -550,6 +582,7 @@ class AppService extends AbstractController
         foreach ($stockGenerales as $stockGeneral) {
             $element = [] ;
             $element["id"] = $stockGeneral->getId() ;
+            $element["encodedId"] = $this->encodeChiffre($stockGeneral->getId()) ;
             $element["idC"] = $stockGeneral->getPreference()->getId() ;
             $element["codeProduit"] = $stockGeneral->getCodeProduit() ;
             $element["categorie"] = $stockGeneral->getPreference()->getCategorie()->getNom() ;
@@ -1980,7 +2013,6 @@ class AppService extends AbstractController
             
             // Ajouter la date au tableau
             $finLimite = $this->calculerDateApresNjours($dateApresNJours,$dateLimite) ;
-            
             $resultCompare = $this->compareDates($finLimite,date("d/m/Y"),"P") || $this->compareDates($finLimite,date("d/m/Y"),"E") ;
 
             $statut = $resultCompare ? "En Alerte" : "-" ;
