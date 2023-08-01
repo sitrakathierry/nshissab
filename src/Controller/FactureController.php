@@ -1111,6 +1111,8 @@ class FactureController extends AbstractController
                 }
                 
                 $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(), $moisExist) ;
+            
+                $count = count($tableauMois);
                 
                 if(!empty($elemExistant))
                 {
@@ -1123,6 +1125,11 @@ class FactureController extends AbstractController
                 }
 
                 for ($i=0; $i < count($tableauMois); $i++) { 
+
+                    if ($i + 1 < $count && $tableauMois[$i]["indexMois"] > $tableauMois[$i + 1]["indexMois"]) {
+                        $tableauMois[$i + 1]["annee"] = $tableauMois[$i]["annee"] + 1;
+                    } 
+
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
                     if($i != 0)
                     {
