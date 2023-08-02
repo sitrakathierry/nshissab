@@ -1122,6 +1122,7 @@ class FactureController extends AbstractController
                 else
                 {
                     $tableauMois[0]["montantInitial"] = 0 ;
+                    $tableauMois[0]["statut"] = "-" ;
                 }
 
                 for ($i=0; $i < count($tableauMois); $i++) { 
