@@ -1137,7 +1137,7 @@ class FactureController extends AbstractController
                         $tableauMois[$i]["montantInitial"] = 0 ;
                     }
                 }
-
+                dd($tableauMois) ;
                 $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
                     "item" => $item,
                     "tableauMois" => $tableauMois,
