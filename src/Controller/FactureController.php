@@ -1111,7 +1111,9 @@ class FactureController extends AbstractController
                 }
                 
                 $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(), $moisExist) ;
-            
+                
+                dd($tableauMois) ;
+                
                 $count = count($tableauMois);
                 
                 if(!empty($elemExistant))
@@ -1137,7 +1139,7 @@ class FactureController extends AbstractController
                         $tableauMois[$i]["montantInitial"] = 0 ;
                     }
                 }
-                dd($tableauMois) ;
+                
                 $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
                     "item" => $item,
                     "tableauMois" => $tableauMois,
