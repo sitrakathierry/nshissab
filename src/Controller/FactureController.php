@@ -1371,6 +1371,11 @@ class FactureController extends AbstractController
             $this->entityManager->flush() ;
         }
 
+        $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$contrat->getId()."_".$this->nameAgence  ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
         return new JsonResponse($result) ;
     }
 }

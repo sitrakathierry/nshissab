@@ -10,14 +10,14 @@
         </thead>
         <tbody>
             {% set totalPayee = 0 %}
-            {% for repartition in repartitions %}
+            {% for relevePaiement in relevePaiements %}
                 <tr>
-                    <td>{{ repartition.statut ~ ". " ~ repartition.designation | upper}}</td>
-                    <td>{{ repartition.datePaiement}}</td>
-                    <th>{{ repartition.montant }}</th>
+                    <td>{{ relevePaiement.statut ~ ". " ~ relevePaiement.designation | upper}}</td>
+                    <td>{{ relevePaiement.datePaiement}}</td>
+                    <th>{{ relevePaiement.montant }}</th>
                     {# <th>{{ repartition.statut | upper }}</th> #}
                 </tr>
-                {% set totalPayee = totalPayee + repartition.montant %}
+                {% set totalPayee = totalPayee + relevePaiement.montant %}
             {% endfor %}
         </tbody>
     </table>

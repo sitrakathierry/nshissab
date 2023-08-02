@@ -1346,8 +1346,8 @@ class PrestationController extends AbstractController
         ]);
     }
 
-    #[Route('/prestation/location/contrat/releve/loyer/{id}', name: 'prest_location_contrat_releve_loyer')]
-    public function prestReleveLoyerContratLocation($id)
+    #[Route('/prestation/location/contrat/releve/loyer/{id}', name: 'prest_location_contrat_releve_loyer', defaults: ["id" => null])]
+    public function prestReleveLoyerContratLocation($id,$paramSearch = [])
     {
         $id = $this->appService->decoderChiffre($id) ;
 
@@ -1356,9 +1356,53 @@ class PrestationController extends AbstractController
             $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
 
         $relevePaiements = json_decode(file_get_contents($filename)) ;
-        
-        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
 
+        $countReleve = count($relevePaiements) ;
+        $findLast = false; 
+        $newRelevePments = [] ;
+        $lastPment = false ;
+        $totalRelevePayee = 0 ;
+        for($i = 0; $i < $countReleve; $i++)
+        {
+            $totalRelevePayee += $relevePaiements[$i]->datePaiement != "-" ? $relevePaiements[$i]->montant : 0 ;
+
+            if($relevePaiements[$i]->datePaiement == "-")
+            {
+                if(!$findLast)
+                {
+                    $indiceAvant = $i - 1 ;
+                    if($indiceAvant >= 0)
+                    {
+                        $lastPment = true ;
+                        array_push($newRelevePments,$relevePaiements[$indiceAvant]) ;
+                    }
+           
+                    $findLast = true; 
+                }
+
+                array_push($newRelevePments,$relevePaiements[$i]) ;
+            }
+        }
+        $anneeSearch = intval(date("Y")) ;
+        if(!empty($paramSearch))
+        {
+            $anneeSearch = $paramSearch["annee"] ;
+        }
+
+        if(($lastPment && $newRelevePments[0]->annee >= $anneeSearch) || !empty($paramSearch))
+        {
+            $search = 
+            [
+                "annee" => $anneeSearch
+            ] ;
+            
+            $newRelevePments = $this->appService->searchData($relevePaiements, $search) ;
+        }
+
+        // dd($newRelevePments) ;
+
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
+        
         $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
             "reference" => "PAYE"
         ]) ;
@@ -1395,6 +1439,7 @@ class PrestationController extends AbstractController
         $lettreReleve = $this->appService->NumberToLetter($totalReleve) ;
 
         $parent = [
+            "id" => $contrat->getId(),
             "numContrat" => $contrat->getNumContrat(),
             "montantContrat" => $contrat->getMontantContrat(),
             "bailleur" => $contrat->getBailleur()->getNom(),
@@ -1402,15 +1447,28 @@ class PrestationController extends AbstractController
             "bail" => $contrat->getBail()->getNom(),
             "lieu" => $contrat->getLieuContrat(),
             "isCaution" => !empty($contrat->getCaution()),
+            
         ] ;
 
+        if(!empty($paramSearch))
+        {
+            $totalSearch = 0 ;
+            foreach ($newRelevePments as $newRelevePment) {
+                if($newRelevePment->datePaiement != "-")
+                    $totalSearch += $newRelevePment->montant ;
+            }
+
+            $lettreReleve = $this->appService->NumberToLetter($totalSearch) ;
+        }
+        
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
             if($contrat->getForfait()->getReference() == "FMOIS")
             {
                 $response = $this->renderView("prestations/location/loyer/paiementMensuel.html.twig",[
-                    "relevePaiements" => $relevePaiements,
+                    "relevePaiements" => $newRelevePments,
                     "lettreReleve" => $lettreReleve,
+                    "totalRelevePayee" => $totalRelevePayee 
                 ]) ;
             } 
         }
@@ -1419,8 +1477,9 @@ class PrestationController extends AbstractController
             if($contrat->getForfait()->getReference() == "FJOUR")
             {
                 $response = $this->renderView("prestations/location/loyer/paiementJournaliere.html.twig",[
-                    "relevePaiements" => $relevePaiements,
+                    "relevePaiements" => $newRelevePments,
                     "lettreReleve" => $lettreReleve,
+                    "totalRelevePayee" => $totalRelevePayee 
                 ]) ;
             }
         } 
@@ -1431,7 +1490,13 @@ class PrestationController extends AbstractController
                 "relevePaiements" => $relevePaiements,
                 "lettreReleve" => $lettreReleve,
                 "parentContrat" => $parent,
+                "totalRelevePayee" => $totalRelevePayee 
             ]) ;
+        }
+
+        if(!empty($paramSearch))
+        {
+            return new Response($response) ;
         }
 
         return $this->render('prestations/location/detailsReleveContrat.html.twig', [
@@ -1440,6 +1505,7 @@ class PrestationController extends AbstractController
             "with_foot" => true,
             "contrat" => $parent,
             "template" => $response,
+            "currentYear" => intval(date("Y"))
         ]);
     }
 
@@ -1802,19 +1868,11 @@ class PrestationController extends AbstractController
     #[Route('/prestation/location/paiement/search', name: 'prest_location_paiement_search')]
     public function prestSearchPaiementLocation(Request $request)
     {
-        $jour= $request->request->get("jour") ;
-        $mois= $request->request->get("mois") ;
-        $annee= $request->request->get("annee") ;
+        $id = $this->appService->encodeChiffre($request->request->get("id")) ;
 
-        // $randomNumber = mt_rand(0, 1);
-        // if ($randomNumber === 0) {
-        //     trigger_error("Erreur", E_USER_ERROR);
-        // } else {
-        //     trigger_error("Avertissement", E_USER_WARNING);
-        // }
+        $annee = $request->request->get("annee") ;
 
-        dd($request->server) ;
-        return new Response("") ;
+        return $this->prestReleveLoyerContratLocation($id,["annee" => $annee]) ;
     }
 }
 

@@ -1279,15 +1279,14 @@ $(document).ready(function(){
     })
 
     function recherchePaiement(){
-        var jour = $("#prest_ctr_critere_jour").val()
-        var mois = $("#prest_ctr_critere_mois").val()
         var annee = $("#prest_ctr_critere_annee").val()
+        var id = $("#prest_ctr_critere_id").val()
 
         var formData = new FormData() ;
-        formData.append("jour",jour) ;
-        formData.append("mois",mois) ;
         formData.append("annee",annee) ;
-        var realinstance = instance.loading()
+        formData.append("id",id) ;
+
+        $("#contentTemplate").html(instance.otherSearch())
         $.ajax({
             url: routes.prest_location_paiement_search,
             type:'post',
@@ -1297,35 +1296,17 @@ $(document).ready(function(){
             processData: false,
             contentType: false,
             success: function(response){
-                realinstance.close()
-                $.alert({
-                    title: 'Message',
-                    content: json.message,
-                    type: json.type,
-                    buttons: {
-                        OK: function(){
-                            if(json.type == "green")
-                            {
-                                location.reload()
-                            }
-                        }
-                    }
-                });
+                $("#contentTemplate").html(response)
             },
             error: function(resp){
-                realinstance.close()
+                $("#contentTemplate").html(resp)
                 $.alert(JSON.stringify(resp)) ;
             }
         })
     }
 
-    $("#prest_ctr_critere_jour").keyup(function(){
-        recherchePaiement() ;
-    })
-    $("#prest_ctr_critere_mois").change(function(){
-        recherchePaiement() ;
-    })
-    $("#prest_ctr_critere_annee").keyup(function(){
+
+    $("#prest_ctr_critere_annee").change(function(){
         recherchePaiement() ;
     })
 })

@@ -39,10 +39,6 @@
         <h5 class="title_form text-black text-uppercase mt-4">Critère de recherche</h5>
         <div class="row">
             {# <div class="col-md-2">
-                <label for="prest_ctr_critere_jour" class="font-weight-bold">Jour</label>
-                <input type="number" name="prest_ctr_critere_jour" id="prest_ctr_critere_jour" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-2">
                 <label for="prest_ctr_critere_mois" class="font-weight-bold">Mois</label>
                 {% set idMois = 1 %}
                 <select name="prest_ctr_critere_mois" class="custom-select custom-select-sm chosen_select" id="prest_ctr_critere_mois">
@@ -54,15 +50,24 @@
                 </select>
             </div> #}
             <div class="col-md-3">
+            {% set nbIteration = (currentYear + 4) - 2001 %}
                 <label for="prest_ctr_critere_annee" class="font-weight-bold">Année</label>
-                <input type="number" name="prest_ctr_critere_annee" id="prest_ctr_critere_annee" value="{{ 'now'|date('Y') }}" class="form-control" placeholder=". . .">
+                <select name="prest_ctr_critere_annee" class="custom-select custom-select-sm chosen_select prest_ctr_critere_annee" id="prest_ctr_critere_annee">
+                    <option value="">-</option>
+                    {% for i in 1.. nbIteration  %}
+                        <option value="{{ 2000 + i }}" {{ currentYear == 2000 + i ? "selected" : "" }} >{{ 2000 + i }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="prest_ctr_critere_id" id="prest_ctr_critere_id" value="{{ contrat.id }}" >
             </div>
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="prest_ctr_critere_annee" class="font-weight-bold">&nbsp;</label>
                 <button class="btn btn-sm btn-success btn-block"><i class="fa fa-file-excel"></i>&nbsp;Exporter en Excel</button>
-            </div>
+            </div> #}
         </div>
-        {{ template | raw }}
+        <div id="contentTemplate" class="w-100">
+            {{ template | raw }}
+        </div>
         <div class="row mt-3">
             <div class="col-md-7"></div>
             <div class="col-md-5"> 
