@@ -2158,7 +2158,7 @@ class AppService extends AbstractController
                 if(!is_null($moisExist))
                     $mois = $moisExist ;
             }
-            else if($mois == (12 + 1))
+            else if( $mois >= 12 )
             {
                 $mois = 1 ;
                 // return $tableauDates;
