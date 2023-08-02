@@ -2156,9 +2156,19 @@ class AppService extends AbstractController
             {
                 $mois = intval(explode("/",$dateApresNJours)[1]); 
                 if(!is_null($moisExist))
-                    $mois = $moisExist ;
+                {
+                    if( $mois >= 12 )
+                    {
+                        $mois = 1 ;
+                    }
+                    else
+                    {
+                        $mois = $moisExist ;
+                    }
+                }
+                    
             }
-            else if( $mois >= 12 )
+            else if( $mois >= 12 + 1 )
             {
                 $mois = 1 ;
                 // return $tableauDates;
