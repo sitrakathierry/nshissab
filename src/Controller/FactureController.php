@@ -1128,7 +1128,11 @@ class FactureController extends AbstractController
                 }
 
                 for ($i=0; $i < count($tableauMois); $i++) { 
-
+                    if($i == 0)
+                    {
+                        $premierAnnee = explode("/",$tableauMois[$i]["finLimite"])[2] ;
+                        $tableauMois[$i]["annee"] = $premierAnnee ;
+                    }
                     if ($i + 1 < $count && $tableauMois[$i]["indexMois"] > $tableauMois[$i + 1]["indexMois"]) {
                         $tableauMois[$i + 1]["annee"] = $tableauMois[$i]["annee"] + 1;
                     } 
