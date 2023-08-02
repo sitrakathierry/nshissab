@@ -1090,10 +1090,12 @@ class FactureController extends AbstractController
                     $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
                 }
 
+                $frequence = is_null($contrat->getFrequenceRenouv()) ? 1 : $contrat->getFrequenceRenouv() ;
+
                 if($contrat->getPeriode()->getReference() == "M")
-                    $duree = $contrat->getDuree() ;  
+                    $duree = $contrat->getDuree() * $frequence;  
                 else if($contrat->getPeriode()->getReference() == "A")
-                    $duree = $contrat->getDuree() * 12 ; 
+                    $duree = $contrat->getDuree() * 12 * $frequence; 
                 
                 $duree -= $moisEcoule ;
 
@@ -1112,8 +1114,8 @@ class FactureController extends AbstractController
                 
                 $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(), $moisExist) ;
                 
-                dd($tableauMois) ;
-                
+                dd($tableauMois,$duree,$dateGenere) ;
+
                 $count = count($tableauMois);
                 
                 if(!empty($elemExistant))
