@@ -1382,44 +1382,44 @@ $(document).ready(function(){
 
     elemSearch.forEach(elem => {
         $(document).on(elem.action,elem.selector,function(){
-            if(elem.selector == "#location_search_bailleur" )
-            {
-                $("#location_search_bail").val("") ;
-                $("#location_search_bail").trigger("chosen:updated")
-            }
+            // if(elem.selector == "#location_search_bailleur" )
+            // {
+            //     $("#location_search_bail").val("") ;
+            //     $("#location_search_bail").trigger("chosen:updated")
+            // }
             searchContrat()
-            if(elem.selector == "#location_search_bailleur" )
-            {
-                // var realinstance = instance.loading()
-                var self = $(this)
-                $.ajax({
-                    url: routes.prest_location_bailleur_get,
-                    type:'post',
-                    cache: false,
-                    data:{id:self.val()},
-                    dataType: 'json',
-                    success: function(json){
-                        // realinstance.close()
-                        var options = '<option value="">TOUS</option>'
-                        for (let i = 0; i < json.bails.length; i++) {
-                            const element = json.bails[i];
-                            options += '<option value="'+element.id+'">'+(element.nom).toUpperCase()+' | '+(element.lieu).toUpperCase()+'</option>'
-                        }
+            // if(elem.selector == "#location_search_bailleur" )
+            // {
+            //     // var realinstance = instance.loading()
+            //     var self = $(this)
+            //     $.ajax({
+            //         url: routes.prest_location_bailleur_get,
+            //         type:'post',
+            //         cache: false,
+            //         data:{id:self.val()},
+            //         dataType: 'json',
+            //         success: function(json){
+            //             // realinstance.close()
+            //             var options = '<option value="">TOUS</option>'
+            //             for (let i = 0; i < json.bails.length; i++) {
+            //                 const element = json.bails[i];
+            //                 options += '<option value="'+element.id+'">'+(element.nom).toUpperCase()+' | '+(element.lieu).toUpperCase()+'</option>'
+            //             }
 
-                        if($("#location_search_bail").is("select"))
-                        {
-                            $("#location_search_bail").html(options) ;
-                            $("#location_search_bail").trigger("chosen:updated")
-                        }
+            //             if($("#location_search_bail").is("select"))
+            //             {
+            //                 $("#location_search_bail").html(options) ;
+            //                 $("#location_search_bail").trigger("chosen:updated")
+            //             }
 
-                        // $("#location_search_bail").change() ;
-                    },
-                    error: function(resp){
-                        // realinstance.close()
-                        $.alert(JSON.stringify(resp)) ;
-                    }
-                })
-            }
+            //             // $("#location_search_bail").change() ;
+            //         },
+            //         error: function(resp){
+            //             // realinstance.close()
+            //             $.alert(JSON.stringify(resp)) ;
+            //         }
+            //     })
+            // }
         })
     })
 

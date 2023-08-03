@@ -1644,6 +1644,36 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($tabContrats)) ;
     }
 
+    public function generateLocationBails($filename, $agence)
+    {
+        $bailleurs = $this->entityManager->getRepository(LctBailleur::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,
+        ]) ;
+
+        $tabBails = [] ;
+            
+        foreach ($bailleurs as $bailleur) {
+            $bails = $this->entityManager->getRepository(LctBail::class)->findBy([
+                "bailleur" => $bailleur,
+                "statut" => True,
+            ]) ;
+            if(is_null($bails))
+                continue ;
+            foreach($bails as $bail) {
+                $myitem = [] ;
+
+                $myitem["id"] = $bail->getId() ; 
+                $myitem["nom"] = $bail->getNom() ; 
+                $myitem["adresse"] = $bail->getLieux() ; 
+
+                array_push($tabBails,$myitem) ;
+            }
+        }
+
+        file_put_contents($filename,json_encode($tabBails)) ;
+    }
+
     public function generateCmpBanque($filename, $agence) 
     {
         $banques = $this->entityManager->getRepository(CmpBanque::class)->findBy([

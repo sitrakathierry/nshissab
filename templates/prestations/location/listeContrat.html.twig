@@ -26,7 +26,7 @@
                 <select name="location_search_numContrat" class="custom-select chosen_select custom-select-sm" id="location_search_numContrat">
                     <option value="">TOUS</option>
                     {% for contrat in contrats %}
-                        <option value="{{contrat.id}}">{{contrat.numContrat}} | {{contrat.bail|upper}}</option>
+                        <option value="{{contrat.id}}">{{contrat.numContrat}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -43,7 +43,9 @@
                 <label for="location_search_bail" class="font-weight-bold text-uppercase">Bail</label>
                 <select name="location_search_bail" class="custom-select chosen_select custom-select-sm" id="location_search_bail">
                     <option value="">TOUS</option>
-                    
+                    {% for bail in bails %}
+                        <option value="{{bail.id}}">{{bail.nom|upper}} | {{bail.adresse|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">

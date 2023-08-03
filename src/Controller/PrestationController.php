@@ -629,6 +629,11 @@ class PrestationController extends AbstractController
         $this->entityManager->persist($bail) ;
         $this->entityManager->flush() ;
 
+        $filename = $this->filename."location/bail(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
         return new JsonResponse($result) ;
     }
 
@@ -690,11 +695,19 @@ class PrestationController extends AbstractController
 
         $statuts = $this->entityManager->getRepository(LctStatut::class)->findAll() ;
 
+        $filename = $this->filename."location/bail(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationBails($filename, $this->agence) ; 
+
+        $tabBails = json_decode(file_get_contents($filename)) ;
+
         return $this->render('prestations/location/listeContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Liste des contrats",
             "with_foot" => false,
             "contrats" => $contrats,
+            "bails" => $tabBails,
             "bailleurs" => $bailleurs,
             "locataires" => $locataires,
             "statuts" => $statuts,
@@ -703,13 +716,6 @@ class PrestationController extends AbstractController
     
     #[Route('/prestation/location/contrat/commission', name: 'prest_location_contrat_commissions')]
     public function prestLocationCommissionContrat(){
-        // $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
-
-        // if(!file_exists($filename))
-        //     $this->appService->generateLocationContrat($filename, $this->agence) ; 
-
-        // $contrats = json_decode(file_get_contents($filename)) ;
-
         $filename = $this->filename."location/commission(agence)/".$this->nameAgence ;
 
         if(!file_exists($filename))
@@ -717,32 +723,12 @@ class PrestationController extends AbstractController
 
         $tabCommissions = json_decode(file_get_contents($filename)) ;
 
-        // dd($tabCommissions) ;
+        $filename = $this->filename."location/bail(agence)/".$this->nameAgence ;
 
-        $bailleurs = $this->entityManager->getRepository(LctBailleur::class)->findBy([
-                "agence" => $this->agence,
-                "statut" => True,
-            ]) ;
-        
-        $tabBails = [] ;
+        if(!file_exists($filename))
+            $this->appService->generateLocationBails($filename, $this->agence) ; 
 
-        foreach ($bailleurs as $bailleur) {
-            $bails = $this->entityManager->getRepository(LctBail::class)->findBy([
-                "bailleur" => $bailleur,
-                "statut" => True,
-            ]) ;
-            if(is_null($bails))
-                continue ;
-            foreach($bails as $bail) {
-                $myitem = [] ;
-
-                $myitem["id"] = $bail->getId() ; 
-                $myitem["nom"] = $bail->getNom() ; 
-                $myitem["adresse"] = $bail->getLieux() ; 
-
-                array_push($tabBails,$myitem) ;
-            }
-        }
+        $tabBails = json_decode(file_get_contents($filename)) ;
 
         $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
 

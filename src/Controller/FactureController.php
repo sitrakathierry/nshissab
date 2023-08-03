@@ -1383,6 +1383,11 @@ class FactureController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        $filename = $this->filename."location/commission(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
         return new JsonResponse($result) ;
     }
 }
