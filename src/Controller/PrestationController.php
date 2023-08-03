@@ -1177,6 +1177,21 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        $filename = $this->filename."location/commission(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
         $indcCaution = !is_null($prest_ctr_bail_caution) ? "AVEC" : "SANS" ;
         return new JsonResponse([
             "type" => "green",
