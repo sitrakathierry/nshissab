@@ -29,6 +29,7 @@ use App\Entity\LctBail;
 use App\Entity\LctBailleur;
 use App\Entity\LctContrat;
 use App\Entity\LctLocataire;
+use App\Entity\LctPaiement;
 use App\Entity\LctRepartition;
 use App\Entity\LctStatutLoyer;
 use App\Entity\LvrDetails;
@@ -1484,8 +1485,11 @@ class AppService extends AbstractController
             $item["numContrat"] = $contrat->getNumContrat() ;
             $item["dateContrat"] = $contrat->getDateContrat()->format("d/m/Y") ;
             $item["bailleur"] = $contrat->getBailleur()->getNom() ;
+            $item["bailleurId"] = $contrat->getBailleur()->getId() ;
             $item["bail"] = $contrat->getBail()->getNom() ;
+            $item["bailId"] = $contrat->getBail()->getId() ;
             $item["locataire"] = $contrat->getLocataire()->getNom() ;
+            $item["locataireId"] = $contrat->getLocataire()->getId() ;
             $item["cycle"] = $contrat->getCycle()->getNom() ;
             $item["dateDebut"] = $contrat->getDateDebut()->format("d/m/Y") ;
             $item["dateFin"] = $contrat->getDateFin()->format("d/m/Y") ;
@@ -1498,6 +1502,146 @@ class AppService extends AbstractController
         }
 
         file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateLctCommisionContrat($filename, $agence)
+    {
+        $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
+            "agence" => $agence,
+            "statutGen" => True,
+        ]) ;
+
+        $tabContrats = [] ;
+
+            foreach ($contrats as $contrat) {
+                if((is_null($contrat->getPourcentage()) || empty($contrat->getPourcentage())) || $contrat->getStatut()->getReference() != "ENCR")
+                    continue ;
+
+                if($contrat->getForfait()->getReference() == "FORFAIT")
+                {
+                    if($contrat->getPeriode()->getReference() == "J")
+                {
+                    $periode = " Jour(s)" ;
+                }
+                if($contrat->getPeriode()->getReference() == "M")
+                {
+                    $periode = " Mois" ;
+                }
+                else if($contrat->getPeriode()->getReference() == "A")
+                {
+                    $periode = " An(s)" ;
+                }
+
+                $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy(["contrat" => $contrat], ['id' => 'DESC']);
+                $datePaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getDate()->format("d/m/Y")) : "-" ;
+                
+                $elemC = [] ;
+
+                $elemC["id"] = $contrat->getId() ;
+                $elemC["numContrat"] = $contrat->getNumContrat() ;
+                $elemC["bail"] = $contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+                $elemC["bailId"] = $contrat->getBail()->getId() ;
+                $elemC["locataire"] = $contrat->getLocataire()->getNom() ;
+                $elemC["locataireId"] = $contrat->getLocataire()->getId() ;
+                $elemC["cycle"] = $contrat->getCycle()->getNom() ;
+                $elemC["duree"] = $contrat->getDuree().$periode ;
+                $elemC["datePaiement"] = $datePaiement ;
+                $elemC["commission"] = ($contrat->getMontantContrat() * $contrat->getPourcentage()) / 100;
+
+                array_push($tabContrats,$elemC) ;
+
+                continue ;
+            }
+
+            $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+                "contrat" => $contrat 
+            ]) ;
+    
+            $childs = [] ;
+            
+            $totalReleve = 0 ;
+    
+            foreach ($repartitions as $repartition) {
+                $item = [] ;
+    
+                $statutRepart = $repartition->getStatut()->getReference() ; 
+                if($statutRepart == "CAUTION")
+                    continue ;
+    
+                $item["dateDebut"] = is_null($repartition->getDateDebut()) ? "NONE" : $repartition->getDateDebut()->format("d/m/Y") ;
+                $item["montant"] = $repartition->getMontant() ;
+                $item["statut"] = $repartition->getStatut()->getReference() ;
+
+                $totalReleve += $repartition->getMontant() ; 
+                array_push($childs,$item) ;
+            }
+    
+            $resultat = array_reduce($childs, function($carry, $contenu) {
+                $dateDebut = $contenu['dateDebut'];
+                
+                if (!isset($carry[$dateDebut])) {
+                    $carry[$dateDebut] = $contenu;
+                } else {
+                    $carry[$dateDebut]['montant'] += $contenu['montant'];
+                }
+                
+                return $carry;
+            }, []);
+            
+            $childs = array_values($resultat); 
+            $newChilds = [] ;
+            
+            foreach ($childs as $child) {
+                $elem = [] ;
+                
+                $elem["dateDebut"] = $child["dateDebut"] ;
+                $elem["montant"] = $child["montant"] ;
+                
+                if($child["montant"] == $contrat->getMontantForfait())
+                {
+                    array_push($newChilds,$elem) ;
+                }
+                
+            }
+
+            $commission = 0 ;
+            foreach ($newChilds as $newChild) {
+                $commission += ($newChild["montant"] * $contrat->getPourcentage()) / 100 ;
+            }
+
+            if($contrat->getPeriode()->getReference() == "J")
+            {
+                $periode = " Jour(s)" ;
+            }
+            if($contrat->getPeriode()->getReference() == "M")
+            {
+                $periode = " Mois" ;
+            }
+            else if($contrat->getPeriode()->getReference() == "A")
+            {
+                $periode = " An(s)" ;
+            }
+
+            $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy(["contrat" => $contrat], ['id' => 'DESC']);
+            $datePaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getDate()->format("d/m/Y")) : "-" ;
+            
+            $elemC = [] ;
+
+            $elemC["id"] = $contrat->getId() ;
+            $elemC["numContrat"] = $contrat->getNumContrat() ;
+            $elemC["bail"] = $contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
+            $elemC["bailId"] = $contrat->getBail()->getId() ;
+            $elemC["locataire"] = $contrat->getLocataire()->getNom() ;
+            $elemC["locataireId"] = $contrat->getLocataire()->getId() ;
+            $elemC["cycle"] = $contrat->getCycle()->getNom() ;
+            $elemC["duree"] = $contrat->getDuree().$periode ;
+            $elemC["datePaiement"] = $datePaiement ;
+            $elemC["commission"] = $commission ;
+
+            array_push($tabContrats,$elemC) ;
+        }
+
+        file_put_contents($filename,json_encode($tabContrats)) ;
     }
 
     public function generateCmpBanque($filename, $agence) 

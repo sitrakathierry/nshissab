@@ -10,6 +10,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/location.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -19,24 +20,30 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">N° Contrat</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                <label for="location_com_search_numContrat" class="font-weight-bold text-uppercase">N° Contrat</label>
+                <select name="location_com_search_numContrat" class="custom-select chosen_select custom-select-sm" id="location_com_search_numContrat">
                     <option value="">TOUS</option>
-                    
+                    {% for contrat in contrats %}
+                        <option value="{{contrat.id}}">{{contrat.numContrat}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bail</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                <label for="location_com_search_bail" class="font-weight-bold text-uppercase">Bail</label>
+                <select name="location_com_search_bail" class="custom-select chosen_select custom-select-sm" id="location_com_search_bail">
                     <option value="">TOUS</option>
-                    
+                    {% for bail in bails %}
+                        <option value="{{bail.id}}">{{bail.nom|upper}} | {{bail.adresse|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Locataire</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                <label for="location_com_search_locataire" class="font-weight-bold text-uppercase">Locataire</label>
+                <select name="location_com_search_locataire" class="custom-select chosen_select custom-select-sm" id="location_com_search_locataire">
                     <option value="">TOUS</option>
-                    
+                    {% for locataire in locataires %}
+                        <option value="{{locataire.id}}">{{locataire.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
@@ -54,7 +61,7 @@
                         {# <th></th> #}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_commission">
                 {% set totalCommission = 0 %}
                     {% for contrat in contrats %}
                         <tr>
@@ -77,13 +84,11 @@
                         </tr>
                         {% set totalCommission = totalCommission + contrat.commission  %}
                     {% endfor %}
-                </tbody>
-                <tfoot>
                     <tr>
                         <th colspan="6" >Montant Total</th>
                         <th class="text-white bg-primary">{{totalCommission}}</th>
                     </tr>
-                </tfoot>
+                </tbody>
             </table>
         </div>
 

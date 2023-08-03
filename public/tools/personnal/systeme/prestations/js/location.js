@@ -3,6 +3,10 @@ $(document).ready(function(){
     var appBase = new AppBase() ;
     var contrat_editor = new LineEditor("#contrat_editor") ;
 
+    $("#location_search_dateContrat").datepicker() ;
+    $("#location_search_dateDebut").datepicker() ;
+    $("#location_search_dateFin").datepicker() ;
+
     $("#prest_ctr_date_debut").datepicker()
 
     $("#formBailleur").submit(function(){
@@ -181,7 +185,6 @@ $(document).ready(function(){
         })
     })
     
-
     $(document).on('click',"#prest_ctr_new_prop",function(){
         if(!$(this).attr("disabled"))
         {
@@ -402,6 +405,7 @@ $(document).ready(function(){
     var montantAllMois = 0 ;
     var nbSpecJour = 0 ;
     var dateFinAll = "" ;
+
     function calculMontantJourMois(dateMois, montant)
     {
         var resultDateAFin = appBase.calculerDureeEnJours(dateMois,1) ;
@@ -1305,8 +1309,169 @@ $(document).ready(function(){
         })
     }
 
-
     $("#prest_ctr_critere_annee").change(function(){
         recherchePaiement() ;
+    })
+
+    var elemSearch = [
+        {
+            name: "dateContrat",
+            action:"change",
+            selector : "#location_search_dateContrat"
+        },
+        {
+            name: "dateDebut",
+            action:"change",
+            selector : "#location_search_dateDebut"
+        },
+        {
+            name: "dateFin",
+            action:"change",
+            selector : "#location_search_dateFin"
+        },
+        {
+            name: "id",
+            action:"change",
+            selector : "#location_search_numContrat"
+        },
+        {
+            name: "bailleurId",
+            action:"change",
+            selector : "#location_search_bailleur"
+        },
+        {
+            name: "bailId",
+            action:"change",
+            selector : "#location_search_bail"
+        },
+        {
+            name: "locataireId",
+            action:"change",
+            selector : "#location_search_locataire"
+        },
+        {
+            name: "refStatut",
+            action:"change",
+            selector : "#location_search_statut"
+        }
+    ]
+
+    function searchContrat()
+    {
+        var instance = new Loading(files.search) ;
+        $(".elem_contrat").html(instance.search(13)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemSearch.length; j++) {
+            const search = elemSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+
+        $.ajax({
+            url: routes.prest_location_contrat_search_items ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, 
+            contentType: false, 
+            success: function(response){
+                $(".elem_contrat").html(response) ;
+            }
+        })
+    }
+
+    elemSearch.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            if(elem.selector == "#location_search_bailleur" )
+            {
+                $("#location_search_bail").val("") ;
+                $("#location_search_bail").trigger("chosen:updated")
+            }
+            searchContrat()
+            if(elem.selector == "#location_search_bailleur" )
+            {
+                // var realinstance = instance.loading()
+                var self = $(this)
+                $.ajax({
+                    url: routes.prest_location_bailleur_get,
+                    type:'post',
+                    cache: false,
+                    data:{id:self.val()},
+                    dataType: 'json',
+                    success: function(json){
+                        // realinstance.close()
+                        var options = '<option value="">TOUS</option>'
+                        for (let i = 0; i < json.bails.length; i++) {
+                            const element = json.bails[i];
+                            options += '<option value="'+element.id+'">'+(element.nom).toUpperCase()+' | '+(element.lieu).toUpperCase()+'</option>'
+                        }
+
+                        if($("#location_search_bail").is("select"))
+                        {
+                            $("#location_search_bail").html(options) ;
+                            $("#location_search_bail").trigger("chosen:updated")
+                        }
+
+                        // $("#location_search_bail").change() ;
+                    },
+                    error: function(resp){
+                        // realinstance.close()
+                        $.alert(JSON.stringify(resp)) ;
+                    }
+                })
+            }
+        })
+    })
+
+    $(".search_vider").click(function(){
+        searchContrat()
+    })
+
+    var elemComSearch = [
+        {
+            name: "id",
+            action:"change",
+            selector : "#location_com_search_numContrat"
+        },
+        {
+            name: "bailId",
+            action:"change",
+            selector : "#location_com_search_bail"
+        },
+        {
+            name: "locataireId",
+            action:"change",
+            selector : "#location_com_search_locataire"
+        },
+    ]
+
+    function searchCommission()
+    {
+        var instance = new Loading(files.search) ;
+        $(".elem_commission").html(instance.search(7)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemComSearch.length; j++) {
+            const search = elemComSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+
+        $.ajax({
+            url: routes.prest_location_commission_search_items ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, 
+            contentType: false, 
+            success: function(response){
+                $(".elem_commission").html(response) ;
+            }
+        })
+    }
+
+    elemComSearch.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            searchCommission()
+        })
     })
 })

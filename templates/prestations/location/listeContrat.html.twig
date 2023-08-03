@@ -22,44 +22,76 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">N° Contrat</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                <label for="location_search_numContrat" class="font-weight-bold text-uppercase">N° Contrat</label>
+                <select name="location_search_numContrat" class="custom-select chosen_select custom-select-sm" id="location_search_numContrat">
+                    <option value="">TOUS</option>
+                    {% for contrat in contrats %}
+                        <option value="{{contrat.id}}">{{contrat.numContrat}} | {{contrat.bail|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="location_search_bailleur" class="font-weight-bold text-uppercase">Bailleur</label>
+                <select name="location_search_bailleur" class="custom-select chosen_select custom-select-sm" id="location_search_bailleur">
+                    <option value="">TOUS</option>
+                    {% for bailleur in bailleurs %}
+                        <option value="{{bailleur.id}}">{{bailleur.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="location_search_bail" class="font-weight-bold text-uppercase">Bail</label>
+                <select name="location_search_bail" class="custom-select chosen_select custom-select-sm" id="location_search_bail">
                     <option value="">TOUS</option>
                     
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bailleur</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                <label for="location_search_locataire" class="font-weight-bold text-uppercase">Locataire</label>
+                <select name="location_search_locataire" class="custom-select chosen_select custom-select-sm" id="location_search_locataire">
                     <option value="">TOUS</option>
-                    
+                    {% for locataire in locataires %}
+                        <option value="{{locataire.id}}">{{locataire.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Bail</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
+                <label for="location_search_dateContrat" class="font-weight-bold text-uppercase mt-3">Date Contrat</label>
+                <div class="input-group">
+                    <input type="text" name="location_search_dateContrat" id="location_search_dateContrat" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary search_vider font-smaller" type="button" onclick="document.querySelector('#location_search_dateContrat').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="location_search_dateDebut" class="font-weight-bold text-uppercase mt-3">Date Début</label>
+                <div class="input-group">
+                    <input type="text" name="location_search_dateDebut" id="location_search_dateDebut" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary search_vider font-smaller" type="button" onclick="document.querySelector('#location_search_dateDebut').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="location_search_dateFin" class="font-weight-bold text-uppercase mt-3">Date Fin</label>
+                <div class="input-group">
+                    <input type="text" name="location_search_dateFin" id="location_search_dateFin" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary search_vider font-smaller" type="button" onclick="document.querySelector('#location_search_dateFin').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="location_search_statut" class="font-weight-bold text-uppercase mt-3">Statut Contrat</label>
+                <select name="location_search_statut" class="custom-select chosen_select custom-select-sm" id="location_search_statut">
                     <option value="">TOUS</option>
-                    
+                    {% for statut in statuts %}
+                        {% if statut.reference != "RNV" and statut.reference != "DEL"  %}
+                            <option value="{{statut.reference}}">{{statut.nom|upper}}</option>
+                        {% endif %}
+                    {% endfor %}
                 </select>
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase">Locataire</label>
-                <select name="fact_search_num" class="custom-select chosen_select custom-select-sm" id="fact_search_num">
-                    <option value="">TOUS</option>
-                    
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Contrat</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Début</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="fact_search_num" class="font-weight-bold text-uppercase mt-3">Date Fin</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
             </div>
         </div>
         <div class="table-responsive mt-4">
@@ -81,7 +113,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_contrat">
                     {% for contrat in contrats %}
                         {% if contrat.refStatut == "ENCR" %}
                             {% set statutClass = "text-success" %}

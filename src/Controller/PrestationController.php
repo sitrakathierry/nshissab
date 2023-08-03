@@ -672,13 +672,32 @@ class PrestationController extends AbstractController
 
         $contrats = json_decode(file_get_contents($filename)) ;
 
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationBailleur($filename, $this->agence) ; 
+
+        $bailleurs = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        $locataires = json_decode(file_get_contents($filename)) ;
+
         $this->prestService->checkContrat($this->entityManager, $this) ;
+
+        $statuts = $this->entityManager->getRepository(LctStatut::class)->findAll() ;
 
         return $this->render('prestations/location/listeContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Liste des contrats",
             "with_foot" => false,
-            "contrats" => $contrats
+            "contrats" => $contrats,
+            "bailleurs" => $bailleurs,
+            "locataires" => $locataires,
+            "statuts" => $statuts,
         ]);
     }
     
@@ -691,142 +710,54 @@ class PrestationController extends AbstractController
 
         // $contrats = json_decode(file_get_contents($filename)) ;
 
-        $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
-            "agence" => $this->agence,
-            "statutGen" => True,
-        ]) ;
+        $filename = $this->filename."location/commission(agence)/".$this->nameAgence ;
 
-        $tabContrats = [] ;
+        if(!file_exists($filename))
+            $this->appService->generateLctCommisionContrat($filename,$this->agence) ;
 
-            foreach ($contrats as $contrat) {
-                if((is_null($contrat->getPourcentage()) || empty($contrat->getPourcentage())) || $contrat->getStatut()->getReference() != "ENCR")
-                    continue ;
+        $tabCommissions = json_decode(file_get_contents($filename)) ;
 
-                if($contrat->getForfait()->getReference() == "FORFAIT")
-                {
-                    if($contrat->getPeriode()->getReference() == "J")
-                {
-                    $periode = " Jour(s)" ;
-                }
-                if($contrat->getPeriode()->getReference() == "M")
-                {
-                    $periode = " Mois" ;
-                }
-                else if($contrat->getPeriode()->getReference() == "A")
-                {
-                    $periode = " An(s)" ;
-                }
+        // dd($tabCommissions) ;
 
-                $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy(["contrat" => $contrat], ['id' => 'DESC']);
-                $datePaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getDate()->format("d/m/Y")) : "-" ;
-                
-
-                $elemC = [] ;
-
-                $elemC["numContrat"] = $contrat->getNumContrat() ;
-                $elemC["bail"] = $contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-                $elemC["locataire"] = $contrat->getLocataire()->getNom() ;
-                $elemC["cycle"] = $contrat->getCycle()->getNom() ;
-                $elemC["duree"] = $contrat->getDuree().$periode ;
-                $elemC["datePaiement"] = $datePaiement ;
-                $elemC["commission"] = ($contrat->getMontantContrat() * $contrat->getPourcentage()) / 100;
-
-                array_push($tabContrats,$elemC) ;
-
-                continue ;
-            }
-
-            $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-                "contrat" => $contrat 
+        $bailleurs = $this->entityManager->getRepository(LctBailleur::class)->findBy([
+                "agence" => $this->agence,
+                "statut" => True,
             ]) ;
-    
-            $childs = [] ;
-            
-            $totalReleve = 0 ;
-    
-            foreach ($repartitions as $repartition) {
-                $item = [] ;
-    
-                $statutRepart = $repartition->getStatut()->getReference() ; 
-                if($statutRepart == "CAUTION")
-                    continue ;
-    
-                $item["dateDebut"] = is_null($repartition->getDateDebut()) ? "NONE" : $repartition->getDateDebut()->format("d/m/Y") ;
-                $item["montant"] = $repartition->getMontant() ;
-                $item["statut"] = $repartition->getStatut()->getReference() ;
+        
+        $tabBails = [] ;
 
-                $totalReleve += $repartition->getMontant() ; 
-                array_push($childs,$item) ;
+        foreach ($bailleurs as $bailleur) {
+            $bails = $this->entityManager->getRepository(LctBail::class)->findBy([
+                "bailleur" => $bailleur,
+                "statut" => True,
+            ]) ;
+            if(is_null($bails))
+                continue ;
+            foreach($bails as $bail) {
+                $myitem = [] ;
+
+                $myitem["id"] = $bail->getId() ; 
+                $myitem["nom"] = $bail->getNom() ; 
+                $myitem["adresse"] = $bail->getLieux() ; 
+
+                array_push($tabBails,$myitem) ;
             }
-    
-            $resultat = array_reduce($childs, function($carry, $contenu) {
-                $dateDebut = $contenu['dateDebut'];
-                
-                if (!isset($carry[$dateDebut])) {
-                    $carry[$dateDebut] = $contenu;
-                } else {
-                    $carry[$dateDebut]['montant'] += $contenu['montant'];
-                }
-                
-                return $carry;
-            }, []);
-            
-            $childs = array_values($resultat); 
-            $newChilds = [] ;
-            
-            foreach ($childs as $child) {
-                $elem = [] ;
-                
-                $elem["dateDebut"] = $child["dateDebut"] ;
-                $elem["montant"] = $child["montant"] ;
-                
-                if($child["montant"] == $contrat->getMontantForfait())
-                {
-                    array_push($newChilds,$elem) ;
-                }
-                
-            }
-
-            $commission = 0 ;
-            foreach ($newChilds as $newChild) {
-                $commission += ($newChild["montant"] * $contrat->getPourcentage()) / 100 ;
-            }
-
-            if($contrat->getPeriode()->getReference() == "J")
-            {
-                $periode = " Jour(s)" ;
-            }
-            if($contrat->getPeriode()->getReference() == "M")
-            {
-                $periode = " Mois" ;
-            }
-            else if($contrat->getPeriode()->getReference() == "A")
-            {
-                $periode = " An(s)" ;
-            }
-
-            $lastRecordPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy(["contrat" => $contrat], ['id' => 'DESC']);
-            $datePaiement = !is_null($lastRecordPaiement) ? ($lastRecordPaiement->getDate()->format("d/m/Y")) : "-" ;
-            
-
-            $elemC = [] ;
-
-            $elemC["numContrat"] = $contrat->getNumContrat() ;
-            $elemC["bail"] = $contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-            $elemC["locataire"] = $contrat->getLocataire()->getNom() ;
-            $elemC["cycle"] = $contrat->getCycle()->getNom() ;
-            $elemC["duree"] = $contrat->getDuree().$periode ;
-            $elemC["datePaiement"] = $datePaiement ;
-            $elemC["commission"] = $commission ;
-
-            array_push($tabContrats,$elemC) ;
         }
+
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        $locataires = json_decode(file_get_contents($filename)) ;
 
         return $this->render('prestations/location/listeCommissionContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Liste des commissions",
             "with_foot" => false,
-            "contrats" => $tabContrats
+            "contrats" => $tabCommissions,
+            "bails" => $tabBails,
+            "locataires" => $locataires,
         ]);
     }
 
@@ -1873,6 +1804,81 @@ class PrestationController extends AbstractController
         $annee = $request->request->get("annee") ;
 
         return $this->prestReleveLoyerContratLocation($id,["annee" => $annee]) ;
+    }
+
+    #[Route('/prestation/location/contrat/search/items', name: 'prest_location_contrat_search_items')]
+    public function prestLocationContratSearchItems(Request $request)
+    {
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationContrat($filename, $this->agence) ; 
+
+        $contrats = json_decode(file_get_contents($filename)) ;
+
+        $location_search_dateContrat = $request->request->get('dateContrat') ;
+        $location_search_dateDebut = $request->request->get('dateDebut') ;
+        $location_search_dateFin = $request->request->get('dateFin') ;
+        $location_search_numContrat = $request->request->get('id') ;
+        $location_search_bailleur = $request->request->get('bailleurId') ;
+        $location_search_bail = $request->request->get('bailId') ;
+        $location_search_locataire = $request->request->get('locataireId') ;
+        $location_search_statut = $request->request->get('refStatut') ;
+        
+        $search = [
+            "dateContrat" => $location_search_dateContrat,
+            "dateDebut" => $location_search_dateDebut,
+            "dateFin" => $location_search_dateFin,
+            "id" => $location_search_numContrat,
+            "bailleurId" => $location_search_bailleur,
+            "bailId" => $location_search_bail,
+            "locataireId" => $location_search_locataire,
+            "refStatut" => $location_search_statut,
+        ] ;
+
+        // foreach ($search as $key => $value) {
+        //     if($value == "undefined")
+        //     {
+        //         $search[$key] = "" ;
+        //     }
+        // } 
+
+        $contrats = $this->appService->searchData($contrats,$search) ;
+
+        $response = $this->renderView("prestations/location/searchContrat.html.twig", [
+            "contrats" => $contrats
+        ]) ;
+
+        return new Response($response) ; 
+    }
+
+    #[Route('/prestation/location/commission/search/items', name: 'prest_location_commission_search_items')]
+    public function prestLocationCommissionSearchItems(Request $request)
+    {
+        $filename = $this->filename."location/commission(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLctCommisionContrat($filename, $this->agence) ; 
+
+        $commissions = json_decode(file_get_contents($filename)) ;
+
+        $location_search_numContrat = $request->request->get('id') ;
+        $location_search_bail = $request->request->get('bailId') ;
+        $location_search_locataire = $request->request->get('locataireId') ;
+        
+        $search = [
+            "id" => $location_search_numContrat,
+            "bailId" => $location_search_bail,
+            "locataireId" => $location_search_locataire,
+        ] ;
+
+        $commissions = $this->appService->searchData($commissions,$search) ;
+
+        $response = $this->renderView("prestations/location/searchCommission.html.twig", [
+            "contrats" => $commissions
+        ]) ;
+
+        return new Response($response) ; 
     }
 }
 

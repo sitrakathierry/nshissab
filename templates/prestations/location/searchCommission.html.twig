@@ -1,0 +1,26 @@
+{% set totalCommission = 0 %}
+{% for contrat in contrats %}
+    <tr>
+        <td class="align-middle">{{contrat.numContrat}}</td>
+        <td class="align-middle">{{contrat.bail|upper}}</td>
+        <td class="align-middle">{{contrat.locataire|upper}}</td>
+        <td class="align-middle">{{contrat.cycle|upper}}</td>
+        <td class="align-middle">{{contrat.duree}}</td>
+        <td class="align-middle">{{contrat.datePaiement}}</td>
+        <td class="align-middle">{{contrat.commission}}</td>
+        {# <td class="text-center align-middle">
+            <div class="d-flex flex-column align-items-center justify-content-center p-2">
+                <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.id})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
+                <a href="{{path('prest_location_contrat_detail',{'id':contrat.id})}}" class="btn btn-sm mt-2 btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+            </div>
+        </td> #}
+    </tr>
+    <tr>
+        <th colspan="12" class="p-1 bg-light"> </th>
+    </tr>
+    {% set totalCommission = totalCommission + contrat.commission  %}
+{% endfor %}
+<tr>
+    <th colspan="6" >Montant Total</th>
+    <th class="text-white bg-primary">{{totalCommission}}</th>
+</tr>

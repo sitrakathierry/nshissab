@@ -51,7 +51,7 @@ $(document).ready(function(){
             action:"change",
             selector : "#date_mois"
         }
-    ]
+    ] 
     $("#fact_search_date").change(function(){
         var option = $(this).find("option:selected") ;
         var critere = option.data("critere") ;
