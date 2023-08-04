@@ -971,7 +971,9 @@ class AppService extends AbstractController
 
         $elements = [] ;
         $dataPreferences = json_decode(file_get_contents($filename)) ;
-
+        
+        if(empty($dataPreferences))
+            return [] ;
         foreach ($categories as $cat) {
             $exist = False;
             for ($i=0; $i < count($dataPreferences); $i++) { 
