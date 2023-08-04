@@ -41,6 +41,8 @@ use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdPreferences;
+use App\Entity\PrdType;
+use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
@@ -584,6 +586,7 @@ class AppService extends AbstractController
 
         foreach ($stockGenerales as $stockGeneral) {
             $element = [] ;
+
             $element["id"] = $stockGeneral->getId() ;
             $element["encodedId"] = $this->encodeChiffre($stockGeneral->getId()) ;
             $element["idC"] = $stockGeneral->getPreference()->getId() ;
@@ -593,10 +596,110 @@ class AppService extends AbstractController
             $element["stock"] = $stockGeneral->getStock() ;
             $element["tvaType"] = is_null($stockGeneral->getTvaType()) ? "-" : $stockGeneral->getTvaType()->getId() ;
             $element["agence"] = $stockGeneral->getAgence()->getId() ;
+            $element["type"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getId() ;
+
             array_push($elements,$element) ;
         }
 
         file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generatePrdVariationProduit($filename,$idProduit)
+    {
+        $produit = $this->entityManager->getRepository(Produit::class)->find($idProduit) ;
+
+        $variations = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+            "produit" => $produit
+        ]) ;
+
+        $elements = [] ;
+
+        foreach($variations as $variation)
+        {
+            $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                "variationPrix" => $variation
+            ]) ;
+
+            foreach($histoEntrepots as $histoEntrepot)
+            {
+                $indice = is_null($histoEntrepot->getIndice()) ? "-" : $histoEntrepot->getIndice() ;
+                $cle = $indice."|".$variation->getPrixVente() ;
+                if(isset($item[$cle]))
+                {
+                    $item[$cle]["stock"] += $histoEntrepot->getStock() ;
+                }
+                else
+                {
+                    $item[$cle] = [] ;
+    
+                    $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
+                    $item[$cle]["prix"] = $variation->getPrixVente() ;
+                    $item[$cle]["stock"] = $histoEntrepot->getStock() ;
+                    $item[$cle]["code"] = $produit->getCodeProduit()."/".$indice ;
+
+                    array_push($elements,$item[$cle]) ;
+                }
+            }
+
+        }
+        
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generatePrdType($filename, $agence)
+    {
+        $types = $this->entityManager->getRepository(PrdType::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+        
+        $elements = [] ;
+
+        foreach ($types as $type) {
+            $element = [] ;
+            $element["id"] = $type->getId() ;
+            $element["nom"] = $type->getNom() ;
+            $element["agence"] = $type->getAgence()->getId() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generatePrdStockType($filename,$agence)
+    {
+        $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+
+        $types = $this->entityManager->getRepository(PrdType::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+
+        $stocks = [] ;
+        $stocks["Non Assignee"]["stock"] = 0 ;
+        $stocks["Non Assignee"]["encodedId"] = "NA" ;
+
+        foreach ($types as $type) {
+            $stocks[$type->getNom()]["stock"] = 0 ;
+            $stocks[$type->getNom()]["encodedId"] = $this->encodeChiffre($type->getId()) ;
+        }
+
+        foreach ($stockGenerales as $stockGeneral) {
+            $stockType = $stockGeneral->getType() ;
+
+            if(is_null($stockType))
+            {
+                $stocks["Non Assignee"]["stock"] += $stockGeneral->getStock() ;
+            }
+            else
+            {
+                $stocks[$stockType->getNom()]["stock"]  += $stockGeneral->getStock() ;
+            }
+        }
+        file_put_contents($filename,json_encode($stocks)) ;
     }
 
     public function generateProduitParamTypeTva($path,$filename,$agence)

@@ -1,0 +1,94 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
+            {{titlePage}}&emsp;<span class="text-white px-2 py-1 rounded badge-warning">{{parent.type}}</span>
+            {# <a href="{{path('stock_general_excel_ticket')}}" class="btn-info btn-sm btn text-uppercase ml-auto font-smaller"><i class="fa fa-ticket"></i>&nbsp;Exporter tickets</a> #}
+        </h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Société</label>
+                <input type="text" name="societe" id="societe" class="form-control" value="{{parent.societe|upper}}" readonly>
+            </div>
+            <div class="col-md-3">
+                <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
+                <select name="search_categorie" class="custom-select search_categorie custom-select-sm" id="search_categorie">
+                    <option value="">TOUS</option>
+                    {% for categorie in categories %}
+                        <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="search_produit" class="mt-2 font-weight-bold text-uppercase">Désignation Produit</label>
+                <select name="search_produit" class="custom-select search_produit custom-select-sm" id="search_produit">
+                    <option value="">TOUS</option>
+                    {% for stockType in stockTypes %}
+                        <option value="{{stockType.id}}">{{stockType.codeProduit}} | {{stockType.nom}} | stock : {{stockType.stock}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {# <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
+            </div> #}
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Code Produit</th>
+                        <th>Catégorie</th>
+                        <th>Désignation Produit</th>
+                        <th>Stock</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="elem_stock_general">
+                    {% set total = 0 %}
+                    {% for stockType in stockTypes %}
+                        <tr>
+                            <td class="align-middle">{{stockType.codeProduit}}</td>
+                            <td class="align-middle">{{stockType.categorie|upper}}</td>
+                            <td class="align-middle">{{stockType.nom}}</td>
+                            <td class="align-middle">{{stockType.stock}}</td>
+                            <td class="text-center align-middle">
+                            <a href="{{path('stock_general_details',{'id':stockType.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                            </td>
+                        </tr>
+                        {% set total = total + stockType.stock %}
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" >Total</th>
+                        <th colspan="2" class="bg-primary text-white">{{total}}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}

@@ -11,6 +11,7 @@ use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdHistoFournisseur;
 use App\Entity\PrdMargeType;
 use App\Entity\PrdPreferences;
+use App\Entity\PrdType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
 use App\Entity\User;
@@ -73,6 +74,11 @@ class StockController extends AbstractController
             $this->appService->generateStockFournisseur($filename, $this->agence) ;
         $fournisseurs = json_decode(file_get_contents($filename)) ;
         
+        $filename = $this->filename."type(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdType($filename,$this->agence) ;
+        $types = json_decode(file_get_contents($filename)) ;
+
         $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findBy([
             'agence' => $this->agence 
         ]) ;
@@ -84,7 +90,8 @@ class StockController extends AbstractController
             "categories" => $preferences,
             "entrepots" => $entrepots,
             "fournisseurs" => $fournisseurs,
-            "marge_types" => $marge_types 
+            "marge_types" => $marge_types,
+            "types" => $types,
         ]);
     }
 
@@ -109,13 +116,16 @@ class StockController extends AbstractController
         $prod_categorie = $request->request->get('prod_categorie') ;
         $code_produit = $request->request->get('code_produit') ;
         $prod_nom = $request->request->get('prod_nom') ;
+        $prod_type = $request->request->get('prod_type') ;
         $unite_produit = $request->request->get('unite_produit') ;
         $produit_editor = $request->request->get('produit_editor') ;
         $qr_code_produit = $request->request->get('qr_code_produit') ;
+        $prod_image = $request->request->get('prod_image') ;
 
         $data = [
             $prod_categorie,
             $code_produit,
+            $prod_type,
             $prod_nom,
             $unite_produit,
         ];
@@ -123,7 +133,8 @@ class StockController extends AbstractController
         $dataMessage = [
             "Catégorie",
             "Code Produit",
-            "Nom",
+            "Nom du Produit",
+            "Désignation du Produit",
             "Unité"
         ] ;
 
@@ -191,6 +202,23 @@ class StockController extends AbstractController
                 "type" => "orange"
             ]) ;
 
+        $add_new_type = $request->request->get("add_new_type") ;
+        if($add_new_type == "NON")
+        {
+            $type = $this->entityManager->getRepository(PrdType::class)->find($prod_type) ; 
+        }
+        else if($add_new_type == "OUI")
+        {
+            $type = new PrdType() ;
+
+            $type->setAgence($this->agence) ;
+            $type->setNom($prod_type) ;
+            $type->setStatut(True) ;
+
+            $this->entityManager->persist($type) ;
+            $this->entityManager->flush() ;
+        }
+
         $produit = new Produit() ;
         
         $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($prod_categorie) ;  
@@ -198,9 +226,10 @@ class StockController extends AbstractController
         $produit->setAgence($this->agence) ;
         $produit->setPreference($preference) ;
         $produit->setUser($this->userObj) ;
+        $produit->setType($type) ;
         $produit->setCodeProduit($code_produit) ;
         $produit->setQrCode($qr_code_produit) ;
-        $produit->setImages(null) ;
+        $produit->setImages($prod_image == "" ? null : $prod_image) ;
         $produit->setNom($prod_nom) ;
         $produit->setDescription($produit_editor) ;
         $produit->setUnite($unite_produit) ;
@@ -297,15 +326,19 @@ class StockController extends AbstractController
         $produit->setStock($stockProduit) ;
         $this->entityManager->flush() ;
 
-        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
-        unlink($filename) ;
+        $dataFilenames = [
+            $this->filename."stock_general(agence)/".$this->nameAgence,
+            $this->filename."stock_entrepot(agence)/".$this->nameAgence,
+            $this->filename."type(agence)/".$this->nameAgence,
+            $this->filename."stockType(agence)/".$this->nameAgence ,
+        ] ;
 
-
-        $filename1 = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
-        unlink($filename1) ;
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
 
         return new JsonResponse($result) ;
-
     }
 
     #[Route('/stock/generate/barcode', name: 'stock_generate_barcode')]
@@ -360,25 +393,72 @@ class StockController extends AbstractController
 
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
+    {       
+        $filename = $this->filename."type(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdType($filename,$this->agence) ;
+
+        $types = json_decode(file_get_contents($filename)) ;
+        
+        $filename = $this->filename."stockType(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdStockType($filename,$this->agence) ;
+            
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+        return $this->render('stock/stockgeneral.html.twig', [
+            "filename" => "stock",
+            "titlePage" => "Stock Général",
+            "with_foot" => false,
+            "types" => $types,
+            "stockGenerales" => (array)$stockGenerales,
+        ]);
+    }
+
+    #[Route('/stock/general/type/{type}', name: 'stock_general_par_type', defaults: ["type" => null])]
+    public function stockGeneralParType($type): Response
     {
+        $idType = $type == "NA" ? $type : $this->appService->decoderChiffre($type) ;
+
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename, $this->agence) ;
+
         $preferences = json_decode(file_get_contents($filename)) ;
 
         $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
 
-        $stockGenerales = json_decode(file_get_contents($filename)) ;
+        $stockTypes = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "type" => $idType,
+        ] ;
+        if($idType == "NA")
+        {
+            $nomType = "Non Assignée" ;       
+        }
+        else
+        {
+            $type = $this->entityManager->getRepository(PrdType::class)->find($idType) ;
+            $nomType = $type->getNom() ; 
+        }
+
+        $stockTypes = $this->appService->searchData($stockTypes,$search) ;
         
-        $societe = $this->agence->getNom() ;
- 
-        return $this->render('stock/stockgeneral.html.twig', [
+        $parent = [
+            "societe" => $this->agence->getNom(),
+            "type" => $nomType,
+        ] ;
+
+        return $this->render('stock/stockgeneralParType.html.twig', [
             "filename" => "stock",
-            "titlePage" => "Stock Général",
+            "titlePage" => "Consultation Produit ",
             "with_foot" => false,
-            "societe" => $societe,
+            "parent" => $parent,
             "categories" => $preferences,
-            "stockGenerales" => $stockGenerales
+            "stockTypes" => $stockTypes,
         ]);
     }
 
@@ -439,7 +519,7 @@ class StockController extends AbstractController
         
         $categorie = [] ;
         if(!is_null($id))
-        {
+        { 
             $user = $this->session->get("user") ;
             $agence = $this->entityManager->getRepository(Agence::class)->find($user["agence"]) ; 
 
@@ -625,7 +705,6 @@ class StockController extends AbstractController
             "type" => "green"
         ]) ;
     }
-    
     
     #[Route('/stock/inventaire', name: 'stock_inventaire')]
     public function stockInventaire(): Response
@@ -1270,8 +1349,6 @@ class StockController extends AbstractController
     #[Route('/stock/approvisionnement/liste', name: 'stock_appr_liste')]
     public function stockApprListe(): Response
     {
-        
-
         return $this->render('stock/approvisionnement/liste.html.twig', [
             "filename" => "stock",
             "titlePage" => "Liste des approvisionnements",
@@ -1290,12 +1367,67 @@ class StockController extends AbstractController
 
         $preferences = json_decode(file_get_contents($filename)) ;
 
+        $filename = $this->filename."type(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdType($filename,$this->agence) ;
+
+        $types = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."variationProduit(agence)/vartPrd_".$id."_".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdVariationProduit($filename,$id) ;
+
+        $variationProduits = json_decode(file_get_contents($filename)) ;
+
+        $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
+
+        $infoProduit = [ 
+            "designation" =>  $produit->getNom(),
+            "codeProduit" =>  $produit->getCodeProduit(),
+            "categorie" =>  $produit->getPreference()->getId(),
+            "stock" =>  $produit->getStock(),
+            "stock" =>  $produit->getStock(),
+            "nomProduit" => is_null($produit->getType()) ? "NA" : $produit->getType()->getId(),
+            "unite" =>  $produit->getUnite(),
+            "description" =>  $produit->getDescription(),
+            "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
+        ] ;
+
+        // dd($variationProduits) ;
+
         return $this->render('stock/general/details.html.twig', [
             "filename" => "stock",
             "titlePage" => "Details Produit",
             "with_foot" => true,
             "categories" => $preferences,
+            "types" => $types,
+            "infoProduit" => $infoProduit,
+            "variationProduits" => $variationProduits,
         ]);
     }
 
+    
+    #[Route('/stock/creation/type/new/get', name: 'stock_get_new_type')]
+    public function stockCreationGetNewType(): Response
+    {
+        $response = $this->renderView("stock/type/getNewType.html.twig") ;
+
+        return new Response($response) ;
+    }
+    
+    #[Route('/stock/creation/type/existing/get', name: 'stock_get_existing_type')]
+    public function stockCreationGetExistingType(): Response
+    {
+        $filename = $this->filename."type(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generatePrdType($filename,$this->agence) ;
+
+        $types = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("stock/type/getExistingType.html.twig",[
+            "types" => $types
+            ]) ;
+        return new Response($response) ;
+    }
 }

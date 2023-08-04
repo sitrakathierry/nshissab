@@ -7,6 +7,7 @@ $(document).ready(function(){
     $(".chosen_select").chosen({
         no_results_text: "Aucun resultat trouvé : "
     });
+
     $("#search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#search_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
     
@@ -30,6 +31,7 @@ $(document).ready(function(){
           var basePromise = image.limitBase64ImageSize(2097152)
           basePromise.then(base64 => {
             $(".image_categorie").attr("src",base64)
+            $("#prod_image").val(base64) ;
           });
         }
         // Lire le contenu du fichier
@@ -691,6 +693,7 @@ $(document).ready(function(){
 
     $("#formCreateProduit").submit(function(event){
         event.preventDefault()
+        console.log($("#add_new_type").val())
         var self = $(this)
         $(".produit_editor").text(produit_editor.getEditorText()) 
         $.confirm({
@@ -701,11 +704,11 @@ $(document).ready(function(){
             buttons : {
                 NON : function()
                 {
-                    $('input, select').val('');
-                    $("#prod_categorie").trigger("chosen:updated");
-                    $(".crt_entrepot").trigger("chosen:updated");
-                    $(".crt_fournisseur").trigger("chosen:updated");
-                    location.reload()
+                    // $('input, select').val('');
+                    // $("#prod_categorie").trigger("chosen:updated");
+                    // $("#prod_type").trigger("chosen:updated");
+                    // $(".crt_entrepot").trigger("chosen:updated");
+                    // $(".crt_fournisseur").trigger("chosen:updated");
                 },
                 OUI : function(){
                     var crt_frns_vide = false
@@ -739,21 +742,33 @@ $(document).ready(function(){
                                 title: 'Message',
                                 content: json.message,
                                 type: json.type,
+                                buttons: {
+                                    OK : function(){
+                                        if(json.type == "green")
+                                        {
+                                            $('input, select').val('');
+                                            $("#prod_categorie").trigger("chosen:updated");
+                                            $(".crt_entrepot").trigger("chosen:updated");
+                                            $(".crt_fournisseur").trigger("chosen:updated");
+                                            location.reload()
+                                        }
+                                    }
+                                }
                             });
-                            if(json.type == "green")
-                            {
-                                $('input, select').val('');
-                                $("#prod_categorie").trigger("chosen:updated");
-                                $(".crt_entrepot").trigger("chosen:updated");
-                                $(".crt_fournisseur").trigger("chosen:updated");
-                                location.reload()
-                            }
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
                         }
                     })
                 }
             }
         })
         
+    })
+
+    $(".prod_save").click(function(){
+        $("#formCreateProduit").submit()
     })
     function countFournisseur()
     {

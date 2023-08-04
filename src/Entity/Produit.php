@@ -62,6 +62,9 @@ class Produit
     #[ORM\ManyToOne(inversedBy: 'produits')]
     private ?ParamTvaType $tvaType = null;
 
+    #[ORM\ManyToOne(inversedBy: 'produits')]
+    private ?PrdType $type = null;
+
     public function __construct()
     {
         $this->prdVariationPrixes = new ArrayCollection();
@@ -266,6 +269,18 @@ class Produit
     public function setTvaType(?ParamTvaType $tvaType): self
     {
         $this->tvaType = $tvaType;
+
+        return $this;
+    }
+
+    public function getType(): ?PrdType
+    {
+        return $this->type;
+    }
+
+    public function setType(?PrdType $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

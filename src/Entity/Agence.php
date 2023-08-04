@@ -175,6 +175,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AchDetails::class)]
     private Collection $achDetails;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdType::class)]
+    private Collection $prdTypes;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -218,6 +221,7 @@ class Agence
         $this->achHistoPaiements = new ArrayCollection();
         $this->achMarchandises = new ArrayCollection();
         $this->achDetails = new ArrayCollection();
+        $this->prdTypes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1592,6 +1596,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($achDetail->getAgence() === $this) {
                 $achDetail->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdType>
+     */
+    public function getPrdTypes(): Collection
+    {
+        return $this->prdTypes;
+    }
+
+    public function addPrdType(PrdType $prdType): self
+    {
+        if (!$this->prdTypes->contains($prdType)) {
+            $this->prdTypes->add($prdType);
+            $prdType->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdType(PrdType $prdType): self
+    {
+        if ($this->prdTypes->removeElement($prdType)) {
+            // set the owning side to null (unless already changed)
+            if ($prdType->getAgence() === $this) {
+                $prdType->setAgence(null);
             }
         }
 

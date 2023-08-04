@@ -22,56 +22,44 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Société</label>
-                <input type="text" name="societe" id="societe" class="form-control" value="{{societe|upper}}" readonly>
-            </div>
-            <div class="col-md-3">
-                <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
-                <select name="search_categorie" class="custom-select search_categorie custom-select-sm" id="search_categorie">
+                <label for="search_nom_produit" class="mt-2 font-weight-bold text-uppercase">Nom Produit</label>
+                <select name="search_nom_produit" class="custom-select search_nom_produit custom-select-sm" id="search_nom_produit">
                     <option value="">TOUS</option>
-                    {% for categorie in categories %}
-                        <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
+                    <option value="NA">NON ASSIGNEE</option>
+                    {% for type in types %}
+                        <option value="{{type.id}}">{{type.nom|upper}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="search_produit" class="mt-2 font-weight-bold text-uppercase">Produit</label>
-                <select name="search_produit" class="custom-select search_produit custom-select-sm" id="search_produit">
-                    <option value="">TOUS</option>
-                    {% for stockGeneral in stockGenerales %}
-                        <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            {# <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-            </div> #}
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>
-                        <th>Code Produit</th>
-                        <th>Catégorie</th>
-                        <th>Nom</th>
+                        <th>Nom du produit</th>
                         <th>Stock</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody class="elem_stock_general">
-                    {% for stockGeneral in stockGenerales %}
+                <tbody>
+                    {% set total = 0 %}
+                    {% for key, item in stockGenerales %}
                         <tr>
-                            <td class="align-middle">{{stockGeneral.codeProduit}}</td>
-                            <td class="align-middle">{{stockGeneral.categorie|upper}}</td>
-                            <td class="align-middle">{{stockGeneral.nom}}</td>
-                            <td class="align-middle">{{stockGeneral.stock}}</td>
+                            <td class="align-middle">{{key|upper}}</td>
+                            <td class="align-middle">{{ item.stock }}</td>
                             <td class="text-center align-middle">
-                            <a href="{{path('stock_general_details',{'id':stockGeneral.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                            <a href="{{path('stock_general_par_type',{'type': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                             </td>
+                            {% set total = total + item.stock %}
                         </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <th colspan="2" class="bg-primary text-white">{{total}}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
