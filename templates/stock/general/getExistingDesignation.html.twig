@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-9">
-        <select name="prod_nom" class="custom-select chosen_select custom-select-sm" id="prod_nom">
+        <select name="prod_nom" class="custom-select chosen_select_spec custom-select-sm" id="prod_nom">
             <option value="">-</option>
             {% for stockType in stockTypes %}
                 <option value="{{stockType.nom|upper}}">{{stockType.nom|upper}}</option>
@@ -12,7 +12,7 @@
     </div>
 </div>
 <script>
-    $(".chosen_select").chosen({
+    $(".chosen_select_spec").chosen({
             no_results_text: "Aucun resultat trouvé : "
         });
 </script>
