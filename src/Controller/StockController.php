@@ -341,6 +341,87 @@ class StockController extends AbstractController
         return new JsonResponse($result) ;
     }
 
+    
+    #[Route('/stock/produit/update', name: 'stock_update_produit')]
+    public function stockUpdateProduit(Request $request)
+    {
+        $prod_categorie = $request->request->get('prod_categorie') ;
+        $code_produit = $request->request->get('code_produit') ;
+        $prod_nom = $request->request->get('prod_nom') ;
+        $prod_type = $request->request->get('prod_type') ;
+        $unite_produit = $request->request->get('unite_produit') ;
+        $produit_editor = $request->request->get('produit_editor') ;
+        $prod_image = $request->request->get('prod_image') ;
+        $prod_idProduit = $request->request->get('prod_idProduit') ;
+
+        $data = [
+            $prod_categorie,
+            $code_produit,
+            $prod_type,
+            $prod_nom,
+            $unite_produit,
+        ];
+
+        $dataMessage = [
+            "Catégorie",
+            "Code Produit",
+            "Nom du Produit",
+            "Désignation du Produit",
+            "Unité"
+        ] ;
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $add_new_type = $request->request->get("add_new_type") ;
+        if($add_new_type == "NON")
+        {
+            $type = $this->entityManager->getRepository(PrdType::class)->find($prod_type) ; 
+        }
+        else if($add_new_type == "OUI")
+        {
+            $type = new PrdType() ;
+
+            $type->setAgence($this->agence) ;
+            $type->setNom($prod_type) ;
+            $type->setStatut(True) ;
+
+            $this->entityManager->persist($type) ;
+            $this->entityManager->flush() ;
+        }
+
+        $produit = $this->entityManager->getRepository(Produit::class)->find($prod_idProduit) ;  
+        
+        $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($prod_categorie) ;  
+
+        $produit->setPreference($preference) ;
+        $produit->setUser($this->userObj) ;
+        $produit->setType($type) ;
+        $produit->setImages($prod_image == "" ? null : $prod_image) ;
+        $produit->setNom($prod_nom) ;
+        $produit->setDescription($produit_editor) ;
+        $produit->setUnite($unite_produit) ;
+        $produit->setUpdatedAt(new \DateTimeImmutable) ; 
+
+        $this->entityManager->persist($produit) ;
+        $this->entityManager->flush() ; 
+        
+        $dataFilenames = [
+            $this->filename."stock_general(agence)/".$this->nameAgence,
+            $this->filename."type(agence)/".$this->nameAgence,
+            $this->filename."stockType(agence)/".$this->nameAgence ,
+        ] ;
+
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
+
+        return new JsonResponse($result) ;
+    }
+
     #[Route('/stock/generate/barcode', name: 'stock_generate_barcode')]
     public function stockGenerateBarCode(PdfGenService $pdfGen, Request $request)
     {
@@ -1088,7 +1169,6 @@ class StockController extends AbstractController
     }
 
     
-
     #[Route('/stock/produit/get', name: 'stock_get_produit')]
     public function stockGetProduit()
     {
@@ -1382,6 +1462,7 @@ class StockController extends AbstractController
         $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
 
         $infoProduit = [ 
+            "id" =>  $produit->getId(),
             "designation" =>  $produit->getNom(),
             "codeProduit" =>  $produit->getCodeProduit(),
             "categorie" =>  $produit->getPreference()->getId(),
@@ -1428,6 +1509,37 @@ class StockController extends AbstractController
         $response = $this->renderView("stock/type/getExistingType.html.twig",[
             "types" => $types
             ]) ;
+        return new Response($response) ;
+    }
+
+    #[Route('/stock/creation/designation/new/get', name: 'stock_get_new_designation')]
+    public function stockCreationGetNewDesignation(): Response
+    {
+        $response = $this->renderView("stock/general/getNewDesignation.html.twig") ;
+
+        return new Response($response) ;
+    }
+    
+    #[Route('/stock/creation/designation/existing/get', name: 'stock_get_existing_designation')]
+    public function stockCreationGetExistingDesignation(Request $request): Response
+    {
+        $type = $request->request->get("type") ;
+
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockTypes = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "type" => $type == "" ? "-" : $type ,
+        ] ;
+
+        $stockTypes = $this->appService->searchData($stockTypes,$search) ;
+
+        $response = $this->renderView("stock/general/getExistingDesignation.html.twig",[
+            "stockTypes" => $stockTypes
+        ]) ;
         return new Response($response) ;
     }
 }

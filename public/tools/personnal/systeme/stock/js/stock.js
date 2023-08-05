@@ -15,8 +15,6 @@ $(document).ready(function(){
     $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
 
-    
-
     // <button type="button" class="btn-outline-warning edit_appro btn btn-sm font-smaller"><i class="fa fa-edit"></i></button> 
     $(".importImage").click(function(){
         $("#imageImport").click()
@@ -36,7 +34,7 @@ $(document).ready(function(){
         }
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);
-      });
+    });
 
     $(".save_prd_categorie").click(function(){
         var elements = [
@@ -1017,7 +1015,5 @@ $(document).ready(function(){
             searchStockEntrepot()
         })
     })
-
-
 })
 

@@ -1,0 +1,18 @@
+<div class="row">
+    <div class="col-md-9">
+        <select name="prod_nom" class="custom-select chosen_select custom-select-sm" id="prod_nom">
+            <option value="">-</option>
+            {% for stockType in stockTypes %}
+                <option value="{{stockType.nom|upper}}">{{stockType.nom|upper}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="button" class="btn btn-sm prd_new_designation btn-primary btn-block"><i class="fa fa-edit"></i></button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

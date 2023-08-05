@@ -26,10 +26,10 @@ class CustomImage
             bytes = window.atob(base64data.split(',')[1]);
           }
           deferred.resolve(base64data);
-        };
+      };
         
         return deferred.promise();
-      }
+    }
 
     resizeBase64Img(width, height) 
     {

@@ -1,7 +1,6 @@
 <div class="row">
     <div class="col-md-9">
         <select name="prod_type" class="custom-select chosen_select custom-select-sm" id="prod_type">
-            <option value="">-</option>
             <option value="NA">NON ASSIGNEE</option>
             {% for type in types %}
                 <option value="{{type.id}}">{{type.nom|upper}}</option>
