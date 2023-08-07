@@ -1555,8 +1555,6 @@ class StockController extends AbstractController
         return new Response($response) ;
     }
 
-    
-
     #[Route('/stock/variation/produit/save', name: 'stock_variation_produit_save')]
     public function stockSaveVariationProduit(Request $request)
     {
@@ -1570,7 +1568,6 @@ class StockController extends AbstractController
         $prod_variation_expiree = $request->request->get("prod_variation_expiree") ;
 
         $produit = $this->entityManager->getRepository(Produit::class)->find($prod_variation_iProduit) ;
-
 
         $data = [
             $prod_variation_entrepot,
@@ -1707,4 +1704,5 @@ class StockController extends AbstractController
 
         return new JsonResponse($result) ;
     }
+
 }

@@ -252,12 +252,14 @@ $(document).ready(function(){
 
             <div class="row">
                 <div class="col-6">
-                    <label for="nom" class="mt-2 font-weight-bold">Prix de vente</label>
-                    <input type="text" name="nom" value="2400" id="nom" class="form-control" placeholder=". . .">
+                    <label for="modif_inpt_prix" class="mt-2 font-weight-bold">Prix de vente</label>
+                    <input type="number" step="any" name="modif_inpt_prix" value="2400" id="modif_inpt_prix" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-6">
-                    <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                    <button class="btn btn-sm btn-primary btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
+                    <div id="contentSolder">
+                        <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                        <button class="btn btn-sm btn-primary modif_btn_solder btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
+                    </div>
                 </div>
             </div>
 
@@ -267,8 +269,10 @@ $(document).ready(function(){
                     <input type="text" readonly name="nom" value="45" id="nom" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-6">
-                    <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                    <button class="btn btn-sm btn-warning btn-block"><i class="fa fa-minus"></i>&nbsp;Déduire</button>
+                    <div id="contentDeduire">
+                        <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                        <button class="btn btn-sm modif_btn_deduire btn-warning btn-block"><i class="fa fa-minus"></i>&nbsp;Déduire</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -314,4 +318,32 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    var instance = new Loading(files.loading)
+    var appBase = new AppBase() ;
+
+    $(document).on('click',".modif_btn_solder",function(){
+        if(!$(this).attr("disabled"))
+        {
+            $("#modif_inpt_prix").attr("readonly",true) ;
+            var contenu = `
+            <label for="modif_inpt_solde" class="mt-2 font-weight-bold">Prix du solde</label>
+            <input type="number" step="any" name="modif_inpt_solde" id="modif_inpt_solde" class="form-control" placeholder=". . ."> `;
+            $("#contentSolder").empty().html(contenu) 
+        }
+        $(this).prop("disabled", true);
+    })
+
+    $(document).on('click',".modif_btn_deduire",function(){
+        if(!$(this).attr("disabled"))
+        {
+            // $("#modif_inpt_prix").attr("readonly",true) ;
+            var contenu = `
+            <label for="modif_inpt_deduire" class="mt-2 font-weight-bold">Qté à déduire</label>
+            <input type="number" step="any" name="modif_inpt_deduire" id="modif_inpt_deduire" class="form-control" placeholder=". . ."> `;
+            $("#contentDeduire").empty().html(contenu) 
+        }
+        $(this).prop("disabled", true);
+    })
+
 })
