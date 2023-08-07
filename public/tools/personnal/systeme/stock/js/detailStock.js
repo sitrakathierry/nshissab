@@ -2,13 +2,14 @@ $(document).ready(function(){
     var produit_details_editor = new LineEditor(".produit_details_editor") ;
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
-    
+    $("#prod_variation_expiree").datepicker()
+
     produit_details_editor.setEditorText($(".produit_details_editor").text())
     $(".mybarCode").html("")
 
     $(".mybarCode").barcode(
         {
-            code: $(".barcode_produit").val(),
+            code: $(".details_barcode_produit").val(),
             rect: false,
         },
         "code128",
@@ -22,13 +23,15 @@ $(document).ready(function(){
     );
     
     $(".qr_block").html("")
+
     $(".qr_block").qrcode({
         // render method: 'canvas', 'image' or 'div'
         render: 'image' ,
         size: 2400,
-        text: $(".qr_code_produit").val(),
+        text: $(".details_qr_code_produit").val(),
     });
-
+    
+    
     $("#formDetailProduit").submit(function(){
         console.log($("#add_new_type").val())
         var self = $(this)
@@ -136,7 +139,7 @@ $(document).ready(function(){
     $(document).on("change","#prod_type",function(){
         if(!$(this).is("select"))
             return false ;
-            
+
         var realinstance = instance.loading()
         var self = $(this)
         var formData = new FormData() ;
@@ -158,5 +161,157 @@ $(document).ready(function(){
                 $.alert(JSON.stringify(resp)) ;
             }
         })
+    })
+
+    $("#formVariationProduit").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Vous êtes sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize()
+                        $.ajax({
+                            url: routes.stock_variation_produit_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close() ;
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                $("#prod_variation_entrepot").val("")
+                                                $("#prod_variation_fournisseur").val("")
+                                                $("#prod_variation_prix_vente").val("")
+                                                $("#prod_variation_stock").val("")
+                                                $("#prod_variation_expiree").val("")
+
+                                                $(".chosen_select").trigger("chosen:updated") ;
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on("click",".prod_edit_variation",function(){
+        var contenu = `
+        <style>
+            .jconfirm.jconfirm-modern .jconfirm-box
+            {
+                width: 450px ;
+            }
+            .jconfirm.jconfirm-modern .jconfirm-box div.jconfirm-content
+            {
+                margin-bottom: 0 ;
+            }
+        </style>
+        <div id="contentModif" class="container text-left">
+            <label for="nom" class="mt-2 font-weight-bold">Entrepôt(s)</label>
+            <input type="text" name="nom" readonly id="nom" value="ENTREPOT TEST" class="form-control" placeholder=". . .">
+
+            <div class="row">
+                <div class="col-7">
+                    <label for="nom" class="mt-2 font-weight-bold">Code</label>
+                    <input type="text" readonly name="nom" value="TR500" id="nom" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-5">
+                    <label for="nom" class="mt-2 font-weight-bold">Indice</label>
+                    <input type="text" readonly name="nom" value="" id="nom" class="form-control" placeholder=". . .">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <label for="nom" class="mt-2 font-weight-bold">Prix de vente</label>
+                    <input type="text" name="nom" value="2400" id="nom" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-6">
+                    <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                    <button class="btn btn-sm btn-primary btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <label for="nom" class="mt-2 font-weight-bold">Stock</label>
+                    <input type="text" readonly name="nom" value="45" id="nom" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-6">
+                    <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                    <button class="btn btn-sm btn-warning btn-block"><i class="fa fa-minus"></i>&nbsp;Déduire</button>
+                </div>
+            </div>
+        </div>
+        ` ;
+
+        $.confirm({
+            title:'Modification Variation',
+            content:contenu,
+            type:"orange",
+            theme:"modern",
+            buttons : {
+                Annuler : function(){},
+                Enregistrer : function(){
+                    // var realinstance = instance.loading()
+                    // $.ajax({
+                    //     url: routes.stock_update_produit,
+                    //     type:"post",
+                    //     data:data,
+                    //     dataType:"json",
+                    //     success : function(json){
+                    //         realinstance.close()
+                    //         $.alert({
+                    //             title: 'Message',
+                    //             content: json.message,
+                    //             type: json.type,
+                    //             buttons: {
+                    //                 OK : function(){
+                    //                     if(json.type == "green")
+                    //                     {
+                    //                         location.reload()
+                    //                     }
+                    //                 }
+                    //             }
+                    //         });
+                    //     },
+                    //     error: function(resp){
+                    //         realinstance.close()
+                    //         $.alert(JSON.stringify(resp)) ;
+                    //     }
+                    // })
+                }
+            }
+        })
+        return false ;
     })
 })

@@ -620,14 +620,20 @@ class AppService extends AbstractController
                 "variationPrix" => $variation
             ]) ;
 
+            $item = [];
+
             foreach($histoEntrepots as $histoEntrepot)
             {
                 $indice = is_null($histoEntrepot->getIndice()) ? "-" : $histoEntrepot->getIndice() ;
                 $cle = $indice."|".$variation->getPrixVente() ;
-                if(isset($item[$cle]))
+
+                if (array_key_exists($cle, $item))
                 {
                     $item[$cle]["stock"] += $histoEntrepot->getStock() ;
-                    $item[$cle]["entrepot"] = $item[$cle]["entrepot"].", ".$histoEntrepot->getEntrepot()->getNom()  ;
+                    $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
+
+                    $elements[$cle] = $item[$cle] ;
+   
                 }
                 else
                 {
@@ -638,12 +644,13 @@ class AppService extends AbstractController
                     $item[$cle]["stock"] = $histoEntrepot->getStock() ;
                     $item[$cle]["code"] = $produit->getCodeProduit()."/".$indice ;
 
-                    array_push($elements,$item[$cle]) ;
+                    $elements[$cle] = $item[$cle] ;
                 }
             }
-
         }
-        
+
+        $elements = array_values($elements);
+
         file_put_contents($filename,json_encode($elements)) ;
     }
 
