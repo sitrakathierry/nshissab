@@ -41,6 +41,7 @@ use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdPreferences;
+use App\Entity\PrdSolde;
 use App\Entity\PrdType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
@@ -637,13 +638,25 @@ class AppService extends AbstractController
                 }
                 else
                 {
+                    $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
+                        "variationPrix" => $variation,
+                        "statut" => True,
+                    ]) ;
+
                     $item[$cle] = [] ;
     
                     $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
                     $item[$cle]["prix"] = $variation->getPrixVente() ;
                     $item[$cle]["stock"] = $histoEntrepot->getStock() ;
                     $item[$cle]["code"] = $produit->getCodeProduit()."/".$indice ;
-
+                    $item[$cle]["codeProduit"] = $produit->getCodeProduit() ;
+                    $item[$cle]["indice"] = $indice ;
+                    $item[$cle]["id"] = $variation->getId() ;
+                    $item[$cle]["solde"] = is_null($solde) ? "-" : $solde->getCalculee() ;
+                    $item[$cle]["soldeType"] = is_null($solde) ? "-" : $solde->getType()->getCalcul() ;
+                    $item[$cle]["soldeQte"] = is_null($solde) ? "-" : $solde->getSolde() ;
+                    $item[$cle]["soldeDate"] = is_null($solde) ? "-" : $solde->getDateLimite()->format("d/m/Y") ;
+                    
                     $elements[$cle] = $item[$cle] ;
                 }
             }

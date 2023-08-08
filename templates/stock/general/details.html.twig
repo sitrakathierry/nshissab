@@ -189,8 +189,8 @@
                                     <tr>
                                         <th>Entrepôt</th>
                                         <th>Code</th>
-                                        {# <th>Code Barre</th> #}
                                         <th>Prix de Vente</th>
+                                        <th>Solde</th>
                                         <th>Stock</th>
                                         <th></th>
                                     </tr>
@@ -199,11 +199,20 @@
                                     {% set totalVariation = 0 %}
                                     {% for variationProduit in variationProduits %}
                                         <tr>
-                                            <td>{{variationProduit.entrepot}}</td>
-                                            <td>{{variationProduit.code}}</td>
+                                            <td class="prd_list_entrepot">{{variationProduit.entrepot|upper}}</td>
+                                            <td>
+                                            {{variationProduit.code}}
+                                            <input type="hidden" class="prd_list_code" value="{{variationProduit.codeProduit}}">
+                                            <input type="hidden" class="prd_list_indice" value="{{variationProduit.indice}}">
+                                            <input type="hidden" class="prd_list_id" value="{{variationProduit.id}}">
+                                            <input type="hidden" class="prd_list_solde_type" value="{{variationProduit.soldeType}}">
+                                            <input type="hidden" class="prd_list_qte_solde" value="{{variationProduit.soldeQte}}">
+                                            <input type="hidden" class="prd_list_solde_date" value="{{variationProduit.soldeDate}}">
+                                            </td>
                                             {# <td>{{variationProduit.}}</td> #}
-                                            <td>{{variationProduit.prix}}</td>
-                                            <td>{{variationProduit.stock}}</td>
+                                            <td class="prd_list_prix">{{variationProduit.prix}}</td>
+                                            <td class="prd_list_solde">{{variationProduit.solde}}</td>
+                                            <td class="prd_list_stock">{{variationProduit.stock}}</td>
                                             <td class="text-center align-middle">
                                                 <button class="btn btn-sm btn-outline-warning prod_edit_variation font-smaller"><i class="fa fa-edit"></i></button>
                                                 <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
@@ -214,7 +223,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="3">Total</th>
+                                        <th colspan="4">Total</th>
                                         <th colspan="2" class="bg-info text-white">{{totalVariation}}</th>
                                     </tr>
                                 </tfoot>

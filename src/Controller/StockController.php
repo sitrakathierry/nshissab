@@ -11,6 +11,7 @@ use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdHistoFournisseur;
 use App\Entity\PrdMargeType;
 use App\Entity\PrdPreferences;
+use App\Entity\PrdSolde;
 use App\Entity\PrdType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
@@ -79,9 +80,7 @@ class StockController extends AbstractController
             $this->appService->generatePrdType($filename,$this->agence) ;
         $types = json_decode(file_get_contents($filename)) ;
 
-        $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findBy([
-            'agence' => $this->agence 
-        ]) ;
+        $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
 
         return $this->render('stock/creationproduit.html.twig', [
             "filename" => "stock",
@@ -1604,6 +1603,7 @@ class StockController extends AbstractController
             $variationPrix = new PrdVariationPrix() ;
             $variationPrix->setProduit($produit) ;
             $variationPrix->setPrixVente($prod_variation_prix_vente) ;
+            $variationPrix->setIndice($prod_variation_prix_vente) ;
             $variationPrix->setStock(intval($prod_variation_stock)) ;
             $variationPrix->setStockAlert(5) ;
             $variationPrix->setStatut(True) ;
@@ -1705,4 +1705,105 @@ class StockController extends AbstractController
         return new JsonResponse($result) ;
     }
 
+    
+    #[Route('/stock/variation/produit/update', name: 'stock_update_variation_prix')]
+    public function stockUpdateVariationProduit(Request $request)
+    {
+        $modif_variationId = $request->request->get("modif_variationId") ;
+        $modif_inpt_prix = $request->request->get("modif_inpt_prix") ;
+
+        $data = [
+            $modif_inpt_prix,
+        ];
+
+        $dataMessage = [
+            "Prix de vente",
+        ] ;
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+        
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($modif_variationId) ;
+        
+        $variationPrix->setPrixVente($modif_inpt_prix) ;
+        $this->entityManager->flush() ;
+
+        $modif_inpt_solde_type = $request->request->get("modif_inpt_solde_type") ;
+        if(isset($modif_inpt_solde_type))
+        {
+            $modif_inpt_solde = $request->request->get("modif_inpt_solde") ;
+            $modif_inpt_solde_date = $request->request->get("modif_inpt_solde_date") ;
+
+            $result = $this->appService->verificationElement([
+                $modif_inpt_solde,
+                $modif_inpt_solde_date,
+            ],[
+                "Solde",
+                "Date Limite",
+            ]) ;
+
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+            
+
+            $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
+                "variationPrix" => $variationPrix,
+                "statut" => True,
+            ]) ;
+
+            if(!is_null($solde))
+            {
+                // Mise à jour du solde
+            }
+            else
+            {
+                // Nouveau solde
+                $solde = new PrdSolde() ;
+
+                $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($modif_inpt_solde_type) ;
+                $calculee = $margeType->getCalcul() == 1 ? $modif_inpt_solde : (($modif_inpt_solde * $variationPrix->getPrixVente()) / 100) ;
+                $calculee = $variationPrix->getPrixVente() - $calculee ;
+
+                $solde->setType($margeType) ;
+                $solde->setSolde($modif_inpt_solde) ;
+                $solde->setVariationPrix($variationPrix) ;
+                $solde->setCalculee($calculee) ;
+                $solde->setDateLimite(\DateTime::createFromFormat('j/m/Y',$modif_inpt_solde_date)) ;
+                $solde->setStatut(True) ;
+
+                $this->entityManager->persist($solde) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
+        $modif_inpt_deduire = $request->request->get("modif_inpt_deduire") ;
+        if(isset($modif_inpt_deduire))
+        {
+            if(!empty($modif_inpt_deduire))
+            {
+                // $variationPrix->setStock($variationPrix->getStock() - intval($modif_inpt_deduire)) ;
+
+                // $this->entityManager->flush() ;
+            }
+        }
+
+        $result["message"] = "Modification effectuée" ;
+
+        $dataFilenames = [
+            $this->filename."stock_general(agence)/".$this->nameAgence,
+            $this->filename."stock_entrepot(agence)/".$this->nameAgence,
+            $this->filename."type(agence)/".$this->nameAgence,
+            $this->filename."stockType(agence)/".$this->nameAgence ,
+            $this->filename."variationProduit(agence)/vartPrd_".$variationPrix->getProduit->getId()."_".$this->nameAgence 
+        ] ;
+
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
+
+        return new JsonResponse($result) ;
+    }
 }

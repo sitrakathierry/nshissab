@@ -42,10 +42,17 @@ class PrdVariationPrix
     #[ORM\Column(nullable: true)]
     private ?int $stock_alert = null;
 
+    #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: PrdSolde::class)]
+    private Collection $prdSoldes;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $indice = null;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
+        $this->prdSoldes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,6 +200,48 @@ class PrdVariationPrix
     public function setStockAlert(?int $stock_alert): self
     {
         $this->stock_alert = $stock_alert;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdSolde>
+     */
+    public function getPrdSoldes(): Collection
+    {
+        return $this->prdSoldes;
+    }
+
+    public function addPrdSolde(PrdSolde $prdSolde): self
+    {
+        if (!$this->prdSoldes->contains($prdSolde)) {
+            $this->prdSoldes->add($prdSolde);
+            $prdSolde->setVariationPrix($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdSolde(PrdSolde $prdSolde): self
+    {
+        if ($this->prdSoldes->removeElement($prdSolde)) {
+            // set the owning side to null (unless already changed)
+            if ($prdSolde->getVariationPrix() === $this) {
+                $prdSolde->setVariationPrix(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getIndice(): ?string
+    {
+        return $this->indice;
+    }
+
+    public function setIndice(?string $indice): self
+    {
+        $this->indice = $indice;
 
         return $this;
     }
