@@ -1795,7 +1795,7 @@ class StockController extends AbstractController
             $this->filename."stock_entrepot(agence)/".$this->nameAgence,
             $this->filename."type(agence)/".$this->nameAgence,
             $this->filename."stockType(agence)/".$this->nameAgence ,
-            $this->filename."variationProduit(agence)/vartPrd_".$variationPrix->getProduit->getId()."_".$this->nameAgence 
+            $this->filename."variationProduit(agence)/vartPrd_".$variationPrix->getProduit()->getId()."_".$this->nameAgence 
         ] ;
 
         foreach ($dataFilenames as $dataFilename) {
