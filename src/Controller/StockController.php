@@ -1763,8 +1763,7 @@ class StockController extends AbstractController
                 $solde = new PrdSolde() ;
 
                 $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($modif_inpt_solde_type) ;
-                $calculee = $margeType->getCalcul() == 1 ? $modif_inpt_solde : (($modif_inpt_solde * $variationPrix->getPrixVente()) / 100) ;
-                $calculee = $variationPrix->getPrixVente() - $calculee ;
+                $calculee = $margeType->getCalcul() == 1 ? $modif_inpt_solde : $variationPrix->getPrixVente() - (($modif_inpt_solde * $variationPrix->getPrixVente()) / 100) ;
 
                 $solde->setType($margeType) ;
                 $solde->setSolde($modif_inpt_solde) ;
