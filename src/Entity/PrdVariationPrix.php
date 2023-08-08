@@ -48,11 +48,15 @@ class PrdVariationPrix
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $indice = null;
 
+    #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: CaissePanier::class)]
+    private Collection $caissePaniers;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
         $this->prdSoldes = new ArrayCollection();
+        $this->caissePaniers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,6 +246,36 @@ class PrdVariationPrix
     public function setIndice(?string $indice): self
     {
         $this->indice = $indice;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CaissePanier>
+     */
+    public function getCaissePaniers(): Collection
+    {
+        return $this->caissePaniers;
+    }
+
+    public function addCaissePanier(CaissePanier $caissePanier): self
+    {
+        if (!$this->caissePaniers->contains($caissePanier)) {
+            $this->caissePaniers->add($caissePanier);
+            $caissePanier->setVariationPrix($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCaissePanier(CaissePanier $caissePanier): self
+    {
+        if ($this->caissePaniers->removeElement($caissePanier)) {
+            // set the owning side to null (unless already changed)
+            if ($caissePanier->getVariationPrix() === $this) {
+                $caissePanier->setVariationPrix(null);
+            }
+        }
 
         return $this;
     }

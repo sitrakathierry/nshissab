@@ -137,7 +137,7 @@ $(document).ready(function(){
     })
 
     $(document).on("change","#prod_type",function(){
-        if(!$(this).is("select"))
+        if(!$(this).is("select") || $(this).hasClass("not-reload"))
             return false ;
 
         var realinstance = instance.loading()

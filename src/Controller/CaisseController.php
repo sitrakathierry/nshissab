@@ -104,6 +104,7 @@ class CaisseController extends AbstractController
 
             $panier->setCommande($commande) ;
             $panier->setHistoEntrepot($histoEntrepot) ;
+            $panier->setVariationPrix($histoEntrepot->getVariationPrix()) ;
             $panier->setPrix(intval($csenr_prixText[$key])) ;
             $panier->setQuantite($csenr_quantite[$key]) ;
             $panier->setTva($csenr_tva[$key]) ;
@@ -122,7 +123,7 @@ class CaisseController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         $this->appService->generateCaisseCommande($filename, $this->agence) ;
-
+        
         return new JsonResponse([
             "type" => "green",
             "message" => "Enregistrement éffectué"

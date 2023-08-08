@@ -31,6 +31,9 @@ class CaissePanier
     #[ORM\Column(nullable: true)]
     private ?float $tva = null;
 
+    #[ORM\ManyToOne(inversedBy: 'caissePaniers')]
+    private ?PrdVariationPrix $variationPrix = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -104,6 +107,18 @@ class CaissePanier
     public function setTva(?float $tva): self
     {
         $this->tva = $tva;
+
+        return $this;
+    }
+
+    public function getVariationPrix(): ?PrdVariationPrix
+    {
+        return $this->variationPrix;
+    }
+
+    public function setVariationPrix(?PrdVariationPrix $variationPrix): self
+    {
+        $this->variationPrix = $variationPrix;
 
         return $this;
     }

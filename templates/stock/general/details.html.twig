@@ -90,7 +90,7 @@
                             <div class="contenPrdType">
                                 <div class="row">
                                     <div class="col-md-9">
-                                        <select name="prod_type" class="custom-select chosen_select custom-select-sm" id="prod_type">
+                                        <select name="prod_type" class="custom-select not-reload chosen_select custom-select-sm" id="prod_type">
                                             <option value="">-</option>
                                             <option value="NA" {{ infoProduit.nomProduit == "NA" ? "selected" : "" }} >NON ASSIGNEE</option>
                                             {% for type in types %}
@@ -249,15 +249,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td class="text-center align-middle">-</td>
-                            </tr>
+                            {% for liste in listes %}
+                                <tr>
+                                    <td>{{liste.date}}</td>
+                                    <td>{{liste.entrepot}}</td>
+                                    <td>{{liste.produit}}</td>
+                                    <td>{{liste.quantite}}</td>
+                                    <td>{{liste.prix}}</td>
+                                    <td>{{liste.total}}</td>
+                                    <td class="text-center align-middle">{{liste.type|upper}}</td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

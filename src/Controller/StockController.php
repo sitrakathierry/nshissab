@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\CaissePanier;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
@@ -1435,6 +1436,12 @@ class StockController extends AbstractController
         ]);
     }
 
+    public static function compareDates($a, $b) {
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        return $dateB <=> $dateA;
+    }
+
     #[Route('/stock/general/produit/details/{id}', name: 'stock_general_details', defaults: ["id" => null])]
     public function stockDetailsProduitsGeneral($id): Response
     {
@@ -1486,6 +1493,60 @@ class StockController extends AbstractController
             "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
         ] ;
 
+        $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
+
+        $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+            "produit" => $produit,
+            "statut" => True,
+        ]) ;
+
+        $listes = [] ;
+        
+        foreach($variationPrixs as $variationPrix)
+        {
+            $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+                "variationPrix" => $variationPrix
+            ]) ;
+
+            foreach($caissePaniers as $caissePanier)
+            {
+                $item = [] ;
+
+                $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
+
+                $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
+                $item["entrepot"] = "-" ;
+                $item["produit"] = $produit->getNom() ;
+                $item["quantite"] = $caissePanier->getQuantite() ;
+                $item["prix"] = $caissePanier->getPrix() ;
+                $item["total"] = ($caissePanier->getPrix() * $caissePanier->getQuantite()) + $tva ;
+                $item["type"] = "Vente" ;
+
+                array_push($listes,$item) ;
+            }
+
+            $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
+                "variationPrix" => $variationPrix
+            ]) ;
+
+            foreach($appros as $appro)
+            {
+                $item = [] ;
+                $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
+                $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
+                $item["entrepot"] = "-" ;
+                $item["produit"] = $produit->getNom() ;
+                $item["quantite"] = $appro->getQuantite() ;
+                $item["prix"] = $prixVente ;
+                $item["total"] = ($prixVente * $appro->getQuantite());
+                $item["type"] = "Approvisionnement" ;
+
+                array_push($listes,$item) ;
+            }
+        }
+
+        usort($listes, [self::class, 'compareDates']);
+
         return $this->render('stock/general/details.html.twig', [
             "filename" => "stock",
             "titlePage" => "Details Produit",
@@ -1496,6 +1557,7 @@ class StockController extends AbstractController
             "infoProduit" => $infoProduit,
             "variationProduits" => $variationProduits,
             "fournisseurs" => $fournisseurs,
+            "listes" => $listes,
         ]);
     }
 
@@ -1658,7 +1720,7 @@ class StockController extends AbstractController
         $approvisionnement->setCharge(null) ;
         $approvisionnement->setMargeValeur(null) ;
         $approvisionnement->setPrixRevient(null) ;
-        $approvisionnement->setPrixVente(null) ;
+        $approvisionnement->setPrixVente($prod_variation_prix_vente) ;
         $expirer = !empty($prod_variation_expiree) ? \DateTime::createFromFormat('j/m/Y', $prod_variation_expiree) : null;
         $approvisionnement->setExpireeLe($expirer) ;
         $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
@@ -1705,7 +1767,6 @@ class StockController extends AbstractController
         return new JsonResponse($result) ;
     }
 
-    
     #[Route('/stock/variation/produit/update', name: 'stock_update_variation_prix')]
     public function stockUpdateVariationProduit(Request $request)
     {

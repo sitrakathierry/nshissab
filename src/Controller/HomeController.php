@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\CaissePanier;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,6 +40,22 @@ class HomeController extends AbstractController
         return $this->render('home/index.html.twig', [
             
         ]);
+    }
+
+    /**
+     * @Route("/home/datas/update", name="home_datas_update")
+     */
+    public function homeUpdateData(): Response
+    {
+        $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findAll() ;
+        
+        foreach($caissePaniers as $caissePanier)
+        {
+            $caissePanier->setVariationPrix($caissePanier->getHistoEntrepot()->getVariationPrix()) ;
+            $this->entityManager->flush() ;
+        }
+
+        return $this->redirectToRoute('app_home');
     }
 
     /**
