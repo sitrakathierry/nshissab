@@ -1753,17 +1753,23 @@ class StockController extends AbstractController
                 "statut" => True,
             ]) ;
 
+            $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($modif_inpt_solde_type) ;
+            $calculee = $margeType->getCalcul() == 1 ? $modif_inpt_solde : $variationPrix->getPrixVente() - (($modif_inpt_solde * $variationPrix->getPrixVente()) / 100) ;
+
             if(!is_null($solde))
             {
                 // Mise à jour du solde
+                $solde->setType($margeType) ;
+                $solde->setSolde($modif_inpt_solde) ;
+                $solde->setCalculee($calculee) ;
+                $solde->setDateLimite(\DateTime::createFromFormat('j/m/Y',$modif_inpt_solde_date)) ;
+
+                $this->entityManager->flush() ;
             }
             else
             {
                 // Nouveau solde
                 $solde = new PrdSolde() ;
-
-                $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($modif_inpt_solde_type) ;
-                $calculee = $margeType->getCalcul() == 1 ? $modif_inpt_solde : $variationPrix->getPrixVente() - (($modif_inpt_solde * $variationPrix->getPrixVente()) / 100) ;
 
                 $solde->setType($margeType) ;
                 $solde->setSolde($modif_inpt_solde) ;
