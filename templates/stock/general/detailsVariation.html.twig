@@ -1,0 +1,93 @@
+<div class="barre_dashed pt-3 pb-5">
+    <form id="formModifVariation">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="nom" class="font-weight-bold">Code</label>
+                    <input type="text" readonly value="{{variation.code}}" id="nom" class="form-control" placeholder=". . .">
+                    <input type="hidden" name="modif_variationId" id="modif_variationId" value="{{variation.id}}" >
+                </div>
+                <div class="col-md-3">
+                    <label for="nom" class="font-weight-bold">Indice</label>
+                    <input type="text" readonly value="{{variation.indice}}" id="nom" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-3">
+                    <label for="modif_inpt_prix" class="font-weight-bold">Prix de vente</label>
+                    <input type="number" step="any" name="modif_inpt_prix" value="{{variation.prix}}" id="modif_inpt_prix" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-3">
+                    <div id="contentBtnSolder">
+                    {% if variation.isSolde %}
+                        <label for="nom" class="font-weight-bold">Solde Calculée</label>
+                        <input type="text" readonly value="{{variation.soldeCalculee}}" id="nom" class="form-control" placeholder=". . .">
+                    {% else %}
+                        <label for="nom" class="font-weight-bold">&nbsp;</label>
+                        <button type="button" class="btn btn-sm btn-primary modif_btn_solder btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div id="contentSolder">
+                {% if variation.isSolde %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="modif_inpt_solde_type" class="mt-2 font-weight-bold text-primary">Type Solde</label>
+                            <select name="modif_inpt_solde_type" class="custom-select custom-select-sm" id="modif_inpt_solde_type">
+                                <option value="1" {{ variation.soldeType == 1 ? "selected" : "" }}>Montant</option>
+                                <option value="2" {{ variation.soldeType == 2 ? "selected" : "" }}>%</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="modif_inpt_solde" class="mt-2 font-weight-bold text-primary">Solde</label>
+                            <input type="number" step="any" name="modif_inpt_solde" id="modif_inpt_solde" class="form-control" value="{{variation.solde}}" placeholder=". . ."> 
+                        </div>
+                        <div class="col-md-3">
+                            <label for="modif_inpt_solde_date" class="mt-2 font-weight-bold text-primary">Date Limite</label>
+                            <input type="text" name="modif_inpt_solde_date" id="modif_inpt_solde_date" value="{{variation.soldeDate}}" class="form-control" placeholder=". . ."> 
+                        </div>
+                    </div>
+                    <script>
+                        $("#modif_inpt_solde_date").datepicker()
+                    </script>   
+                {% endif %}
+            </div>
+            <div class="table-responsive mt-4">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Entrepôt</th>
+                            <th>Stock</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = 0 %}
+                        {% for element in variation.entrepots %}
+                            <tr>
+                                <td>
+                                    {{element.entrepot|upper}}
+                                    <input type="hidden" name="reduc_val_entrepot[]" class="histo_entrepot" value="{{element.id}}">
+                                </td>
+                                <td>{{element.stock}}</td>
+                                <td class="text-center align-middle contentBtnReduire">
+                                    <button type="button" class="btn btn-sm modif_btn_deduire font-smaller btn-outline-warning"><i class="fa fa-minus"></i></button>
+                                </td>
+                            </tr>
+                            {% set total = total + element.stock %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th >Stock Total</th>
+                            <th colspan="2" class="bg-purple text-white">{{total}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="w-100 text-right">
+                <button type="button" class="btn prod_annule_variation btn-dark btn-sm px-4"><i class="fa fa-times"></i>&nbsp;Annuler</button>
+                <button type="submit" class="btn btn-perso-one ml-3 btn-sm px-4"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        </div>
+    </form>
+</div>

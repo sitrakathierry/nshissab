@@ -18,7 +18,52 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-2">
-        
+        <form id="formVariationProduit">
+            <h5 class="title_form text-black text-uppercase">Création variation de produit</h5>
+            <input type="hidden" name="prod_variation_iProduit" value="{{infoProduit.id}}">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="prod_variation_entrepot" class="font-weight-bold">Entrepot</label>
+                    <select name="prod_variation_entrepot" class="custom-select chosen_select custom-select-sm" id="prod_variation_entrepot">
+                        <option value="">-</option>
+                        {% for entrepot in entrepots %}
+                            <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="prod_variation_fournisseur" class=" font-weight-bold">Fournisseur</label>
+                    <select name="prod_variation_fournisseur[]" class="custom-select chosen_select custom-select-sm prod_variation_fournisseur" multiple id="prod_variation_fournisseur">
+                        {% for fournisseur in fournisseurs %}
+                            <option value="{{fournisseur.id}}">{{fournisseur.nom | upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="prod_variation_code" class="font-weight-bold">Code</label>
+                    <input type="text" readonly name="prod_variation_code" id="prod_variation_code" value="{{infoProduit.codeProduit}}" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="prod_variation_indice" class="font-weight-bold">Indice</label>
+                    <input type="text" name="prod_variation_indice" oninput="this.value = this.value.toUpperCase();" id="prod_variation_indice" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="prod_variation_prix_vente" class=" mt-3 font-weight-bold">Prix de vente</label>
+                    <input type="number" step="any" name="prod_variation_prix_vente" id="prod_variation_prix_vente" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="prod_variation_stock" class="mt-3 font-weight-bold">Stock</label>
+                    <input type="text" name="prod_variation_stock" id="prod_variation_stock" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="prod_variation_expiree" class="mt-3 font-weight-bold">Expirée le</label>
+                    <input type="text" name="prod_variation_expiree" id="prod_variation_expiree" class="form-control" placeholder=". . .">
+                </div>
+            </div>
+            <div class="w-100 barre_dashed mt-3 p-3 text-right">
+                <button type="submit" class="btn btn-sm px-5 btn-perso-one" ><i class="fa fa-save" ></i>&nbsp;Enregistrer</button>
+            </div>
+        </form>
         <div class="w-100 d-flex flex-row align-items-center justify-content-center mb-2">
             <h5 class="title_form text-black text-uppercase">Type d'approvisionnement : <span class="text-warning font-weight-bold appro_caption">Default</span></h5>
             <button type="button" caption="Existant" data-class="btn-primary" class="btn btn-sm btn-outline-primary ml-auto appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>

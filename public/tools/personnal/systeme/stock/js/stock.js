@@ -823,71 +823,80 @@ $(document).ready(function(){
     {
         var compteur = $('.content_product').length
         $('.caption_compteur').text("("+compteur+")")
+
         var content = `
-        <div class="content_product mt-5 container-fluid rounded w-100 py-3 shadow">
-            <div class="row"> 
-                <div class="col-md-6 px-4">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <label for="crt_code" class="mt-2 font-weight-bold">Code</label>
-                            <input type="text" name="crt_code[]" id="crt_code" value="`+$('.code_produit').val()+`" class="form-control crt_code" readonly placeholder=". . .">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="crt_indice" class="mt-2 font-weight-bold">Indice</label>
-                            <input type="text" name="crt_indice[]" oninput="this.value = this.value.toUpperCase();" id="crt_indice" class="form-control crt_indice" placeholder=". . .">
-                        </div>
+        <div class="content_product mt-5 container-fluid rounded w-100 px-4 py-3 shadow">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="crt_code" class="font-weight-bold">Code</label>
+                        <input type="text" name="crt_code[]" id="crt_code" class="form-control crt_code" value="`+$('.code_produit').val()+`" readonly placeholder=". . .">
                     </div>
-                    
-                    <label for="crt_entrepot" class="mt-1 font-weight-bold">Entrepot</label>
-                    <select name="crt_entrepot[]" class="custom-select crt_entrepot" id="crt_entrepot">
-                        `+$('#crt_entrepot').html()+`
-                    </select>
-
-                    <label for="crt_prix_achat" class="mt-2 font-weight-bold">Prix Achat</label>
-                    <input type="number" name="crt_prix_achat[]" id="crt_prix_achat" class="form-control crt_prix_achat" placeholder=". . .">
-
-                    <label for="crt_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
-                    <input type="number" name="crt_prix_revient[]" readonly id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
-
-                    <label for="crt_calcul" class="mt-1 font-weight-bold">Calcul</label>
-                    <select name="crt_calcul[]" class="custom-select crt_calcul" id="crt_calcul">
-                        `+$('#crt_calcul').html()+`
-                    </select>
-
-                    <label for="crt_prix_vente" class="mt-1 font-weight-bold">Prix Vente</label>
-                    <input type="number" name="crt_prix_vente[]" readonly id="crt_prix_vente" class="form-control crt_prix_vente" placeholder=". . .">
-
-                    <label for="crt_stock_alert" class="mt-1 font-weight-bold">Stock Alerte</label>
-                    <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
-                </div>
-                <div class="col-md-6 px-4">
-                    <div class="mt-2 text-white mb-4 text-right w-100 h3 font-weight-bold">
+                    <div class="col-md-3">
+                        <label for="crt_indice" class="font-weight-bold">Indice</label>
+                        <input type="text" name="crt_indice[]"  oninput="this.value = this.value.toUpperCase();" id="crt_indice" class="form-control crt_indice" placeholder=". . .">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="crt_entrepot" class=" font-weight-bold">Entrepot</label>
+                        <select name="crt_entrepot[]" class="custom-select crt_entrepot" id="crt_entrepot">
+                            `+$('#crt_entrepot').html()+`
+                        </select>
+                    </div>
+                    <div class="col-md-1 text-right">
                         <button type="button" class="btn btn-outline-danger annule_product btn-sm"><i class="fa fa-times"></i></button>
                     </div>
-                    <label for="crt_fournisseur" class="mt-2 font-weight-bold">Fournisseur</label>
-                    <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
-                    `+$('#crt_fournisseur').html()+`
-                    </select>
-
-                    <input type="hidden" name="crt_count_fournisseur[]" value="0" class="crt_count_fournisseur" >
-
-                    <label for="crt_charge" class="mt-2 font-weight-bold">Charge</label>
-                    <input type="number" name="crt_charge[]" id="crt_charge" class="form-control crt_charge" placeholder=". . .">
-
-                    <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
-                    <label for="nom" class="w-100 font-weight-bold">&nbsp;</label>
-
-                    <label for="crt_marge" class="mt-3 font-weight-bold">Marge</label>
-                    <input type="number" name="crt_marge[]" id="crt_marge" class="form-control crt_marge" placeholder=". . .">
-
-                    <label for="crt_stock" class="mt-1 font-weight-bold">Stock</label>
-                    <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
-
-                    <label for="crt_expiree_le" class="mt-1 font-weight-bold">Expirée le</label>
-                    <input type="text" name="crt_expiree_le[]" id="crt_expiree_le_`+compteur+`" class="form-control crt_expiree_le" placeholder=". . .">
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <label for="crt_fournisseur" class="mt-2 font-weight-bold">Fournisseur</label>
+                        <select name="crt_fournisseur[][]" class="custom-select crt_fournisseur" multiple id="crt_fournisseur">
+                            `+$('#crt_fournisseur').html()+`
+                        </select>
+                        <input type="hidden" name="crt_count_fournisseur[]" value="0" class="crt_count_fournisseur" >
+                    </div>
+                    <div class="col-md-4">
+                        <label for="crt_prix_achat" class="mt-2 font-weight-bold">Prix Achat</label>
+                        <input type="number" name="crt_prix_achat[]" id="crt_prix_achat" class="form-control crt_prix_achat" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="crt_charge" class="mt-2 font-weight-bold">Charge</label>
+                        <input type="number" name="crt_charge[]" id="crt_charge" class="form-control crt_charge" placeholder=". . .">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="crt_prix_revient" class="mt-2 font-weight-bold">Prix de revient</label>
+                        <input type="number" name="crt_prix_revient[]" readonly id="crt_prix_revient" class="form-control crt_prix_revient" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="crt_calcul" class="mt-2 font-weight-bold">Calcul Marge</label>
+                        <select name="crt_calcul[]" class="custom-select crt_calcul" id="crt_calcul">
+                            `+$('#crt_calcul').html()+`
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="crt_marge" class="mt-2 font-weight-bold">Marge</label>
+                        <input type="number" name="crt_marge[]" id="crt_marge" class="form-control crt_marge" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="crt_stock" class="mt-2 font-weight-bold">Stock</label>
+                        <input type="number" name="crt_stock[]" id="crt_stock" class="form-control crt_stock" placeholder=". . .">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="crt_stock_alert" class="mt-2 font-weight-bold">Stock Alerte</label>
+                        <input type="number" name="crt_stock_alert[]" id="crt_stock_alert" class="form-control crt_stock_alert" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="crt_prix_vente" class="mt-2 font-weight-bold">Prix Vente</label>
+                        <input type="number" name="crt_prix_vente[]" readonly id="crt_prix_vente" class="form-control crt_prix_vente" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="crt_expiree_le" class="mt-2 font-weight-bold">Expirée le</label>
+                        <input type="text" name="crt_expiree_le[]" id="crt_expiree_le_`+compteur+`" class="form-control crt_expiree_le" placeholder=". . .">
+                    </div>
                 </div>
             </div>
-        </div>
         `
         $(".all_product").append(content)
         $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});

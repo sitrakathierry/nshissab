@@ -625,7 +625,7 @@ class AppService extends AbstractController
 
             foreach($histoEntrepots as $histoEntrepot)
             {
-                $indice = is_null($histoEntrepot->getIndice()) ? "-" : $histoEntrepot->getIndice() ;
+                $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
                 $cle = $indice."|".$variation->getPrixVente() ;
 
                 if (array_key_exists($cle, $item))
@@ -634,7 +634,6 @@ class AppService extends AbstractController
                     $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
 
                     $elements[$cle] = $item[$cle] ;
-   
                 }
                 else
                 {

@@ -6,6 +6,7 @@ use App\Entity\Agence;
 use App\Entity\CaissePanier;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
+use App\Entity\PrdDeduction;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
@@ -95,7 +96,6 @@ class StockController extends AbstractController
         ]);
     }
 
-    
     #[Route('/stock/creationproduit/save', name: 'stock_save_creationProduit')]
     public function stockSaveCreationProduit(Request $request)
     {
@@ -244,31 +244,46 @@ class StockController extends AbstractController
         $stockProduit = 0 ;
         $indice = 0 ;
         foreach ($crt_code  as $key => $value) {
-            $variationPrix = new PrdVariationPrix() ;
+            $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findOneBy([
+                "produit" => $produit,
+                "prixVente" => $crt_prix_vente[$key],
+                "indice" => empty($crt_indice[$key]) ? null : $crt_indice[$key],
+                "statut" => True
+            ]) ; 
 
-            $variationPrix->setProduit($produit) ;
-            $variationPrix->setPrixVente($crt_prix_vente[$key]) ;
-            $variationPrix->setStock($crt_stock[$key]) ;
-            $variationPrix->setStockAlert($crt_stock_alert[$key]) ;
-            $variationPrix->setStatut(True) ;
-            $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
-            $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
-
-            $this->entityManager->persist($variationPrix) ;
-            $this->entityManager->flush() ;
+            if(!is_null($variationPrix))
+            {
+                $variationPrix->setStock($variationPrix->getStock() + intval($crt_stock[$key])) ;
+                $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
+                $this->entityManager->flush() ;
+            }
+            else
+            {
+                $variationPrix = new PrdVariationPrix() ;
+    
+                $variationPrix->setProduit($produit) ;
+                $variationPrix->setPrixVente($crt_prix_vente[$key]) ;
+                $variationPrix->setIndice(empty($crt_indice[$key]) ? null : $crt_indice[$key]) ;
+                $variationPrix->setStock($crt_stock[$key]) ;
+                $variationPrix->setStockAlert($crt_stock_alert[$key]) ;
+                $variationPrix->setStatut(True) ;
+                $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
+                $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                $this->entityManager->persist($variationPrix) ;
+                $this->entityManager->flush() ;
+            }
 
             $histoEntrepot = new PrdHistoEntrepot() ;
 
             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($crt_entrepot[$key]) ; 
-            if(empty($crt_indice[$key]))
-                $crt_indice[$key] = null ;
-            
+
             if(empty($crt_expiree_le[$key]))
                 $crt_expiree_le[$key] = null ;
 
             $histoEntrepot->setEntrepot($entrepot) ;
             $histoEntrepot->setVariationPrix($variationPrix) ;
-            $histoEntrepot->setIndice($crt_indice[$key]) ;
+            // $histoEntrepot->setIndice(empty($crt_indice[$key]) ? null : $crt_indice[$key]) ;
             $histoEntrepot->setStock($crt_stock[$key]) ;
             $histoEntrepot->setStatut(True) ;
             $histoEntrepot->setAgence($this->agence) ;
@@ -341,7 +356,6 @@ class StockController extends AbstractController
         return new JsonResponse($result) ;
     }
 
-    
     #[Route('/stock/produit/update', name: 'stock_update_produit')]
     public function stockUpdateProduit(Request $request)
     {
@@ -1310,7 +1324,8 @@ class StockController extends AbstractController
                 $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
                     "entrepot" => $entrepot,
                     "variationPrix" => $variationPrix,
-                    "indice" => $indice
+                    "indice" => $indice,
+                    "statut" => True
                 ]) ;
 
                 $histoEntrepot->setStock($histoEntrepot->getStock() + intval($enr_appro_quantite[$key])) ;
@@ -1649,8 +1664,9 @@ class StockController extends AbstractController
 
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findOneBy([
             "produit" => $produit,
-            "statut" => True,
             "prixVente" => $prod_variation_prix_vente,
+            "indice" => empty($prod_variation_indice) ? null : $prod_variation_indice ,
+            "statut" => True,
         ]) ;
         
         // DEBUT AJOUT DONNEE
@@ -1658,6 +1674,7 @@ class StockController extends AbstractController
         if(!is_null($variationPrix))
         {
             $variationPrix->setStock($variationPrix->getStock() + intval($prod_variation_stock)) ;
+            $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
             $this->entityManager->flush() ;
 
         }else
@@ -1681,7 +1698,6 @@ class StockController extends AbstractController
         $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
             "entrepot" => $entrepot,
             "variationPrix" => $variationPrix,
-            "indice" => empty($prod_variation_indice) ? null : $prod_variation_indice ,
             "statut" => True,
         ]) ;
 
@@ -1844,14 +1860,38 @@ class StockController extends AbstractController
             }
         }
 
-        $modif_inpt_deduire = $request->request->get("modif_inpt_deduire") ;
-        if(isset($modif_inpt_deduire))
-        {
-            if(!empty($modif_inpt_deduire))
-            {
-                // $variationPrix->setStock($variationPrix->getStock() - intval($modif_inpt_deduire)) ;
+        $reduc_val_qte = (array)$request->request->get("reduc_val_qte") ;
 
-                // $this->entityManager->flush() ;
+        if(isset($reduc_val_qte))
+        {
+            $reduc_val_entrepot = $request->request->get("reduc_val_entrepot") ;
+            $reduc_val_type = $request->request->get("reduc_val_type") ;
+            $reduc_val_cause = $request->request->get("reduc_val_cause") ;
+
+            foreach ($reduc_val_qte as $key => $value) {
+                # code...
+                $deduction = new PrdDeduction() ;
+
+                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($reduc_val_entrepot[$key]) ;
+
+                $deduction->setHistoEntrepot($histoEntrepot) ;
+                $deduction->setQuantite($reduc_val_qte[$key]) ;
+                $deduction->setCause($reduc_val_type[$key] == "Par décompte" ? "-" : $reduc_val_cause[$key]) ;
+                $deduction->setType($reduc_val_type[$key]) ;
+                $deduction->setCreatedAt(new \DateTimeImmutable) ;
+                $deduction->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->entityManager->persist($deduction) ;
+                $this->entityManager->flush() ;
+
+                $variationPrix->setStock($variationPrix->getStock() - intval($reduc_val_qte[$key])) ;
+                $this->entityManager->flush() ;
+
+                $histoEntrepot->setStock($histoEntrepot->getStock() - intval($reduc_val_qte[$key])) ;
+                $this->entityManager->flush() ;
+
+                $variationPrix->getProduit()->setStock($variationPrix->getProduit()->getStock() - intval($reduc_val_qte[$key])) ;
+                $this->entityManager->flush() ;
             }
         }
 
@@ -1871,5 +1911,54 @@ class StockController extends AbstractController
         }
 
         return new JsonResponse($result) ;
+    }
+
+    
+    #[Route('/stock/variation/details/get', name: 'stock_get_details_variation_prix')]
+    public function stockGetDetailsVariationProduit(Request $request)
+    {
+        $prd_list_id = $request->request->get("prd_list_id") ;
+
+        $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($prd_list_id) ;
+
+        $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
+            "variationPrix" => $variationPrix,
+            "statut" => True,
+        ]) ;
+
+        $variation = [
+            "id" => $variationPrix->getId() ,
+            "code" => $variationPrix->getProduit()->getCodeProduit() ,
+            "indice" => $variationPrix->getIndice() ,
+            "prix" => $variationPrix->getPrixVente() ,
+            "isSolde" => !is_null($solde) ,
+            "solde" => is_null($solde) ? "-" : $solde->getSolde() ,
+            "soldeType" => is_null($solde) ? "-" : $solde->getType()->getId() ,
+            "soldeDate" => is_null($solde) ? "-" : $solde->getDateLimite()->format("d/m/Y") ,
+            "soldeCalculee" => is_null($solde) ? "-" : $solde->getCalculee(),
+        ] ;
+
+        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            "variationPrix"  =>  $variationPrix,
+            "statut" => True
+        ]) ;
+    
+        $variation["entrepots"] = [] ;
+    
+        foreach ($histoEntrepots as $histoEntrepot) {
+            $item = [] ;
+
+            $item["id"] = $histoEntrepot->getId();
+            $item["entrepot"] = $histoEntrepot->getEntrepot()->getNom() ;
+            $item["stock"] = $histoEntrepot->getStock() ;
+
+            array_push($variation["entrepots"],$item) ;
+        }
+
+        $response = $this->renderView("stock/general/detailsVariation.html.twig",[
+            "variation" => $variation    
+        ]) ;
+
+        return new Response($response) ;
     }
 }

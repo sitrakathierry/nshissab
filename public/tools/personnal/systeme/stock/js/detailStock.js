@@ -224,111 +224,27 @@ $(document).ready(function(){
     })
 
     $(document).on("click",".prod_edit_variation",function(){
-        var prd_list_entrepot = $(this).closest("tr").find(".prd_list_entrepot").text()
-        var prd_list_code = $(this).closest("tr").find(".prd_list_code").val()
-        var prd_list_prix = $(this).closest("tr").find(".prd_list_prix").text()
-        var prd_list_stock = $(this).closest("tr").find(".prd_list_stock").text()
-        var prd_list_indice = $(this).closest("tr").find(".prd_list_indice").val()
         var prd_list_id = $(this).closest("tr").find(".prd_list_id").val()
-        var prd_list_solde_type = $(this).closest("tr").find(".prd_list_solde_type").val()
-        var prd_list_qte_solde = $(this).closest("tr").find(".prd_list_qte_solde").val()
-        var prd_list_solde_date = $(this).closest("tr").find(".prd_list_solde_date").val()
-        var soldeValue = '' ;
-        var soldeParent = `
-            <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-            <button class="btn btn-sm btn-primary modif_btn_solder btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
-        ` ;
-        if(prd_list_solde_type != "-")
-        {
-            soldeValue = `
-            <div class="row">
-                <div class="col-6">
-                    <label for="modif_inpt_solde" class="mt-2 font-weight-bold text-primary">Solde</label>
-                    <input type="number" step="any" name="modif_inpt_solde" id="modif_inpt_solde" class="form-control" value="`+prd_list_qte_solde+`" placeholder=". . ."> 
-                </div>
-                <div class="col-6">
-                    <label for="modif_inpt_solde_date" class="mt-2 font-weight-bold text-primary">Date Limite</label>
-                    <input type="text" name="modif_inpt_solde_date" id="modif_inpt_solde_date" value="`+prd_list_solde_date+`" class="form-control" placeholder=". . ."> 
-                </div>
-            </div>
-            <script>
-                $("#modif_inpt_solde_date").datepicker()
-            </script>
-            `;
-
-            soldeParent = `
-                <label for="modif_inpt_solde_type" class="mt-2 font-weight-bold text-primary">Type Solde</label>
-                <select name="modif_inpt_solde_type" class="custom-select custom-select-sm" id="modif_inpt_solde_type">
-                    <option value="1" `+(prd_list_solde_type == 1 ? `selected` : ``)+` >Montant</option>
-                    <option value="2" `+(prd_list_solde_type == 100 ? `selected` : ``)+` >%</option>
-                </select>
-            `
-        }
-
-        var contenu = `
-        <form id="formModifVariation">
-            <div id="contentModif" class="container text-left">
-                <label for="nom" class="mt-2 font-weight-bold">Entrepôt(s)</label>
-                <input type="text" readonly id="nom" value="`+prd_list_entrepot+`" class="form-control" placeholder=". . .">
-                <input type="hidden" name="modif_variationId" id="modif_variationId" value="`+prd_list_id+`" >
-                <div class="row">
-                    <div class="col-7">
-                        <label for="nom" class="mt-2 font-weight-bold">Code</label>
-                        <input type="text" readonly value="`+prd_list_code+`" id="nom" class="form-control" placeholder=". . .">
-                    </div>
-                    <div class="col-5">
-                        <label for="nom" class="mt-2 font-weight-bold">Indice</label>
-                        <input type="text" readonly value="`+prd_list_indice+`" id="nom" class="form-control" placeholder=". . .">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6">
-                        <label for="modif_inpt_prix" class="mt-2 font-weight-bold">Prix de vente</label>
-                        <input type="number" step="any" name="modif_inpt_prix" value="`+prd_list_prix+`" id="modif_inpt_prix" class="form-control" placeholder=". . .">
-                    </div>
-                    <div class="col-6">
-                        <div id="contentBtnSolder">
-                            `+soldeParent+`
-                        </div>
-                    </div>
-                </div>
-                <div id="contentSolder">
-                    `+soldeValue+`
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <label for="nom" class="mt-2 font-weight-bold">Stock</label>
-                        <input type="text" readonly value="`+prd_list_stock+`" id="nom" class="form-control" placeholder=". . .">
-                    </div>
-                    <div class="col-6">
-                        <div id="contentDeduire">
-                            <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                            <button class="btn btn-sm modif_btn_deduire btn-warning btn-block"><i class="fa fa-minus"></i>&nbsp;Déduire</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-        ` ;
-
-        $.confirm({
-            title:'Modification Variation',
-            content:contenu,
-            type:"orange",
-            // theme:"modern",
-            buttons : {
-                Annuler : function(){},
-                Enregistrer : function(){
-                    $('#formModifVariation').submit()
-                }
+        var realinstance = instance.loading()
+        var formData = new FormData() ;
+        formData.append("prd_list_id",prd_list_id)
+        $.ajax({
+            url: routes.stock_get_details_variation_prix,
+            type:"post",
+            data:formData,
+            dataType:"html",
+            processData: false,
+            contentType: false,
+            success : function(response){
+                realinstance.close()
+                $(".detailVariationProduit").html(response)
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
             }
         })
-        return false ;
     })
-
-    var instance = new Loading(files.loading)
-    var appBase = new AppBase() ;
 
     $(document).on('submit','#formModifVariation',function(){
         var self = $(this)
@@ -374,56 +290,113 @@ $(document).ready(function(){
         return false ;
     })
 
-    $(document).on('click',".modif_btn_solder",function(){
+    $(document).on('click','.prod_annule_variation',function(){
+        $(".detailVariationProduit").html("")
+    })
 
+    $(document).on('click',".modif_btn_solder",function(){
         $("#modif_inpt_prix").attr("readonly",true) ;
         var contenu1 = `
-        <div class="row">
-            <div class="col-6">
-                <label for="modif_inpt_solde" class="mt-2 font-weight-bold text-primary">Solde</label>
-                <input type="number" step="any" name="modif_inpt_solde" id="modif_inpt_solde" class="form-control" value="`+$("#modif_inpt_prix").val()+`" placeholder=". . ."> 
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="modif_inpt_solde_type" class="mt-2 font-weight-bold text-primary">Type Solde</label>
+                    <select name="modif_inpt_solde_type" class="custom-select custom-select-sm" id="modif_inpt_solde_type">
+                        <option value="1">Montant</option>
+                        <option value="2">%</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="modif_inpt_solde" class="mt-2 font-weight-bold text-primary">Solde</label>
+                    <input type="number" step="any" name="modif_inpt_solde" id="modif_inpt_solde" class="form-control" value="`+$("#modif_inpt_prix").val()+`" placeholder=". . ."> 
+                </div>
+                <div class="col-md-3">
+                    <label for="modif_inpt_solde_date" class="mt-2 font-weight-bold text-primary">Date Limite</label>
+                    <input type="text" name="modif_inpt_solde_date" id="modif_inpt_solde_date" class="form-control" placeholder=". . ."> 
+                </div>
             </div>
-            <div class="col-6">
-                <label for="modif_inpt_solde_date" class="mt-2 font-weight-bold text-primary">Date Limite</label>
-                <input type="text" name="modif_inpt_solde_date" id="modif_inpt_solde_date" class="form-control" placeholder=". . ."> 
-            </div>
-        </div>
-        <script>
-            $("#modif_inpt_solde_date").datepicker()
-        </script>
-        `;
+            <script>
+                $("#modif_inpt_solde_date").datepicker()
+            </script>
+            `;
         
         var contenu2 = `
-            <label for="modif_inpt_solde_type" class="mt-2 font-weight-bold text-primary">Type Solde</label>
-            <select name="modif_inpt_solde_type" class="custom-select custom-select-sm" id="modif_inpt_solde_type">
-                <option value="1">Montant</option>
-                <option value="2">%</option>
-            </select>
+            <label for="" class="font-weight-bold">&nbsp;</label>
+            <button class="btn btn-sm btn-dark modif_btn_annuler btn-block"><i class="fa fa-times"></i>&nbsp;Annuler</button>
         `;
         
         $("#contentSolder").empty().html(contenu1) 
         $("#contentBtnSolder").empty().html(contenu2) 
     })
-
-    $(document).on('click',"#modif_inpt_prix",function(){
-        $(this).removeAttr("readonly") ;
+    
+    $(document).on('click',".modif_btn_annuler",function(){
+        $("#modif_inpt_prix").removeAttr("readonly") ;
         $("#contentSolder").html("") 
         $("#contentBtnSolder").html(`
-            <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+            <label for="nom" class="font-weight-bold">&nbsp;</label>
             <button class="btn btn-sm btn-primary modif_btn_solder btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
         `) 
     })
 
     $(document).on('click',".modif_btn_deduire",function(){
-        if(!$(this).attr("disabled"))
+        var self = $(this)
+        $.confirm({
+            title: "Déduction",
+            content:`
+                <div class="w-100 text-left">
+                    <label for="reduc_qte" class="font-weight-bold">Quantité à  déduire</label>
+                    <input type="number" step="any" name="reduc_qte" id="reduc_qte" class="form-control" placeholder=". . .">
+
+                    <label for="reduc_type" class="mt-2 font-weight-bold">Type</label>
+                    <select name="reduc_type" class="custom-select custom-select-sm" id="reduc_type">
+                        <option value="Par décompte">PAR DECOMPTE</option>
+                        <option value="Par défaut">PAR DEFAUT</option>
+                    </select>
+                    <div id="contentCause">
+                        <label for="reduc_cause" class="mt-2 font-weight-bold">Raison/Cause</label>
+                        <input type="text" name="reduc_cause" id="reduc_cause" class="form-control" placeholder=". . .">
+                    </div>
+                </div>
+                <script>
+                    $("#contentCause").hide()
+                </script>
+                `,
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Valider',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        self.closest('tr').find(".contentBtnReduire").html(`
+                            <span class="text-warning">
+                                Qte déduit : <b>`+$("#reduc_qte").val()+`</b>,
+                                Type : <b>`+$("#reduc_type").val()+`</b>
+                                <input type="hidden" name="reduc_val_qte[]" value="`+$("#reduc_qte").val()+`">
+                                <input type="hidden" name="reduc_val_type[]" value="`+$("#reduc_type").val()+`">
+                                <input type="hidden" name="reduc_val_cause[]" value="`+$("#reduc_cause").val()+`">
+                            </span>
+                        `)
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on('change',"#reduc_type",function(){
+        if($(this).val() == "Par défaut")
         {
-            $("#modif_inpt_prix").attr("readonly",true) ;
-            var contenu = `
-            <label for="modif_inpt_deduire" class="mt-2 font-weight-bold">Qté à déduire</label>
-            <input type="number" step="any" name="modif_inpt_deduire" id="modif_inpt_deduire" class="form-control" placeholder=". . ."> `;
-            $("#contentDeduire").empty().html(contenu) 
+            $("#contentCause").show()
         }
-        $(this).prop("disabled", true);
+        else
+        {
+            $("#contentCause").hide()
+        }
     })
 
 })
