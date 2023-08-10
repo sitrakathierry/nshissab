@@ -501,12 +501,26 @@ class StockController extends AbstractController
             
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
+        $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generatePrdGenEntrepot($filename, $this->agence);
+
+        $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
+
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",
             "with_foot" => false,
             "types" => $types,
+            "entrepots" => $entrepots,
             "stockGenerales" => (array)$stockGenerales,
+            "stockGEntrepots" => $stockGEntrepots,
         ]);
     }
 
@@ -545,6 +559,7 @@ class StockController extends AbstractController
         $parent = [
             "societe" => $this->agence->getNom(),
             "type" => $nomType,
+            "idType" => $idType,
         ] ;
 
         return $this->render('stock/stockgeneralParType.html.twig', [
@@ -591,10 +606,12 @@ class StockController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
+        $type = $request->request->get('type') ;
         $id = $request->request->get('id') ;
         $idC = $request->request->get('idC') ;
 
         $search = [
+            "type" => $type,
             "id" => $id,
             "idC" => $idC
         ] ;
@@ -804,12 +821,21 @@ class StockController extends AbstractController
     #[Route('/stock/inventaire', name: 'stock_inventaire')]
     public function stockInventaire(): Response
     {
-        
+        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockInEntrepot($filename, $this->agence) ;
 
+        $stockEntrepots = json_decode(file_get_contents($filename)) ;
+
+        // $newStockEntrepots = [] ;
+        // foreach ($stockEntrepots as $stockEntrepot) {
+        //     array_push($newStockEntrepots,(array)$stockEntrepot) ;
+        // }
         return $this->render('stock/inventaire.html.twig', [
             "filename" => "stock",
             "titlePage" => "Inventaire des Produits",
-            "with_foot" => false
+            "with_foot" => false,
+            "stockEntrepots" => $stockEntrepots,
         ]);
     }
     
@@ -849,9 +875,15 @@ class StockController extends AbstractController
         $idE = $request->request->get('idE') ;
         $idP = $request->request->get('idP') ; 
 
-        $prixProduits = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getPrixProduitsE($idE, $idP) ;
+        $filename = $this->filename."variationProduit(agence)/vartPrd_".$idP."_".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdVariationProduit($filename,$idP) ;
 
-        return new JsonResponse($prixProduits) ;
+        $variationProduits = json_decode(file_get_contents($filename)) ;
+
+        // $prixProduits = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getPrixProduitsE($idE, $idP) ;
+
+        return new JsonResponse($variationProduits) ;
     }
 
     #[Route('/stock/produit/variation/details', name: 'stock_details_variation_prix')]
@@ -863,6 +895,11 @@ class StockController extends AbstractController
 
         $approvisionnement = $this->entityManager->getRepository(PrdApprovisionnement::class)->getLastApproVariationPrix($idVar) ;
 
+        if(is_null($approvisionnement))
+        {
+            return new JsonResponse($result) ;
+        }
+
         $histoFournisseur = $this->entityManager->getRepository(PrdHistoFournisseur::class)->findBy([
             "approvisionnement" => $approvisionnement
         ]) ;
@@ -872,11 +909,11 @@ class StockController extends AbstractController
             array_push($fournisseur,$histoFournisseur->getFournisseur()->getId()) ;
         }
 
-        $result["prixAchat"] = $approvisionnement->getPrixAchat() ; 
-        $result["charge"] = $approvisionnement->getCharge() ; 
-        $result["calcul"] = $approvisionnement->getMargeType()->getId() ; 
-        $result["marge"] = $approvisionnement->getMargeValeur() ; 
-        $result["prixRevient"] = $approvisionnement->getPrixRevient() ; 
+        $result["prixAchat"] = is_null($approvisionnement->getPrixAchat()) ? "" : $approvisionnement->getPrixAchat() ; 
+        $result["charge"] = is_null($approvisionnement->getCharge()) ? "" : $approvisionnement->getCharge() ; 
+        $result["calcul"] = is_null($approvisionnement->getMargeType()->getId()) ? "" : $approvisionnement->getMargeType()->getId() ; 
+        $result["marge"] = is_null($approvisionnement->getMargeValeur()) ? "" : $approvisionnement->getMargeValeur() ; 
+        $result["prixRevient"] = is_null($approvisionnement->getPrixRevient()) ? "" : $approvisionnement->getPrixRevient() ; 
         $result["prixVente"] = $approvisionnement->getPrixVente() ; 
         $result["expireeLe"] = is_null($approvisionnement->getExpireeLe()) ? "" : $approvisionnement->getExpireeLe()->format("d/m/Y") ; 
         $result["fournisseur"] = $fournisseur ; 
@@ -954,6 +991,7 @@ class StockController extends AbstractController
         $entrepot->setAdresse($adresse) ;
         $entrepot->setTelephone($telephone) ;
         $entrepot->setAgence($this->agence) ;
+        $entrepot->setStatut(True) ;
         $entrepot->setUpdatedAt(new \DateTimeImmutable) ;
         
         $this->entityManager->persist($entrepot);
@@ -1102,9 +1140,11 @@ class StockController extends AbstractController
         return new Response($response) ;
     }
 
-    #[Route('/stock/stockentrepot', name: 'stock_stockentrepot')]
-    public function stockStockentrepot(): Response
+    #[Route('/stock/stockentrepot/{id}', name: 'stock_stockentrepot', defaults: ["id" => null])]
+    public function stockStockentrepot($id): Response
     {
+        $id = $this->appService->decoderChiffre($id) ;
+
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
         $preferences = json_decode(file_get_contents($filename)) ;
 
@@ -1114,17 +1154,26 @@ class StockController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
+        
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-
+        $this->appService->generateStockEntrepot($filename,$this->agence) ;
+        
         $entrepots = json_decode(file_get_contents($filename)) ; 
-
+        
         $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
             $this->appService->generateStockInEntrepot($filename, $this->agence);
-
+        
         $stockEntrepots = json_decode(file_get_contents($filename)) ; 
+        
+        $search = [
+            "idE" => is_null($id)? "" : $id,
+        ] ;
+
+        $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
+        
+        $stockEntrepots = array_values($stockEntrepots) ;
 
         return $this->render('stock/stockentrepot.html.twig', [
             "filename" => "stock",
@@ -1133,11 +1182,12 @@ class StockController extends AbstractController
             "entrepots" => $entrepots,
             "categories" => $preferences,
             "stockGenerales" => $stockGenerales,
-            "stockEntrepots" => $stockEntrepots
+            "stockEntrepots" => $stockEntrepots,
+            "idEntrepot" => $id
         ]);
     }
 
-    #[Route('/stock/stockentrepot/search', name: 'stock_search_stock_entrepot')]
+    #[Route('/stock/entrepot/private/search', name: 'stock_search_stock_entrepot')]
     public function stockStockInEntrepotSearch(Request $request)
     {
         $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
@@ -1300,139 +1350,37 @@ class StockController extends AbstractController
 
         $enr_appro_date = $request->request->get('enr_appro_date') ; // NOT AN ARRAY !!!
         foreach ($enr_appro_type as $key => $value) {  
-            // Etape 1 : Afficher tous les prix de produit dans PrdVariationPrix à partir de l'idProduit
-            $produit = $this->entityManager->getRepository(Produit::class)->find($enr_ref_appro_produit[$key]) ;
-            
-            $produit->setStock($produit->getStock() + intval($enr_appro_quantite[$key])) ;
-            $produit->setUpdatedAt(new \DateTimeImmutable) ;
-            $this->entityManager->flush() ;
 
-            $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findOneBy([
-                "produit" => $produit,
-                "prixVente" => $enr_appro_prix_vente[$key]
-            ]);
-
-            if(!is_null($variationPrix))
-            {
-                $variationPrix->setStock($variationPrix->getStock() + intval($enr_appro_quantite[$key])) ;
-                $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
-                $this->entityManager->flush() ;
-
-                $indice = empty($enr_appro_indice[$key]) ? null : $enr_appro_indice[$key] ;
-                $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($enr_ref_entrepot[$key]) ;
-                
-                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                    "entrepot" => $entrepot,
-                    "variationPrix" => $variationPrix,
-                    "indice" => $indice,
-                    "statut" => True
-                ]) ;
-
-                $histoEntrepot->setStock($histoEntrepot->getStock() + intval($enr_appro_quantite[$key])) ;
-                $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
-                $this->entityManager->flush() ;
-            }
-            else
-            {
-                $variationPrix = new PrdVariationPrix() ;
-
-                $variationPrix->setProduit($produit) ;
-                $variationPrix->setPrixVente($enr_appro_prix_vente[$key]) ;
-                $variationPrix->setStock($enr_appro_quantite[$key]) ;
-                $variationPrix->setStockAlert(10) ;
-                $variationPrix->setStatut(True) ;
-                $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
-                $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
-
-                $this->entityManager->persist($variationPrix) ;
-                $this->entityManager->flush() ;
-
-                $histoEntrepot = new PrdHistoEntrepot() ;
-
-                $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($enr_ref_entrepot[$key]) ; 
-                if(empty($enr_appro_indice[$key]))
-                    $enr_appro_indice[$key] = null ;
-                
-                if(empty($crt_expiree_le[$key]))
-                    $crt_expiree_le[$key] = null ;
-
-                $histoEntrepot->setEntrepot($entrepot) ;
-                $histoEntrepot->setVariationPrix($variationPrix) ;
-                $histoEntrepot->setIndice($enr_appro_indice[$key]) ;
-                $histoEntrepot->setStock($enr_appro_quantite[$key]) ;
-                $histoEntrepot->setStatut(True) ;
-                $histoEntrepot->setAgence($this->agence) ;
-                $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
-                $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
-
-                $this->entityManager->persist($histoEntrepot) ;
-                $this->entityManager->flush() ;
-            }
-
-            $approvisionnement = new PrdApprovisionnement() ;
-            $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($enr_appro_calcul[$key]) ;
-
-            $approvisionnement->setUser($this->userObj) ;
-            $approvisionnement->setHistoEntrepot($histoEntrepot) ;
-            $approvisionnement->setVariationPrix($variationPrix) ;
-            $approvisionnement->setMargeType($margeType) ;
-            $approvisionnement->setQuantite($enr_appro_quantite[$key]) ;
-            $approvisionnement->setPrixAchat($enr_appro_prix_achat[$key]) ;
-            $approvisionnement->setCharge($enr_appro_charge[$key]) ;
-            $approvisionnement->setMargeValeur($enr_appro_marge[$key]) ;
-            $approvisionnement->setPrixRevient($enr_appro_prix_revient[$key]) ;
-            $approvisionnement->setPrixVente($enr_appro_prix_vente[$key]) ;
-            $expirer = !empty($crt_expiree_le[$key]) ? \DateTime::createFromFormat('j/m/Y',$enr_appro_expireeLe[$key]) : null;
-            $approvisionnement->setExpireeLe($expirer) ;
-            $dateTimeDateAppro = \DateTime::createFromFormat('j/m/Y',$enr_appro_date);
-            $approvisionnement->setDateAppro($dateTimeDateAppro) ; 
-            $approvisionnement->setDescription("Approvisionnement de Produit Code : ".$produit->getCodeProduit()) ;
-            $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
-            $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
-            
-            $this->entityManager->persist($approvisionnement) ;
-            $this->entityManager->flush() ;
-
+            $fournisseur = [] ;
             if(!empty($enr_appro_fournisseur[$key]))
             {
                 if(strlen($enr_appro_fournisseur[$key]) == 1)
-                {
-                    $histoFournisseur = new PrdHistoFournisseur() ;
-                    $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->find($enr_appro_fournisseur[$key]) ;
-                    $histoFournisseur->setFournisseur($fournisseur) ;
-                    $histoFournisseur->setApprovisionnement($approvisionnement) ;
-                    $histoFournisseur->setCreatedAt(new \DateTimeImmutable) ;
-                    $histoFournisseur->setUpdatedAt(new \DateTimeImmutable) ;
-
-                    $this->entityManager->persist($histoFournisseur) ;
-                    $this->entityManager->flush() ;
-                }
+                    $fournisseur = $enr_appro_fournisseur[$key] ;
                 else
-                {
-                    $fournisseurArray = explode(",",$enr_appro_fournisseur[$key]) ;
-                    for ($i=0; $i < count($fournisseurArray) ; $i++) { 
-                        $histoFournisseur = new PrdHistoFournisseur() ;
-                        $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->find($fournisseurArray[$i]) ;
-
-                        $histoFournisseur->setFournisseur($fournisseur) ;
-                        $histoFournisseur->setApprovisionnement($approvisionnement) ;
-                        $histoFournisseur->setCreatedAt(new \DateTimeImmutable) ;
-                        $histoFournisseur->setUpdatedAt(new \DateTimeImmutable) ;
-        
-                        $this->entityManager->persist($histoFournisseur) ;
-                        $this->entityManager->flush() ;
-                    }
-                }
+                    $fournisseur = explode(",",$enr_appro_fournisseur[$key]) ;
             }
-        }
-        
-        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename) ;
 
-        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename) ;
+            $produit = $this->entityManager->getRepository(Produit::class)->find($enr_ref_appro_produit[$key]); 
+
+            $dataToInsert = [
+                "idProduit" => $enr_ref_appro_produit[$key],
+                "entrepot" => $enr_ref_entrepot[$key],
+                "fournisseur" => $fournisseur,
+                "codeProduit" => $produit->getCodeProduit(),
+                "indice" => $enr_appro_indice[$key],
+                "prixVente" => $enr_appro_prix_vente[$key],
+                "stock" => $enr_appro_quantite[$key],
+                "dateExpiree" => $enr_appro_expireeLe[$key],
+                "margeType" => $enr_appro_calcul[$key],
+                "prixAchat" => empty($enr_appro_prix_achat[$key]) ? null : $enr_appro_prix_achat[$key],
+                "charge" => empty($enr_appro_charge[$key]) ? null : $enr_appro_charge[$key],
+                "margeValeur" => empty($enr_appro_marge[$key]) ? null : $enr_appro_marge[$key],
+                "prixevient" => empty($enr_appro_prix_revient[$key]) ? null : $enr_appro_prix_revient[$key],
+                "dateAppro" => $enr_appro_date
+            ] ;
+
+            $this->stockSaveVariationProduit(null, $dataToInsert) ;
+        }
 
         return new JsonResponse([
             "type" => "green",
@@ -1530,7 +1478,7 @@ class StockController extends AbstractController
                 $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
 
                 $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
-                $item["entrepot"] = "-" ;
+                $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $caissePanier->getQuantite() ;
                 $item["prix"] = $caissePanier->getPrix() ;
@@ -1549,7 +1497,7 @@ class StockController extends AbstractController
                 $item = [] ;
                 $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
                 $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
-                $item["entrepot"] = "-" ;
+                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $appro->getQuantite() ;
                 $item["prix"] = $prixVente ;
@@ -1632,35 +1580,50 @@ class StockController extends AbstractController
     }
 
     #[Route('/stock/variation/produit/save', name: 'stock_variation_produit_save')]
-    public function stockSaveVariationProduit(Request $request)
+    public function stockSaveVariationProduit(Request $request = null, $dataToInsert = [])
     {
-        $prod_variation_iProduit = $request->request->get("prod_variation_iProduit") ;
-        $prod_variation_entrepot = $request->request->get("prod_variation_entrepot") ;
-        $prod_variation_fournisseur = (array)$request->request->get("prod_variation_fournisseur") ;
-        $prod_variation_code = $request->request->get("prod_variation_code") ;
-        $prod_variation_indice = $request->request->get("prod_variation_indice") ;
-        $prod_variation_prix_vente = $request->request->get("prod_variation_prix_vente") ;
-        $prod_variation_stock = $request->request->get("prod_variation_stock") ;
-        $prod_variation_expiree = $request->request->get("prod_variation_expiree") ;
-
+        if(empty($dataToInsert))
+        {
+            $prod_variation_iProduit = $request->request->get("prod_variation_iProduit") ;
+            $prod_variation_entrepot = $request->request->get("prod_variation_entrepot") ;
+            $prod_variation_fournisseur = (array)$request->request->get("prod_variation_fournisseur") ;
+            $prod_variation_code = $request->request->get("prod_variation_code") ;
+            $prod_variation_indice = $request->request->get("prod_variation_indice") ;
+            $prod_variation_prix_vente = $request->request->get("prod_variation_prix_vente") ;
+            $prod_variation_stock = $request->request->get("prod_variation_stock") ;
+            $prod_variation_expiree = $request->request->get("prod_variation_expiree") ;
+    
+            
+            $data = [
+                $prod_variation_entrepot,
+                $prod_variation_prix_vente,
+                $prod_variation_stock,
+            ];
+    
+            $dataMessage = [
+                "Entrepot",
+                "Prix de vente",
+                "Stock",
+            ] ;
+    
+            $result = $this->appService->verificationElement($data,$dataMessage) ;
+    
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+        }
+        else
+        {
+            $prod_variation_iProduit = $dataToInsert["idProduit"] ;
+            $prod_variation_entrepot = $dataToInsert["entrepot"] ;
+            $prod_variation_fournisseur = (array)$dataToInsert["fournisseur"] ;
+            $prod_variation_code = $dataToInsert["codeProduit"] ;
+            $prod_variation_indice = $dataToInsert["indice"] ;
+            $prod_variation_prix_vente = $dataToInsert["prixVente"] ;
+            $prod_variation_stock = $dataToInsert["stock"] ;
+            $prod_variation_expiree = $dataToInsert["dateExpiree"] ;
+        }
+        
         $produit = $this->entityManager->getRepository(Produit::class)->find($prod_variation_iProduit) ;
-
-        $data = [
-            $prod_variation_entrepot,
-            $prod_variation_prix_vente,
-            $prod_variation_stock,
-        ];
-
-        $dataMessage = [
-            "Entrepot",
-            "Prix de vente",
-            "Stock",
-        ] ;
-
-        $result = $this->appService->verificationElement($data,$dataMessage) ;
-
-        if(!$result["allow"])
-            return new JsonResponse($result) ;
 
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findOneBy([
             "produit" => $produit,
@@ -1682,7 +1645,7 @@ class StockController extends AbstractController
             $variationPrix = new PrdVariationPrix() ;
             $variationPrix->setProduit($produit) ;
             $variationPrix->setPrixVente($prod_variation_prix_vente) ;
-            $variationPrix->setIndice($prod_variation_prix_vente) ;
+            $variationPrix->setIndice($prod_variation_indice) ;
             $variationPrix->setStock(intval($prod_variation_stock)) ;
             $variationPrix->setStockAlert(5) ;
             $variationPrix->setStatut(True) ;
@@ -1704,6 +1667,7 @@ class StockController extends AbstractController
         if(!is_null($histoEntrepot))
         {
             $histoEntrepot->setStock($histoEntrepot->getStock() + intval($prod_variation_stock)) ;
+            $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
             $this->entityManager->flush() ;
         }
         else
@@ -1725,21 +1689,21 @@ class StockController extends AbstractController
 
         $approvisionnement = new PrdApprovisionnement() ;
 
-        $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ;
+        $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($dataToInsert["margeType"]) ;
 
         $approvisionnement->setUser($this->userObj) ;
         $approvisionnement->setHistoEntrepot($histoEntrepot) ;
         $approvisionnement->setVariationPrix($variationPrix) ;
         $approvisionnement->setMargeType($margeType) ;
         $approvisionnement->setQuantite(intval($prod_variation_stock)) ;
-        $approvisionnement->setPrixAchat(null) ;
-        $approvisionnement->setCharge(null) ;
-        $approvisionnement->setMargeValeur(null) ;
-        $approvisionnement->setPrixRevient(null) ;
+        $approvisionnement->setPrixAchat($dataToInsert["prixAchat"]) ;
+        $approvisionnement->setCharge($dataToInsert["charge"]) ;
+        $approvisionnement->setMargeValeur($dataToInsert["margeValeur"]) ;
+        $approvisionnement->setPrixRevient($dataToInsert["prixevient"]) ;
         $approvisionnement->setPrixVente($prod_variation_prix_vente) ;
         $expirer = !empty($prod_variation_expiree) ? \DateTime::createFromFormat('j/m/Y', $prod_variation_expiree) : null;
         $approvisionnement->setExpireeLe($expirer) ;
-        $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+        $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', $dataToInsert["dateAppro"])) ;
         $approvisionnement->setDescription("Approvisionnement de Produit Code : ".$prod_variation_code) ;
         $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
         $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
@@ -1763,6 +1727,7 @@ class StockController extends AbstractController
         $stockProduit = $produit->getStock() + intval($prod_variation_stock) ;
 
         $produit->setStock($stockProduit) ;
+        $produit->setUpdatedAt(new \DateTimeImmutable) ;
         $this->entityManager->flush() ;
 
         // FIN AJOUT DONNEE
@@ -1779,8 +1744,11 @@ class StockController extends AbstractController
             if(file_exists($dataFilename))
                 unlink($dataFilename) ;
         }
-
-        return new JsonResponse($result) ;
+        
+        if(empty($dataToInsert))
+        {
+            return new JsonResponse($result) ;
+        }
     }
 
     #[Route('/stock/variation/produit/update', name: 'stock_update_variation_prix')]
@@ -1913,7 +1881,6 @@ class StockController extends AbstractController
         return new JsonResponse($result) ;
     }
 
-    
     #[Route('/stock/variation/details/get', name: 'stock_get_details_variation_prix')]
     public function stockGetDetailsVariationProduit(Request $request)
     {
@@ -1956,9 +1923,119 @@ class StockController extends AbstractController
         }
 
         $response = $this->renderView("stock/general/detailsVariation.html.twig",[
-            "variation" => $variation    
+            "variation" => $variation,
+            "isInEntrepot" => False  
         ]) ;
 
         return new Response($response) ;
+    }
+
+    #[Route('/stock/general/display', name: 'stock_display_content_stock')]
+    public function stockDisplayContentStock(Request $request)
+    { 
+        $content = $request->request->get("contenu") ;
+        
+        $filename = $this->filename."stockType(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generatePrdStockType($filename,$this->agence) ;
+            
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+        
+        $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generatePrdGenEntrepot($filename, $this->agence);
+
+        $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
+
+        if($content == 1)
+        {
+            $response = $this->renderView("stock/general/displayStockBoth.html.twig",[
+                "stockGenerales" => (array)$stockGenerales,
+                "stockGEntrepots" => $stockGEntrepots
+            ]) ;
+        }else if($content == 2)
+        {
+            $response = $this->renderView("stock/general/displayStockByNameProduct.html.twig",[
+                "stockGenerales" => (array)$stockGenerales,
+            ]) ;
+        }else
+        {
+            $response = $this->renderView("stock/general/displayStockByEntrepot.html.twig",[
+                "stockGEntrepots" => $stockGEntrepots
+            ]) ;
+        }
+
+        return new Response($response) ;
+    }
+
+    #[Route('/stock/variation/display/{idVar}', name: 'stock_display_variation_produit', defaults:["idVar" => null])]
+    public function stockDisplayVariationProduit($idVar)
+    {
+        $idVar = $this->appService->decoderChiffre($idVar) ;
+
+        $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVar) ; 
+
+        $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
+            "variationPrix" => $variationPrix,
+            "statut" => True,
+        ]) ;
+
+        $variation = [
+            "id" => $variationPrix->getId() ,
+            "encodedId" => $this->appService->encodeChiffre($variationPrix->getProduit()->getId()),
+            "code" => $variationPrix->getProduit()->getCodeProduit() ,
+            "indice" => $variationPrix->getIndice() ,
+            "prix" => $variationPrix->getPrixVente() ,
+            "isSolde" => !is_null($solde) ,
+            "solde" => is_null($solde) ? "-" : $solde->getSolde() ,
+            "soldeType" => is_null($solde) ? "-" : $solde->getType()->getId() ,
+            "soldeDate" => is_null($solde) ? "-" : $solde->getDateLimite()->format("d/m/Y") ,
+            "soldeCalculee" => is_null($solde) ? "-" : $solde->getCalculee(),
+        ] ;
+
+        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            "variationPrix"  =>  $variationPrix,
+            "statut" => True
+        ]) ;
+    
+        $variation["entrepots"] = [] ;
+    
+        foreach ($histoEntrepots as $histoEntrepot) {
+            $item = [] ;
+
+            $item["id"] = $histoEntrepot->getId();
+            $item["entrepot"] = $histoEntrepot->getEntrepot()->getNom() ;
+            $item["stock"] = $histoEntrepot->getStock() ;
+
+            array_push($variation["entrepots"],$item) ;
+        }
+
+        $response = $this->renderView("stock/general/detailsVariation.html.twig",[
+            "variation" => $variation,
+            "isInEntrepot" => True,
+
+        ]) ;
+
+        $designation = $variationPrix->getProduit()->getNom() ; 
+
+        return $this->render('stock/general/detailsVariationFromEntrepot.html.twig', [
+            "filename" => "stock",
+            "titlePage" => "Détails Variation Produit",
+            "with_foot" => false,
+            "variation" => $response,
+            "designationProduit" => $designation,
+        ]);
+    }
+
+    #[Route('/stock/general/produit/historique', name: 'stock_general_histo_produit')]
+    public function stockHistoriqueProduit()
+    {
+
+        return $this->render('stock/general/historiqueProduit.html.twig', [
+            "filename" => "stock",
+            "titlePage" => "Historique Produit",
+            "with_foot" => false,
+        ]);
     }
 }

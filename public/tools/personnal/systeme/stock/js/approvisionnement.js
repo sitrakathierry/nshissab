@@ -48,10 +48,11 @@ $(document).ready(function(){
     }
 
     deleteLigneAppro()
-
+    
     $(".appr_ajout").click(function(){
         var self = $(this)
         $(".appro_caption").text($(this).attr("caption"))
+
         var recordArray = [
             "#appro_search_entrepot",
             "#appro_search_produit",
@@ -73,17 +74,48 @@ $(document).ready(function(){
             $(elem).val("")
             $(elem).trigger("chosen:updated"); 
         })
+
+        var elemToHide = [
+            "#appro_prix_achat",
+            "#appro_charge",
+            "#appro_calcul",
+            "#appro_marge",
+            "#appro_prix_revient",
+            // "#appro_prix_vente",
+        ]
+
+        elemToHide.forEach(elem => {
+            if(self.attr("caption") == "Existant" )
+            {
+                $(elem).parent().hide()
+            }
+            else
+            {
+                $(elem).parent().show()
+            }
+        })
+
         if($(this).attr("caption") == "Existant" )
         {
             approSearchEntrepot()
-            $("#appro_prix_produit").removeAttr("disabled")
-            // $("#appro_indice").attr("disabled")
+
+            $("#appro_prix_produit").parent().show()
+            $("#appro_indice").parent().removeClass("col-md-3")
+            $("#appro_indice").parent().addClass("col-md-2")
+            $("#appro_quantite").parent().find('label').addClass("mt-3")
+            $("#appro_indice").attr("readonly",true)
         }
         else
         {
-            $("#appro_prix_produit").attr("disabled","true")
             $("#appro_indice").removeAttr("readonly")
-
+            $("#appro_prix_produit").parent().hide()
+            $("#appro_prix_revient").parent().removeClass("col-md-2")
+            $("#appro_prix_revient").parent().addClass("col-md-3")
+            $("#appro_prix_achat").parent().removeClass("col-md-2")
+            $("#appro_prix_achat").parent().addClass("col-md-3")
+            $("#appro_indice").parent().removeClass("col-md-2")
+            $("#appro_indice").parent().addClass("col-md-3")
+            $("#appro_quantite").parent().find('label').removeClass("mt-3")
             var setNumberArray = [
                 "#appro_prix_achat",
                 "#appro_charge",
@@ -99,6 +131,7 @@ $(document).ready(function(){
             $("#appro_search_produit").html(produitEntrepots) ; 
             $("#appro_search_produit").trigger("chosen:updated") ;
         }
+        $(".chosen_select").trigger("chosen:updated")
         var btnClass = $(this).data("class")
         var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
         $(this).addClass(btnClass)
@@ -114,70 +147,50 @@ $(document).ready(function(){
     })
 
     $(".appro_ajoute_elem").click(function(){
-        // var appro_fournisseur = $("#appro_fournisseur").val()
-        // if(appro_fournisseur.length == 0)
-        // {
-        //     $.alert({
-        //         title: 'Fournisseur vide',
-        //         content: "Veuillez séléctionner au moins un fournisseur",
-        //         type:'orange',
-        //     })
-        //     return false;
-        // }
-
-        var numberArray = [
-            "#appro_prix_achat",
-            "#appro_charge",
-            "#appro_marge",
-            "#appro_quantite"
-        ]
-
-        var numberCaption = 
-        [
-            "Prix Achat",
-            "Charge",
-            "Marge",
-            "Quantite",
-        ]
-
-        var vide = false ;
-        var negatif = false ;
-        var n = 0 ;
-        var caption = "" ;
-        numberArray.forEach(elem => {
-            const item = $(elem).val()
-            if(item == "")
-            {
-                caption = numberCaption[n] ;
-                vide = true ;
-                return 
-            }
-            else if(parseFloat(item) < 0)
-            {
-                caption = numberCaption[n] ;
-                negatif = true ;
-                return 
-            }
-            n++ ;
-        })
-
-        if(vide)
+        var result = [] ;
+        if($(".appro_caption").text() == "Nouveau")
         {
-            $.alert({
-                title: 'Champ vide',
-                content: caption+" est vide",
-                type:'orange',
-            })
-            return false;
+            result = appBase.verificationElement([
+                $("#appro_search_entrepot").val(),
+                $("#appro_search_produit").val(),
+                $("#appro_quantite").val(),
+                $("#appro_prix_achat").val(),
+                $("#appro_charge").val(),
+                $("#appro_marge").val(),
+            ],[
+                "Entrepôt",
+                "Produit",
+                "Quantité",
+                "Prix d'achat",
+                "Charge",
+                "Marge",
+            ])
         }
-        else if(negatif)
+        else if($(".appro_caption").text() == "Existant")
+        {
+            result = appBase.verificationElement([
+                $("#appro_search_entrepot").val(),
+                $("#appro_search_produit").val(),
+                $("#appro_prix_produit").val(),
+                $("#appro_quantite").val(),
+            ],[
+                "Entrepôt",
+                "Produit",
+                "Prix Produit",
+                "Quantité",
+            ])
+        }
+        
+
+        if(!result["allow"])
         {
             $.alert({
-                title: 'Valeur négatif',
-                content: caption+" doit être positif ",
-                type:'red',
-            })
-            return false;
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            });
+
+            return result["allow"] ;
         }
 
         var appro_entrepot_text = $("#appro_entrepot_text").val()
@@ -198,8 +211,7 @@ $(document).ready(function(){
         var appro_marge = $("#appro_marge").val()
         var appro_prix_revient = $("#appro_prix_revient").val()
         var appro_prix_vente = $("#appro_prix_vente").val()
-        var appro_montant_total = $("#appro_montant_total").val()
-        var appro_montant_total = $(".appro_montant_total").val()
+        var appro_montant_total = parseFloat(appro_quantite) * parseFloat(appro_prix_vente) ;
         
         var item = `
                 <tr>
@@ -263,7 +275,9 @@ $(document).ready(function(){
             `
             $("#appro_total_general").text(parseFloat($("#appro_total_general").text())+parseFloat(appro_montant_total))
         $(".elem_appro").append(item) 
+
         deleteLigneAppro()
+
         var recordArray = [
             "#appro_search_entrepot",
             "#appro_search_produit",
@@ -501,7 +515,6 @@ $(document).ready(function(){
                     "#appro_charge",
                     "#appro_marge",
                     "#appro_prix_revient",
-                    "#appro_prix_vente",
                     "#appro_fournisseur",
                     "#appro_expireeLe",
                     "#appro_indice",
@@ -513,7 +526,6 @@ $(document).ready(function(){
                     resp.charge,
                     resp.marge,
                     resp.prixRevient,
-                    resp.prixVente,
                     resp.fournisseur,
                     resp.expireeLe,
                     $("#appro_prix_produit option:selected").text().split(" | ")[1],
@@ -524,6 +536,9 @@ $(document).ready(function(){
                     const element = selectorsVar[i];
                     $(element).val(selectorValue[i])
                 }
+
+                var truePrixVente = $("#appro_prix_produit option:selected").text().split(" | ")[0] ;
+                $("#appro_prix_vente").val(truePrixVente) ;
 
                 $("#appro_fournisseur").trigger("chosen:updated"); 
                 $(".appro_montant_total").val($("#appro_prix_vente").val())
@@ -542,6 +557,9 @@ $(document).ready(function(){
 
     function approCalculPrix()
     {
+        if($(".appro_caption").text() == "Existant")
+            return false ;
+            
         var prix_achat = $("#appro_prix_achat").val() != "" ? $("#appro_prix_achat").val() : 0
         var charge = $("#appro_charge").val() != "" ? $("#appro_charge").val() : 0
         var marge = $("#appro_marge").val() != "" ? $("#appro_marge").val() : 0

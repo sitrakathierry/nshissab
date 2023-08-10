@@ -39,6 +39,9 @@ class PrdEntrepot
     #[ORM\OneToMany(mappedBy: 'entrepot', targetEntity: PrdHistoEntrepot::class)]
     private Collection $prdHistoEntrepots;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $statut = null;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
@@ -159,6 +162,18 @@ class PrdEntrepot
                 $prdHistoEntrepot->setEntrepot(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isStatut(): ?bool
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?bool $statut): self
+    {
+        $this->statut = $statut;
 
         return $this;
     }

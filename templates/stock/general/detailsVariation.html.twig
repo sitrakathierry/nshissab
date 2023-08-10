@@ -84,10 +84,17 @@
                     </tfoot>
                 </table>
             </div>
-            <div class="w-100 text-right">
-                <button type="button" class="btn prod_annule_variation btn-dark btn-sm px-4"><i class="fa fa-times"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-perso-one ml-3 btn-sm px-4"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-            </div>
+            {% if isInEntrepot %}
+                <div class="w-100 text-right">
+                    <a href="{{path('stock_general_details',{'id':variation.encodedId})}}" type="button" class="btn btn-primary btn-sm px-4"><i class="fa fa-cubes"></i>&nbsp;Détail Produit</a>
+                    <button type="submit" class="btn btn-perso-one ml-3 btn-sm px-4"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% else %}
+                <div class="w-100 text-right">
+                    <button type="button" class="btn prod_annule_variation btn-dark btn-sm px-4"><i class="fa fa-times"></i>&nbsp;Annuler</button>
+                    <button type="submit" class="btn btn-perso-one ml-3 btn-sm px-4"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% endif %}
         </div>
     </form>
 </div>

@@ -598,6 +598,7 @@ class AppService extends AbstractController
             $element["tvaType"] = is_null($stockGeneral->getTvaType()) ? "-" : $stockGeneral->getTvaType()->getId() ;
             $element["agence"] = $stockGeneral->getAgence()->getId() ;
             $element["type"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getId() ;
+            $element["nomType"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getNom() ;
 
             array_push($elements,$element) ;
         }
@@ -646,6 +647,7 @@ class AppService extends AbstractController
     
                     $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
                     $item[$cle]["prix"] = $variation->getPrixVente() ;
+                    $item[$cle]["prixVente"] = $variation->getPrixVente() ;
                     $item[$cle]["stock"] = $histoEntrepot->getStock() ;
                     $item[$cle]["code"] = $produit->getCodeProduit()."/".$indice ;
                     $item[$cle]["codeProduit"] = $produit->getCodeProduit() ;
@@ -1038,15 +1040,49 @@ class AppService extends AbstractController
             $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
             $element["idC"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getId() ;
             $element["idP"] = $stockEntrepot->getVariationPrix()->getProduit()->getId() ;
+            $element["encodedIdVar"] = $this->encodeChiffre($stockEntrepot->getVariationPrix()->getId()) ;
             $element["entrepot"] = $stockEntrepot->getEntrepot()->getNom() ;
             $element["code"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
-            $element["indice"] = !empty($stockEntrepot->getIndice()) ? $stockEntrepot->getIndice() : "-" ;
+            $element["indice"] = !empty($stockEntrepot->getVariationPrix()->getIndice()) ? $stockEntrepot->getVariationPrix()->getIndice() : "-" ;
             $element["categorie"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getCategorie()->getNom() ;
             $element["nom"] = $stockEntrepot->getVariationPrix()->getProduit()->getNom() ;
+            $element["nomType"] = is_null($stockEntrepot->getVariationPrix()->getProduit()->getType()) ? "NA" : $stockEntrepot->getVariationPrix()->getProduit()->getType()->getNom() ;
             $element["stock"] = $stockEntrepot->getStock() ;
+            $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
             array_push($elements,$element) ;
         }
 
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generatePrdGenEntrepot($filename,$agence)
+    {
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,
+        ]) ;
+
+        $elements = [] ;
+        
+        foreach($entrepots as $entrepot)
+        {
+            $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                "entrepot" => $entrepot
+            ]) ;
+
+            $element = [] ;
+            
+            $element["id"] = $entrepot->getId() ;
+            $element["encodedId"] = $this->encodeChiffre($entrepot->getId()) ;
+            $element["nom"] = $entrepot->getNom() ;
+            foreach ($stockEntrepots as $stockEntrepot) {
+                if(!isset($element["stock"]))
+                    $element["stock"] = $stockEntrepot->getStock() ;
+                else
+                    $element["stock"] += $stockEntrepot->getStock() ;
+            }
+            array_push($elements,$element) ;
+        }
         file_put_contents($filename,json_encode($elements)) ;
     }
 

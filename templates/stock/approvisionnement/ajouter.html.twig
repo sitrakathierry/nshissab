@@ -11,6 +11,10 @@
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/approvisionnement.js')}}"></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/impression.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/detailStock.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/creation.js')}}" ></script>
+    {# stock_variation_produit_save #}
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -18,9 +22,7 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-2">
-        <form id="formVariationProduit">
-            <h5 class="title_form text-black text-uppercase">Création variation de produit</h5>
-            <input type="hidden" name="prod_variation_iProduit" value="{{infoProduit.id}}">
+        {# <form id="formVariationProduit">
             <div class="row">
                 <div class="col-md-3">
                     <label for="prod_variation_entrepot" class="font-weight-bold">Entrepot</label>
@@ -38,10 +40,6 @@
                             <option value="{{fournisseur.id}}">{{fournisseur.nom | upper}}</option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="prod_variation_code" class="font-weight-bold">Code</label>
-                    <input type="text" readonly name="prod_variation_code" id="prod_variation_code" value="{{infoProduit.codeProduit}}" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
                     <label for="prod_variation_indice" class="font-weight-bold">Indice</label>
@@ -63,11 +61,11 @@
             <div class="w-100 barre_dashed mt-3 p-3 text-right">
                 <button type="submit" class="btn btn-sm px-5 btn-perso-one" ><i class="fa fa-save" ></i>&nbsp;Enregistrer</button>
             </div>
-        </form>
-        <div class="w-100 d-flex flex-row align-items-center justify-content-center mb-2">
-            <h5 class="title_form text-black text-uppercase">Type d'approvisionnement : <span class="text-warning font-weight-bold appro_caption">Default</span></h5>
-            <button type="button" caption="Existant" data-class="btn-primary" class="btn btn-sm btn-outline-primary ml-auto appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
-            <button type="button" caption="Nouveau" data-class="btn-info" class="btn btn-sm btn-outline-info ml-2 appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
+        </form> #}
+        <div class="w-100 d-flex flex-row p-3 align-items-center justify-content-center mb-2">
+            <button type="button" caption="Nouveau" data-class="btn-info" class="btn btn-sm btn-outline-info appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
+            <button type="button" caption="Existant" data-class="btn-primary" class="btn btn-sm btn-outline-primary ml-2 appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
+            <h5 class="title_form text-black ml-auto text-uppercase">Type d'approvisionnement : <span class="text-warning font-weight-bold appro_caption">Default</span></h5>
         </div>
         <div id="elemAppro" class="w-100 mb-3 container-fluid">
             <div class="row">
@@ -86,7 +84,7 @@
                     <select name="appro_search_produit" class="custom-select appro_search_produit custom-select-sm" id="appro_search_produit">
                         <option value=""></option>
                         {% for stockGeneral in stockGenerales %}
-                            <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
+                            <option value="{{stockGeneral.id}}">{{stockGeneral.codeProduit}} | {{stockGeneral.nomType|upper}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
                         {% endfor %}
                     </select>
                     <input type="hidden" class="appro_produit_text" id="appro_produit_text">
@@ -101,39 +99,35 @@
                     <label for="appro_indice" class="font-weight-bold">Indice</label>
                     <input type="text" oninput="this.value = this.value.toUpperCase();" name="appro_indice" id="appro_indice" class="form-control appro_indice" placeholder=". . .">
                 </div>
-            </div> 
-            <div class="row">
                 <div class="col-md-2">
-                    <label for="appro_quantite" class="mt-1 font-weight-bold">Quantité</label>
+                    <label for="appro_quantite" class="mt-3 font-weight-bold">Quantité</label>
                     <input type="number" name="appro_quantite" id="appro_quantite" class="form-control appro_quantite" placeholder=". . .">
                 </div>
                 <div class="col-md-2">
-                    <label for="appro_prix_achat" class="mt-1 font-weight-bold">Prix Achat</label>
+                    <label for="appro_prix_achat" class="mt-3 font-weight-bold">Prix Achat</label>
                     <input type="number" name="appro_prix_achat" id="appro_prix_achat" class="form-control appro_prix_achat" placeholder=". . .">
                 </div>
                 <div class="col-md-2">
-                    <label for="appro_charge" class="mt-1 font-weight-bold">Charge</label>
+                    <label for="appro_charge" class="mt-3 font-weight-bold">Charge</label>
                     <input type="number" name="appro_charge" id="appro_charge" class="form-control appro_charge" placeholder=". . .">
                 </div>
                 <div class="col-md-2">
-                    <label for="appro_calcul" class="mt-1 font-weight-bold">Calcul</label>
+                    <label for="appro_calcul" class="mt-3 font-weight-bold">Calcul</label>
                     <select name="appro_calcul" class="custom-select chosen_select appro_calcul custom-select-sm" id="appro_calcul">
-                        <option value="1">Montant</option>
+                        <option value="1" selected>Montant</option>
                         <option value="2">%</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="appro_marge" class="mt-1 font-weight-bold">Marge</label>
+                    <label for="appro_marge" class="mt-3 font-weight-bold">Marge</label>
                     <input type="number" name="appro_marge" id="appro_marge" class="form-control appro_marge" placeholder=". . .">
                 </div>
                 <div class="col-md-2">
-                    <label for="appro_prix_revient" class="mt-1 font-weight-bold">Prix de revient</label>
+                    <label for="appro_prix_revient" class="mt-3 font-weight-bold">Prix de revient</label>
                     <input type="number" name="appro_prix_revient" id="appro_prix_revient" class="form-control appro_prix_revient" placeholder=". . .">
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-3">
-                    <label for="appro_fournisseur" class="mt-1 font-weight-bold">Fournisseurs</label>
+                    <label for="appro_fournisseur" class="mt-3 font-weight-bold">Fournisseurs</label>
                     <select name="appro_fournisseur" class="custom-select appro_fournisseur custom-select-sm" multiple id="appro_fournisseur">
                         <option value=""></option>
                         {% for fournisseur in fournisseurs %}
@@ -142,20 +136,20 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="appro_expireeLe" class="mt-1 font-weight-bold">Expirée le</label>
+                    <label for="appro_expireeLe" class="mt-3 font-weight-bold">Expirée le</label>
                     <input type="text" name="appro_expireeLe" id="appro_expireeLe" class="form-control appro_expireeLe" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
-                    <label for="appro_prix_vente" class="mt-1 font-weight-bold">Prix de vente</label>
+                    <label for="appro_prix_vente" class="mt-3 font-weight-bold">Prix de vente</label>
                     <input type="number" name="appro_prix_vente" id="appro_prix_vente" class="form-control appro_prix_vente" placeholder=". . .">
                 </div>
-                <div class="col-md-3">
-                    <label for="appro_montant_total" class="mt-1 font-weight-bold">Montant Total</label>
+                {# <div class="col-md-3">
+                    <label for="appro_montant_total" class="mt-3 font-weight-bold">Montant Total</label>
                     <input type="number" name="appro_montant_total" class="form-control appro_montant_total" placeholder=". . ." readonly="true">
-                </div>
+                </div> #}
             </div>
             <div class="w-100 text-right mt-3">
-                <button type="button" class="btn btn-success btn-sm px-4 appro_ajoute_elem text-uppercase"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
+                <button type="button" class="btn btn-success btn-sm px-5 appro_ajoute_elem text-uppercase"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
             </div>
         </div>
     <form id="formAppro">

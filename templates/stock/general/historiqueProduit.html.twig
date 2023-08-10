@@ -1,0 +1,66 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Affichage</label>
+                <select name="prod_categorie" class="custom-select custom-select-sm" id="prod_categorie">
+                    <option value="EXP">{{"Produit Expirée"|upper}}</option>
+                    <option value="DDI">{{"Produit Déduit"|upper}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date d'expiration</th>
+                        <th>Nom Produit</th>
+                        <th>Désignation Produit</th>
+                        <th>Code</th>
+                        <th>Indice</th>
+                        <th>Quantité</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td class="text-center align-middle">
+                            <button class="btn btn-sm btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

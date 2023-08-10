@@ -1,7 +1,6 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
-    $("#search_entrepot_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#search_categorie_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#search_produit_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".chosen_select").chosen({
@@ -933,6 +932,10 @@ $(document).ready(function(){
 
     var stock_general_search = [
         {
+            name: "type",
+            selector : "search_idType"
+        },
+        {
             name: "idC",
             selector : "search_categorie"
         },
@@ -991,8 +994,8 @@ $(document).ready(function(){
 
     function searchStockEntrepot()
     {
-        var instance = new Loading(files.search) ;
-        $(".elem_stock_entrepot").html(instance.search(7)) ;
+        var myinstance = new Loading(files.search) ;
+        $(".elem_stock_entrepot").html(myinstance.search(7)) ;
         var formData = new FormData() ;
         for (let j = 0; j < stock_entrepot_search.length; j++) {
             const search = stock_entrepot_search[j];
@@ -1008,12 +1011,14 @@ $(document).ready(function(){
             contentType: false, // important pour envoyer des données binaires (comme les fichiers)
             success: function(response){
                 $(".elem_stock_entrepot").html(response) ;
+            },
+            error: function(resp){
+                $.alert(JSON.stringify(resp)) ;
             }
         })
     }
 
     var stock_entrepot = [
-        "#search_entrepot_ste",
         "#search_categorie_ste",
         "#search_produit_ste"
     ]

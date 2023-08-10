@@ -1,3 +1,4 @@
+{% set total = 0 %}
 {% for stockGeneral in stockGenerales %}
     <tr>
         <td class="align-middle">{{stockGeneral.codeProduit}}</td>
@@ -5,7 +6,12 @@
         <td class="align-middle">{{stockGeneral.nom}}</td>
         <td class="align-middle">{{stockGeneral.stock}}</td>
         <td class="text-center align-middle">
-            <a href="{{path('stock_general_details',{'id':stockGeneral.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+        <a href="{{path('stock_general_details',{'id':stockGeneral.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
         </td>
     </tr>
+    {% set total = total + stockGeneral.stock %}
 {% endfor %}
+<tr>
+    <th colspan="3" >Total</th>
+    <th colspan="2" class="bg-purple text-white">{{total}}</th>
+</tr>

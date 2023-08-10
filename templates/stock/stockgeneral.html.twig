@@ -10,20 +10,30 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/listStock.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
             {{titlePage}}
-            <a href="{{path('stock_general_excel_ticket')}}" class="btn-info btn-sm btn text-uppercase ml-auto font-smaller"><i class="fa fa-ticket"></i>&nbsp;Exporter tickets</a>
+            <a href="{{path('stock_general_histo_produit')}}" class="btn-purple btn-sm font-weight-bold btn text-uppercase ml-auto font-smaller"><i class="fa fa-file"></i>&nbsp;Historiques</a>
+            <a href="{{path('stock_general_excel_ticket')}}" class="btn-info btn-sm btn text-uppercase ml-3 font-smaller"><i class="fa fa-ticket"></i>&nbsp;Exporter tickets</a>
         </h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
+                <label for="search_affichage" class="mt-2 font-weight-bold text-uppercase">Afficher par</label>
+                <select name="search_affichage" class="custom-select search_affichage chosen_select custom-select-sm" id="search_affichage">
+                    <option value="1">{{"Tous"|upper}}</option>
+                    <option value="2">{{"Nom de Produit"|upper}}</option>
+                    <option value="3">{{"Entrepôt"|upper}}</option>
+                </select>
+            </div>
+            <div class="col-md-3">
                 <label for="search_nom_produit" class="mt-2 font-weight-bold text-uppercase">Nom Produit</label>
-                <select name="search_nom_produit" class="custom-select search_nom_produit custom-select-sm" id="search_nom_produit">
+                <select name="search_nom_produit" class="custom-select search_nom_produit chosen_select custom-select-sm" id="search_nom_produit">
                     <option value="">TOUS</option>
                     <option value="NA">NON ASSIGNEE</option>
                     {% for type in types %}
@@ -31,36 +41,83 @@
                     {% endfor %}
                 </select>
             </div>
-        </div>
-        <div class="table-responsive mt-4">
-            <table class="table table-sm table-bordered table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Nom du produit</th>
-                        <th>Stock</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% set total = 0 %}
-                    {% for key, item in stockGenerales %}
-                        <tr>
-                            <td class="align-middle">{{key|upper}}</td>
-                            <td class="align-middle">{{ item.stock }}</td>
-                            <td class="text-center align-middle">
-                            <a href="{{path('stock_general_par_type',{'type': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
-                            </td>
-                            {% set total = total + item.stock %}
-                        </tr>
+            <div class="col-md-3">
+                <label for="search_gen_entrepot" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
+                <select name="search_gen_entrepot" class="custom-select search_gen_entrepot chosen_select custom-select-sm" id="search_gen_entrepot">
+                    <option value="">TOUS</option>
+                    {% for entrepot in entrepots %}
+                        <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
                     {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th>Total</th>
-                        <th colspan="2" class="bg-primary text-white">{{total}}</th>
-                    </tr>
-                </tfoot>
-            </table>
+                </select>
+            </div>
+        </div>
+        <div class="w-100 contentTableStock mt-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Nom du produit</th>
+                                    <th>Stock</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set total = 0 %}
+                                {% for key, item in stockGenerales %}
+                                    <tr>
+                                        <td class="align-middle">{{key|upper}}</td>
+                                        <td class="align-middle">{{ item.stock }}</td>
+                                        <td class="text-center align-middle">
+                                        <a href="{{path('stock_general_par_type',{'type': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                        </td>
+                                        {% set total = total + item.stock %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total</th>
+                                    <th colspan="2" class="bg-primary text-white">{{total}}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Entrepôt</th>
+                                    <th>Stock</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set total = 0 %}
+                                {% for stockGEntrepot in stockGEntrepots %}
+                                    <tr>
+                                        <td class="align-middle">{{stockGEntrepot.nom|upper}}</td>
+                                        <td class="align-middle">{{stockGEntrepot.stock}}</td>
+                                        <td class="text-center align-middle">
+                                        <a href="{{path('stock_stockentrepot',{'id': stockGEntrepot.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                        </td>
+                                        {% set total = total + stockGEntrepot.stock %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total</th>
+                                    <th colspan="2" class="bg-info text-white">{{total}}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {% if with_foot %}
