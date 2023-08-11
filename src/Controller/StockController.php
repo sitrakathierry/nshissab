@@ -1460,7 +1460,7 @@ class StockController extends AbstractController
         $appros = json_decode(file_get_contents($filename)) ;
 
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-
+        
         return $this->render('stock/approvisionnement/liste.html.twig', [
             "filename" => "stock",
             "titlePage" => "Liste des approvisionnements",

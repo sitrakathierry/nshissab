@@ -102,21 +102,21 @@
                             {% set compteur = 1 %}
                             {% set totalHT = 0 %}
                         {% endif %}
-                    <tr>
-                        {% set elements = appros|filter(o => o.date == premier) %}
-                        {% set ligne = elements|length %}
-                        
-                        {% if passe %}
-                            <td rowspan="{{ligne + 1}}" class="align-middle">{{appro.date}}</td>
-                            {% set passe = false %}
-                        {% endif %}
-                        <td>{{appro.entrepot}}</td>
-                        <td>{{appro.produit}}</td>
-                        <td>{{appro.quantite}}</td>
-                        <td>{{appro.prixVente}}</td>
-                        <td>{{appro.total}}</td>
-                        {% set totalHT = totalHT + appro.total %}
-                    </tr>
+                        <tr>
+                            {% set elements = appros|filter(o => o.date == premier) %}
+                            {% set ligne = elements|length %}
+                            
+                            {% if passe %}
+                                <td rowspan="{{ligne + 1}}" class="align-middle">{{appro.date}}</td>
+                                {% set passe = false %}
+                            {% endif %}
+                            <td>{{appro.entrepot}}</td>
+                            <td>{{appro.produit}}</td>
+                            <td>{{appro.quantite}}</td>
+                            <td>{{appro.prixVente}}</td>
+                            <td>{{appro.total}}</td>
+                            {% set totalHT = totalHT + appro.total %}
+                        </tr>
                         {% if compteur == ligne %}
                             <tr>
                                 <th colspan="4">Total Partiel</th>
