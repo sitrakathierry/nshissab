@@ -36,6 +36,7 @@ use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
@@ -512,6 +513,7 @@ class AppService extends AbstractController
         $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
             "agence" => $agence
         ]) ;
+
         $elements = [] ;
         
         foreach ($entrepots as $entrepot) {
@@ -536,7 +538,7 @@ class AppService extends AbstractController
 
         $elements = [] ;
         
-        if(!empty($preferences))
+        if(!is_null($preferences))
         {
             foreach ($preferences as $preference) {
                 $element = [] ;
@@ -548,6 +550,44 @@ class AppService extends AbstractController
             } 
         }
         
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generatePrdListeApprovisionnement($filename, $agence)
+    {
+        $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
+            "agence" => $agence
+        ]) ;
+        
+        $elements = [] ;
+        
+        foreach ($appros as $appro) {
+            $element = [] ;
+
+            $nomProduit = $appro->getVariationPrix()->getProduit()->getNom() ;
+            $codeProduit = $appro->getVariationPrix()->getProduit()->getCodeProduit() ;
+            $nomType = is_null($appro->getVariationPrix()->getProduit()->getType()) ? "NA" :$appro->getVariationPrix()->getProduit()->getType()->getNom() ;
+            $prixVente = is_null($appro->getPrixVente()) ? $appro->getVariationPrix()->getPrixVente() : $appro->getPrixVente() ; 
+            
+            $element["id"] = $appro->getId() ;
+            $element["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
+            $element["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+            $element["idEntrepot"] = $appro->getHistoEntrepot()->getId() ;
+            $element["produit"] = $codeProduit." | ".$nomType." | ".$nomProduit ;
+            $element["prixVente"] = $prixVente ;
+            $element["quantite"] = $appro->getQuantite() ;
+            $element["total"] = $appro->getQuantite() * $prixVente ;
+            $element["dateExpiration"] = is_null($appro->getExpireeLe()) ? "-" : $appro->getExpireeLe()->format("d/m/Y") ;
+            $element["nomProduit"] = $nomProduit ;
+            $element["codeProduit"] = $codeProduit ;
+            $element["nomType"] = $nomType ;
+            $element["indice"] = is_null($appro->getVariationPrix()->getIndice()) ? "-" : $appro->getVariationPrix()->getIndice() ;
+            $element["variation"] = $appro->getVariationPrix()->getId() ;
+            $element["stock"] = $appro->getQuantite() ;
+
+            array_push($elements,$element) ;
+        } 
+
         file_put_contents($filename,json_encode($elements)) ;
     }
 
@@ -979,38 +1019,6 @@ class AppService extends AbstractController
         }
 
         file_put_contents($filename,json_encode($response)) ;
-    }
-
-    public function filterProdPreferences($path,$nameAgence,$nameUser,$user)
-    {
-        $filename = $path."categorie(agence)/".$nameAgence ;
-        $categories = json_decode(file_get_contents($filename)) ;
-
-        $filename = $path."preference(user)/".$nameUser.".json" ;
-        if(!file_exists($filename))
-            $this->generateStockPreferences($filename,$user) ;
-
-        $elements = [] ;
-        $dataPreferences = json_decode(file_get_contents($filename)) ;
-        
-        if(empty($dataPreferences))
-            return [] ;
-        foreach ($categories as $cat) {
-            $exist = False;
-            for ($i=0; $i < count($dataPreferences); $i++) { 
-                if($cat->id == $dataPreferences[$i]->categorie)
-                {
-                    $exist = True ;
-                    break ;
-                }
-            }
-            if(!$exist)
-            {
-                array_push($elements,$cat) ;
-            }
-        }
-        
-        return $elements ;
     }
 
     public function getAgenceDevise($agence) 

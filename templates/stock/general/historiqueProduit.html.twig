@@ -40,17 +40,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center align-middle">
-                            <button class="btn btn-sm btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
-                        </td>
-                    </tr>
+                    {% for stockExpiree in stockExpirees %}
+                        <tr>
+                            <td>{{stockExpiree.dateExpiration}}</td>
+                            <td>{{stockExpiree.nomType|upper}}</td>
+                            <td>{{stockExpiree.nomProduit}}</td>
+                            <td>{{stockExpiree.codeProduit}}</td>
+                            <td>{{stockExpiree.indice}}</td>
+                            <td>{{stockExpiree.stock}}</td>
+                            <td class="text-center align-middle">
+                                <button value="{{stockExpiree.variation}}" class="btn btn-sm btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

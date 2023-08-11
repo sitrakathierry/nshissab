@@ -447,7 +447,6 @@ $(document).ready(function(){
                                 $(".content_prefs").html(resp)
                                 $("#list_preferences").val("")
                                 $("#list_preferences").trigger("chosen:updated");
-                                location.reload()
                             }
                         })
                     }
@@ -456,7 +455,7 @@ $(document).ready(function(){
         })
     })
 
-    $(".delete_prefs").click(function(){
+    $(document).on('click',".delete_prefs",function(){
         var self = $(this)
         $.confirm({
             title: "Confirmation",

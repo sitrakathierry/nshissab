@@ -759,8 +759,13 @@ class StockController extends AbstractController
         }
         $categories = json_decode(file_get_contents($filename)) ;
 
-        $preferences = $this->appService->filterProdPreferences($this->filename,$this->nameAgence,$this->nameUser,$this->userObj) ;
-        
+        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
+        $preferences = json_decode(file_get_contents($filename)) ;
+
         return $this->render('stock/preferences.html.twig', [
             "filename" => "stock",
             "titlePage" => "Préférences",
@@ -777,21 +782,52 @@ class StockController extends AbstractController
         $preferences = explode(",",$preferences[0]) ;
 
         foreach ($preferences as $key => $value) {
-            $preference = new PrdPreferences() ;
             $categorie = $this->entityManager->getRepository(PrdCategories::class)->find($value) ;
 
-            $preference->setCategorie($categorie) ;
-            $preference->setUser($this->userObj) ;
-            $preference->setStatut(True) ;
-            $preference->setCreatedAt(new \DateTimeImmutable) ;
-            $preference->setUpdatedAt(new \DateTimeImmutable) ;
+            $preference = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
+                "user" => $this->user,
+                "statut" => True,
+                "categorie" => $categorie,
+            ]) ;
 
-            $this->entityManager->persist($preference) ;
-            $this->entityManager->flush() ;
+            if(is_null($preference))
+            { 
+                $preference = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
+                    "user" => $this->user,
+                    "statut" => False,
+                    "categorie" => $categorie,
+                ]) ;
+
+                if(!is_null($preference))
+                {
+                    $preference->setStatut(True) ;
+                    $preference->setUpdatedAt(new \DateTimeImmutable) ;
+
+                    $this->entityManager->flush() ;
+                }
+                else
+                {
+                    $preference = new PrdPreferences() ;
+        
+                    $preference->setCategorie($categorie) ;
+                    $preference->setUser($this->userObj) ;
+                    $preference->setStatut(True) ;
+                    $preference->setCreatedAt(new \DateTimeImmutable) ;
+                    $preference->setUpdatedAt(new \DateTimeImmutable) ;
+        
+                    $this->entityManager->persist($preference) ;
+                    $this->entityManager->flush() ;
+                }
+            }
         }
 
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
-        $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename,$this->userObj) ;
 
         $dataPreferences = json_decode(file_get_contents($filename)) ;
 
@@ -809,11 +845,15 @@ class StockController extends AbstractController
 
         $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($id) ;
 
-        $this->entityManager->remove($preference) ;
+        $preference->setStatut(False) ;
+        $preference->setUpdatedAt(new \DateTimeImmutable) ;
+
         $this->entityManager->flush() ;
 
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
-        $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
 
         return new JsonResponse([
             "message" => "Suppression effectuée",
@@ -1412,10 +1452,21 @@ class StockController extends AbstractController
     #[Route('/stock/approvisionnement/liste', name: 'stock_appr_liste')]
     public function stockApprListe(): Response
     {
+        $filename = $this->filename."approvisionnement(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generatePrdListeApprovisionnement($filename, $this->agence) ;
+
+        $appros = json_decode(file_get_contents($filename)) ;
+
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
         return $this->render('stock/approvisionnement/liste.html.twig', [
             "filename" => "stock",
             "titlePage" => "Liste des approvisionnements",
-            "with_foot" => false
+            "with_foot" => false,
+            "appros" => $appros,
+            "tabMois" => $tabMois,
         ]);
     }
 
@@ -2051,13 +2102,52 @@ class StockController extends AbstractController
     }
 
     #[Route('/stock/general/produit/historique', name: 'stock_general_histo_produit')]
-    public function stockHistoriqueProduit()
+    public function stockHistoriqueProduit(Request $request)
     {
+        $filename = $this->filename."approvisionnement(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generatePrdListeApprovisionnement($filename, $this->agence) ;
+
+        $appros = json_decode(file_get_contents($filename)) ;
+
+        $groupedData = [];
+
+        foreach ($appros as $item) {
+            $key = $item->dateExpiration . '-' . $item->indice . '-' . $item->prixVente;
+
+            if (!isset($groupedData[$key])) {
+                $groupedData[$key] = [];
+                $groupedData[$key]["prixVente"] = $item->prixVente ;
+                $groupedData[$key]["dateExpiration"] = $item->dateExpiration ;
+                $groupedData[$key]["nomProduit"] = $item->nomProduit ;
+                $groupedData[$key]["codeProduit"] = $item->codeProduit ;
+                $groupedData[$key]["nomType"] = $item->nomType ;
+                $groupedData[$key]["indice"] = $item->indice ;
+                $groupedData[$key]["variation"] = $item->variation ;
+                $groupedData[$key]["stock"] = 0 ;
+            }
+            $groupedData[$key]["stock"] += $item->stock ;
+        }
+
+        $produitExpirees = [] ;
+
+        foreach ($groupedData as $produitExpiree) {
+            if($produitExpiree["dateExpiration"] == "-")
+                continue ;
+            
+            $compareDate = $this->appService->compareDates($produitExpiree["dateExpiration"],date("d/m/Y"),'P') ;
+            if($compareDate)
+            {
+                $produitExpirees[] = $produitExpiree ;
+            }
+        }
 
         return $this->render('stock/general/historiqueProduit.html.twig', [
             "filename" => "stock",
             "titlePage" => "Historique Produit",
             "with_foot" => false,
+            "stockExpirees" => $produitExpirees,
         ]);
     }
 }

@@ -18,18 +18,18 @@
     </div>
     <div class="container-fluid px-3 pt-3">
         <div class="row">
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
                 <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
                     <option value="">Tous</option>
                 </select>
-            </div>
-            <div class="col-md-3">
+            </div> #}
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
                 <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
                     <option value="">Tous</option>
                 </select>
-            </div>
+            </div> #}
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
                 <div class="input-group mb-3">
@@ -39,7 +39,7 @@
                     <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
                 </div>
             </div>
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date Début</label>
                 <div class="input-group mb-3">
                 <div class="input-group-prepend">
@@ -47,8 +47,8 @@
                 </div>
                     <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
                 </div>
-            </div>
-            <div class="col-md-3">
+            </div> #}
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date fin</label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -56,58 +56,86 @@
                     </div>
                     <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
                 </div>
-            </div>
+            </div> #}
             <div class="col-md-3">
+                {% set i = 1 %}
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Avril</option>
+                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+                    <option value="">TOUS</option>
+                    {% for tabMois in tabMois %}
+                        <option value="{{i}}">{{tabMois|upper}}</option>
+                        {% set i = i + 1 %}
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Année</label>
-                <input type="number" name="nom" id="nom" class="form-control" placeholder="2023">
+                <input type="number" name="nom" id="nom" class="form-control" placeholder="{{'now'|date('Y')}}">
             </div>
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
                 <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-            </div>
+            </div> #}
         </div>
         <div class="table-responsive mt-3">
-            <table class="table table-sm table-bordered table-hover">
+            <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                     <tr>
                         <th>Date</th>
                         <th>Entrepôt</th>
                         <th>Produit</th>
-                        <th class="text-right">Qte</th>
+                        <th class="text-right">Quantité</th>
                         <th class="text-right">Prix vente</th>
                         <th class="text-right">Total</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% set premier = (appros is not empty) ? appros[0].date : "" %}
+                    {% set passe = true %}
+                    {% set compteur = 1 %}
+                    {% set totalHT = 0 %}
+                    {% set totalGeneral = 0 %}
+                    {% for appro in appros %}
+                        {% if appro.date != premier %}
+                            {% set premier = appro.date %}
+                            {% set passe = true %}
+                            {% set compteur = 1 %}
+                            {% set totalHT = 0 %}
+                        {% endif %}
                     <tr>
-                        <td rowspan="2" class="align-middle">-</td>
-                        <td rowspan="2" class="align-middle">-</td>
-                        <td>-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td rowspan="2" class="text-center align-middle"><a href="#"><i class="fa text-warning fa-edit"></i></a></td>
+                        {% set elements = appros|filter(o => o.date == premier) %}
+                        {% set ligne = elements|length %}
+                        
+                        {% if passe %}
+                            <td rowspan="{{ligne + 1}}" class="align-middle">{{appro.date}}</td>
+                            {% set passe = false %}
+                        {% endif %}
+                        <td>{{appro.entrepot}}</td>
+                        <td>{{appro.produit}}</td>
+                        <td>{{appro.quantite}}</td>
+                        <td>{{appro.prixVente}}</td>
+                        <td>{{appro.total}}</td>
+                        {% set totalHT = totalHT + appro.total %}
                     </tr>
-                    <tr>
-                        <td colspan="3">Total Partiel</td>
-                        <th class="bg-secondary text-right text-white">10000</th>
-                    </tr>
-                    <tr class="bg-light border_dark">
-                        <td colspan="7"></td>
-                    </tr>
+                        {% if compteur == ligne %}
+                            <tr>
+                                <th colspan="4">Total Partiel</th>
+                                <th class="bg-secondary text-right text-white">{{totalHT}}</th>
+                            </tr>
+                            <tr class="bg-light border_dark">
+                                <td colspan="6"></td>
+                            </tr>
+                            {% set totalGeneral = totalGeneral + totalHT %}
+                        {% endif %}
+                        {% if appro.date == premier %}
+                            {% set compteur = compteur + 1 %}
+                        {% endif %}
+                    {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="5">Total Géneral</th>
-                        <th class="bg-primary text-right text-white">10000</th>
-                        <td class="bg-primary"></td>
+                        <th class="bg-primary text-right text-white">{{totalGeneral}}</th>
                     </tr>
                 </tfoot>
             </table>

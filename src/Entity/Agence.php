@@ -178,6 +178,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdType::class)]
     private Collection $prdTypes;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdApprovisionnement::class)]
+    private Collection $prdApprovisionnements;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -222,6 +225,7 @@ class Agence
         $this->achMarchandises = new ArrayCollection();
         $this->achDetails = new ArrayCollection();
         $this->prdTypes = new ArrayCollection();
+        $this->prdApprovisionnements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1626,6 +1630,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($prdType->getAgence() === $this) {
                 $prdType->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdApprovisionnement>
+     */
+    public function getPrdApprovisionnements(): Collection
+    {
+        return $this->prdApprovisionnements;
+    }
+
+    public function addPrdApprovisionnement(PrdApprovisionnement $prdApprovisionnement): self
+    {
+        if (!$this->prdApprovisionnements->contains($prdApprovisionnement)) {
+            $this->prdApprovisionnements->add($prdApprovisionnement);
+            $prdApprovisionnement->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdApprovisionnement(PrdApprovisionnement $prdApprovisionnement): self
+    {
+        if ($this->prdApprovisionnements->removeElement($prdApprovisionnement)) {
+            // set the owning side to null (unless already changed)
+            if ($prdApprovisionnement->getAgence() === $this) {
+                $prdApprovisionnement->setAgence(null);
             }
         }
 
