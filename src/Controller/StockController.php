@@ -1337,6 +1337,7 @@ class StockController extends AbstractController
     #[Route('/stock/approvisionnement/save', name: 'stock_save_approvisionnement')]
     public function stockSaveApprovisionnement(Request $request)
     {
+        // dd($request->request) ;
         $enr_ref_entrepot = $request->request->get('enr_ref_entrepot') ;
         $enr_appro_type = (array)$request->request->get('enr_appro_type') ;
         $enr_ref_appro_produit = $request->request->get('enr_ref_appro_produit') ;
@@ -1352,8 +1353,13 @@ class StockController extends AbstractController
         $enr_appro_prix_vente = $request->request->get('enr_appro_prix_vente') ;
 
         $enr_appro_date = $request->request->get('enr_appro_date') ; // NOT AN ARRAY !!!
-        foreach ($enr_appro_type as $key => $value) {  
+        // foreach ($enr_appro_type as $key => $value) 
+        $lenSave = count($enr_appro_type) ;
 
+        $key = 0 ;
+        do
+        {  
+            // dd(empty($enr_appro_indice[$key])) ;
             $fournisseur = [] ;
             if(!empty($enr_appro_fournisseur[$key]))
             {
@@ -1383,7 +1389,8 @@ class StockController extends AbstractController
             ] ;
 
             $this->stockSaveVariationProduit(null, $dataToInsert) ;
-        }
+            $key++ ;
+        }while($key < $lenSave) ;
 
         return new JsonResponse([
             "type" => "green",
@@ -1648,7 +1655,7 @@ class StockController extends AbstractController
             $variationPrix = new PrdVariationPrix() ;
             $variationPrix->setProduit($produit) ;
             $variationPrix->setPrixVente($prod_variation_prix_vente) ;
-            $variationPrix->setIndice($prod_variation_indice) ;
+            $variationPrix->setIndice(empty($prod_variation_indice) ? null : $prod_variation_indice) ;
             $variationPrix->setStock(intval($prod_variation_stock)) ;
             $variationPrix->setStockAlert(5) ;
             $variationPrix->setStatut(True) ;
