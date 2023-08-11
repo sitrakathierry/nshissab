@@ -45,6 +45,7 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
 
         $query = $repository->createQueryBuilder('e')
             ->where('e.variationPrix = :variation')
+            ->andWhere('e.prixAchat IS NOT NULL')
             ->orderBy('e.id', 'DESC')
             ->setMaxResults(1)
             ->setParameter('variation', $idVar)

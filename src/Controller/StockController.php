@@ -900,6 +900,16 @@ class StockController extends AbstractController
 
         if(is_null($approvisionnement))
         {
+            $result = [
+                "prixAchat" => "" ,
+                "charge" => "" ,
+                "marge" => "" ,
+                "prixRevient" => "" ,
+                "fournisseur" => "" ,
+                "expireeLe" => "" ,
+                "calcul" => "" 
+            ] ;
+            
             return new JsonResponse($result) ;
         }
 
