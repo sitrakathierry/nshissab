@@ -314,7 +314,7 @@ $(document).ready(function(){
             var self = $(this)
             $.confirm({
                 title: "Suppression",
-                content:"Vous êtes sûre de vouloir supprimer cet éléments ?",
+                content:"Vous êtes sûre ?",
                 type:"red",
                 theme:"modern",
                 buttons:{
@@ -689,7 +689,7 @@ $(document).ready(function(){
 
     $("#formCreateProduit").submit(function(event){
         event.preventDefault()
-        console.log($("#add_new_type").val())
+
         var self = $(this)
         $(".produit_editor").text(produit_editor.getEditorText()) 
         $.confirm({

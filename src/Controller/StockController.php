@@ -4,6 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\CaissePanier;
+use App\Entity\IntLibelle;
+use App\Entity\IntMateriel;
+use App\Entity\IntMouvement;
+use App\Entity\IntType;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdDeduction;
@@ -77,10 +81,10 @@ class StockController extends AbstractController
             $this->appService->generateStockFournisseur($filename, $this->agence) ;
         $fournisseurs = json_decode(file_get_contents($filename)) ;
         
-        $filename = $this->filename."type(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
-            $this->appService->generatePrdType($filename,$this->agence) ;
-        $types = json_decode(file_get_contents($filename)) ;
+        // $filename = $this->filename."type(agence)/".$this->nameAgence ;
+        // if(!file_exists($filename))
+        //     $this->appService->generatePrdType($filename,$this->agence) ;
+        // $types = json_decode(file_get_contents($filename)) ;
 
         $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
 
@@ -92,7 +96,7 @@ class StockController extends AbstractController
             "entrepots" => $entrepots,
             "fournisseurs" => $fournisseurs,
             "marge_types" => $marge_types,
-            "types" => $types,
+            // "types" => $types,
         ]);
     }
 
@@ -874,6 +878,9 @@ class StockController extends AbstractController
         // foreach ($stockEntrepots as $stockEntrepot) {
         //     array_push($newStockEntrepots,(array)$stockEntrepot) ;
         // }
+
+        // dd($stockEntrepots) ;
+
         return $this->render('stock/inventaire.html.twig', [
             "filename" => "stock",
             "titlePage" => "Inventaire des Produits",
@@ -1081,7 +1088,7 @@ class StockController extends AbstractController
         $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($id) ;
 
         $entrepot->setStatut(False) ;
-        // $this->entityManager->remove($entrepot);
+        $entrepot->setUpdatedAt(new \DateTimeImmutable) ;
         $this->entityManager->flush();
 
         $this->appService->generateStockEntrepot($this->filename."entrepot(agence)/".$this->nameAgence,$this->agence) ;
@@ -1309,47 +1316,305 @@ class StockController extends AbstractController
     #[Route('/stock/stockinterne/creation', name: 'stock_int_creation')]
     public function stockIntCreation(): Response
     {
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateStockFournisseur($filename,$this->agence) ;
+
+        $fournisseurs = json_decode(file_get_contents($filename)) ;
+
         return $this->render('stock/stockinterne/creation.html.twig', [
+            "filename" => "stockinterne",
+            "titlePage" => "Enregistrement Matériel (Stock Interne)",
+            "with_foot" => true,
+            "fournisseurs" => $fournisseurs,
         ]);
+    }
+
+    #[Route('/stock/stockinterne/materiel/save', name: 'stock_interne_save_materiel')]
+    public function stockIntSaveMateriel(Request $request): Response
+    {
+        $int_materiel_nom = $request->request->get("int_materiel_nom") ;
+        $int_materiel_prix_achat = $request->request->get("int_materiel_prix_achat") ;
+        $int_materiel_quantite = $request->request->get("int_materiel_quantite") ;
+        $int_materiel_unite = $request->request->get("int_materiel_unite") ;
+        $int_materiel_stock = $request->request->get("int_materiel_stock") ;
+        $int_materiel_libelle = $request->request->get("int_materiel_libelle") ;
+        $int_materiel_add_libelle = $request->request->get("int_materiel_add_libelle") ;
+        $int_materiel_fournisseur = $request->request->get("int_materiel_fournisseur") ;
+        $stock_int_materiel_editor = $request->request->get("stock_int_materiel_editor") ;
+
+        $result = $this->appService->verificationElement([
+            $int_materiel_nom,
+            $int_materiel_prix_achat,
+            $int_materiel_quantite,
+            $int_materiel_unite,
+            $int_materiel_stock,
+            $int_materiel_libelle,
+        ],[
+            "Nom",
+            "Prix d'achat",
+            "Quantité",
+            "Unité",
+            "Produit en Stock",
+            "Libellé",
+            ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        if($int_materiel_add_libelle == "NON")
+        {
+            $libelle = $this->entityManager->getRepository(IntLibelle::class)->find($int_materiel_libelle) ;
+        }
+        else
+        {
+            $libelle = new IntLibelle() ;
+
+            $libelle->setAgence($this->agence) ;
+            $libelle->setNom($int_materiel_libelle) ;
+
+            $this->entityManager->persist($libelle) ;
+            $this->entityManager->flush();
+        }
+
+        $materiel = new IntMateriel() ;
+
+        $materiel->setAgence($this->agence) ;
+        $materiel->setLibelle($libelle) ;
+        $materiel->setNom($int_materiel_nom) ;
+        $materiel->setPrixAchat($int_materiel_prix_achat) ;
+        $materiel->setQuantite($int_materiel_quantite) ;
+        $materiel->setUnite($int_materiel_unite) ;
+        $materiel->setStock($int_materiel_stock) ;
+        $materiel->setFournisseur(implode(",",$int_materiel_fournisseur)) ;
+        $materiel->setDescription($stock_int_materiel_editor) ;
+        $materiel->setStatut(True) ;
+        $materiel->setCreatedAt(new \DateTimeImmutable) ;
+        $materiel->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($materiel) ;
+        $this->entityManager->flush();
+
+        $type = $this->entityManager->getRepository(IntType::class)->findOneBy([
+            "reference" => "IN"    
+        ]) ;
+
+        $mouvement = new IntMouvement() ;
+
+        $mouvement->setAgence($this->agence) ;
+        $mouvement->setMateriel($materiel) ;
+        $mouvement->setType($type) ;
+        $mouvement->setDesignation($materiel->getNom()) ;
+        $mouvement->setQuantite($int_materiel_quantite) ;
+        $mouvement->setPrixAchat($int_materiel_prix_achat) ;
+        $mouvement->setStock($int_materiel_stock) ;
+        $mouvement->setDate(\DateTime::createFromFormat("d/m/Y",date('d/m/Y'))) ;
+
+        $this->entityManager->persist($mouvement) ;
+        $this->entityManager->flush();
+
+        $filename = $this->filename."interne/materiel(agence)/".$this->nameAgence ;
+        
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $filename = $this->filename."interne/mouvement(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/stock/stockinterne/libelle/get', name: 'stock_interne_get_data_libelle')]
+    public function stockIntGetDateLibelle(Request $request): Response
+    {
+        $libelle_type = $request->request->get("libelle_type") ;
+
+        if($libelle_type == "NEW")
+        {
+            $response = $this->renderView("stock/stockinterne/getNewLibellee.html.twig") ;
+        }
+        else
+        {
+            $filename = $this->filename."interne/libelle(agence)/".$this->nameAgence ;
+            if(!file_exists($filename))
+                $this->appService->generateInterneLibelle($filename,$this->agence) ;
+
+            $libelles = json_decode(file_get_contents($filename)) ;
+
+            $response = $this->renderView("stock/stockinterne/getExistingLibellee.html.twig",[
+                "libelles" => $libelles
+            ]) ;
+        }
+
+        return new Response($response) ;
     }
 
     #[Route('/stock/stockinterne/stock', name: 'stock_int_stock')]
     public function stockIntStock(): Response
     {
+        $filename = $this->filename."interne/materiel(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateInterneMateriel($filename,$this->agence) ;
         
+        $materiels = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."interne/libelle(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateInterneLibelle($filename,$this->agence) ;
+
+        $libelles = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/stockinterne/stock.html.twig', [
-            
+            "filename" => "stockinterne",
+            "titlePage" => "Liste des Matériaux (Stock Interne)",
+            "with_foot" => false,
+            "materiels" => $materiels,
+            "libelles" => $libelles,
         ]);
     }
 
     #[Route('/stock/stockinterne/approvisionnement', name: 'stock_int_approvisionnement')]
     public function stockIntApprovisionnement(): Response
     {
+        $filename = $this->filename."interne/materiel(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateInterneMateriel($filename,$this->agence) ;
         
+        $materiels = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/stockinterne/approvisionnement.html.twig', [
-            
+            "filename" => "stockinterne",
+            "titlePage" => "Approvisionnement (Stock Interne)",
+            "with_foot" => true,
+            "materiels" => $materiels,
         ]);
+    }
+    
+    #[Route('/stock/stockinterne/mouvement/save', name: 'stock_interne_save_mouvement')]
+    public function stockSaveIntMouvement(Request $request)
+    {
+        $int_mouvement_type = $request->request->get("int_mouvement_type") ;
+
+        if($int_mouvement_type == "ENTREE")
+        {
+            $int_enr_mvt_designation = (array)$request->request->get("int_enr_appro_designation") ;
+            $int_enr_appro_quantite = $request->request->get("int_enr_appro_quantite") ;
+            $int_enr_mvt_stock = $request->request->get("int_enr_appro_stock") ;
+            $int_enr_appro_prix_achat = $request->request->get("int_enr_appro_prix_achat") ;
+    
+            $enr_int_mouvement_date = $request->request->get("enr_int_appro_date") ;
+    
+            $type = $this->entityManager->getRepository(IntType::class)->findOneBy([
+                "reference" => "IN"    
+            ]) ;
+        }
+        else
+        {
+            $int_enr_mvt_designation = (array)$request->request->get("int_enr_sortie_designation") ;
+            $int_enr_mvt_stock = $request->request->get("int_enr_sortie_stock") ;
+
+            $enr_int_mouvement_date = $request->request->get("enr_int_sortie_date") ;
+    
+            $type = $this->entityManager->getRepository(IntType::class)->findOneBy([
+                "reference" => "OUT"    
+            ]) ;
+        }
+
+        foreach($int_enr_mvt_designation as $key => $value)
+        {
+            
+            $mouvement = new IntMouvement() ;
+            $mouvement->setAgence($this->agence) ;
+
+            if($int_mouvement_type == "ENTREE")
+            {
+                $materiel = $this->entityManager->getRepository(IntMateriel::class)->find($int_enr_mvt_designation[$key]) ;
+                $mouvement->setMateriel($materiel) ;
+                $mouvement->setType($type) ;
+                $mouvement->setDesignation($materiel->getNom()) ;
+                $mouvement->setQuantite($int_enr_appro_quantite[$key]) ;
+                $mouvement->setPrixAchat($int_enr_appro_prix_achat[$key]) ;
+                $mouvement->setStock($int_enr_mvt_stock[$key]) ;
+            }
+            else
+            {
+                $materiel = $this->entityManager->getRepository(IntMateriel::class)->find($int_enr_mvt_designation[$key]) ;
+                $mouvement->setMateriel($materiel) ;
+                $mouvement->setType($type) ;
+                $mouvement->setDesignation($materiel->getNom()) ;
+                $mouvement->setQuantite($materiel->getQuantite()) ;
+                $mouvement->setPrixAchat($materiel->getPrixAchat()) ;
+                $mouvement->setStock($int_enr_mvt_stock[$key]) ;
+            }
+            
+            $mouvement->setDate(\DateTime::createFromFormat("d/m/Y",$enr_int_mouvement_date)) ;
+            $this->entityManager->persist($mouvement) ;
+            $this->entityManager->flush();
+
+            if($int_mouvement_type == "ENTREE")
+            {
+                $matStock = $materiel->getStock() + $int_enr_mvt_stock[$key] ;
+            }
+            else
+            {
+                $matStock = $materiel->getStock() - $int_enr_mvt_stock[$key] ;
+            }
+
+            $materiel->setStock($matStock) ;
+            $materiel->setUpdatedAt(new \DateTimeImmutable) ;
+            $this->entityManager->flush();
+        }
+
+        $filename = $this->filename."interne/mouvement(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $filename = $this->filename."interne/materiel(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Enregistrement effectué",
+        ]) ;
     }
 
     #[Route('/stock/stockinterne/sorties', name: 'stock_int_sorties')]
     public function stockIntSorties(): Response
     {
+        $filename = $this->filename."interne/materiel(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateInterneMateriel($filename,$this->agence) ;
         
+        $materiels = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/stockinterne/sorties.html.twig', [
-            
+            "filename" => "stockinterne",
+            "titlePage" => "Sortie Matériel (Stock Interne)",
+            "with_foot" => true,
+            "materiels" => $materiels,
         ]);
     }
 
     #[Route('/stock/stockinterne/entreesortie', name: 'stock_int_entreesortie')]
     public function stockIntEntreesortie(): Response
     {
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+        $filename = $this->filename."interne/mouvement(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateInterneMouvement($filename,$this->agence) ;
         
+        $mouvements = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/stockinterne/entreesortie.html.twig', [
-            
+            "filename" => "stockinterne",
+            "titlePage" => "Entrées & Sorties (Stock Interne)",
+            "with_foot" => false,
+            "tabMois" => $tabMois,
+            "mouvements" => $mouvements,
         ]);
     }
  

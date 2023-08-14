@@ -25,6 +25,9 @@ use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\FactPaiement;
 use App\Entity\Facture;
+use App\Entity\IntLibelle;
+use App\Entity\IntMateriel;
+use App\Entity\IntMouvement;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
 use App\Entity\LctContrat;
@@ -511,6 +514,7 @@ class AppService extends AbstractController
     public function generateStockEntrepot($filename, $agence)
     {
         $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
+            "statut" => True,
             "agence" => $agence
         ]) ;
 
@@ -529,6 +533,10 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public static function comparerParNom($a, $b) {
+        return strcmp($a['nom'], $b['nom']); // Comparaison des noms
+    }
+    
     public function generateStockPreferences($filename,$user)
     {
         $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
@@ -550,6 +558,8 @@ class AppService extends AbstractController
             } 
         }
         
+        usort($elements, [self::class, 'comparerParNom']);
+
         file_put_contents($filename,json_encode($elements)) ;
     }
 
@@ -1039,6 +1049,25 @@ class AppService extends AbstractController
         return $element ;
     }
 
+    public static function comparaisonMultiple($a, $b) {
+        // Comparaison par entrepot
+        $result = strcmp($a['nomType'], $b['nomType']);
+        
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        // Comparaison par categorie
+        $result = strcmp($a['categorie'], $b['categorie']);
+        
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        // Comparaison par nomType
+        return strcmp($a['entrepot'], $b['entrepot']);
+    }
+
     public function generateStockInEntrepot($filename,$agence)
     {
         $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
@@ -1066,6 +1095,8 @@ class AppService extends AbstractController
             $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
             array_push($elements,$element) ;
         }
+
+        usort($elements, [self::class,'comparaisonMultiple']);
 
         file_put_contents($filename,json_encode($elements)) ;
     }
@@ -1186,6 +1217,77 @@ class AppService extends AbstractController
             $element["symbole"] = $devise->getSymbole() ;
             $element["lettre"] = $devise->getLettre() ;
             $element["montantBase"] = $devise->getMontantBase() ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateInterneMateriel($filename,$agence) 
+    {
+        $materiels = $this->entityManager->getRepository(IntMateriel::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($materiels as $materiel) {
+            $element = [] ;
+
+            $element["id"] = $materiel->getId() ;
+            $element["agence"] = $materiel->getAgence()->getId() ;
+            $element["nom"] = $materiel->getNom() ;
+            $element["libelle"] = $materiel->getLibelle()->getNom() ;
+            $element["quantite"] = $materiel->getQuantite() ;
+            $element["unite"] = $materiel->getUnite() ;
+            $element["stock"] = $materiel->getStock() ;
+
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateInterneLibelle($filename,$agence)
+    {
+        $libelles = $this->entityManager->getRepository(IntLibelle::class)->findBy([
+            "agence" => $agence,
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($libelles as $libelle) {
+            $element = [] ;
+
+            $element["id"] = $libelle->getId() ;
+            $element["agence"] = $libelle->getAgence()->getId() ;
+            $element["nom"] = $libelle->getNom() ;
+
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateInterneMouvement($filename,$agence)
+    {
+        $mouvements = $this->entityManager->getRepository(IntMouvement::class)->findBy([
+            "agence" => $agence,
+        ]) ;
+
+        $elements = [] ;
+
+        foreach ($mouvements as $mouvement) {
+            $element = [] ;
+
+            $element["id"] = $mouvement->getId() ;
+            $element["agence"] = $mouvement->getAgence()->getId() ;
+            $element["date"] = $mouvement->getDate()->format("d/m/Y") ;
+            $element["designation"] = $mouvement->getDesignation() ;
+            $element["stock"] = $mouvement->getStock() ;
+            $element["refType"] = $mouvement->getType()->getReference() ;
+
             array_push($elements,$element) ;
         }
 

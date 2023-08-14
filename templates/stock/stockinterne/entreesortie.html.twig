@@ -1,8 +1,99 @@
-{% extends 'menu/index.html.twig' %}
+ {% extends 'menu/index.html.twig' %}
 
-{% block title %}Entrée/Sortie{% endblock %}
+{% block title %}{{titlePage}}{% endblock %}
 
-{% block body %}
-    <h2>Editer le fichier dans : templates/stock/stockinterne/entreesortie.html.twig</h2>
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
 {% endblock %}
-  
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">Désignation</label>
+                <select name="prod_categorie" class="custom-select chosen_select custom-select-sm" id="prod_categorie">
+                    <option value="">TOUS</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3">
+                {% set i = 1 %}
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois</label>
+                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+                    <option value="">TOUS</option>
+                    {% for tabMois in tabMois %}
+                        <option value="{{i}}">{{tabMois|upper}}</option>
+                        {% set i = i + 1 %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Année</label>
+                <input type="number" name="nom" id="nom" class="form-control" placeholder="{{'now'|date('Y')}}">
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Désignation</th>
+                        <th>Stock Entrée</th>
+                        <th>Stock Sortie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set totalEntree = 0 %}
+                    {% set totalSortie = 0 %}
+                    {% for mouvement in mouvements %}
+                        <tr>
+                            <td>{{ mouvement.date }}</td>
+                            <td>{{ mouvement.designation }}</td>
+                            {% if mouvement.refType == "IN" %}
+                                <td>{{ mouvement.stock }}</td>
+                                <td>{{ "-" }}</td>
+                                {% set totalEntree = totalEntree + mouvement.stock %}
+                            {% else %}
+                                <td>{{ "-" }}</td>
+                                <td>{{ mouvement.stock }}</td>
+                                {% set totalSortie = totalSortie + mouvement.stock %}
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">Total</th>
+                        <th class="bg-primary text-white">{{totalEntree}}</th>
+                        <th class="bg-dark text-white">{{totalSortie}}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

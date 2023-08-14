@@ -181,6 +181,15 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdApprovisionnement::class)]
     private Collection $prdApprovisionnements;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: IntMateriel::class)]
+    private Collection $intMateriels;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: IntLibelle::class)]
+    private Collection $intLibelles;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: IntMouvement::class)]
+    private Collection $intMouvements;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -226,6 +235,9 @@ class Agence
         $this->achDetails = new ArrayCollection();
         $this->prdTypes = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
+        $this->intMateriels = new ArrayCollection();
+        $this->intLibelles = new ArrayCollection();
+        $this->intMouvements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1660,6 +1672,96 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($prdApprovisionnement->getAgence() === $this) {
                 $prdApprovisionnement->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IntMateriel>
+     */
+    public function getIntMateriels(): Collection
+    {
+        return $this->intMateriels;
+    }
+
+    public function addIntMateriel(IntMateriel $intMateriel): self
+    {
+        if (!$this->intMateriels->contains($intMateriel)) {
+            $this->intMateriels->add($intMateriel);
+            $intMateriel->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIntMateriel(IntMateriel $intMateriel): self
+    {
+        if ($this->intMateriels->removeElement($intMateriel)) {
+            // set the owning side to null (unless already changed)
+            if ($intMateriel->getAgence() === $this) {
+                $intMateriel->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IntLibelle>
+     */
+    public function getIntLibelles(): Collection
+    {
+        return $this->intLibelles;
+    }
+
+    public function addIntLibelle(IntLibelle $intLibelle): self
+    {
+        if (!$this->intLibelles->contains($intLibelle)) {
+            $this->intLibelles->add($intLibelle);
+            $intLibelle->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIntLibelle(IntLibelle $intLibelle): self
+    {
+        if ($this->intLibelles->removeElement($intLibelle)) {
+            // set the owning side to null (unless already changed)
+            if ($intLibelle->getAgence() === $this) {
+                $intLibelle->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IntMouvement>
+     */
+    public function getIntMouvements(): Collection
+    {
+        return $this->intMouvements;
+    }
+
+    public function addIntMouvement(IntMouvement $intMouvement): self
+    {
+        if (!$this->intMouvements->contains($intMouvement)) {
+            $this->intMouvements->add($intMouvement);
+            $intMouvement->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIntMouvement(IntMouvement $intMouvement): self
+    {
+        if ($this->intMouvements->removeElement($intMouvement)) {
+            // set the owning side to null (unless already changed)
+            if ($intMouvement->getAgence() === $this) {
+                $intMouvement->setAgence(null);
             }
         }
 

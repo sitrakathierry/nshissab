@@ -1,8 +1,95 @@
-{% extends 'menu/index.html.twig' %}
+ {% extends 'menu/index.html.twig' %}
 
-{% block title %}Approvisionnement{% endblock %}
+{% block title %}{{titlePage}}{% endblock %}
 
-{% block body %}
-    <h2>Editer le fichier dans : templates/stock/stockinterne/approvisionnement.html.twig</h2>
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
 {% endblock %}
-  
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-2">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="int_appro_designation" class="mt-2 font-weight-bold">Désignation</label>
+                <select name="int_appro_designation" class="custom-select chosen_select custom-select-sm" id="int_appro_designation">
+                    <option value="">-</option>
+                    {% for materiel in materiels %}
+                        <option value="{{materiel.id}}">{{materiel.nom|upper}} | {{materiel.unite}} | {{materiel.libelle|upper}}</option>
+                    {% endfor %}
+                </select>
+                {# <input type="hidden" id="textDesignation" > #}
+            </div>
+            <div class="col-md-2">
+                <label for="int_appro_quantite" class="mt-2 font-weight-bold">Quantité</label>
+                <input type="number" step="any" name="int_appro_quantite" id="int_appro_quantite" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-2">
+                <label for="int_appro_stock" class="mt-2 font-weight-bold">Stock</label>
+                <input type="number" step="any" name="int_appro_stock" id="int_appro_stock" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-2">
+                <label for="int_appro_prix_achat" class="mt-2 font-weight-bold">Prix Achat</label>
+                <input type="number" step="any" name="int_appro_prix_achat" id="int_appro_prix_achat" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-2">
+                <label for="" class="mt-2 font-weight-bold">&nbsp;</label>
+                <button class="btn btn-success int_appro_ajouter btn-block btn-sm"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
+            </div>
+        </div>
+        <form id="formIntAppro">
+            <input type="hidden" name="int_mouvement_type" value="ENTREE">
+            <div class="table-responsive mt-4">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Désignation</th>
+                            <th>Quantité</th>
+                            <th>Stock</th>
+                            <th>Prix Achat</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="elemIntAppro">
+                        
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4">Total General <input type="hidden" id="int_appro_total_general" value="0" > </th>
+                            <th colspan="2" class="bg-dark text-white int_caption_total_general"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold">Approvisionnement le,</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        <input type="text"  value="{{ 'now'|date('d/m/Y') }}" class="form-control enr_appro_date" placeholder=". . ." name="enr_int_appro_date" id="enr_int_appro_date" aria-label="dateIntAppro" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+            </div>
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% endif %} 
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

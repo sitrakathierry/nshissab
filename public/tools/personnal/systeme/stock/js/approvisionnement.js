@@ -439,7 +439,7 @@ $(document).ready(function(){
                         var options = '<option value=""></option>'
                         for (let i = 0; i < resp.produitEntrepots.length; i++) {
                             const elementP = resp.produitEntrepots[i];
-                            options += '<option value="'+elementP.id+'">'+elementP.codeProduit+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                            options += '<option value="'+elementP.id+'">'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
                         }
 
                         $("#appro_search_produit").html(options) ;

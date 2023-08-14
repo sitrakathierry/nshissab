@@ -33,7 +33,7 @@ $(document).ready(function(){
     
     
     $("#formDetailProduit").submit(function(){
-        console.log($("#add_new_type").val())
+
         var self = $(this)
         $(".produit_details_editor").text(produit_details_editor.getEditorText()) 
         $.confirm({

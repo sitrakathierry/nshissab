@@ -42,9 +42,10 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
     public function getProduitsInEntrepots($entrepot)
     {
         $sql = "
-        SELECT p.id, p.code_produit as codeProduit, p.nom, p.stock FROM `prd_histo_entrepot` phe 
+        SELECT p.id, p.code_produit as codeProduit, IF(p.type_id IS NULL,'NA',pt.nom) as nomType, p.nom, p.stock FROM `prd_histo_entrepot` phe 
         JOIN prd_variation_prix pvp ON phe.variation_prix_id = pvp.id
         LEFT JOIN produit p ON p.id = pvp.produit_id
+        LEFT JOIN prd_type pt ON p.type_id = pt.id
         WHERE phe.entrepot_id = ? AND p.statut = 1 AND phe.statut = 1 AND pvp.statut = 1 
         GROUP BY p.id ORDER BY p.id ASC
         " ;
