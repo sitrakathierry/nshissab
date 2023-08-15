@@ -238,7 +238,7 @@ $(document).ready(function(){
         var int_sortie_stock = $("#int_sortie_stock").val()
 
 
-        result = appBase.verificationElement([
+        var result = appBase.verificationElement([
             int_sortie_designation,
             int_sortie_stock,
         ],[

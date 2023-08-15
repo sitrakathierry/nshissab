@@ -1,17 +1,17 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
+    $(".cs_mtn_recu").val("")
+    $(".cs_mtn_remise").val("")
+    $(".cs_mtn_type_remise").val(1)
     $("#caisse_search_produit").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#csenr_date_caisse").datepicker()
     $(".chosen_select").chosen({
         no_results_text: "Aucun resultat trouvé : "
     });
-
-    var prodtuitText = '' ;
+    $(".chosen_select").trigger("chosen:updated")
 
     $("#caisse_search_produit").chosen().change(function() {
-        var selectedText = $(this).find("option:selected").text();
-        prodtuitText = selectedText
         var idP = $(this).val()
         var self = $(this)
         var realinstance = instance.loading()
@@ -30,15 +30,16 @@ $(document).ready(function(){
                         optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
                     });
                     $("#caisse_search_prix").html(optionsPrix)
-                    $("#caisse_search_prix").trigger("chosen:updated"); 
                 }
                 else
                 {
-                    var optionsPrix = '<option value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
+                    var optionsPrix = '<option selected value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
                     $("#caisse_search_prix").html(optionsPrix)
-                    $("#caisse_search_prix").trigger("chosen:updated"); 
                     $("#caisse_search_prix").change()
                 }
+                
+                $("#caisse_search_image").val(resp.images)
+                $("#caisse_search_prix").trigger("chosen:updated"); 
 
                 if(resp.tva != "")
                 {
@@ -50,111 +51,55 @@ $(document).ready(function(){
                     $("#caisse_search_tva").removeAttr("readonly")
                     $("#caisse_search_tva").val("")
                 }
-
-                // var optionsPrix = '<option value=""></option>' ;
-                // resp.forEach(elem => {
-                //     optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
-                // });
-                
             },
             error: function(resp){
                 realinstance.close()
                 $.alert(JSON.stringify(resp))
             }
         })
-      });
+    });
 
-      var prixText = ''
-      $("#caisse_search_prix").chosen().change(function(){
-        var selectedText = $(this).find("option:selected").text();
-        prixText = selectedText ;
-      })
-    var totalGeneral = 0
-    var totalTva = 0
-    function removeLigneCaisse()
-    {
-        $(".remove_ligne_caisse").click(function(){
-            if(!$(this).attr("disabled"))
-            {
-                var totalPartiel = $(this).closest('tr').find(".csenr_total_partiel").text() ;
-                totalGeneral = parseFloat(totalGeneral) - parseFloat(totalPartiel) ;
-                
-                var valeur_tva =  $(this).closest('tr').find(".csenr_tva").val() ;
-                totalTva = parseFloat(totalTva) - parseFloat(valeur_tva) ;
+    $("#caisse_search_prix").change(function(){
+        $("#caisse_search_quantite").val(1)
+        $(".caisse_ajout").click()
+    })
 
-                $(".cs_total_general").text(totalGeneral)
-                $(".csenr_total_general").val(totalGeneral)
-                
-                $(".cs_mtn_tva").text(totalTva)
-                $(".csenr_total_tva").val(totalTva)
-
-                $(".cs_mtn_recu").keyup()
-            }
-            $(this).prop("disabled", true);
-            $(this).closest('tr').remove()
-        })
-    }
+    $(document).on('click',".remove_ligne_caisse",function(){
+        $(this).closest('tr').remove()
+        $(".cs_mtn_recu").keyup()
+    })
 
     $(".caisse_ajout").click(function(){
         var caisse_prix = $("#caisse_search_prix").val()
         var caisse_produit = $("#caisse_search_produit").val()
         var caisse_quantite = $("#caisse_search_quantite").val()
         var caisse_tva = $("#caisse_search_tva").val()
+        var caisse_search_image = $("#caisse_search_image").val()
 
-        var elemSearch = [
-            $("#caisse_search_produit"),
-            $("#caisse_search_prix"),
-            $("#caisse_search_quantite")
-        ]
-
-        var elemCaption = [
+        var result = appBase.verificationElement([
+            caisse_produit,
+            caisse_prix,
+            caisse_quantite,
+        ],[
             "Produit",
             "Prix",
-            "Quantité"
-        ]
-        var n = 0 
-        var caption = ''
-        var vide = false ;
-        elemSearch.forEach(elem => {
-            if(elem.val() == "")
-            {
-                caption = elemCaption[n] ; 
-                vide = true ;
-                return ;
-            }
-            n++ ;
-        })
+            "Quantité",
+        ])
 
-        if(vide)
+        if(!result["allow"])
         {
             $.alert({
-                title: 'Champ vide',
-                content: caption+" est vide",
-                type:'orange',
-            })
-            return ;
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            });
+
+            return result["allow"] ;
         }
 
-        if(parseFloat($("#caisse_search_quantite").val()) < 0)
-        {
-            $.alert({
-                title: 'Valeur négatif',
-                content: "Quantité doit être positif ",
-                type:'red',
-            })
-            return ;
-        }
-        else if(parseFloat($("#caisse_search_quantite").val()) == 0)
-        {
-            $.alert({
-                title: 'Valeur nul',
-                content: "Quantité doit être valide",
-                type:'orange',
-            })
-            return ;
-        }
+        var produitText = $("#caisse_search_produit").find("option:selected").text();
+        var stock = parseInt(produitText.split(" | ")[2].split(" : ")[1])
 
-        var stock = parseInt(prodtuitText.split(" | ")[2].split(" : ")[1])
         if(stock < parseInt(caisse_quantite))
         {
             $.alert({
@@ -164,6 +109,7 @@ $(document).ready(function(){
             })
             return ;
         }
+
         var existant = false ;
         $(".csenr_produit").each(function(){
             var idPrix = $(this).closest('tr').find(".csenr_prix").val() ;
@@ -189,35 +135,42 @@ $(document).ready(function(){
             })
             return 
         }
+
+        var prixText = $("#caisse_search_prix").find("option:selected").text()
         var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
+
         var tvaVal = 0 
+
         if(caisse_tva != "")
         {
             tvaVal = ((parseFloat(prixText.split(" | ")[0]) * parseFloat(caisse_tva)) / 100) * caisse_quantite ;
         }
         
-        
         var item = `
         <tr>
+            <td class="image_produit p-3">
+                <a href="`+caisse_search_image+`" data-lightbox="album" data-title="`+produitText+`">
+                    <img src="`+caisse_search_image+`" class="img img-thumbnail" >
+                </a> 
+            </td>
             <td class="align-middle">
-                `+prodtuitText+`
+                `+produitText+`
+                <input type="hidden" class="text_produit" value="`+produitText+`">
                 <input type="hidden" class="csenr_produit" name="csenr_produit[]" value="`+caisse_produit+`">
             </td>
-            <td class="align-middle">
-                code
-            </td>
-            <td class="align-middle">
-                `+caisse_quantite+`
-                <input type="hidden" name="csenr_quantite[]" value="`+caisse_quantite+`">
+            <td class="align-middle overflow-auto">
+                <div class="codeBarre"></div>
             </td>
             <td class="align-middle">
                 `+prixText+`
                 <input type="hidden" class="csenr_prix" name="csenr_prix[]" value="`+caisse_prix+`">
-                <input type="hidden" name="csenr_prixText[]" value="`+prixText+`">
+                <input type="hidden" name="csenr_prixText[]" id="csenr_prixText" value="`+prixText+`">
+            </td>
+            <td class="align-middle text-center">
+                <input type="number" step="any" name="csenr_quantite[]" class="csenr_quantite form-control" value="`+caisse_quantite+`">
             </td>
             <td class="align-middle">
-                `+(tvaVal != 0 ? tvaVal : "-")+`
-                <input type="hidden"  name="csenr_tva[]" class="csenr_tva" value="`+(caisse_tva == "" ? 0 : caisse_tva)+`">
+                <input type="number" step="any" name="csenr_tva[]" `+(caisse_tva == "" ? "" : "readonly")+` class="csenr_tva form-control" value="`+(caisse_tva == "" ? 0 : caisse_tva)+`">
             </td>
             <td class="align-middle csenr_total_partiel">`+totalPartiel+`</td>
             <td class="text-center align-middle">
@@ -227,25 +180,56 @@ $(document).ready(function(){
         `
         
         $(".elem_caisse").append(item)
-        elemSearch.forEach(elem => {
-            elem.val("")
-            elem.trigger("chosen:updated"); 
+
+        $(".elem_caisse tr").each(function(index,element){
+            $(element).find(".codeBarre").barcode(
+                {
+                    code:$(element).find('.text_produit').val().split(" | ")[0],
+                    rect: false,
+                },
+                "code128",
+                {
+                    output: "svg",
+                    bgColor: "transparent",
+                    barHeight: 20,
+                }
+            );
         })
-        totalGeneral += totalPartiel
-        totalTva += tvaVal
-        $(".cs_total_general").text(totalGeneral)
-        $(".csenr_total_general").val(totalGeneral)
 
-        $(".cs_mtn_tva").text(totalTva)
-        $(".csenr_total_tva").val(totalTva)
+        $('#caisse_search_produit').val("")
+        $('#caisse_search_prix').val("")
+        $('#caisse_search_quantite').val("")
+        $('#caisse_search_tva').val("")
+        $(".chosen_select").trigger("chosen:updated"); 
 
-        removeLigneCaisse()
         $(".cs_mtn_recu").keyup()
     })
 
-    function updateMontant(selection)
+    function updateMontant()
     {
-        var a_rembourser = parseFloat(selection.val()) - parseFloat(totalGeneral) ; 
+        var montantRecu = $(".cs_mtn_recu").val()
+        montantRecu = montantRecu == "" ? 0 : montantRecu ;
+
+        var totalTva = 0 ;
+        var totalGeneral = 0 ;
+        var cs_mtn_type_remise = $("#cs_mtn_type_remise").val()
+        var cs_mtn_remise = $("#cs_mtn_remise").val() == "" ? 0 : $("#cs_mtn_remise").val() ;
+
+        $(".elem_caisse tr").each(function(index,elem){
+            var totalLigne = 0 ;
+            var prixLigne = $(elem).find("#csenr_prixText").val().split(" | ")[0]
+            var quantiteLigne = $(elem).find(".csenr_quantite").val()
+            var tvaLigne = $(elem).find(".csenr_tva").val() == "" ? 0 : $(elem).find(".csenr_tva").val()
+
+            quantiteLigne = quantiteLigne == "" ? 0 : quantiteLigne
+            totalTva += ((parseFloat(prixLigne) * parseFloat(tvaLigne)) / 100) * quantiteLigne ;
+            totalGeneral += (prixLigne * quantiteLigne)
+            totalLigne = prixLigne * quantiteLigne
+            $(elem).find(".csenr_total_partiel").text(totalLigne)
+        })
+        var a_rembourser = parseFloat(montantRecu) - parseFloat(totalGeneral) ; 
+        var remiseValeur = cs_mtn_type_remise == 1 ? cs_mtn_remise : ((cs_mtn_remise * totalGeneral)/100)
+
         if(a_rembourser < 0)
         {
             $(".cs_mtn_rembourse").addClass("text-danger")
@@ -257,21 +241,22 @@ $(document).ready(function(){
             $(".cs_mtn_rembourse").removeClass("text-danger")
         }
 
+        a_rembourser = a_rembourser < 0 ? 0 : a_rembourser ;
+
+        var totalPayee = parseFloat(montantRecu) - parseFloat(a_rembourser) - remiseValeur;
+        var totalTTC = totalPayee + totalTva
+
+        $(".cs_total_general").text(totalGeneral)
+        $(".csenr_total_general").val(totalGeneral)
+
+        $(".cs_mtn_tva").text(totalTva)
+        $(".csenr_total_tva").val(totalTva)
+
         $(".cs_mtn_rembourse").text(a_rembourser)
-        $(".cs_total_pyee").addClass("text-warning")
-        $(".cs_mtn_ttc").addClass("text-primary")
-        var rembourse = a_rembourser < 0 ? 0 : a_rembourser ;
-        var totalPayee = parseFloat(selection.val()) - parseFloat(rembourse) ;
-        totalPayee = totalPayee + totalTva
         $(".cs_total_pyee").text(totalPayee)
-        $(".cs_mtn_ttc").text(totalPayee)
+        $(".cs_mtn_ttc").text(totalTTC)
     }
 
-    $(".cs_mtn_recu").keyup(function(){
-        updateMontant($(this))
-    })
-
-    $(".cs_mtn_recu").val("")
     $("#formCaisse").submit(function(event){
         event.preventDefault()
         var self = $(this)
@@ -307,7 +292,6 @@ $(document).ready(function(){
                                     OK: function(){
                                         if(json.type == "green")
                                         {
-                                            $(".cs_mtn_recu").val("")
                                             location.reload()
                                         }
                                     }
@@ -338,7 +322,7 @@ $(document).ready(function(){
         })
     })
 
-
+    
     $(".caisse_perso_btn").click(function(){
         if(!isNaN($(this).text()))
         {
@@ -359,5 +343,49 @@ $(document).ready(function(){
         elementTo.keyup()
     })
     
+    var elemAction = [
+        {
+            action : 'keyup',
+            selector: ".csenr_quantite"
+        },
+        {
+            action : 'change',
+            selector: ".csenr_quantite"
+        },
+        {
+            action : 'keyup',
+            selector: ".csenr_tva"
+        },
+        {
+            action : 'change',
+            selector: ".csenr_tva"
+        },
+        {
+            action : 'keyup',
+            selector: ".cs_mtn_recu"
+        },
+        {
+            action : 'change',
+            selector: ".cs_mtn_recu"
+        },
+        {
+            action : 'keyup',
+            selector: ".cs_mtn_remise"
+        },
+        {
+            action : 'change',
+            selector: ".cs_mtn_remise"
+        },
+        {
+            action : 'change',
+            selector: "#cs_mtn_type_remise"
+        }, 
+    ]
+
+    elemAction.forEach(function(elem){
+        $(document).on(elem.action,elem.selector,function(){
+            updateMontant() ; 
+        })
+    })
 
 })

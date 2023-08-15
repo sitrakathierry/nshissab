@@ -42,7 +42,7 @@ class CaisseController extends AbstractController
             "username" => $this->user["username"] 
         ]) ;
     }
-    
+     
     #[Route('/caisse', name: 'caisse_activity')]
     public function index(): Response
     {

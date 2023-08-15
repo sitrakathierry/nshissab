@@ -1280,15 +1280,19 @@ class StockController extends AbstractController
     {
         $idP = $request->request->get('idP') ;
 
-        $produitPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->getProdtuiPrixParIndice($idP);
+        $filename = $this->filename."variationProduit(agence)/vartPrd_".$idP."_".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdVariationProduit($filename,$idP) ;
+
+        $variationProduits = json_decode(file_get_contents($filename)) ;
         
         $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
-
         $tva = $produit->getTvaType() ;
 
         return new JsonResponse([
-            "produitPrix" => $produitPrix,
-            "tva" => is_null($tva) ? "" : $tva->getValeur() 
+            "produitPrix" => $variationProduits,
+            "tva" => is_null($tva) ? "" : $tva->getValeur() ,
+            "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
         ]) ;
     }
 
