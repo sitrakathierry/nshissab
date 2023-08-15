@@ -52,6 +52,12 @@ class CaisseCommande
     #[ORM\Column(nullable: true)]
     private ?float $tva = null;
 
+    #[ORM\ManyToOne(inversedBy: 'caisseCommandes')]
+    private ?PrdMargeType $remiseType = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $remiseValeur = null;
+
     public function __construct()
     {
         $this->caissePaniers = new ArrayCollection();
@@ -239,6 +245,30 @@ class CaisseCommande
     public function setTva(?float $tva): self
     {
         $this->tva = $tva;
+
+        return $this;
+    }
+
+    public function getRemiseType(): ?PrdMargeType
+    {
+        return $this->remiseType;
+    }
+
+    public function setRemiseType(?PrdMargeType $remiseType): self
+    {
+        $this->remiseType = $remiseType;
+
+        return $this;
+    }
+
+    public function getRemiseValeur(): ?float
+    {
+        return $this->remiseValeur;
+    }
+
+    public function setRemiseValeur(?float $remiseValeur): self
+    {
+        $this->remiseValeur = $remiseValeur;
 
         return $this;
     }

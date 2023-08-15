@@ -6,6 +6,8 @@ use App\Entity\Agence;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdMargeType;
+use App\Entity\PrdVariationPrix;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -67,11 +69,13 @@ class CaisseController extends AbstractController
         $csenr_total_general = $request->request->get('csenr_total_general') ; 
         $csenr_date_caisse = $request->request->get('csenr_date_caisse') ; 
         $csenr_total_tva = $request->request->get('csenr_total_tva') ; 
-        
+        $cs_mtn_type_remise = $request->request->get('cs_mtn_type_remise') ; 
+        $cs_mtn_remise = $request->request->get('cs_mtn_remise') ; 
+
+        $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($cs_mtn_type_remise) ;
+
         $lastRecordCommande = $this->entityManager->getRepository(CaisseCommande::class)->findOneBy([], ['id' => 'DESC']);
-
         $numCommande = !is_null($lastRecordCommande) ? ($lastRecordCommande->getId()+1) : 1 ;
-
         $numCommande = str_pad($numCommande, 5, "0", STR_PAD_LEFT);
 
         $commande = new CaisseCommande() ;
@@ -82,6 +86,8 @@ class CaisseController extends AbstractController
         $commande->setMontantRecu($cs_mtn_recu) ;
         $commande->setMontantPayee($csenr_total_general) ;
         $commande->setTva($csenr_total_tva) ;
+        $commande->setRemiseType($margeType) ;
+        $commande->setRemiseValeur(empty($cs_mtn_remise) ? null : $cs_mtn_remise) ;
         $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $csenr_date_caisse);
         $commande->setDate($dateTime) ;
         $commande->setStatut(True) ;
@@ -100,30 +106,39 @@ class CaisseController extends AbstractController
         foreach ($csenr_produit as $key => $value) {
             $panier = new CaissePanier() ;
 
-            $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($csenr_prix[$key]) ;
+            $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($csenr_prix[$key]) ;
 
             $panier->setCommande($commande) ;
-            $panier->setHistoEntrepot($histoEntrepot) ;
-            $panier->setVariationPrix($histoEntrepot->getVariationPrix()) ;
-            $panier->setPrix(intval($csenr_prixText[$key])) ;
+            $panier->setHistoEntrepot(null) ;
+            $panier->setVariationPrix($variationPrix) ;
+            $panier->setPrix(intval(explode(" | ",$csenr_prixText[$key])[0])) ;
             $panier->setQuantite($csenr_quantite[$key]) ;
             $panier->setTva($csenr_tva[$key]) ;
             $panier->setStatut(True) ;
 
             $this->entityManager->persist($panier) ;
             $this->entityManager->flush() ;
+
+            $filename = "files/systeme/stock/variationProduit(agence)/vartPrd_".$variationPrix->getProduit()->getId()."_".$this->nameAgence ;
+            if(file_exists($filename))
+                unlink($filename) ;
         } 
 
-        $filename = $this->filename."panierCommande(agence)/".$this->nameAgence ; 
-        if(file_exists($filename))
-            unlink($filename) ;
-        $this->appService->generateCaissePanierCommande($filename, $this->agence->getId()) ; 
+        $dataFilenames = [
+            "files/systeme/stock/stock_general(agence)/".$this->nameAgence,
+            "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
+            "files/systeme/stock/type(agence)/".$this->nameAgence,
+            "files/systeme/stock/stockType(agence)/".$this->nameAgence ,
+            "files/systeme/stock/stockGEntrepot(agence)/".$this->nameAgence ,
+            $this->filename."panierCommande(agence)/".$this->nameAgence,
+            $this->filename."commande(agence)/".$this->nameAgence ,
+        ] ;
+            
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+            unlink($dataFilename) ;
+        }
 
-        $filename = $this->filename."commande(agence)/".$this->nameAgence ; 
-        if(file_exists($filename))
-            unlink($filename) ;
-        $this->appService->generateCaisseCommande($filename, $this->agence) ;
-        
         return new JsonResponse([
             "type" => "green",
             "message" => "Enregistrement éffectué"

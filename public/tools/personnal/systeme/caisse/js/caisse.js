@@ -38,7 +38,7 @@ $(document).ready(function(){
                     $("#caisse_search_prix").change()
                 }
                 
-                $("#caisse_search_image").val(resp.images)
+                // $("#caisse_search_image").val(resp.images)
                 $("#caisse_search_prix").trigger("chosen:updated"); 
 
                 if(resp.tva != "")
@@ -148,11 +148,6 @@ $(document).ready(function(){
         
         var item = `
         <tr>
-            <td class="image_produit p-3">
-                <a href="`+caisse_search_image+`" data-lightbox="album" data-title="`+produitText+`">
-                    <img src="`+caisse_search_image+`" class="img img-thumbnail" >
-                </a> 
-            </td>
             <td class="align-middle">
                 `+produitText+`
                 <input type="hidden" class="text_produit" value="`+produitText+`">
@@ -207,13 +202,10 @@ $(document).ready(function(){
 
     function updateMontant()
     {
-        var montantRecu = $(".cs_mtn_recu").val()
-        montantRecu = montantRecu == "" ? 0 : montantRecu ;
-
         var totalTva = 0 ;
         var totalGeneral = 0 ;
         var cs_mtn_type_remise = $("#cs_mtn_type_remise").val()
-        var cs_mtn_remise = $("#cs_mtn_remise").val() == "" ? 0 : $("#cs_mtn_remise").val() ;
+        var cs_mtn_remise = $("#cs_mtn_remise").val() == "" ? 0 : parseFloat($("#cs_mtn_remise").val()) ;
 
         $(".elem_caisse tr").each(function(index,elem){
             var totalLigne = 0 ;
@@ -227,8 +219,11 @@ $(document).ready(function(){
             totalLigne = prixLigne * quantiteLigne
             $(elem).find(".csenr_total_partiel").text(totalLigne)
         })
-        var a_rembourser = parseFloat(montantRecu) - parseFloat(totalGeneral) ; 
+
+        var montantRecu = $(".cs_mtn_recu").val()
+        montantRecu = montantRecu == "" ? 0 : parseFloat(montantRecu) ;
         var remiseValeur = cs_mtn_type_remise == 1 ? cs_mtn_remise : ((cs_mtn_remise * totalGeneral)/100)
+        var a_rembourser = montantRecu - parseFloat(totalGeneral) + remiseValeur ; 
 
         if(a_rembourser < 0)
         {
@@ -243,7 +238,7 @@ $(document).ready(function(){
 
         a_rembourser = a_rembourser < 0 ? 0 : a_rembourser ;
 
-        var totalPayee = parseFloat(montantRecu) - parseFloat(a_rembourser) - remiseValeur;
+        var totalPayee = parseFloat(montantRecu) - parseFloat(a_rembourser);
         var totalTTC = totalPayee + totalTva
 
         $(".cs_total_general").text(totalGeneral)
@@ -386,6 +381,10 @@ $(document).ready(function(){
         $(document).on(elem.action,elem.selector,function(){
             updateMontant() ; 
         })
+    })
+
+    $(".btn_submit_caisse").click(function(){
+        $("#formCaisse").submit()
     })
 
 })

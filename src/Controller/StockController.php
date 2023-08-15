@@ -1292,10 +1292,9 @@ class StockController extends AbstractController
         return new JsonResponse([
             "produitPrix" => $variationProduits,
             "tva" => is_null($tva) ? "" : $tva->getValeur() ,
-            "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
+            // "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
         ]) ;
     }
-
     
     #[Route('/stock/produit/get', name: 'stock_get_produit')]
     public function stockGetProduit()

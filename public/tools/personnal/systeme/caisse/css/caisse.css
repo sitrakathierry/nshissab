@@ -27,8 +27,14 @@
     width: 12% ;
 }
 
-.image_produit a img
+.image_produit
 {
     height: 50px;
+    width: 50px;
     object-fit: cover;
+}
+
+#caisse_search_produit option:hover
+{
+    color: black !important;
 }

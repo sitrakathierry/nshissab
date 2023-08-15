@@ -657,6 +657,7 @@ class AppService extends AbstractController
             $element["agence"] = $stockGeneral->getAgence()->getId() ;
             $element["type"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getId() ;
             $element["nomType"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getNom() ;
+            $element["images"] = is_null($stockGeneral->getImages()) ? "-" : $stockGeneral->getImages() ;
 
             array_push($elements,$element) ;
         }
