@@ -108,6 +108,7 @@ class CaisseController extends AbstractController
 
             $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($csenr_prix[$key]) ;
 
+            $panier->setAgence($this->agence) ;
             $panier->setCommande($commande) ;
             $panier->setHistoEntrepot(null) ;
             $panier->setVariationPrix($variationPrix) ;

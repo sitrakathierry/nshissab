@@ -1135,9 +1135,37 @@ class AppService extends AbstractController
 
     public function generateCaissePanierCommande($filename,$agence)
     {
-        $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->getCaissePanier($agence) ;
+        $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
 
-        file_put_contents($filename,json_encode($panierCommandes)) ;
+        $elements = [] ;
+
+        foreach ($panierCommandes as $panierCommande) {
+            $element = [] ;
+
+            $element["id"] = $panierCommande->getCommande()->getId() ;
+            $element["date"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
+            $element["numCommande"] = $panierCommande->getCommande()->getNumCommande() ;
+            $element["codeProduit"] = $panierCommande->getVariationPrix()->getProduit()->getCodeProduit() ;
+            $element["nom"] = $panierCommande->getVariationPrix()->getProduit()->getNom() ;
+            $element["quantite"] = $panierCommande->getQuantite()   ;
+            $element["prix"] = $panierCommande->getPrix() ;
+            $element["indice"] = is_null($panierCommande->getVariationPrix()->getIndice()) ? "-" : $panierCommande->getVariationPrix()->getIndice() ;
+            $element["idP"] = $panierCommande->getVariationPrix()->getProduit()->getId() ;
+            $element["tva"] = $panierCommande->getTva() ;
+            $element["totalTva"] = $panierCommande->getCommande()->getTva() ;
+            $element["montantRecu"] = $panierCommande->getCommande()->getMontantRecu() ;
+            $element["montantPayee"] = $panierCommande->getCommande()->getMontantPayee() ;
+            $element["remiseVal"] = is_null($panierCommande->getCommande()->getRemiseValeur()) ? 0 : $panierCommande->getCommande()->getRemiseValeur() ;
+            $element["remiseType"] = is_null($panierCommande->getCommande()->getRemiseType()) ? "-" : $panierCommande->getCommande()->getRemiseType()->getCalcul() ;
+            $element["user"] = $panierCommande->getCommande()->getUser()->getId() ;
+
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
     }
 
     public function generateCaisseCommande($filename, $agence) 

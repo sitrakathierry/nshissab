@@ -190,6 +190,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: IntMouvement::class)]
     private Collection $intMouvements;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CaissePanier::class)]
+    private Collection $caissePaniers;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -238,6 +241,7 @@ class Agence
         $this->intMateriels = new ArrayCollection();
         $this->intLibelles = new ArrayCollection();
         $this->intMouvements = new ArrayCollection();
+        $this->caissePaniers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1762,6 +1766,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($intMouvement->getAgence() === $this) {
                 $intMouvement->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CaissePanier>
+     */
+    public function getCaissePaniers(): Collection
+    {
+        return $this->caissePaniers;
+    }
+
+    public function addCaissePanier(CaissePanier $caissePanier): self
+    {
+        if (!$this->caissePaniers->contains($caissePanier)) {
+            $this->caissePaniers->add($caissePanier);
+            $caissePanier->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCaissePanier(CaissePanier $caissePanier): self
+    {
+        if ($this->caissePaniers->removeElement($caissePanier)) {
+            // set the owning side to null (unless already changed)
+            if ($caissePanier->getAgence() === $this) {
+                $caissePanier->setAgence(null);
             }
         }
 

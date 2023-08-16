@@ -308,7 +308,8 @@ $(document).ready(function(){
     var arrayElem = [
         $("#caisse_search_quantite"),
         $(".cs_mtn_recu"),
-        $("#caisse_search_quantite")
+        $("#caisse_search_quantite"),
+        $(".cs_mtn_remise"),
     ]
 
     arrayElem.forEach(elem => {
@@ -317,6 +318,13 @@ $(document).ready(function(){
         })
     })
 
+    $(document).on('click',".csenr_quantite",function(){
+        elementTo = $(this)
+    })
+
+    $(document).on('click',".csenr_tva",function(){
+        elementTo = $(this)
+    })
     
     $(".caisse_perso_btn").click(function(){
         if(!isNaN($(this).text()))

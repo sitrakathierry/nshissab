@@ -34,6 +34,9 @@ class CaissePanier
     #[ORM\ManyToOne(inversedBy: 'caissePaniers')]
     private ?PrdVariationPrix $variationPrix = null;
 
+    #[ORM\ManyToOne(inversedBy: 'caissePaniers')]
+    private ?Agence $agence = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -119,6 +122,18 @@ class CaissePanier
     public function setVariationPrix(?PrdVariationPrix $variationPrix): self
     {
         $this->variationPrix = $variationPrix;
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }
