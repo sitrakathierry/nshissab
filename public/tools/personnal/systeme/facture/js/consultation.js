@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
     var elemSearch = [
         {
@@ -153,6 +154,28 @@ $(document).ready(function(){
     })
 
     $(".fact_search_btn_modele").click(function(){
+        if($(this).data("reference") == "PLOC")
+        {
+            
+            var realinstance = instance.loading()
+            $.ajax({
+                url: routes.fact_list_prest_location_get ,
+                type:'post',
+                cache: false,
+                dataType: 'html',
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    realinstance.close()
+                    $("#contentFacture").html(response) ;
+                },
+                error: function(resp){
+                    realinstance.close()
+                    $.alert(JSON.stringify(resp)) ;
+                }
+            })
+            return false ;
+        }
         var btnClass = $(this).data("class")
         var target = $(this).data("target")
         var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
@@ -172,5 +195,78 @@ $(document).ready(function(){
         })
 
         $(target).change()
+    })
+
+    var elemforSearch = [
+        {
+            name: "dateDebut",
+            action:"change",
+            selector : "#location_search_dateDebut"
+        },
+        {
+            name: "dateFin",
+            action:"change",
+            selector : "#location_search_dateFin"
+        },
+        {
+            name: "id",
+            action:"change",
+            selector : "#location_search_numContrat"
+        },
+        {
+            name: "bailleurId",
+            action:"change",
+            selector : "#location_search_bailleur"
+        },
+        {
+            name: "bailId",
+            action:"change",
+            selector : "#location_search_bail"
+        },
+        {
+            name: "locataireId",
+            action:"change",
+            selector : "#location_search_locataire"
+        },
+        {
+            name: "refStatut",
+            action:"change",
+            selector : "#location_search_statut"
+        },
+        {
+            name: "dateContrat",
+            action:"change",
+            selector : "#location_search_dateContrat"
+        },
+    ]
+
+    function searchContrat()
+    {
+        var instance = new Loading(files.search) ;
+        $(".elem_contrat").html(instance.search(10)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemforSearch.length; j++) {
+            const search = elemforSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+        formData.append("typeSearch","FACTURE") ;
+        $.ajax({
+            url: routes.prest_location_contrat_search_items ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, 
+            contentType: false, 
+            success: function(response){
+                $(".elem_contrat").html(response) ;
+            }
+        })
+    }
+
+    elemforSearch.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            searchContrat()
+        })
     })
 })

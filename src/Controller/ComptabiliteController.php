@@ -383,4 +383,17 @@ class ComptabiliteController extends AbstractController
             "solde" => $compte->getSolde()
             ]) ;
     }
+
+    #[Route('/comptabilite/recette/general', name: 'compta_recette_general')]
+    public function comptaRecetteGeneral(Request $request)
+    {
+
+        
+
+        return $this->render('comptabilite/recettes/recettesGeneral.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Recettes générales",
+            "with_foot" => false,
+        ]);
+    }
 }

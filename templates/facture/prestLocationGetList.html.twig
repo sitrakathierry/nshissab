@@ -1,0 +1,99 @@
+<div class="row">
+    <div class="col-md-3">
+        <label for="location_search_numContrat" class="font-weight-bold text-uppercase">N° Contrat</label>
+        <select name="location_search_numContrat" class="custom-select chosen_select custom-select-sm" id="location_search_numContrat">
+            <option value="">TOUS</option>
+            {% for contrat in contrats %}
+                <option value="{{contrat.id}}">{{contrat.numContrat}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" id="location_search_statut" value="ENCR">
+        <input type="hidden" id="location_search_dateContrat" value="">
+    </div>
+    <div class="col-md-3">
+        <label for="location_search_bailleur" class="font-weight-bold text-uppercase">Bailleur</label>
+        <select name="location_search_bailleur" class="custom-select chosen_select custom-select-sm" id="location_search_bailleur">
+            <option value="">TOUS</option>
+            {% for bailleur in bailleurs %}
+                <option value="{{bailleur.id}}">{{bailleur.nom|upper}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="location_search_bail" class="font-weight-bold text-uppercase">Bail</label>
+        <select name="location_search_bail" class="custom-select chosen_select custom-select-sm" id="location_search_bail">
+            <option value="">TOUS</option>
+            {% for bail in bails %}
+                <option value="{{bail.id}}">{{bail.nom|upper}} | {{bail.adresse|upper}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="location_search_locataire" class="font-weight-bold text-uppercase">Locataire</label>
+        <select name="location_search_locataire" class="custom-select chosen_select custom-select-sm" id="location_search_locataire">
+            <option value="">TOUS</option>
+            {% for locataire in locataires %}
+                <option value="{{locataire.id}}">{{locataire.nom|upper}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="location_search_dateDebut" class="font-weight-bold text-uppercase mt-3">Date Début</label>
+        <div class="input-group">
+            <input type="text" name="location_search_dateDebut" id="location_search_dateDebut" class="form-control" placeholder=". . .">
+            <div class="input-group-append">
+                <button class="btn btn-sm btn-outline-secondary search_vider font-smaller" type="button" onclick="document.querySelector('#location_search_dateDebut').value=''"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <label for="location_search_dateFin" class="font-weight-bold text-uppercase mt-3">Date Fin</label>
+        <div class="input-group">
+            <input type="text" name="location_search_dateFin" id="location_search_dateFin" class="form-control" placeholder=". . .">
+            <div class="input-group-append">
+                <button class="btn btn-sm btn-outline-secondary search_vider font-smaller" type="button" onclick="document.querySelector('#location_search_dateFin').value=''"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive mt-4">
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>N° Contrat</th>
+                <th>Bail</th>
+                <th>Date Début</th>
+                <th>Date Fin</th>
+                <th>Bailleur</th>
+                <th>Locatiare</th>
+                <th>Durée</th>
+                <th>Nb. Renouv</th>
+                <th>Montant Contrat</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody class="elem_contrat"> 
+            {% for contrat in contrats %}
+                <tr>
+                    <td class="align-middle">{{contrat.numContrat}}</td>
+                    <td class="align-middle">{{contrat.bail}}</td>
+                    <td class="align-middle">{{contrat.dateDebut}}</td>
+                    <td class="align-middle">{{contrat.dateFin}}</td>
+                    <td class="align-middle">{{contrat.bailleur}}</td>
+                    <td class="align-middle">{{contrat.locataire}}</td>
+                    <td class="align-middle">{{contrat.dureeContrat}}</td>
+                    <td class="align-middle text-center">{{contrat.frequence}}</td>
+                    <td class="align-middle">{{contrat.montantContrat}}</td>
+                    <td class="text-center align-middle">
+                        <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.encodedId})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

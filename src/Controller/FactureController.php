@@ -274,6 +274,23 @@ class FactureController extends AbstractController
 
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
 
+        $tabModeles = [] ;
+
+        foreach ($modeles as $modele) {
+            if(!is_null($modele->getReference()))
+            {
+                $item = [] ;
+
+                $item["id"] = $modele->getId() ;
+                $item["nom"] = $modele->getNom() ;
+                $item["reference"] = $modele->getReference() ;
+
+                array_push($tabModeles,$item) ;
+            }
+        }
+
+        $modeles = $tabModeles ;
+
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
 
         $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
@@ -291,7 +308,7 @@ class FactureController extends AbstractController
             "types" => $types,
             "clients" => $clients,
             "critereDates" => $critereDates
-        ]);
+        ]); 
     }
 
     #[Route('/facture/retenu/consultation', name: 'ftr_retenu_consultation')]
@@ -917,6 +934,49 @@ class FactureController extends AbstractController
         
         
         return new JsonResponse($result) ;
+    }
+
+    #[Route('/facture/prestation/location/list/get', name: 'fact_list_prest_location_get')]
+    public function factGetItemPrestLocation()
+    {
+        $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateLocationContrat($filename, $this->agence) ; 
+
+        $contrats = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refStatut" => "ENCR",
+        ] ;
+
+        $contrats = $this->appService->searchData($contrats,$search) ;
+
+        $filename = "files/systeme/prestations/location/bailleur(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateLocationBailleur($filename, $this->agence) ; 
+
+        $bailleurs = json_decode(file_get_contents($filename)) ;
+
+        $filename = "files/systeme/prestations/location/locataire(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        $locataires = json_decode(file_get_contents($filename)) ;
+
+        $filename = "files/systeme/prestations/location/bail(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateLocationBails($filename, $this->agence) ; 
+
+        $tabBails = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("facture/prestLocationGetList.html.twig",[
+            "contrats" => $contrats,
+            "bails" => $tabBails,
+            "bailleurs" => $bailleurs,
+            "locataires" => $locataires,  
+        ]) ;
+
+        return new Response($response) ;
     }
 
     #[Route('/facture/items/search', name: 'facture_search_items')]

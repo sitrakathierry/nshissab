@@ -205,6 +205,8 @@ $(document).ready(function(){
         repartirPaiement()
     })
 
+    
+
 })
 
 // maquettes

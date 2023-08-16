@@ -1825,16 +1825,17 @@ class PrestationController extends AbstractController
         $location_search_bail = $request->request->get('bailId') ;
         $location_search_locataire = $request->request->get('locataireId') ;
         $location_search_statut = $request->request->get('refStatut') ;
+        $typeSearch = $request->request->get('typeSearch') ;
         
         $search = [
-            "dateContrat" => $location_search_dateContrat,
-            "dateDebut" => $location_search_dateDebut,
-            "dateFin" => $location_search_dateFin,
-            "id" => $location_search_numContrat,
-            "bailleurId" => $location_search_bailleur,
-            "bailId" => $location_search_bail,
-            "locataireId" => $location_search_locataire,
-            "refStatut" => $location_search_statut,
+            "dateContrat" => !isset($location_search_dateContrat) ? "" :  $location_search_dateContrat,
+            "dateDebut" => !isset($location_search_dateDebut) ? "" :  $location_search_dateDebut,
+            "dateFin" => !isset($location_search_dateFin) ? "" :  $location_search_dateFin,
+            "id" => !isset($location_search_numContrat) ? "" :  $location_search_numContrat,
+            "bailleurId" => !isset($location_search_bailleur) ? "" :  $location_search_bailleur,
+            "bailId" => !isset($location_search_bail) ? "" :  $location_search_bail,
+            "locataireId" => !isset($location_search_locataire) ? "" : $location_search_locataire,
+            "refStatut" => !isset($location_search_statut) ? "" : $location_search_statut ,
         ] ;
 
         // foreach ($search as $key => $value) {
@@ -1846,9 +1847,18 @@ class PrestationController extends AbstractController
 
         $contrats = $this->appService->searchData($contrats,$search) ;
 
-        $response = $this->renderView("prestations/location/searchContrat.html.twig", [
-            "contrats" => $contrats
-        ]) ;
+        if($typeSearch == "CONTRAT")
+        {
+            $response = $this->renderView("prestations/location/searchContrat.html.twig", [
+                "contrats" => $contrats
+            ]) ;
+        }
+        else
+        {
+            $response = $this->renderView("prestations/location/searchFactureContrat.html.twig", [
+                "contrats" => $contrats
+            ]) ;
+        }
 
         return new Response($response) ; 
     }

@@ -1,0 +1,16 @@
+{% for contrat in contrats %}
+    <tr>
+        <td class="align-middle">{{contrat.numContrat}}</td>
+        <td class="align-middle">{{contrat.bail}}</td>
+        <td class="align-middle">{{contrat.dateDebut}}</td>
+        <td class="align-middle">{{contrat.dateFin}}</td>
+        <td class="align-middle">{{contrat.bailleur}}</td>
+        <td class="align-middle">{{contrat.locataire}}</td>
+        <td class="align-middle">{{contrat.dureeContrat}}</td>
+        <td class="align-middle text-center">{{contrat.frequence}}</td>
+        <td class="align-middle">{{contrat.montantContrat}}</td>
+        <td class="text-center align-middle">
+            <a href="{{path('prest_location_contrat_releve_loyer',{'id':contrat.encodedId})}}" class="btn btn-sm btn-outline-info font-smaller"><i class="fa fa-file-invoice"></i></a>
+        </td>
+    </tr>
+{% endfor %}
