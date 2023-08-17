@@ -926,7 +926,7 @@ class AppService extends AbstractController
             if($statutRepart == "CAUTION")
                 continue ;
 
-            $commission =  ($pourcentage * $lastRepartition->getMontant()) / 100 ;
+            $commission =  ($pourcentage * is_null($repartition->getMontant()) ? 0 : $repartition->getMontant()) / 100 ;
 
             $item["designation"] = "Paiement. ".$repartition->getDesignation() ;
             $item["debutLimite"] = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y") ;
@@ -947,7 +947,7 @@ class AppService extends AbstractController
         if(!is_null($lastRepartition))
         {
             $textDesignation = "Acompte. ".$lastRepartition->getDesignation() ;
-            $commission =  ($pourcentage * $lastRepartition->getMontant()) / 100 ;
+            $commission =  ($pourcentage * is_null($lastRepartition->getMontant()) ? 0 : $lastRepartition->getMontant()) / 100 ;
             $lastItem = [
                 "designation" => $textDesignation,
                 "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
@@ -996,7 +996,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
                     $tableauMois[$i]["datePaiement"] = "-" ;
                     $tableauMois[$i]["commission"] = "-" ;
-                    $tableauMois[$i]["commissionVal"] = "-" ;
+                    $tableauMois[$i]["commissionVal"] = 0 ;
 
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
@@ -1030,7 +1030,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
                     $tableauMois[$i]["datePaiement"] = "-" ;
                     $tableauMois[$i]["commission"] = "-" ;
-                    $tableauMois[$i]["commissionVal"] = "-" ;
+                    $tableauMois[$i]["commissionVal"] = 0 ;
 
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
