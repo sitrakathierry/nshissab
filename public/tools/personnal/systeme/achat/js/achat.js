@@ -2,6 +2,7 @@ $(document).ready(function(){
     var instance = new Loading(files.loading) ;
     var appBase = new AppBase() ;
     var compta_achat_editor = new LineEditor("#compta_achat_editor") ;
+    
     $("#ach_date").datepicker(); 
 
     $(document).on('click',"#achat_bon_new_marchandise",function(){
@@ -216,6 +217,7 @@ $(document).ready(function(){
 
     $("#formbonCommande").submit(function(){
         var self = $(this)
+        $("#compta_achat_editor").val(compta_achat_editor.getEditorText('#compta_achat_editor'))
         $.confirm({
             title: "Confirmation",
             content:"Vous êtes sûre ?",
@@ -264,7 +266,59 @@ $(document).ready(function(){
                 }
             }
         })
+        return false ;
+    })
 
+    $("#formMarchandise").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Vous êtes sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize()
+                        $.ajax({
+                            url: routes.achat_marchandise_creation,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
         return false ;
     })
 })

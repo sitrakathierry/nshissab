@@ -134,7 +134,7 @@ class FactureController extends AbstractController
             "stockGenerales" => $stockGenerales,
             "devises" => $devises,
             "agcDevise" => $agcDevise
-            ]) ;
+        ]) ;
 
         return new Response($responses) ;
     }

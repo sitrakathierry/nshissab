@@ -1,0 +1,12 @@
+<label for="sav_facture" class="font-weight-bold">Facture</label>
+<select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
+    <option value="">-</option>
+    {% for facture in factures %}
+        <option value="{{facture.id}}">{{facture.numFact}}</option>
+    {% endfor %}
+</select>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

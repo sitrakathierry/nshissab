@@ -1401,7 +1401,19 @@ class AppService extends AbstractController
         foreach ($annulations as $annulation) {
 
             $facture = $annulation->getFacture() ;
-            $client = $this->getFactureClient($facture) ;
+            if(!is_null($facture))
+            {
+                $client = $this->getFactureClient($facture) ;
+                $nomClient = $client["client"] ;
+                $idClient = $facture->getClient()->getId() ;
+                $idFacture = $facture->getId() ;
+            }
+            else
+            {
+                $nomClient = "-" ;
+                $idClient = "-" ;
+                $idFacture = "-" ;
+            }
 
             $total = $annulation->getMontant() ;
 
@@ -1425,10 +1437,11 @@ class AppService extends AbstractController
             $element["user"] = $annulation->getUser()->getId() ;
             $element["date"] = $annulation->getDate()->format('d/m/Y') ;
             $element["lieu"] = $annulation->getLieu() ;
-            $element["facture"] = $annulation->getNumFact() ;
-            $element["client"] = $client["client"] ;
-            $element["idC"] = $facture->getClient()->getId() ;
-            $element["idF"] = $facture->getId() ;
+            $element["typeAffiche"] = is_null($annulation->getFacture()) ? "CAISSE" : "FACTURE" ;
+            $element["numero"] = $annulation->getNumFact() ;
+            $element["client"] = $nomClient ;
+            $element["idC"] = $idClient ;
+            $element["idF"] = $idFacture ;
             $element["type"] = $annulation->getType()->getNom() ;
             $element["motif"] = $annulation->getMotif()->getNom()  ;
             $element["spec"] = $annulation->getSpecification()->getNom() ;
@@ -2100,11 +2113,13 @@ class AppService extends AbstractController
                 $element["lieu"] = $bonCommande->getLieu() ;
                 $element["fournisseur"] = $bonCommande->getFournisseur()->getNom() ;
                 $element["type"] = $bonCommande->getType()->getNom() ;
+                $element["refType"] = $bonCommande->getType()->getReference() ;
                 $element["description"] = $bonCommande->getDescription() ;
                 $element["numero"] = $bonCommande->getNumero() ;
                 $element["designation"] = $achatDetail->getDesignation() ;
                 $element["quantite"] = $achatDetail->getQuantite() ;
                 $element["prix"] = $achatDetail->getPrix() ;
+                $element["totalLigne"] = $achatDetail->getPrix() * $achatDetail->getQuantite() ;
                 $element["totalTtc"] = $bonCommande->getMontant() ;
                 $element["statut"] = $bonCommande->getStatut()->getNom() ;
                 $element["statutBon"] = $bonCommande->getStatutBon()->getNom() ;

@@ -236,7 +236,7 @@ $(document).ready(function(){
         var self = $(this)
         var indice = $(this).data("indice") ;
         var factRoute = {
-            "PROD" : routes.ftr_creation_produit,
+            "PROD" : routes.ftr_creation_produit, 
             "PBAT" : routes.ftr_creation_prest_batiment,
             "PSTD" : routes.ftr_creation_prest_service,
             "PLOC" : routes.fact_creation_prest_location,

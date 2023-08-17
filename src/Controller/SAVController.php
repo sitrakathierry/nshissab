@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\CaisseCommande;
+use App\Entity\CaissePanier;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
@@ -356,9 +358,73 @@ class SAVController extends AbstractController
         return new Response($response) ;
     }
 
+    #[Route('/sav/caisse/display', name: 'sav_caisse_display')]
+    public function savCaisseDisplay(Request $request)
+    {
+        $idCs = $request->request->get("idCs") ;
+
+        $caisseCommande = $this->entityManager->getRepository(CaisseCommande::class)->find($idCs) ;
+
+        $remise = 0 ;
+
+        if(!is_null($caisseCommande->getRemiseType()))
+        {
+            if($caisseCommande->getRemiseType()->getCalcul() == 1)
+            {
+                $remise = $caisseCommande->getRemiseValeur() ;
+            }
+            else
+            {
+                $remise = ($caisseCommande->getRemiseValeur() * $caisseCommande->getMontantPayee()) / 100 ;
+            }
+        }
+
+        $totalTtc = $caisseCommande->getTva() + $caisseCommande->getMontantPayee() - $remise ;
+
+        $caisse = [
+            "numCommande" => $caisseCommande->getNumCommande() ,
+            "totalHt" => $caisseCommande->getMontantPayee() ,
+            "remise" => $remise,
+            "totalTva" => $caisseCommande->getTva() ,
+            "totalTtc" => $totalTtc ,
+            "lettre" => $this->appService->NumberToLetter($totalTtc) ,
+        ] ;
+
+        $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+            "commande" => $caisseCommande,
+        ]) ;  
+
+        $elements = [] ;
+
+        foreach ($caissePaniers as $caissePanier) {
+            $item = [] ;
+            
+            $item["id"] = $caissePanier->getId();
+            $item["designation"] = $caissePanier->getVariationPrix()->getProduit()->getNom() ;
+            $item["quantite"] = $caissePanier->getQuantite() ;
+            $item["prix"] = $caissePanier->getPrix() ;
+            $item["tva"] = (($caissePanier->getPrix() * $caissePanier->getTva()) / 100 ) * $caissePanier->getQuantite() ;
+            $item["total"] = $caissePanier->getQuantite() * $caissePanier->getPrix() ;
+            $item["statut"] = $caissePanier->isStatut() ;
+
+            array_push($elements,$item) ;
+        }
+
+        $caissePaniers = $elements ;
+
+        $response = $this->renderView('sav/savCaisseDetails.html.twig',[
+            "caisse" => $caisse,
+            "caissePaniers" => $caissePaniers
+        ]) ;
+
+        return new Response($response) ;
+
+    }
+
     #[Route('/sav/annulation/facture/save', name: 'sav_save_fact_annulation')]
     public function savSaveAnnulationFacture(Request $request)
     {
+        $sav_caisse = $request->request->get('sav_caisse') ;
         $sav_facture = $request->request->get('sav_facture') ;
         $sav_type_annule = $request->request->get('sav_type_annule') ;
         $sav_val_spec = $request->request->get('sav_val_spec') ;
@@ -367,9 +433,10 @@ class SAVController extends AbstractController
         $sav_annule_editor = $request->request->get('sav_annule_editor') ;
         $sav_lieu = $request->request->get('sav_lieu') ;
         $sav_date = $request->request->get('sav_date') ;
-
+        $sav_type = $request->request->get('sav_type') ;
+        
         $data = [
-            $sav_facture,
+            $sav_type,
             $sav_type_annule,
             $sav_val_spec,
             $sav_motifs,
@@ -378,7 +445,7 @@ class SAVController extends AbstractController
         ];
 
         $dataMessage = [
-            "Facture",
+            "Type Affichage",
             "Type Annulation",
             "Specification",
             "Motif",
@@ -401,34 +468,74 @@ class SAVController extends AbstractController
             ]) ;
         }
 
-        $facture = $this->entityManager->getRepository(Facture::class)->find($sav_facture) ;
-
         $specification = $this->entityManager->getRepository(SavSpec::class)->find($sav_val_spec) ;
-        $recordAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
-            "specification" => $specification,
-            "facture" => $facture
-        ]);
 
-        $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
-        if($numAnnulation == 1)
+        if($sav_type == "CAISSE")
         {
-            $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
-            if($specification->getReference() == "RMB")
-                $numAnnulation = $facture->getNumFact()."/RTN" ;
-            else if($specification->getReference() == "AVR")
-                $numAnnulation = $facture->getNumFact()."/ANL" ;
+            $caisse = $this->entityManager->getRepository(CaisseCommande::class)->find($sav_caisse) ;
+            $facture = null ;
+            $client = null ;
+            $recordAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+                "specification" => $specification,
+                "facture" => $facture
+            ]);
+
+            $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
+            if($numAnnulation == 1)
+            {
+                $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+                if($specification->getReference() == "RMB")
+                    $numAnnulation = $caisse->getNumCommande()."/RTN" ;
+                else if($specification->getReference() == "AVR")
+                    $numAnnulation = $caisse->getNumCommande()."/ANL" ;
+                else
+                    $numAnnulation = $caisse->getNumCommande()."/ANL-ACN" ;
+            }
             else
-                $numAnnulation = $facture->getNumFact()."/ANL-ACN" ;
+            {
+                $firstAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+                    "specification" => $specification,
+                    "caisse" => $caisse
+                ],["id" => "ASC"]);
+
+                $numAnnulation -= 1 ;
+                $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+                $numAnnulation = $firstAnnuation->getNumCommande()."/BIS-".$numAnnulation ;
+            }
         }
         else
         {
-            $firstAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+            $facture = $this->entityManager->getRepository(Facture::class)->find($sav_facture) ;
+            $caisse = null ;
+            $client = $facture->getClient() ;
+
+            $recordAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
                 "specification" => $specification,
                 "facture" => $facture
-            ],["id" => "ASC"]);
-            $numAnnulation -= 1 ;
-            $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
-            $numAnnulation = $firstAnnuation->getNumFact()."/BIS-".$numAnnulation ;
+            ]);
+
+            $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
+            if($numAnnulation == 1)
+            {
+                $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+                if($specification->getReference() == "RMB")
+                    $numAnnulation = $facture->getNumFact()."/RTN" ;
+                else if($specification->getReference() == "AVR")
+                    $numAnnulation = $facture->getNumFact()."/ANL" ;
+                else
+                    $numAnnulation = $facture->getNumFact()."/ANL-ACN" ;
+            }
+            else
+            {
+                $firstAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+                    "specification" => $specification,
+                    "facture" => $facture
+                ],["id" => "ASC"]);
+
+                $numAnnulation -= 1 ;
+                $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
+                $numAnnulation = $firstAnnuation->getNumFact()."/BIS-".$numAnnulation ;
+            }
         }
         
         $type = $this->entityManager->getRepository(SavType::class)->find($sav_type_annule) ;
@@ -457,7 +564,8 @@ class SAVController extends AbstractController
         $annulation->setAgence($this->agence) ;
         $annulation->setUser($this->userObj) ;
         $annulation->setFacture($facture) ;
-        $annulation->setClient($facture->getClient()) ;
+        $annulation->setCaisse($caisse) ;
+        $annulation->setClient($client) ;
         $annulation->setType($type) ;
         $annulation->setMotif($motif) ;
         $annulation->setSpecification($specification) ;
@@ -476,65 +584,99 @@ class SAVController extends AbstractController
         $totalHt = 0 ;
         $totalTva = 0 ;
         $totalTtc = 0 ;
-
+        $montantAnnulation = 0 ;
         for ($i=0; $i < count($sav_facture_detail); $i++) { 
-            $idFd = $sav_facture_detail[$i] ;
-
-            $factureDetail = $this->entityManager->getRepository(FactDetails::class)->find($idFd) ;
-
-            $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
-            $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
-
-            if(!is_null($factureDetail->getRemiseType()))
+            if($sav_type == "FACTURE")
             {
-                if($factureDetail->getRemiseType()->getId() == 1)
+                $idFd = $sav_facture_detail[$i] ;
+                $factureDetail = $this->entityManager->getRepository(FactDetails::class)->find($idFd) ;
+                $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+                $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+    
+                if(!is_null($factureDetail->getRemiseType()))
                 {
-                    $remise = ($total * $factureDetail->getRemiseVal()) / 100 ; 
+                    if($factureDetail->getRemiseType()->getId() == 1)
+                    {
+                        $remise = ($total * $factureDetail->getRemiseVal()) / 100 ; 
+                    }
+                    else
+                    {
+                        $remise = $factureDetail->getRemiseVal() ;
+                    }
                 }
                 else
                 {
-                    $remise = $factureDetail->getRemiseVal() ;
+                    $remise = 0 ;
                 }
+                
+                $total = $total - $remise ;
+                
+                $totalHt += $total ;
+                $totalTva += $tva ;
+                $caisseDetail = null ;
             }
             else
             {
-                $remise = 0 ;
+                $idCsd = $sav_facture_detail[$i] ;
+                $caisseDetail = $this->entityManager->getRepository(CaissePanier::class)->find($idCsd) ; ;
+                $factureDetail = null ;
+
+                $montantAnnulation += $caisseDetail->getPrix() * $caisseDetail->getQuantite() ;
             }
-            
-            $total = $total - $remise ;
 
             $savDetail = new SavDetails() ;
 
             $savDetail->setAnnulation($annulation) ;
             $savDetail->setFactureDetail($factureDetail) ;
+            $savDetail->setCaisseDetail($caisseDetail) ;
             $savDetail->setAgence($this->agence) ;
             $savDetail->setStatut(True) ;
 
-            $factureDetail->setStatut(False) ;
+            if($sav_type == "FACTURE")
+            { 
+                $factureDetail->setStatut(False) ;
+            }else
+            {
+                $caisseDetail->setStatut(False) ;
+            }
+            
             $this->entityManager->persist($savDetail) ;
             $this->entityManager->flush() ;
-
-            $totalHt += $total ;
-            $totalTva += $tva ;
         }
-        
-        $totalTtc = $totalHt + $totalTva ;
 
-        $annulation->setMontant($totalTtc) ;
+        if($sav_type == "FACTURE")
+        {
+            $totalTtc = $totalHt + $totalTva ;
+    
+            $annulation->setMontant($totalTtc) ;
+    
+            $facture->setTotal($facture->getTotal() - $totalTtc) ;
+            $facture->setTvaVal($facture->getTvaVal() - $totalTva) ;
+    
+            $this->entityManager->flush() ;
 
-        $facture->setTotal($facture->getTotal() - $totalTtc) ;
-        $facture->setTvaVal($facture->getTvaVal() - $totalTva) ;
+            $dataFilenames = [
+                $this->filename."annulation(agence)/".$this->nameAgence,
+                "files/systeme/facture/facture(agence)/".$this->nameAgence,
+            ] ;
+        }
+        else
+        {
+            $annulation->setMontant($montantAnnulation) ;
+            
+            $caisse->setMontantPayee($caisseDetail->getCommande()->getMontantPayee() - $montantAnnulation) ;
+            $this->entityManager->flush() ;
 
-        $this->entityManager->flush() ;
+            $dataFilenames = [
+                $this->filename."annulation(agence)/".$this->nameAgence,
+                "files/systeme/caisse/panierCommande(agence)/".$this->nameAgence,
+            ] ;
+        }
 
-        $filename = $this->filename."annulation(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename) ;
-        if(!file_exists($filename))
-            $this->appService->generateSavAnnulation($filename,$this->agence) ;
-        
-        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
-        unlink($filename) ;
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
         
         return new JsonResponse($result) ;
     }
@@ -654,5 +796,42 @@ class SAVController extends AbstractController
         ]);
     }
 
+    #[Route('/sav/contenu/annulation/get', name: 'sav_contenu_annulation_get')]
+    public function savGetContenuAnnulation(Request $request)
+    {
+        $typeAffichage = $request->request->get('typeAffichage') ;
+        $response = "" ;
+        if($typeAffichage == "CAISSE")
+        {
+            $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
+            if(!file_exists($filename))
+                $this->appService->generateCaisseCommande($filename, $this->agence) ;
 
+            $commandes = json_decode(file_get_contents($filename)) ;
+
+            $response = $this->renderView("sav/contenu/getContentCaisse.html.twig",[
+                "commandes" => $commandes
+            ]) ;
+        }
+        else if($typeAffichage == "FACTURE")
+        {
+            $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
+            if(!file_exists($filename))
+                $this->appService->generateFacture($filename, $this->agence) ;
+
+            $factures = json_decode(file_get_contents($filename)) ;
+            
+            $search = [
+                "numFact" => "DF"
+            ] ;
+                
+            $factures = $this->appService->searchData($factures,$search) ;
+
+            $response = $this->renderView("sav/contenu/getContentFacture.html.twig",[
+                "factures" => $factures
+            ]) ;
+        }
+
+        return new Response($response) ;
+    }
 }

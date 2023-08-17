@@ -1,0 +1,12 @@
+<label for="sav_caisse" class="font-weight-bold">N° Bon de Caisse</label>
+<select name="sav_caisse" class="custom-select chosen_select custom-select-sm" id="sav_caisse">
+    <option value="">-</option>
+    {% for commande in commandes %}
+        <option value="{{commande.id}}">{{commande.numCommande}}</option>
+    {% endfor %}
+</select>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

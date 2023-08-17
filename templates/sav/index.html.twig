@@ -22,7 +22,7 @@
                 <button class="nav-link text-uppercase font-weight-bold active" id="pills-home-tab" data-toggle="pill" data-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Annulation</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link text-uppercase font-weight-bold" id="pills-profile-tab" data-toggle="pill" data-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Liste facture annulé</button>
+                <button class="nav-link text-uppercase font-weight-bold" id="pills-profile-tab" data-toggle="pill" data-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Caisse/Facture annulé</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link text-uppercase font-weight-bold" id="pills-contact-tab" data-toggle="pill" data-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Avoir/Credit</button>
@@ -33,12 +33,11 @@
                 <form id="formAnnulation" >
                     <div class="row">
                         <div class="col-md-3">
-                            <label for="sav_facture" class="font-weight-bold">Facture</label>
-                            <select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
+                            <label for="sav_type" class="font-weight-bold">Type</label>
+                            <select name="sav_type" class="custom-select chosen_select custom-select-sm" id="sav_type">
                                 <option value="">-</option>
-                                {% for facture in factures %}
-                                    <option value="{{facture.id}}">{{facture.numFact}}</option>
-                                {% endfor %}
+                                <option value="CAISSE">{{"Caisse"|upper}}</option>
+                                <option value="FACTURE" selected>{{"Facture"|upper}}</option>
                             </select>
                         </div>
                         <div class="col-md-1"></div>
@@ -62,6 +61,17 @@
                         </div>
                     </div>
                     <div class="row mt-3">
+                        <div class="col-md-3">
+                            <div id="contentType">
+                                <label for="sav_facture" class="font-weight-bold">Facture</label>
+                                <select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
+                                    <option value="">-</option>
+                                    {% for facture in factures %}
+                                        <option value="{{facture.id}}">{{facture.numFact}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-3">
                             <label for="sav_motifs" class="font-weight-bold">Motifs</label>
                             <select name="sav_motifs" class="custom-select chosen_select custom-select-sm" id="sav_motifs">
@@ -127,7 +137,8 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th>Date</th>
-                                <th>Facture</th>
+                                <th>Type</th>
+                                <th>Numéro</th>
                                 <th>Client</th>
                                 <th>Annulation</th>
                                 <th>Specification</th>
@@ -144,7 +155,8 @@
                             {% for annulation in annulations %}
                                 <tr>
                                     <td>{{annulation.date}}</td>
-                                    <td>{{annulation.facture}}</td>
+                                    <td>{{annulation.typeAffiche}}</td>
+                                    <td>{{annulation.numero}}</td>
                                     <td>{{annulation.client|upper}}</td>
                                     <td>{{annulation.type|upper}}</td>
                                     <td>{{annulation.spec|upper}}</td>
@@ -164,7 +176,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="8">Total Retenu</th>
+                                <th colspan="9">Total Retenu</th>
                                 <th class="bg-primary text-white">{{ totalRetenu }}</th>
                                 <td colspan="2" class="bg-primary"></td>
                             </tr>
@@ -173,7 +185,7 @@
                 </div>
             </div>
 
-            {# AVOIR / CREDIT 032 82 488 71 / 033 14 572 20 #}
+            {# AVOIR / CREDIT #}
 
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
                 <div class="table-responsive">

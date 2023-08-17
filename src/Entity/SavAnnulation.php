@@ -67,6 +67,9 @@ class SavAnnulation
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $explication = null;
 
+    #[ORM\ManyToOne(inversedBy: 'savAnnulations')]
+    private ?CaisseCommande $caisse = null;
+
     public function __construct()
     {
         $this->savDetails = new ArrayCollection();
@@ -295,6 +298,18 @@ class SavAnnulation
     public function setExplication(?string $explication): self
     {
         $this->explication = $explication;
+
+        return $this;
+    }
+
+    public function getCaisse(): ?CaisseCommande
+    {
+        return $this->caisse;
+    }
+
+    public function setCaisse(?CaisseCommande $caisse): self
+    {
+        $this->caisse = $caisse;
 
         return $this;
     }

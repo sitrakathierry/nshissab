@@ -1,0 +1,59 @@
+
+<div class="row"> 
+    <div class="col-md-3 mt-3">
+        <h5 class="font-medium" >N° Bon de Caisse : <span class="text-primary">{{caisse.numCommande}}</span></h5>
+    </div>
+</div>
+<div class="table-responsive mt-4">
+    <table class="table table-bordered table-sm">
+        <thead class="thead-light">
+            <tr>
+                <th>Désignation</th>
+                <th>Quantité</th>
+                <th>Prix vente</th>
+                <th>Montant Tva</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody> 
+            {% for caissePanier in caissePaniers %}
+                <tr>
+                    <td>{{ caissePanier.designation }}</td>
+                    <td>{{ caissePanier.quantite }}</td>
+                    <td>{{ caissePanier.prix }}</td>
+                    <td>{{ caissePanier.tva }}</td>
+                    <td>{{ caissePanier.total }}</td>
+                    <td class="align-midlle text-center">
+                        {% if caissePanier.statut %}
+                            <button type="button" value="{{caissePanier.id}}" class="btn btn-sm btn-outline-purple btn_anl_check font-smaller"><i class="fa fa-hand-pointer"></i></button>
+                        {% else %}
+                            <span class="text-danger text-uppercase font-weight-bold">Annulé</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4">Total HT</th>
+                <th colspan="2" class="bg-light">{{caisse.totalHt}}</th>
+            </tr>
+            <tr>
+                <th colspan="4">Remise</th>
+                <th colspan="2" class="bg-light">{{caisse.remise}}</th>
+            </tr>
+            <tr>
+                <th colspan="4">Total TVA</th>
+                <th colspan="2" class="bg-light">{{caisse.totalTva}}</th> 
+            </tr>
+            <tr>
+                <th colspan="4">Total TTC</th>
+                <th colspan="2" class="bg-primary text-white">{{caisse.totalTtc}}</th>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="w-100">
+        Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{caisse.lettre}}</span> Francs Comorien
+    </div>
+</div>

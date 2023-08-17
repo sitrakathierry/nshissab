@@ -58,10 +58,14 @@ class CaisseCommande
     #[ORM\Column(nullable: true)]
     private ?float $remiseValeur = null;
 
+    #[ORM\OneToMany(mappedBy: 'caisse', targetEntity: SavAnnulation::class)]
+    private Collection $savAnnulations;
+
     public function __construct()
     {
         $this->caissePaniers = new ArrayCollection();
         $this->factures = new ArrayCollection();
+        $this->savAnnulations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -269,6 +273,36 @@ class CaisseCommande
     public function setRemiseValeur(?float $remiseValeur): self
     {
         $this->remiseValeur = $remiseValeur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavAnnulation>
+     */
+    public function getSavAnnulations(): Collection
+    {
+        return $this->savAnnulations;
+    }
+
+    public function addSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if (!$this->savAnnulations->contains($savAnnulation)) {
+            $this->savAnnulations->add($savAnnulation);
+            $savAnnulation->setCaisse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavAnnulation(SavAnnulation $savAnnulation): self
+    {
+        if ($this->savAnnulations->removeElement($savAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($savAnnulation->getCaisse() === $this) {
+                $savAnnulation->setCaisse(null);
+            }
+        }
 
         return $this;
     }

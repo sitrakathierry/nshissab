@@ -17,23 +17,25 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <div class="px-3 pb-3 mt-2">
-            <h5 class="title_form text-black text-uppercase">Création marchandise</h5>
-            <div class="row">
-                <div class="col-md-4">
-                    <label for="nom" class="font-weight-bold">Désignation</label>
-                    <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Prix</label>
-                    <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">&nbsp;</label>
-                    <button class="btn btn-sm btn-block btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+        <form id="formMarchandise"> 
+            <div class="px-3 pb-3 mt-2">
+                <h5 class="title_form text-black text-uppercase">Création marchandise</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="ach_mrch_designation" class="font-weight-bold">Désignation</label>
+                        <input type="text" name="designation" oninput="this.value = this.value.toUpperCase();" id="ach_mrch_designation" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="ach_mrch_prix" class="font-weight-bold">Prix</label>
+                        <input type="number" step="any" name="prix" id="ach_mrch_prix" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="font-weight-bold">&nbsp;</label>
+                        <button type="submit" class="btn btn-sm btn-block btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
 
         <div class="barre_dashed p-3">
             <h5 class="title_form text-black text-uppercase">Liste des marchandises</h5>
@@ -47,14 +49,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for marchandise in marchandises %}
                         <tr>
-                            <td>-</td>
-                            <td>-</td>
+                            <td>{{marchandise.designation}}</td>
+                            <td>{{marchandise.prix}}</td>
                             <td class="text-center align-middle">
                                 <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
                                 <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

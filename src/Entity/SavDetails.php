@@ -25,6 +25,9 @@ class SavDetails
     #[ORM\ManyToOne(inversedBy: 'savDetails')]
     private ?Agence $agence = null;
 
+    #[ORM\ManyToOne(inversedBy: 'savDetails')]
+    private ?CaissePanier $caisseDetail = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +77,18 @@ class SavDetails
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function getCaisseDetail(): ?CaissePanier
+    {
+        return $this->caisseDetail;
+    }
+
+    public function setCaisseDetail(?CaissePanier $caisseDetail): self
+    {
+        $this->caisseDetail = $caisseDetail;
 
         return $this;
     }

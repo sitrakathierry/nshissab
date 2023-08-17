@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CaissePanierRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CaissePanierRepository::class)]
@@ -36,6 +38,14 @@ class CaissePanier
 
     #[ORM\ManyToOne(inversedBy: 'caissePaniers')]
     private ?Agence $agence = null;
+
+    #[ORM\OneToMany(mappedBy: 'caisseDetail', targetEntity: SavDetails::class)]
+    private Collection $savDetails;
+
+    public function __construct()
+    {
+        $this->savDetails = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -134,6 +144,36 @@ class CaissePanier
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavDetails>
+     */
+    public function getSavDetails(): Collection
+    {
+        return $this->savDetails;
+    }
+
+    public function addSavDetail(SavDetails $savDetail): self
+    {
+        if (!$this->savDetails->contains($savDetail)) {
+            $this->savDetails->add($savDetail);
+            $savDetail->setCaisseDetail($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavDetail(SavDetails $savDetail): self
+    {
+        if ($this->savDetails->removeElement($savDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($savDetail->getCaisseDetail() === $this) {
+                $savDetail->setCaisseDetail(null);
+            }
+        }
 
         return $this;
     }

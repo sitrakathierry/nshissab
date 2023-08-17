@@ -86,6 +86,14 @@ class AchatController extends AbstractController
 
         $listBonCommandes = json_decode(file_get_contents($filename)) ;
 
+        $search = [
+            "refType" => "TOTAL"
+        ] ;
+        
+        $listBonCommandes = $this->appService->searchData($listBonCommandes, $search) ;
+        
+        $listBonCommandes = array_values($listBonCommandes) ;
+
         return $this->render('achat/listeBonDeCommande.html.twig', [
             "filename" => "achat",
             "titlePage" => "Consultation bon de commande (achat)",
@@ -97,10 +105,18 @@ class AchatController extends AbstractController
     #[Route('/achat/marchandise/operation', name: 'achat_marchandise_operation')]
     public function achatOperationMarchandise()
     {
+        $filename = $this->filename."marchandise(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateAchMarchandise($filename,$this->agence) ;
+
+        $marchandises = json_decode(file_get_contents($filename)) ;
+
         return $this->render('achat/marchandise/operation.html.twig', [
             "filename" => "achat",
             "titlePage" => "Marchandise",
             "with_foot" => false,
+            "marchandises" => $marchandises,
         ]);
     } 
 
@@ -156,7 +172,6 @@ class AchatController extends AbstractController
     #[Route('/achat/marchandise/creation', name: 'achat_marchandise_creation')]
     public function achatCreationMarchandise(Request $request)
     {
-
         $designation = $request->request->get("designation") ;
         $prix = $request->request->get("prix") ;
 
@@ -282,12 +297,25 @@ class AchatController extends AbstractController
     #[Route('/achat/credit/operation', name: 'achat_credit_operation')]
     public function achatOperationCredit()
     {
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateAchListBonCommande($filename,$this->agence) ;
+
+        $listBonCommandes = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refType" => "CREDIT"
+        ] ;
         
+        $listBonCommandes = $this->appService->searchData($listBonCommandes, $search) ;
+        
+        $listBonCommandes = array_values($listBonCommandes) ;
+
         return $this->render('achat/credit/operation.html.twig', [
             "filename" => "achat",
             "titlePage" => "Credit Achat",
             "with_foot" => false,
-            
+            "listBonCommandes" => $listBonCommandes,
         ]);
     }
 

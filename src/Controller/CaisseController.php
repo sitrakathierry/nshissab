@@ -53,6 +53,7 @@ class CaisseController extends AbstractController
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
+        
         return $this->render('caisse/caisse.html.twig', [
             "filename" => "caisse",
             "titlePage" => "Vente des Produits",
