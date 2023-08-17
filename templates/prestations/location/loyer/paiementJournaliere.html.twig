@@ -6,11 +6,13 @@
                 <th>Jours</th>
                 <th>Date Paiement</th>
                 <th>Montant payé</th>
+                <th>Commission</th>
                 {# <th>Statut</th> #}
             </tr>
         </thead>
         <tbody>
              {% set totalPayee = 0 %}
+             {% set totalCommission = 0 %}
             {% for relevePaiement in relevePaiements %}
                 {% if relevePaiement.montant is defined %}
                     {% set montant = relevePaiement.montant %}
@@ -24,9 +26,11 @@
                     <td>{{ relevePaiement.debutLimite }}</td>
                     <td>{{ relevePaiement.datePaiement }}</td>
                     <th>{{ montant }}</th>
+                    <th>{{ relevePaiement.commission }}</th>
                     {# <th>{{ repartition.statut | upper }}</th> #}
                 </tr>
                 {% set totalPayee = totalPayee + valMontant %}
+                {% set totalCommission = totalCommission + relevePaiement.commissionVal %}
             {% endfor %}
         </tbody>
         
@@ -35,11 +39,15 @@
 <table class="table-sm table table-bordered font-smaller">
     <tfoot>
         <tr>
-            <th colspan="3" class="text-uppercase">Montant Total</th>
+            <th colspan="4" class="text-uppercase">Total Commission</th>
+            <th  class="text-white bg-success" >{{ totalCommission }}</th>
+        </tr>
+        <tr>
+            <th colspan="4" class="text-uppercase">Montant Total</th>
             <th  class="text-white bg-primary" >{{ totalPayee }}</th>
         </tr>
         <tr>
-            <th colspan="5" class="text-uppercase">Total General Payée</th>
+            <th colspan="4" class="text-uppercase">Total General Payée</th>
             <th  class="text-white bg-purple" >{{ totalRelevePayee }}</th>
         </tr>
     </tfoot>
