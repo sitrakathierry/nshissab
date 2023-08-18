@@ -2139,7 +2139,7 @@ class AppService extends AbstractController
         }
         
         // Comparaison par numero
-        return strcmp($a['numero'], $b['numero']);
+        return intval($a['numero']) <=> intval($b['numero']) ;
     }
 
     public function generateAchListBonCommande($filename, $agence) 
