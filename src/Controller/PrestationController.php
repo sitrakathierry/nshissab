@@ -1441,6 +1441,40 @@ class PrestationController extends AbstractController
         ]);
     }
 
+    #[Route('/prestation/location/commission/versement', name: 'prest_location_commission_versement')]
+    public function prestVersementCommissionLocation(Request $request)
+    {
+        $dataEnr = (array)$request->request->get("dataEnr") ;
+        if(is_null($dataEnr))
+        {
+            $result["message"] = "Veuiller séléctionner des éléments à verser" ;
+            $result["type"] = "orange" ;
+
+            return new JsonResponse($result) ;
+        }
+
+        foreach ($dataEnr as $data) {
+            $idR = explode(":",$data)[0] ;
+            $commission = explode(":",$data)[1] ;
+            $repartition = $this->entityManager->getRepository(LctRepartition::class)->find($idR) ;
+
+            $repartition->setVersement($commission) ;
+            $repartition->setUpdatedAt(new \DateTimeImmutable) ; 
+            $this->entityManager->flush() ;     
+
+            $idContrat = $repartition->getContrat()->getId() ;
+        }
+
+        $filename = $this->filename."location/releveloyer(agence)/relevePL_".$idContrat."_".$this->nameAgence  ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $result["message"] = "Versement effectuée" ;
+        $result["type"] = "green" ;
+
+        return new JsonResponse($result) ;
+    }
+
     #[Route('/prestation/location/loyer/liste', name: 'prest_location_liste_loyer')]
     public function prestListeLoyerLocation()
     {

@@ -86,11 +86,11 @@ class AchatController extends AbstractController
 
         $listBonCommandes = json_decode(file_get_contents($filename)) ;
 
-        $search = [
-            "refType" => "TOTAL"
-        ] ;
+        // $search = [
+        //     "refType" => "TOTAL"
+        // ] ;
         
-        $listBonCommandes = $this->appService->searchData($listBonCommandes, $search) ;
+        // $listBonCommandes = $this->appService->searchData($listBonCommandes, $search) ;
         
         $listBonCommandes = array_values($listBonCommandes) ;
 

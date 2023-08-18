@@ -926,8 +926,16 @@ class AppService extends AbstractController
             if($statutRepart == "CAUTION")
                 continue ;
 
-            $commission =  ($pourcentage * is_null($repartition->getMontant()) ? 0 : $repartition->getMontant()) / 100 ;
+            $montant = is_null($repartition->getMontant()) ? 0 : $repartition->getMontant() ;
+            $commission =  ($pourcentage * $montant) / 100 ;
+            $versement = '<button value="'.$repartition->getId().'" data-commission="'.$commission.'" class="btn btn-outline-success lct_check_versement btn-sm font-smaller"><i class="fa fa-hand-holding-dollar"></i></button>' ;
+            
+            if(!is_null($repartition->getVersement()))
+            {
+                $versement = '<b class="text-success">OK</b>' ;
+            }
 
+            $item["id"] = $repartition->getId() ;
             $item["designation"] = "Paiement. ".$repartition->getDesignation() ;
             $item["debutLimite"] = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y") ;
             $item["dateLimite"] = is_null($repartition->getDateLimite()) ? "" : $repartition->getDateLimite()->format("d/m/Y") ;
@@ -939,7 +947,8 @@ class AppService extends AbstractController
             $item["statut"] = $repartition->getStatut()->getReference() ;
             $item["commission"] = $commission." (".$pourcentage."%)";
             $item["commissionVal"] = $commission;
-
+            $item["versement"] = $versement ;
+            
             $totalReleve += $repartition->getMontant() ; 
             array_push($childs,$item) ;
         }
@@ -947,8 +956,17 @@ class AppService extends AbstractController
         if(!is_null($lastRepartition))
         {
             $textDesignation = "Acompte. ".$lastRepartition->getDesignation() ;
-            $commission =  ($pourcentage * is_null($lastRepartition->getMontant()) ? 0 : $lastRepartition->getMontant()) / 100 ;
+            $montant = is_null($lastRepartition->getMontant()) ? 0 : $lastRepartition->getMontant();
+            $commission =  ($pourcentage * $montant) / 100 ;
+            $versement = '<button value="'.$lastRepartition->getId().'" data-commission="'.$commission.'" class="btn btn-outline-success lct_check_versement btn-sm font-smaller"><i class="fa fa-hand-holding-dollar"></i></button>' ;
+            
+            if(!is_null($lastRepartition->getVersement()))
+            {
+                $versement = '<b class="text-success">OK</b>' ;
+            }
+
             $lastItem = [
+                "id" => $lastRepartition->getId(),
                 "designation" => $textDesignation,
                 "debutLimite" => is_null($lastRepartition->getDateDebut()) ? "" : $lastRepartition->getDateDebut()->format("d/m/Y") ,
                 "dateLimite" => is_null($lastRepartition->getDateLimite()) ? "" : $lastRepartition->getDateLimite()->format("d/m/Y") ,
@@ -960,6 +978,7 @@ class AppService extends AbstractController
                 "statut" => $lastRepartition->getStatut()->getReference(),
                 "commission" => $commission." (".$pourcentage."%)",
                 "commissionVal" => $commission,
+                "versement" => $versement,
             ] ;
 
             $totalReleve += $lastRepartition->getMontant() ; 
@@ -993,17 +1012,21 @@ class AppService extends AbstractController
                         $tableauMois[$i + 1]["annee"] = $tableauMois[$i]["annee"] + 1;
                     }
 
+                    $tableauMois[$i]["id"] = "-" ;
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
                     $tableauMois[$i]["datePaiement"] = "-" ;
                     $tableauMois[$i]["commission"] = "-" ;
                     $tableauMois[$i]["commissionVal"] = 0 ;
+                    $tableauMois[$i]["versement"] = "-" ;
 
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
                         {
+                            $tableauMois[$i]["id"] = $child["id"] ;
                             $tableauMois[$i]["datePaiement"] = $child["datePaiement"] ;
                             $tableauMois[$i]["commission"] = $child["commission"] ;
                             $tableauMois[$i]["commissionVal"] = $child["commissionVal"] ;
+                            $tableauMois[$i]["versement"] = $child["versement"] ;
                             $tableauMois[$i]["montant"] = $child["montant"] ;
                             $tableauMois[$i]["designation"] = $child["designation"] ;
                             break;
@@ -1027,17 +1050,21 @@ class AppService extends AbstractController
                 $tableauMois = $this->genererTableauJour($dateGenere,$duree) ;
 
                 for ($i=0; $i < count($tableauMois); $i++) { 
+                    $tableauMois[$i]["id"] = "-" ;
                     $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
                     $tableauMois[$i]["datePaiement"] = "-" ;
                     $tableauMois[$i]["commission"] = "-" ;
                     $tableauMois[$i]["commissionVal"] = 0 ;
+                    $tableauMois[$i]["versement"] = "-" ;
 
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
                         {
+                            $tableauMois[$i]["id"] = $child["id"] ;
                             $tableauMois[$i]["datePaiement"] = $child["datePaiement"] ;
                             $tableauMois[$i]["commission"] = $child["commission"] ;
                             $tableauMois[$i]["commissionVal"] = $child["commissionVal"] ;
+                            $tableauMois[$i]["versement"] = $child["versement"] ;
                             $tableauMois[$i]["montant"] = $child["montant"] ;
                             $tableauMois[$i]["designation"] = $child["designation"] ;
                             break;
@@ -2120,7 +2147,7 @@ class AppService extends AbstractController
                 "statutGen" => True,
                 "bonCommande" => $bonCommande
             ]) ;
-
+ 
             foreach ($achatDetails as $achatDetail) {
                 $element = [] ;
 
@@ -2524,7 +2551,7 @@ class AppService extends AbstractController
             $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
             $element["agence"] = $facture->getAgence()->getId() ;
             $element["user"] = $facture->getUser()->getId() ;
-            $element["numFact"] = $annulation->facture;
+            $element["numFact"] = $annulation->numero;
             $element["modele"] = $facture->getModele()->getNom() ;
             $element["type"] = $facture->getType()->getNom() ;
             $element["dateCreation"] = $annulation->date  ;

@@ -47,6 +47,9 @@ class LctRepartition
     #[ORM\ManyToOne(inversedBy: 'lctRepartitions')]
     private ?LctContrat $contrat = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $versement = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -180,6 +183,18 @@ class LctRepartition
     public function setContrat(?LctContrat $contrat): self
     {
         $this->contrat = $contrat;
+
+        return $this;
+    }
+
+    public function getVersement(): ?float
+    {
+        return $this->versement;
+    }
+
+    public function setVersement(?float $versement): self
+    {
+        $this->versement = $versement;
 
         return $this;
     }

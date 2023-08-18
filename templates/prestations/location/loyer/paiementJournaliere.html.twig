@@ -7,6 +7,7 @@
                 <th>Date Paiement</th>
                 <th>Montant payé</th>
                 <th>Commission</th>
+                <th class="text-center">Versement</th>
                 {# <th>Statut</th> #}
             </tr>
         </thead>
@@ -27,6 +28,9 @@
                     <td>{{ relevePaiement.datePaiement }}</td>
                     <th>{{ montant }}</th>
                     <th>{{ relevePaiement.commission }}</th>
+                    <th class="text-center align-middle">
+                        {{relevePaiement.versement|raw}}
+                    </th>
                     {# <th>{{ repartition.statut | upper }}</th> #}
                 </tr>
                 {% set totalPayee = totalPayee + valMontant %}

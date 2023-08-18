@@ -1437,4 +1437,97 @@ $(document).ready(function(){
             searchCommission()
         })
     })
+    
+    $(".lct_valider_versement").parent().hide()
+
+    $(document).on('click',".lct_check_versement",function(){
+        if($(this).hasClass("btn-outline-success"))
+        {
+            var idData = $(this).attr("value") ;
+            var commission = $(this).data("commission") ;
+
+            $(this).removeClass("btn-outline-success") ;
+            $(this).addClass("btn-success") ;
+            $(this).text(("Versé").toUpperCase())
+            $(this).parent().append('<input type="hidden" class="lct_valeur_versement" value="'+idData+':'+commission+'">') ;
+        }
+        else
+        {
+            $(this).removeClass("btn-success") ;
+            $(this).addClass("btn-outline-success") ;
+            $(this).html('<i class="fa fa-hand-holding-dollar"></i>') ;
+            $(this).parent().find(".lct_valeur_versement").remove()
+        }
+
+        var showButton = false ;
+        $(".lct_check_versement").each(function(){
+            if($(this).hasClass("btn-success"))
+            {
+                $(".lct_valider_versement").parent().show() ;
+                showButton = true ;
+                return ;
+            }
+        })
+
+        if(!showButton)
+            $(".lct_valider_versement").parent().hide() ;
+    })
+
+    $(document).on('click',".lct_valider_versement",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Validation",
+            content:"Vous êtes sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var dataEnr = [] ;
+                        $(".lct_valeur_versement").each(function(){
+                            dataEnr.push($(this).val()) ;
+                        })
+                        $.ajax({
+                            url: routes.prest_location_commission_versement,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                dataEnr:dataEnr,
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
 })

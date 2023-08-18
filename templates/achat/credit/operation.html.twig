@@ -51,7 +51,6 @@
                         <th>Quantité</th>
                         <th>Prix Unitaire</th>
                         <th>Montant Total</th>
-                        <th></th>
                         <th>Statut</th>
                         <th></th>
                     </tr>
@@ -86,9 +85,6 @@
                             <td>{{bonCommande.quantite}}</td>
                             <td>{{bonCommande.prix}}</td>
                             <td>{{bonCommande.totalLigne}}</td>
-                            <td class="text-center align-middle">
-                                <button value="{{bonCommande.id}}" class="btn m-1 btn-outline-success btn-sm font-smaller"><i class="fa fa-check"></i></button>
-                            </td>
                             {% set totalHT = totalHT + bonCommande.totalTtc %}
                             {% if passeM %}
                                 {% if bonCommande.refStatut == "ENCR" %}
@@ -112,22 +108,22 @@
                         {% if compteur == ligne %}
                             <tr>
                                 <th colspan="3">Total</th>
-                                <th colspan="2" class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
+                                <th colspan="1" class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
                             </tr>
                             <tr>
                                 <th colspan="3">Total Credit</th>
-                                <th colspan="2" class="text-white bg-info">-</th>
+                                <th colspan="1" class="text-white bg-info">-</th>
                             </tr>
                             <tr>
                                 <th colspan="3">Total Payé</th>
-                                <th colspan="2" class="text-white bg-success">-</th>
+                                <th colspan="1" class="text-white bg-success">-</th>
                             </tr>
                             <tr>
                                 <th colspan="3">Total Restant</th>
-                                <th colspan="2" class="text-white bg-purple">-</th>
+                                <th colspan="1" class="text-white bg-purple">-</th>
                             </tr>
                             <tr class="bg-light border_dark">
-                                <td colspan="12"></td>
+                                <td colspan="11"></td>
                             </tr>
                             {% set totalGeneral = totalGeneral + bonCommande.totalTtc %}
                         {% endif %}

@@ -53,18 +53,18 @@ class SAVController extends AbstractController
     #[Route('/sav', name: 'app_s_a_v')]
     public function index(): Response
     {
-        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
+        // $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
 
-        if(!file_exists($filename))
-            $this->appService->generateFacture($filename, $this->agence) ;
+        // if(!file_exists($filename))
+        //     $this->appService->generateFacture($filename, $this->agence) ;
 
-        $factures = json_decode(file_get_contents($filename)) ;
+        // $factures = json_decode(file_get_contents($filename)) ;
         
-        $search = [
-            "numFact" => "DF"
-        ] ;
+        // $search = [
+        //     "numFact" => "DF"
+        // ] ;
             
-        $factures = $this->appService->searchData($factures,$search) ;
+        // $factures = $this->appService->searchData($factures,$search) ;
         
         
         $types = $this->entityManager->getRepository(SavType::class)->findAll() ;
@@ -123,7 +123,6 @@ class SAVController extends AbstractController
             "filename" => "sav",
             "titlePage" => "Service Après Vente",
             "with_foot" => true,
-            "factures" => $factures,
             "types" => $types,
             "specs" => $specs,
             "motifs" => $motifs,

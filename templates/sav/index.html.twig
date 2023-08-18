@@ -63,12 +63,9 @@
                     <div class="row mt-3">
                         <div class="col-md-3">
                             <div id="contentType">
-                                <label for="sav_facture" class="font-weight-bold">Facture</label>
+                                <label for="sav_facture" class="font-weight-bold">-</label>
                                 <select name="sav_facture" class="custom-select chosen_select custom-select-sm" id="sav_facture">
                                     <option value="">-</option>
-                                    {% for facture in factures %}
-                                        <option value="{{facture.id}}">{{facture.numFact}}</option>
-                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
