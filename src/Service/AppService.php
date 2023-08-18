@@ -2128,6 +2128,20 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($items)) ;
     }
 
+    public static function comparaisonCommandeAchat($a, $b) {
+        // Comparaison par date
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        $result = $dateB <=> $dateA ;
+
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        // Comparaison par numero
+        return strcmp($a['numero'], $b['numero']);
+    }
+
     public function generateAchListBonCommande($filename, $agence) 
     {
         $bonCommandes = $this->entityManager->getRepository(AchBonCommande::class)->findBy([
@@ -2170,7 +2184,7 @@ class AppService extends AbstractController
             }
         } 
 
-        usort($elements, [self::class, 'comparaisonDates']);
+        usort($elements, [self::class, 'comparaisonCommandeAchat']);
 
         file_put_contents($filename,json_encode($elements)) ;
     }
