@@ -958,13 +958,8 @@ class AppService extends AbstractController
             $textDesignation = "Acompte. ".$lastRepartition->getDesignation() ;
             $montant = is_null($lastRepartition->getMontant()) ? 0 : $lastRepartition->getMontant();
             $commission =  ($pourcentage * $montant) / 100 ;
-            $versement = '<button value="'.$lastRepartition->getId().'" data-commission="'.$commission.'" class="btn btn-outline-success lct_check_versement btn-sm font-smaller"><i class="fa fa-hand-holding-dollar"></i></button>' ;
+            $versement = "-" ;
             
-            if(!is_null($lastRepartition->getVersement()))
-            {
-                $versement = '<b class="text-success">OK</b>' ;
-            }
-
             $lastItem = [
                 "id" => $lastRepartition->getId(),
                 "designation" => $textDesignation,
