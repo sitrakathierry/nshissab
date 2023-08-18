@@ -37,4 +37,15 @@
 #caisse_search_produit option:hover
 {
     color: black !important;
+} 
+
+.imageHover
+{
+    position: absolute !important;
+    top: 33px ;
+    left: -110px ;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    z-index: 999;
 }

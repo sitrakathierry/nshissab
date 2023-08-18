@@ -172,6 +172,7 @@ class AchatController extends AbstractController
     #[Route('/achat/marchandise/creation', name: 'achat_marchandise_creation')]
     public function achatCreationMarchandise(Request $request)
     {
+        $idM = $request->request->get("idM") ;
         $designation = $request->request->get("designation") ;
         $prix = $request->request->get("prix") ;
 
@@ -181,31 +182,65 @@ class AchatController extends AbstractController
         ],[
             "designation",
             "prix",
-            ]) ;
+        ]) ;
         
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
-        $marchandise = new AchMarchandise() ;
+        if(isset($idM))
+        {
+            $marchandise = $this->entityManager->getRepository(AchMarchandise::class)->find($idM) ;
+        }
+        else
+        {
+            $marchandise = new AchMarchandise() ;
 
-        $marchandise->setAgence($this->agence) ;
+            $marchandise->setAgence($this->agence) ;
+            $marchandise->setStatutGen(True) ;
+            $marchandise->setCreatedAt(new \DateTimeImmutable) ;
+        }
+
         $marchandise->setDesignation($designation) ;
         $marchandise->setPrix($prix) ;
-        $marchandise->setStatutGen(True) ;
-        $marchandise->setCreatedAt(new \DateTimeImmutable) ;
         $marchandise->setUpdatedAt(new \DateTimeImmutable) ;
 
         $this->entityManager->persist($marchandise) ;
         $this->entityManager->flush() ;
+        
 
         $filename = $this->filename."marchandise(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
         
         $result["id"] = $marchandise->getId() ;
+        if(isset($idM))
+            $result["message"] = "Modification effectué" ;
 
         return new JsonResponse($result) ;
     } 
+
+    
+    #[Route('/achat/marchandise/supprime', name: 'achat_marchandise_supprime')]
+    public function achatSupprimeMarchandise(Request $request)
+    {
+        $idM = $request->request->get('idM') ;
+
+        $marchandise = $this->entityManager->getRepository(AchMarchandise::class)->find($idM) ;
+
+        $marchandise->setStatutGen(False) ;
+        $marchandise->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->flush() ;
+        
+        $filename = $this->filename."marchandise(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        $result["message"] = "Suppression effectué" ;
+        $result["type"] = "green" ;
+
+        return new JsonResponse($result) ;
+    }
 
     #[Route('/achat/bon/commande/save', name: 'achat_bon_commande_save')]
     public function achatSaveBonCommande(Request $request)
@@ -318,5 +353,26 @@ class AchatController extends AbstractController
             "listBonCommandes" => $listBonCommandes,
         ]);
     }
+ 
+    #[Route('/achat/details/{id}', name: 'achat_details', defaults:["id" => null])]
+    public function achatDetails($id)
+    {
+        $id = $this->appService->decoderChiffre($id) ;
 
+        $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($id) ;
+
+        $achat = [
+            "numero" => $bonCommande->getNumero(),    
+            "fournisseur" => $bonCommande->getFournisseur()->getNom(),    
+            "type" => $bonCommande->getType()->getNom(),    
+            "description" => $bonCommande->getType()->getNom(),    
+        ] ;
+
+        return $this->render('achat/details.html.twig', [
+            "filename" => "achat",
+            "titlePage" => "Details Achat",
+            "with_foot" => true,
+            "achat" => $achat,
+        ]);
+    }
 }

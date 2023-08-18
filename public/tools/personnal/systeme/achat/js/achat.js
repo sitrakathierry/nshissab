@@ -2,6 +2,7 @@ $(document).ready(function(){
     var instance = new Loading(files.loading) ;
     var appBase = new AppBase() ;
     var compta_achat_editor = new LineEditor("#compta_achat_editor") ;
+    var ach_commande_editor = new LineEditor("#ach_commande_editor") ;
     
     $("#ach_date").datepicker(); 
 
@@ -269,6 +270,9 @@ $(document).ready(function(){
         return false ;
     })
 
+    $("#ach_mrch_designation").val("")
+    $("#ach_mrch_prix").val("")
+
     $("#formMarchandise").submit(function(){
         var self = $(this)
         $.confirm({
@@ -276,7 +280,7 @@ $(document).ready(function(){
             content:"Vous êtes sûre ?",
             type:"blue",
             theme:"modern",
-            buttons:{
+            buttons:{ 
                 btn1:{
                     text: 'Non',
                     action: function(){}
@@ -293,6 +297,125 @@ $(document).ready(function(){
                             type:'post',
                             cache: false,
                             data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on('click',".ach_edit_marchandise",function(){
+        var designation = $(this).closest("tr").find(".elem_designation").text() ;
+        var prix = $(this).closest("tr").find(".elem_prix").text() ;
+        var idM = $(this).attr("value") ;
+
+        var element = `
+            <div class="w-100 text-left">
+                <label for="mrch_modif_designation" class="font-weight-bold">Désignation</label>
+                <input type="text" name="designation" id="mrch_modif_designation" oninput="this.value = this.value.toUpperCase();" value="`+designation+`" class="form-control" placeholder=". . .">
+                
+                <label for="mrch_modif_prix" class="font-weight-bold mt-3">Prix</label>
+                <input type="number" step="any" name="prix" id="mrch_modif_prix" value="`+prix+`" class="form-control" placeholder=". . .">
+            </div>
+            `
+        $.confirm({
+            title: "Modification",
+            content:element,
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Valider',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.achat_marchandise_creation,
+                            type:'post',
+                            cache: false,
+                            data: {
+                                designation: $("#mrch_modif_designation").val(),
+                                prix: $("#mrch_modif_prix").val(),
+                                idM:idM,
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    })
+
+    $(document).on('click',".ach_delete_marchandise", function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Vous êtes sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.achat_marchandise_supprime,
+                            type:'post',
+                            cache: false,
+                            data:{idM:self.attr('value')},
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()

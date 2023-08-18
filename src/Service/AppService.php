@@ -2125,6 +2125,7 @@ class AppService extends AbstractController
                 $element = [] ;
 
                 $element["id"] = $bonCommande->getId() ;
+                $element["encodedId"] = $this->encodeChiffre($bonCommande->getId()) ;
                 $element["agence"] = $bonCommande->getAgence()->getId() ;
                 $element["date"] = $bonCommande->getDate()->format('d/m/Y') ;
                 $element["lieu"] = $bonCommande->getLieu() ;

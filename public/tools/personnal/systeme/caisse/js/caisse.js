@@ -394,5 +394,33 @@ $(document).ready(function(){
     $(".btn_submit_caisse").click(function(){
         $("#formCaisse").submit()
     })
+    $(".imageHover").hide()
+    $(document).on("mouseover",'#caisse_search_produit_chosen .chosen-drop .chosen-results li', function(){
+        // Obtenez les coordonnées de l'élément
+        $(".imageHover").show()
+        $(".imageHover").attr("src",files.search) ;
 
+        var topDepart = $(".posDepart").offset().top
+        var offset = $(this).offset() ;
+        var top = 33 + (offset.top - (topDepart + 33)) - 23
+        $(".imageHover").css("top",top+"px") ;
+        var codeProduit = $(this).text().split(" | ")[0] ;
+
+        $(".caisse_search_produit option").each(function(index,item){
+            if($(item).data("code") == codeProduit)
+            {
+                $(".imageHover").attr("src",$(item).data("images")) ;
+                return ;
+            }
+        })
+
+        // console.log(offset.top, offset.left) ;
+        // console.log($(this).text().split(" | ")[0]) ;
+    })
+
+    $(document).on("mouseout",'#caisse_search_produit_chosen .chosen-drop .chosen-results li', function(){
+        $(".imageHover").hide()
+        $(".imageHover").attr("src",files.imageDefault) ;
+        $(".imageHover").css("top","33px") ;
+    })
 })
