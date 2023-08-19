@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\AchBonCommande;
 use App\Entity\AchDetails;
+use App\Entity\AchHistoPaiement;
 use App\Entity\AchMarchandise;
 use App\Entity\AchStatut;
 use App\Entity\AchStatutBon;
@@ -361,18 +362,149 @@ class AchatController extends AbstractController
 
         $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($id) ;
 
+        $totalPaiement = $this->entityManager->getRepository(AchHistoPaiement::class)->getTotalPaiement($id) ; 
+
         $achat = [
+            "id" => $bonCommande->getId(),    
             "numero" => $bonCommande->getNumero(),    
             "fournisseur" => $bonCommande->getFournisseur()->getNom(),    
             "type" => $bonCommande->getType()->getNom(),    
             "description" => $bonCommande->getType()->getNom(),    
+            "date" => $bonCommande->getDate()->format("d/m/Y"),    
+            "lieu" => $bonCommande->getLieu(),    
+            "lettre" => $this->appService->NumberToLetter($bonCommande->getMontant()) ,    
+            "refType" =>$bonCommande->getType()->getReference() ,
+            "montant" =>$bonCommande->getMontant() ,
+            "montantPayee" => is_null($totalPaiement["credit"]) ? 0 : $totalPaiement["credit"] ,
         ] ;
+
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateAchListBonCommande($filename,$this->agence) ;
+
+        $listBonCommandes = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "id" => $id
+        ] ;
+        
+        $listBonCommandes = $this->appService->searchData($listBonCommandes, $search) ;
+
+        $histoPaiements = $this->entityManager->getRepository(AchHistoPaiement::class)->findBy([
+            "bonCommande" => $bonCommande 
+        ]) ; 
 
         return $this->render('achat/details.html.twig', [
             "filename" => "achat",
             "titlePage" => "Details Achat",
             "with_foot" => true,
             "achat" => $achat,
+            "listBonCommandes" => $listBonCommandes,
+            "histoPaiements" => $histoPaiements,
         ]);
+    }
+
+    #[Route('/achat/paiement/credit/save', name: 'achat_paiement_credit_save')]
+    public function achatSavePaiementCredit(Request $request)
+    {
+        $ach_commande_credit_id = $request->request->get('ach_commande_credit_id') ; 
+        $ach_commande_credit_date = $request->request->get('ach_commande_credit_date') ; 
+        $ach_commande_credit_montant = $request->request->get('ach_commande_credit_montant') ; 
+
+        $result = $this->appService->verificationElement([
+            $ach_commande_credit_date,
+            $ach_commande_credit_montant,
+        ],[
+            "Date Paiement",
+            "Montant Payé",
+            ]) ;
+        
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($ach_commande_credit_id) ;
+
+        $histoPaiement = new AchHistoPaiement() ;
+
+        $histoPaiement->setAgence($this->agence) ;
+        $histoPaiement->setBonCommande($bonCommande) ;
+        $histoPaiement->setDate(\DateTime::createFromFormat("d/m/Y",$ach_commande_credit_date)) ;
+        $histoPaiement->setMontant($ach_commande_credit_montant) ;
+
+        $this->entityManager->persist($histoPaiement) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/achat/validation/total/save', name: 'achat_validation_total_save')]
+    public function achatSaveValidationTotal(Request $request)
+    {
+        $idBon = $request->request->get('idBon') ; 
+        $statutBon = $request->request->get('statutBon') ; 
+
+        $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($idBon) ;
+
+        $statutBon = $this->entityManager->getRepository(AchStatutBon::class)->findOneBy([
+            "reference" => $statutBon   
+        ]) ;
+
+        $bonCommande->setStatutBon($statutBon) ;
+        $bonCommande->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Information enregistré avec succès",    
+        ]) ;
+    }
+
+    
+    #[Route('/achat/validation/credit/save', name: 'achat_validation_credit_save')]
+    public function achatSaveValidationCredit(Request $request)
+    {
+        $dataEnr = (array)$request->request->get("dataEnr") ;
+
+        if(is_null($dataEnr))
+        {
+            $result["message"] = "Veuiller séléctionner des éléments" ;
+            $result["type"] = "orange" ;
+
+            return new JsonResponse($result) ;
+        }
+
+        $statut = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
+            "reference" => "LVR"   
+        ]) ;
+
+        foreach ($dataEnr as $data) {
+            $idDetail = $data ;
+            $achatDetail = $this->entityManager->getRepository(AchDetails::class)->find($idDetail) ;
+
+            $achatDetail->setStatut($statut) ;
+
+            $this->entityManager->flush() ;     
+        }
+
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Information enregistré avec succès",    
+        ]) ;
     }
 }

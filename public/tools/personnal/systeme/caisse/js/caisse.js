@@ -394,7 +394,7 @@ $(document).ready(function(){
     $(".btn_submit_caisse").click(function(){
         $("#formCaisse").submit()
     })
-    $(".imageHover").hide()
+    // $(".imageHover").hide()
     $(document).on("mouseover",'#caisse_search_produit_chosen .chosen-drop .chosen-results li', function(){
         // Obtenez les coordonnées de l'élément
         $(".imageHover").show()

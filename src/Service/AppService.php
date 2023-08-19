@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\AchBonCommande;
 use App\Entity\AchDetails;
+use App\Entity\AchHistoPaiement;
 use App\Entity\AchMarchandise;
 use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
@@ -2156,11 +2157,16 @@ class AppService extends AbstractController
                 "statutGen" => True,
                 "bonCommande" => $bonCommande
             ]) ;
- 
+
+            $totalPaiement = $this->entityManager->getRepository(AchHistoPaiement::class)->getTotalPaiement($bonCommande->getId()) ; 
+
             foreach ($achatDetails as $achatDetail) {
+
+
                 $element = [] ;
 
                 $element["id"] = $bonCommande->getId() ;
+                $element["idDetail"] = $achatDetail->getId() ;
                 $element["encodedId"] = $this->encodeChiffre($bonCommande->getId()) ;
                 $element["agence"] = $bonCommande->getAgence()->getId() ;
                 $element["date"] = $bonCommande->getDate()->format('d/m/Y') ;
@@ -2175,9 +2181,10 @@ class AppService extends AbstractController
                 $element["prix"] = $achatDetail->getPrix() ;
                 $element["totalLigne"] = $achatDetail->getPrix() * $achatDetail->getQuantite() ;
                 $element["totalTtc"] = $bonCommande->getMontant() ;
-                $element["statut"] = $bonCommande->getStatut()->getNom() ;
+                $element["totalPaiement"] = is_null($totalPaiement["credit"]) ? 0 : $totalPaiement["credit"] ;
+                $element["statut"] = $achatDetail->getStatut()->getNom() ;
+                $element["refStatut"] = $achatDetail->getStatut()->getreference() ;
                 $element["statutBon"] = $bonCommande->getStatutBon()->getNom() ;
-                $element["refStatut"] = $bonCommande->getStatut()->getreference() ;
                 $element["refStatutBon"] = $bonCommande->getStatutBon()->getreference() ;
 
                 array_push($elements,$element) ;

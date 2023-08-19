@@ -3,8 +3,10 @@ $(document).ready(function(){
     var appBase = new AppBase() ;
     var compta_achat_editor = new LineEditor("#compta_achat_editor") ;
     var ach_commande_editor = new LineEditor("#ach_commande_editor") ;
+    ach_commande_editor.setEditorText($("#ach_commande_editor").val())
     
-    $("#ach_date").datepicker(); 
+    $("#ach_date").datepicker() ; 
+    $("#ach_commande_credit_date").datepicker() ; 
 
     $(document).on('click',"#achat_bon_new_marchandise",function(){
         if(!$(this).attr("disabled"))
@@ -270,6 +272,62 @@ $(document).ready(function(){
         return false ;
     })
 
+    $("#ach_commande_credit_date").val("")
+    $("#ach_commande_credit_montant").val("")
+
+    $("#formCreditAchat").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Vous êtes sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize()
+                        $.ajax({
+                            url: routes.achat_paiement_credit_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
     $("#ach_mrch_designation").val("")
     $("#ach_mrch_prix").val("")
 
@@ -416,6 +474,208 @@ $(document).ready(function(){
                             type:'post',
                             cache: false,
                             data:{idM:self.attr('value')},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on('click',".ach_check_paiement",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Validation Paiement",
+            content:"Vous êtes sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.achat_validation_total_save,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                idBon:self.data("value"),
+                                statutBon:"PAYE",
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on('click',".ach_check_livraison",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Validation Livraison",
+            content:"Vous êtes sûre ?",
+            type:"green",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-green',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.achat_validation_total_save,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                idBon:self.data("value"),
+                                statutBon:"LIVRE",
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(".ach_valider_credit_livraison").parent().hide()
+
+    $(document).on('click',".ach_check_credit_livraison",function(){
+        if($(this).hasClass("btn-outline-success"))
+        {
+            var idData = $(this).data("value") ;
+
+            $(this).removeClass("btn-outline-success") ;
+            $(this).addClass("btn-success") ;
+            $(this).text(("Livré").toUpperCase())
+            $(this).parent().append('<input type="hidden" class="credit_id_livraison" value="'+idData+'">') ;
+        }
+        else
+        {
+            $(this).removeClass("btn-success") ;
+            $(this).addClass("btn-outline-success") ;
+            $(this).html('<i class="fa fa-check"></i>') ;
+            $(this).parent().find(".credit_id_livraison").remove()
+        }
+
+        var showButton = false ;
+        $(".ach_check_credit_livraison").each(function(){
+            if($(this).hasClass("btn-success"))
+            {
+                $(".ach_valider_credit_livraison").parent().show() ;
+                showButton = true ;
+                return ;
+            }
+        })
+
+        if(!showButton)
+            $(".ach_valider_credit_livraison").parent().hide() ;
+    })
+
+    $(document).on('click',".ach_valider_credit_livraison",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Validation Livraison",
+            content:"Êtes-vous sûre que les produits seléctionés sont livrés ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var dataEnr = [] ;
+                        $(".credit_id_livraison").each(function(){
+                            dataEnr.push($(this).val()) ;
+                        })
+                        $.ajax({
+                            url: routes.achat_validation_credit_save,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                dataEnr:dataEnr,
+                            },
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()

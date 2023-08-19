@@ -39,6 +39,15 @@ class AchHistoPaiementRepository extends ServiceEntityRepository
         }
     }
 
+    public function getTotalPaiement($idBon)
+    {
+        $sql = " SELECT SUM(`montant`) as credit FROM `ach_histo_paiement` WHERE `bon_commande_id` = ? " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$idBon]);
+        return $resultSet->fetchAssociative();
+    }
+
 //    /**
 //     * @return AchHistoPaiement[] Returns an array of AchHistoPaiement objects
 //     */

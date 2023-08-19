@@ -35,9 +35,12 @@
                 <select name="cmd_bon_search_date" class="custom-select chosen_select cmd_bon_search_date custom-select-sm" id="cmd_bon_search_date">
                     <option value="" >-</option>
                     <option value="" >PAIEMENT TOTALE</option>
-                    <option value="" >PAIEMENT SOUS CREDIT</option>
+                    <option value="" >SOUS CREDIT</option>
                 </select>
             </div>
+        </div>
+        <div class="w-100 text-right mt-3">
+            <button class="btn btn-sm btn-perso-one ach_valider_credit_livraison px-4 text-uppercase"><i class="fa fa-thumbs-up"></i>&nbsp;Valider Livraison</button>
         </div>
         <div class="table-responsive mt-3">
             <table class="table table-sm table-bordered">
@@ -51,17 +54,24 @@
                         <th>Quantité</th>
                         <th>Prix Unitaire</th>
                         <th>Montant Total</th>
+                        <th></th>
                         <th>Statut</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% set premier = (listBonCommandes is not empty) ? listBonCommandes[0].numero : "" %}
+                    {% set premierRefType = (listBonCommandes is not empty) ? listBonCommandes[0].refType : "" %}
                     {% set passe = true %}
                     {% set passeM = true %}
                     {% set compteur = 1 %}
                     {% set totalHT = 0 %}
                     {% set totalGeneral = 0 %}
+                    {% if premierRefType == "CREDIT" %}
+                        {% set addLigne = 3 %}
+                    {% else %}
+                        {% set addLigne = 1 %}
+                    {% endif %}
                     {% for bonCommande in listBonCommandes %}
                         {% if bonCommande.numero != premier %}
                             {% set premier = bonCommande.numero %}
@@ -69,22 +79,36 @@
                             {% set passeM = true %}
                             {% set compteur = 1 %}
                             {% set totalHT = 0 %}
+                            {% if bonCommande.refType == "CREDIT" %}
+                                {% set addLigne = 3 %}
+                            {% else %}
+                                {% set addLigne = 1 %}
+                            {% endif %}
                         {% endif %}
                         <tr>
                             {% set elements = listBonCommandes|filter(o => o.numero == premier) %}
                             {% set ligne = elements|length %}
                             
                             {% if passe %}
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{bonCommande.date}}</td>
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{bonCommande.numero}}</td>
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{bonCommande.fournisseur|upper}}</td>
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{bonCommande.type|upper}}</td>
+                                <td rowspan="{{ligne + addLigne}}" class="align-middle">{{bonCommande.date}}</td>
+                                <td rowspan="{{ligne + addLigne}}" class="align-middle">{{bonCommande.numero}}</td>
+                                <td rowspan="{{ligne + addLigne}}" class="align-middle">{{bonCommande.fournisseur|upper}}</td>
+                                <td rowspan="{{ligne + addLigne}}" class="align-middle">{{bonCommande.type|upper}}</td>
                                 {% set passe = false %}
                             {% endif %}
                             <td>{{bonCommande.designation}}</td>
                             <td>{{bonCommande.quantite}}</td>
                             <td>{{bonCommande.prix}}</td>
-                            <td>{{bonCommande.totalLigne}}</td>
+                            <td {{ bonCommande.refType == "TOTAL" ? 'colspan="2"' : "" }} >{{bonCommande.totalLigne}}</td>
+                            {% if bonCommande.refType == "CREDIT" %}
+                                <td class="text-center align-middle">
+                                    {% if bonCommande.refStatut == "LVR" %}
+                                        <span class="text-success font-weight-bold">{{"Livré"|upper}}</span>
+                                    {% else %}
+                                        <button data-value="{{bonCommande.idDetail}}" class="btn btn-sm btn-outline-success ach_check_credit_livraison font-smaller"><i class="fa fa-check"></i></button>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
                             {% set totalHT = totalHT + bonCommande.totalTtc %}
                             {% if passeM %}
                                 {% if bonCommande.refStatut == "ENCR" %}
@@ -92,28 +116,49 @@
                                 {% else %}
                                     {% set statutClass = "text-info" %}
                                 {% endif %}
-                                <td rowspan="{{ligne + 1}}" class="text-center align-middle">
+                                <td rowspan="{{ligne + addLigne}}" class="text-center align-middle">
                                     <div class="w-100 d-flex flex-column align-items-center justify-content-center">
-                                        <b class="text-success">{{"En Cours"|upper}}</b>
+                                        <b class="text-dark">{{bonCommande.statutBon|upper|raw}}</b>
                                     </div>
                                 </td>
-                                <td rowspan="{{ligne + 1}}" class="text-center align-middle">
+                                <td rowspan="{{ligne + addLigne}}" class="text-center align-middle">
                                     <div class="w-100 d-flex flex-column align-items-center justify-content-center">
                                         <a href="{{path('achat_details',{'id':bonCommande.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
-                                        <button value="{{bonCommande.id}}" class="btn mt-2 btn-outline-success btn-sm font-smaller"><i class="fa fa-check-double"></i></button>
+                                        {% if bonCommande.refType == "TOTAL" %}
+                                            {% if bonCommande.refStatutBon == "ENCR" %}
+                                                <button data-value="{{bonCommande.id}}" class="btn mt-2 btn-outline-primary ach_check_paiement btn-sm font-smaller"><i class="fa fa-money-bill-wave"></i></button>
+                                            {% elseif bonCommande.refStatutBon == "PAYE" %}
+                                                <button data-value="{{bonCommande.id}}" class="btn mt-2 btn-outline-success ach_check_livraison btn-sm font-smaller"><i class="fa fa-check-double"></i></button>
+                                            {% endif %}
+                                        {% endif %}
                                     </div>
                                 </td>
                                 {% set passeM = false %}
                             {% endif %}
                         </tr>
                         {% if compteur == ligne %}
+                        {% if bonCommande.refType == "TOTAL" %}
                             <tr>
                                 <th colspan="3">Total</th>
-                                <th class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
+                                <th colspan="2" class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
                             </tr>
-                            <tr class="bg-light border_dark">
-                                <td colspan="12"></td>
+                        {% else %}
+                            <tr>
+                                <th colspan="3">Total</th>
+                                <th colspan="2" class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
                             </tr>
+                            <tr>
+                                <th colspan="3">Total Payé</th>
+                                <th colspan="2" class="text-white bg-success">{{bonCommande.totalPaiement}}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="3">Total Restant</th>
+                                <th colspan="2" class="text-white bg-purple">{{bonCommande.totalTtc - bonCommande.totalPaiement}}</th>
+                            </tr>
+                        {% endif %}
+                        <tr class="bg-light border_dark">
+                            <td colspan="11"></td>
+                        </tr>
                             {% set totalGeneral = totalGeneral + bonCommande.totalTtc %}
                         {% endif %}
                         {% if bonCommande.numero == premier %}
