@@ -79,7 +79,7 @@
         tooltipArwBorderWidth: 6
       }, o),
       p = t(this),
-      s = "" != o.existedContentId ? t("#" + o.existedContentId).html() : "" != o.content ? o.content : title;
+      s = "" != o.existedContentId ? t("#" + o.existedContentId).html() : "" != o.content ? o.content : "title";
     this.each(function() {
       var p = t(this).attr("title");
       t(this).hover(function(p) {

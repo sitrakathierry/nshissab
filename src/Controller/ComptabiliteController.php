@@ -408,7 +408,7 @@ class ComptabiliteController extends AbstractController
             "titlePage" => "Enregistrement Chèque",
             "with_foot" => true,
         ]);
-    }
+    } 
 
     #[Route('/comptabilite/cheque/consultation', name: 'compta_cheque_consultation')]
     public function comptaChequeConsultation()
@@ -426,11 +426,26 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/depense/declaration', name: 'compta_depense_declaration')]
     public function comptaDeclarationDepense()
     {
-        
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
         return $this->render('comptabilite/depense/declarationDepense.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Déclaration de dépense",
             "with_foot" => true,
+            "tabMois" => $tabMois,
+        ]);
+    }
+
+    #[Route('/comptabilite/depense/consultation', name: 'compta_depense_consultation')]
+    public function comptaConsultationDepense()
+    {
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+        return $this->render('comptabilite/depense/consultationDepense.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Consultation des dépenses",
+            "with_foot" => false,
+            "tabMois" => $tabMois,
         ]);
     }
 

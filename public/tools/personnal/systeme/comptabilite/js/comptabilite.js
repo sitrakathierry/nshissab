@@ -215,13 +215,26 @@ $(document).ready(function(){
         })
     })
 
-    $("#myElement").easyTooltip({
-        content: '<span class="text-white">rich content testHikam</span>',
+    for (let i = 1; i <= 4 ; i++) {
+      $("#ttpPaiement_"+i).easyTooltip({
+        content: '<span class="text-white">'+$("#ttpPaiement_"+i).data("content")+'</span>',
         defaultRadius: "3px",
         tooltipZindex: 1000,
         tooltipPadding: "10px 15px",
         tooltipBgColor: "rgba(0,0,0,0.85)",
-    });
+      })
+    }
 
+
+    // $(".toolTipPaiement").mouseover(function(){
+    //   var self = $(this)
+    //   $(this).easyTooltip({
+    //     content: '<div class="text-white text-center">'+self.data("libelle")+'<br>'+self.data("percent")+'</div>',
+    //     defaultRadius: "3px",
+    //     tooltipZindex: 1000,
+    //     tooltipPadding: "10px 15px",
+    //     tooltipBgColor: "rgba(0,0,0,0.85)",
+    //   })
+    // })
 
 })
