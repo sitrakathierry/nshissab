@@ -22,6 +22,7 @@ use App\Entity\CmpOperation;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\CrdStatut;
+use App\Entity\Depense;
 use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\FactPaiement;
@@ -2123,6 +2124,36 @@ class AppService extends AbstractController
             $item["agence"] = $marchandise->getAgence()->getId() ;
             $item["designation"] = $marchandise->getDesignation() ;
             $item["prix"] = $marchandise->getPrix();
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateDepListeDepense($filename, $agence) 
+    {
+        $depenses = $this->entityManager->getRepository(Depense::class)->findBy([
+            "agence" => $agence,
+            "statutGen" => True,
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($depenses as $depense) {
+            $item = [] ;
+
+            $item["id"] = $depense->getId() ;
+            $item["agence"] = $depense->getAgence()->getId() ;
+            $item["dateDeclaration"] = $depense->getDateDeclaration()->format("d/m/Y") ;
+            $item["element"] = $depense->getElement() ;
+            $item["beneficiaire"] = $depense->getNomConcerne() ;
+            $item["numFacture"] = $depense->getNumFacture() ;
+            $item["service"] = $depense->getService()->getNom() ;
+            $item["motif"] = $depense->getMotif()->getNom() ;
+            $item["modePaiement"] = $depense->getModePaiement()->getNom() ;
+            $item["montant"] = $depense->getMontantDep();
+            $item["statut"] = $depense->getStatut()->getNom();
+
             array_push($items,$item) ;
         }
 

@@ -57,28 +57,38 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th>Date</th>
+                                <th>Elément</th>
                                 <th>Bénéficiaire</th>
                                 <th>N° Facture</th>
                                 <th>Service</th>
                                 <th>Motif</th>
                                 <th>Mode Paiement</th>
                                 <th>Montant</th>
+                                <th>Statut</th>
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                                </td>
-                            </tr>
+                        <tbody class="elemDepense">
+                            {% set i = 1 %}
+                            {% for depense in depenses %}
+                                <tr>
+                                    <td>{{depense.dateDeclaration}}</td>
+                                    <td>{{depense.element|upper}}</td>
+                                    <td>{{depense.beneficiaire|upper}}</td>
+                                    <td>{{depense.numFacture}}</td>
+                                    <td>{{depense.service}}</td>
+                                    <td>{{depense.motif|upper}}</td>
+                                    <td>{{depense.modePaiement|upper}}</td>
+                                    <td>{{depense.montant}}</td>
+                                    <td class="align-middle">
+                                        <div class="p-2 rounded w-100" id="ttpStatut_{{i}}" data-content="{{depense.statut|upper|raw}}"  style="background-color: #1565c0 ;" title="test" ></div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                                {% set i = i + 1 %}
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

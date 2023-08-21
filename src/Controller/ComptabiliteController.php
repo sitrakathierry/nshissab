@@ -8,6 +8,12 @@ use App\Entity\CmpCategorie;
 use App\Entity\CmpCompte;
 use App\Entity\CmpOperation;
 use App\Entity\CmpType;
+use App\Entity\Depense;
+use App\Entity\DepLibelle;
+use App\Entity\DepModePaiement;
+use App\Entity\DepMotif;
+use App\Entity\DepService;
+use App\Entity\DepStatut;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -426,6 +432,9 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/depense/declaration', name: 'compta_depense_declaration')]
     public function comptaDeclarationDepense()
     {
+        $modePaiements = $this->entityManager->getRepository(DepModePaiement::class)->findAll() ;
+        $motifs = $this->entityManager->getRepository(DepMotif::class)->findAll() ;
+
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
         return $this->render('comptabilite/depense/declarationDepense.html.twig', [
@@ -433,19 +442,159 @@ class ComptabiliteController extends AbstractController
             "titlePage" => "Déclaration de dépense",
             "with_foot" => true,
             "tabMois" => $tabMois,
+            "modePaiements" => $modePaiements,
+            "motifs" => $motifs,
         ]);
     }
+
+    #[Route('/comptabilite/depense/depense/save', name: 'compta_declaration_depense_save')]
+    public function comptaSaveDeclarationDepense(Request $request)
+    {
+        $dep_nom_concerne = $request->request->get("dep_nom_concerne") ;
+        $dep_element = $request->request->get("dep_element") ;
+        $dep_service = $request->request->get("dep_service") ;
+        $dep_mode_paiement = $request->request->get("dep_mode_paiement") ;
+        $dep_motif = $request->request->get("dep_motif") ;
+        $dep_montant = $request->request->get("dep_montant") ;
+        $dep_date_mode = $request->request->get("dep_date_mode") ;
+        $dep_numero_mode = $request->request->get("dep_numero_mode") ;
+        $dep_num_facture = $request->request->get("dep_num_facture") ;
+        $dep_mois_facture = $request->request->get("dep_mois_facture") ;
+        $dep_annee_facture = $request->request->get("dep_annee_facture") ;
+        $depense_editor = $request->request->get("depense_editor") ;
+        $dep_date_declaration = $request->request->get("dep_date_declaration") ;
+        $add_new_service = $request->request->get("add_new_service") ;
+
+        $result = $this->appService->verificationElement([
+            $dep_nom_concerne,
+            $dep_element,
+            $dep_service,
+            $dep_motif,
+            $dep_mode_paiement,
+            $dep_montant,
+            $dep_num_facture,
+            $dep_mois_facture,
+            $dep_date_declaration,
+        ], [
+            "Nom Concerné",
+            "Elément",
+            "Service",
+            "Motif",
+            "Mode de Paiement",
+            "Montant",
+            "Numéro Facture",
+            "Mois Facture",
+            "Date de déclaration",
+            ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $modePaiement = $this->entityManager->getRepository(DepModePaiement::class)->find($dep_mode_paiement) ;
+        $motif = $this->entityManager->getRepository(DepMotif::class)->find($dep_motif) ;
+        $statut = $this->entityManager->getRepository(DepStatut::class)->findOneBy([
+            "reference" => "DECL"    
+        ]) ;
+        
+        if($add_new_service == "OUI")
+        {
+            $service = new DepService() ;
+
+            $service->setAgence($this->agence) ;
+            $service->setNom($dep_service) ;
+
+            $this->entityManager->persist($service) ;
+            $this->entityManager->flush() ;
+        }
+        else
+        {
+            $service = $this->entityManager->getRepository(DepMotif::class)->find($dep_service) ;
+        }
+
+        $dateMode = null ;
+        $numeroMode = null ;
+
+        if(isset($dep_date_mode))
+        {
+            if(!empty($dep_date_mode))
+            {
+                $dateMode = \DateTime::createFromFormat("d/m/Y",$dep_date_mode) ;
+            }
+
+            $numeroMode = !empty($dep_numero_mode) ? $dep_numero_mode : null ;
+        }
+
+        $depense = new Depense() ;
+
+        $depense->setAgence($this->agence) ;
+        $depense->setService($service) ;
+        $depense->setMotif($motif) ;
+        $depense->setModePaiement($modePaiement) ;
+        $depense->setStatut($statut) ;
+        $depense->setElement($dep_element) ;
+        $depense->setNomConcerne($dep_nom_concerne) ;
+        $depense->setDateMode($dateMode) ;
+        $depense->setNumeroMode($numeroMode) ;
+        $depense->setMontantDep($dep_montant) ;
+        $depense->setNumFacture($dep_num_facture) ;
+        $depense->setMoisFacture($dep_mois_facture) ;
+        $depense->setAnneeFacture(empty($dep_annee_facture) ? date("Y") : $dep_annee_facture ) ;
+        $depense->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$dep_date_declaration)) ;
+        $depense->setStatutGen(True) ;
+        $depense->setCreatedAt(new \DateTimeImmutable) ;
+        $depense->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($depense) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."depense(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse($result) ;
+        
+    }
+
+    #[Route('/comptabilite/depense/libelle/save', name: 'compta_libelle_depense_save')]
+    public function compteSaveLibelleDepense(Request $request)
+    {
+        $nomLibelle = $request->request->get("libelle") ;
+
+        $libelle = new DepLibelle() ;
+
+        $libelle->setAgence($this->agence) ;
+        $libelle->setNom($nomLibelle) ;
+
+        $this->entityManager->persist($libelle) ;
+        $this->entityManager->flush() ;
+        
+
+        // $filename = $this->filename."libelleDepense(agence)/".$this->nameAgence ;
+        // if(file_exists($filename))
+        //     unlink($filename) ;
+        
+        $result["id"] = $libelle->getId() ;
+
+        return new JsonResponse($result) ;
+    } 
 
     #[Route('/comptabilite/depense/consultation', name: 'compta_depense_consultation')]
     public function comptaConsultationDepense()
     {
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        
+        $filename = $this->filename."depense(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateDepListeDepense($filename, $this->agence) ;
+
+        $depenses = json_decode(file_get_contents($filename)) ;
 
         return $this->render('comptabilite/depense/consultationDepense.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Consultation des dépenses",
             "with_foot" => false,
-            "tabMois" => $tabMois,
+            "depenses" => $depenses,
         ]);
     }
 

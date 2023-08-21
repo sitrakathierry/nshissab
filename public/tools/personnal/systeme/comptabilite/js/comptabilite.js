@@ -1,7 +1,11 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
     var depense_editor = new LineEditor("#depense_editor") ;
-    
+    var appBase = new AppBase() ;
+
+    $("#dep_date_mode").datepicker() ;
+    $("#dep_date_declaration").datepicker() ;
+    depense_editor.setEditorText($("#depense_editor").val())
     $("#cmp_operation_date").datepicker()
 
     // $("#cmp_banque_nom").val("")
@@ -110,7 +114,7 @@ $(document).ready(function(){
             },
           },
         });
-          return false;
+        return false;
     });
 
     $("#formOperation").submit(function(){
@@ -225,16 +229,182 @@ $(document).ready(function(){
       })
     }
 
+    for (let j = 1; j <= $(".elemDepense tr").length ; j++) {
+      $("#ttpStatut_"+j).easyTooltip({
+        content: '<div class="text-white text-center">'+$("#ttpStatut_"+j).data("content")+'</div>',
+        defaultRadius: "3px",
+        tooltipZindex: 1000,
+        tooltipPadding: "10px 15px",
+        tooltipBgColor: "rgba(0,0,0,0.85)",
+      })
+    }
 
-    // $(".toolTipPaiement").mouseover(function(){
-    //   var self = $(this)
-    //   $(this).easyTooltip({
-    //     content: '<div class="text-white text-center">'+self.data("libelle")+'<br>'+self.data("percent")+'</div>',
-    //     defaultRadius: "3px",
-    //     tooltipZindex: 1000,
-    //     tooltipPadding: "10px 15px",
-    //     tooltipBgColor: "rgba(0,0,0,0.85)",
-    //   })
-    // })
+    $("#formDepense").submit(function(){
+      var self = $(this);
+      $("#depense_editor").val(depense_editor.getEditorText('#depense_editor'))
+      $.confirm({
+        title: "Confirmation",
+        content: "Etes-vous sûre ?",
+        type: "blue",
+        theme: "modern",
+        buttons: {
+          btn1: {
+            text: "Non",
+            action: function () {},
+          },
+          btn2: {
+            text: "Oui",
+            btnClass: "btn-blue",
+            keys: ["enter", "shift"],
+            action: function () {
+              var data = self.serialize();
+              var realinstance = instance.loading();
+              $.ajax({
+                url: routes.compta_declaration_depense_save,
+                type: "post",
+                cache: false,
+                data: data,
+                dataType: "json",
+                success: function (json) {
+                  realinstance.close();
+                  $.alert({
+                    title: "Message",
+                    content: json.message,
+                    type: json.type,
+                    buttons: {
+                      OK: function () {
+                        if (json.type == "green") {
+                          $("input,select").val("")
+                          $(".chosen_select").trigger("chosen:updated") ;
+                          location.reload();
+                        }
+                      },
+                    },
+                  });
+                },
+                error: function (resp) {
+                  realinstance.close();
+                  $.alert(JSON.stringify(resp));
+                },
+              });
+            },
+          },
+        },
+      });
+      return false;
+    })
+
+    function calculMontantDetails()
+    {
+      var totalGeneral = 0 ;
+
+      $(".elemDetailsDepense tr").each(function(){
+        var totalLigne = $(this).find("#dep_item_total").val()
+
+        totalGeneral += parseFloat(totalLigne) ;
+      })
+
+      $(".totalDepGeneral").text(totalGeneral) ;
+
+    }
+
+    $(".dep_details_ajouter").click(function(){
+      var dep_details_designation = $("#dep_details_designation").val()
+      var dep_details_quantite = $("#dep_details_quantite").val()
+      var dep_details_prix = $("#dep_details_prix").val()
+
+      var result = appBase.verificationElement([
+          dep_details_designation,
+          dep_details_quantite,
+          dep_details_prix,
+      ],[
+          "Désignation",
+          "Quantité",
+          "Prix Unitaire",
+      ]) ;
+
+      if(!result["allow"])
+      {
+          $.alert({
+              title: 'Message',
+              content: result["message"],
+              type: result["type"],
+          });
+
+          return result["allow"] ;
+      }
+      var totalLigne = parseFloat(dep_details_quantite) * parseFloat(dep_details_prix) ;
+
+      if($("#add_new_designation").val() == "NON")
+      {
+        var itemLigne = `
+          <tr>
+            <td>
+            `+$("#dep_details_designation option:selected").text()+`
+            <input type="hidden" name="dep_item_id_libelle[]" value="`+dep_details_designation+`">
+            <input type="hidden" name="dep_item_designation[]" value="`+$("#dep_details_designation option:selected").text()+`">
+            <input type="hidden" name="dep_item_quantite[]" id="dep_item_quantite" value="`+dep_details_quantite+`">
+            <input type="hidden" name="dep_item_prix[]" id="dep_item_prix" value="`+dep_details_prix+`">
+            <input type="hidden" id="dep_item_total" value="`+totalLigne+`">
+            </td>
+            <td>`+dep_details_quantite+`</td>
+            <td>`+dep_details_prix+`</td>
+            <td>`+totalLigne+`</td>
+            <td class="text-center align-middle">
+                <button class="btn btn-sm dep_supprime_ligne btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
+            </td>
+        </tr>
+        `
+        $(".elemDetailsDepense").append(itemLigne) ;
+
+        calculMontantDetails()
+      }
+      else
+      {
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.compta_libelle_depense_save,
+            type:'post',
+            cache: false,
+            data:{
+              libelle:dep_details_designation
+            },
+            dataType: 'json',
+            success: function(json){
+                realinstance.close()
+                var itemLigne = `
+                  <tr>
+                    <td>
+                    `+dep_details_designation+`
+                    <input type="hidden" name="dep_item_id_libelle[]" value="`+json.id+`">
+                    <input type="hidden" name="dep_item_designation[]" value="`+dep_details_designation+`">
+                    <input type="hidden" name="dep_item_quantite[]" id="dep_item_quantite" value="`+dep_details_quantite+`">
+                    <input type="hidden" name="dep_item_prix[]" id="dep_item_prix" value="`+dep_details_prix+`">
+                    <input type="hidden" id="dep_item_total" value="`+totalLigne+`">
+                    </td>
+                    <td>`+dep_details_quantite+`</td>
+                    <td>`+dep_details_prix+`</td>
+                    <td>`+totalLigne+`</td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-sm dep_supprime_ligne btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
+                    </td>
+                </tr>
+                `
+                $(".elemDetailsDepense").append(itemLigne) ;
+
+                calculMontantDetails()
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+      }
+    })
+
+    $(document).on('click',".dep_supprime_ligne",function(){
+      $(this).closest("tr").remove()
+      calculMontantDetails()
+    })
 
 })
