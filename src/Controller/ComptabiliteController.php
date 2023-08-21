@@ -396,4 +396,56 @@ class ComptabiliteController extends AbstractController
             "with_foot" => false,
         ]);
     }
+
+    #[Route('/comptabilite/cheque/enregistrement', name: 'compta_cheque_enregistrement')]
+    public function comptaChequeEnregistrement()
+    {
+
+        
+
+        return $this->render('comptabilite/cheque/enregistrementCheque.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Enregistrement Chèque",
+            "with_foot" => true,
+        ]);
+    }
+
+    #[Route('/comptabilite/cheque/consultation', name: 'compta_cheque_consultation')]
+    public function comptaChequeConsultation()
+    {
+
+        
+
+        return $this->render('comptabilite/cheque/consultationCheque.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Consultation Chèques",
+            "with_foot" => false,
+        ]);
+    }
+
+    #[Route('/comptabilite/depense/declaration', name: 'compta_depense_declaration')]
+    public function comptaDeclarationDepense()
+    {
+        
+        return $this->render('comptabilite/depense/declarationDepense.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Déclaration de dépense",
+            "with_foot" => true,
+        ]);
+    }
+
+    #[Route('/comptabilite/caisse/journal', name: 'compta_journal_caisse_consultation')]
+    public function comptaConsultationJournalCaisse()
+    {
+
+        
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        
+        return $this->render('comptabilite/journaldeCaisse.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Journal de caisse",
+            "with_foot" => false,
+            "tabMois" => $tabMois,
+        ]);
+    }
 }

@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
+    var depense_editor = new LineEditor("#depense_editor") ;
+    
     $("#cmp_operation_date").datepicker()
 
     // $("#cmp_banque_nom").val("")
@@ -212,6 +214,14 @@ $(document).ready(function(){
             }
         })
     })
+
+    $("#myElement").easyTooltip({
+        content: '<span class="text-white">rich content testHikam</span>',
+        defaultRadius: "3px",
+        tooltipZindex: 1000,
+        tooltipPadding: "10px 15px",
+        tooltipBgColor: "rgba(0,0,0,0.85)",
+    });
 
 
 })

@@ -193,6 +193,18 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CaissePanier::class)]
     private Collection $caissePaniers;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: DepService::class)]
+    private Collection $depServices;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Depense::class)]
+    private Collection $depenses;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: DepLibelle::class)]
+    private Collection $depLibelles;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: DepDetails::class)]
+    private Collection $depDetails;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -242,6 +254,10 @@ class Agence
         $this->intLibelles = new ArrayCollection();
         $this->intMouvements = new ArrayCollection();
         $this->caissePaniers = new ArrayCollection();
+        $this->depServices = new ArrayCollection();
+        $this->depenses = new ArrayCollection();
+        $this->depLibelles = new ArrayCollection();
+        $this->depDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1796,6 +1812,126 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($caissePanier->getAgence() === $this) {
                 $caissePanier->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DepService>
+     */
+    public function getDepServices(): Collection
+    {
+        return $this->depServices;
+    }
+
+    public function addDepService(DepService $depService): self
+    {
+        if (!$this->depServices->contains($depService)) {
+            $this->depServices->add($depService);
+            $depService->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepService(DepService $depService): self
+    {
+        if ($this->depServices->removeElement($depService)) {
+            // set the owning side to null (unless already changed)
+            if ($depService->getAgence() === $this) {
+                $depService->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Depense>
+     */
+    public function getDepenses(): Collection
+    {
+        return $this->depenses;
+    }
+
+    public function addDepense(Depense $depense): self
+    {
+        if (!$this->depenses->contains($depense)) {
+            $this->depenses->add($depense);
+            $depense->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepense(Depense $depense): self
+    {
+        if ($this->depenses->removeElement($depense)) {
+            // set the owning side to null (unless already changed)
+            if ($depense->getAgence() === $this) {
+                $depense->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DepLibelle>
+     */
+    public function getDepLibelles(): Collection
+    {
+        return $this->depLibelles;
+    }
+
+    public function addDepLibelle(DepLibelle $depLibelle): self
+    {
+        if (!$this->depLibelles->contains($depLibelle)) {
+            $this->depLibelles->add($depLibelle);
+            $depLibelle->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepLibelle(DepLibelle $depLibelle): self
+    {
+        if ($this->depLibelles->removeElement($depLibelle)) {
+            // set the owning side to null (unless already changed)
+            if ($depLibelle->getAgence() === $this) {
+                $depLibelle->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DepDetails>
+     */
+    public function getDepDetails(): Collection
+    {
+        return $this->depDetails;
+    }
+
+    public function addDepDetail(DepDetails $depDetail): self
+    {
+        if (!$this->depDetails->contains($depDetail)) {
+            $this->depDetails->add($depDetail);
+            $depDetail->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepDetail(DepDetails $depDetail): self
+    {
+        if ($this->depDetails->removeElement($depDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($depDetail->getAgence() === $this) {
+                $depDetail->setAgence(null);
             }
         }
 

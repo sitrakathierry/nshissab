@@ -1,0 +1,85 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 py-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3">
+                {% set i = 1 %}
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois</label>
+                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+                    <option value="">TOUS</option>
+                    {% for tabMois in tabMois %}
+                        <option value="{{i}}">{{tabMois|upper}}</option>
+                        {% set i = i + 1 %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Année</label>
+                <input type="number" name="nom" id="nom" class="form-control" placeholder="{{'now'|date('Y')}}">
+            </div>
+        </div>
+        <div class="mt-3">
+            <div class="barre_left rounded shadow">
+                <div class="d-flex flex-row align-items-center justify-content-center">
+                    <div class="w-100 px-3 py-2">
+                        <h5 class="title_form title_barre_left text-uppercase"><i class="fa fa-arrow-circle-right"></i>&nbsp;Janvier 2023</h5>
+                        <span class="ml-3">4 Elément(s)</span>
+                    </div>
+                    <div class="w-100 border-left d-flex flex-column align-items-center justify-content-center px-3 py-2">
+                        <h6 class="title_form text-black text-uppercase">Opération</h6>
+                        <div class="d-flex w-100">
+                            <div class="p-2 rounded-left w-75 " id="myElement" style="background-color: #8bc34a ;" ></div>
+                            <div class="p-2 rounded-right w-25" style="background-color: #ec407a ;" ></div>
+                        </div>
+                    </div>
+                    <div class="w-100 border-left d-flex flex-column align-items-center justify-content-center px-3 py-2">
+                        <h6 class="title_form text-black text-uppercase">Débit</h6>
+                        <div class="d-flex align-items-center justify-content-center w-100">
+                            <div class="p-2  rounded w-75" style="background-color: #1565c0 ;"></div>
+                        </div>
+                    </div>
+                    <div class="w-100 border-left d-flex flex-column align-items-center justify-content-center px-3 py-2">
+                        <h6 class="title_form text-black text-uppercase">Crédit</h6>
+                        <div class="d-flex align-items-center justify-content-center w-100">
+                            <div class="p-2  rounded w-25" style="background-color: #f4511e ;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

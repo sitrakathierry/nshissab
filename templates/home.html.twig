@@ -70,6 +70,7 @@
 			<script src="{{asset('tools/pTouch/charset-brother.js')}}"></script>
 			<script src="{{asset('tools/pTouch/ptouch.js')}}"></script>
 			<script src="{{asset('tools/lightbox/dist/js/lightbox.js')}}"></script>
+			<script src="{{asset('tools/easyToolTip/easyTooltip.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script>
 				const routes = {
@@ -266,7 +267,13 @@
 					achat_paiement_credit_save:"{{path('achat_paiement_credit_save')}}",
 					achat_validation_total_save:"{{path('achat_validation_total_save')}}",
 					achat_validation_credit_save:"{{path('achat_validation_credit_save')}}",
+					compta_cheque_enregistrement:"{{path('compta_cheque_enregistrement')}}",
+					compta_cheque_consultation:"{{path('compta_cheque_consultation')}}",
+					compta_depense_declaration:"{{path('compta_depense_declaration')}}",
+					compta_journal_caisse_consultation:"{{path('compta_journal_caisse_consultation')}}",
 				};  
+
+
 
 				const files = { 
 					loading : "{{asset('data/images/loading.svg')}}",
