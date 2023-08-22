@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-md-9">
+        <select name="dep_details_designation" class="custom-select chosen_select custom-select-sm" id="dep_details_designation">
+            <option value="">-</option>
+            {% for libelle in libelles %}
+                <option value="{{libelle.id}}">{{libelle.nom|upper}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="add_new_designation" id="add_new_designation" value="NON" >
+    </div>
+    <div class="col-md-3">
+        <button type="button" class="btn btn-sm dep_new_libelle btn-primary btn-block"><i class="fa fa-plus-square"></i></button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

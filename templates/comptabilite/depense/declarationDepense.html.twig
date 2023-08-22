@@ -31,13 +31,20 @@
                 </div>
                 <div class="col-md-5">
                     <label for="dep_service" class="mt-2 font-weight-bold">Service</label>
-                    <div class="row">
-                        <div class="col-md-9">
-                            <input type="text" name="dep_service" oninput="this.value = this.value.toUpperCase();" id="dep_service" class="form-control" placeholder=". . .">
-                            <input type="hidden" name="add_new_service" id="add_new_service" class="form-control" value="OUI">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-sm prd_existing_depense btn-purple btn-block"><i class="fa fa-layer-group"></i></button>
+                    <div id="contentService">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <select name="dep_service" class="custom-select chosen_select custom-select-sm" id="dep_service">
+                                    <option value="">-</option>
+                                    {% for service in services %}
+                                        <option value="{{service.id}}">{{service.nom|upper}}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" name="add_new_service" id="add_new_service" value="NON" >
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-sm dep_new_service btn-primary btn-block"><i class="fa fa-plus-square"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -57,7 +64,7 @@
                     <select name="dep_mode_paiement" class="custom-select chosen_select custom-select-sm" id="dep_mode_paiement">
                         <option value="">-</option>
                         {% for modePaiement in modePaiements %}
-                            <option value="{{modePaiement.id}}">{{modePaiement.nom|upper}}</option>
+                            <option value="{{modePaiement.id}}" data-reference="{{modePaiement.reference}}">{{modePaiement.nom|upper}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -65,13 +72,17 @@
                     <label for="dep_montant" class="mt-3 font-weight-bold">Montant</label>
                     <input type="number" step="any" name="dep_montant" id="dep_montant" class="form-control" placeholder=". . .">
                 </div>
-                <div class="col-md-3">
-                    <label for="dep_date_mode" class="mt-3 font-weight-bold">Date Virement</label>
-                    <input type="text" name="dep_date_mode" id="dep_date_mode" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="dep_numero_mode" class="mt-3 font-weight-bold">N° Virement</label>
+                <div class="col-md-3" style="display:none;">
+                    <label for="dep_numero_mode" class="mt-3 font-weight-bold caption_mode_numero">N° Virement</label>
                     <input type="text" name="dep_numero_mode" id="dep_numero_mode" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3" style="display:none;">
+                    <label for="dep_editeur_mode" class="mt-3 font-weight-bold caption_mode_editeur">N° Virement</label>
+                    <input type="text" name="dep_editeur_mode" id="dep_editeur_mode" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3" style="display:none;">
+                    <label for="dep_date_mode" class="mt-3 font-weight-bold caption_mode_date">Date Virement</label>
+                    <input type="text" name="dep_date_mode" id="dep_date_mode" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
                     <label for="dep_num_facture" class="mt-3 font-weight-bold">Facture N°</label>
@@ -105,13 +116,20 @@
                 <div class="row">
                     <div class="col-md-5">
                         <label for="dep_details_designation" class=" font-weight-bold">Désignation</label>
-                        <div class="row">
-                            <div class="col-md-9">
-                                <input type="text" name="dep_details_designation" oninput="this.value = this.value.toUpperCase();" id="dep_details_designation" class="form-control" placeholder=". . .">
-                                <input type="hidden" name="add_new_designation" id="add_new_designation" class="form-control" value="OUI">
-                            </div>
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-sm prd_existing_depense btn-purple btn-block"><i class="fa fa-layer-group"></i></button>
+                        <div id="contentLibelle">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <select name="dep_details_designation" class="custom-select chosen_select custom-select-sm" id="dep_details_designation">
+                                        <option value="">-</option>
+                                        {% for libelle in libelles %}
+                                            <option value="{{libelle.id}}">{{libelle.nom|upper}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" name="add_new_designation" id="add_new_designation" value="NON" >
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-sm dep_new_libelle btn-primary btn-block"><i class="fa fa-plus-square"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,7 +183,7 @@
             </div>
             {% if with_foot %}
                 <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                    <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                    <button type="submit" class="btn px-4 text-uppercase ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
                 </div>
             {% endif %} 
         </form>

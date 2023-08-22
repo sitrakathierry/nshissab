@@ -1,0 +1,14 @@
+.fixed_height
+{
+    height: 15px;
+}
+
+.height_box
+{
+    height: 75px ;
+}
+
+.shadow_bottom
+{
+    box-shadow: 0 2px 2px #c8c7c7 ;
+}

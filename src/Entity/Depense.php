@@ -70,6 +70,12 @@ class Depense
     #[ORM\OneToMany(mappedBy: 'depense', targetEntity: DepDetails::class)]
     private Collection $depDetails;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $editeurMode = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->depDetails = new ArrayCollection();
@@ -310,6 +316,30 @@ class Depense
                 $depDetail->setDepense(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEditeurMode(): ?string
+    {
+        return $this->editeurMode;
+    }
+
+    public function setEditeurMode(?string $editeurMode): self
+    {
+        $this->editeurMode = $editeurMode;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

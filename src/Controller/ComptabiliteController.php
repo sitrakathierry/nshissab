@@ -8,6 +8,7 @@ use App\Entity\CmpCategorie;
 use App\Entity\CmpCompte;
 use App\Entity\CmpOperation;
 use App\Entity\CmpType;
+use App\Entity\DepDetails;
 use App\Entity\Depense;
 use App\Entity\DepLibelle;
 use App\Entity\DepModePaiement;
@@ -434,7 +435,12 @@ class ComptabiliteController extends AbstractController
     {
         $modePaiements = $this->entityManager->getRepository(DepModePaiement::class)->findAll() ;
         $motifs = $this->entityManager->getRepository(DepMotif::class)->findAll() ;
-
+        $services = $this->entityManager->getRepository(DepService::class)->findBy([
+            "agence" => $this->agence    
+        ]) ;
+        $libelles = $this->entityManager->getRepository(DepLibelle::class)->findBy([
+            "agence" => $this->agence    
+        ]) ;
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
         return $this->render('comptabilite/depense/declarationDepense.html.twig', [
@@ -444,6 +450,81 @@ class ComptabiliteController extends AbstractController
             "tabMois" => $tabMois,
             "modePaiements" => $modePaiements,
             "motifs" => $motifs,
+            "services" => $services,
+            "libelles" => $libelles,
+        ]);
+    }
+
+    #[Route('/comptabilite/depense/details/{id}', name: 'compta_depense_details')]
+    public function comptaDetailsDepense($id)
+    {
+        $id = $this->appService->decoderChiffre($id) ;
+        $depense = $this->entityManager->getRepository(Depense::class)->find($id) ;
+
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        
+        $libelleArrayMode = [
+            "ESP" => [
+                "numero" => "-",
+                "editeur" => "-",
+                "date" => "-",
+            ],
+            "CHK" => [
+              "numero" => "N° Chèque",
+              "editeur" => "Nom du Chèquier",
+              "date" => "Date Chèque",
+            ],
+            "VRM" => [
+              "numero" => "N° Virement",
+              "editeur" => "Virement émit par",
+              "date" => "Date Virement",
+            ],
+            "CBR" => [
+              "numero" => "Reference Carte",
+              "editeur" => "Editeur de la Carte",
+              "date" => "Date Paiement",
+            ],
+            "MOB" => [
+              "numero" => "Reference de Transfert",
+              "editeur" => "Editeur de Transfert",
+              "date" => "Date Transfert",
+            ],
+        ] ;
+        
+        $refMode = $depense->getModePaiement()->getReference() ;
+
+        $element = [
+            "dateDeclaration" => $depense->getDateDeclaration()->format("d/m/Y"),
+            "element" => $depense->getElement(),
+            "beneficiaire" => $depense->getNomConcerne(),
+            "numFacture" => $depense->getNumFacture(),
+            "service" => $depense->getService()->getNom(),
+            "motif" => $depense->getMotif()->getNom(),
+            "modePaiement" => $depense->getModePaiement()->getNom(),
+            "refMode" => $refMode,
+            "numeroMode" => is_null($depense->getNumeroMode()) ? "-" : $depense->getNumeroMode(),
+            "editeurMode" => is_null($depense->getEditeurMode()) ? "-" : $depense->getEditeurMode(),
+            "dateMode" => is_null($depense->getDateMode()) ? "-" : $depense->getDateMode()->format("d/m/Y"),
+            "lblNumeroMode" => $libelleArrayMode[$refMode]["numero"],
+            "lblEditeurMode" => $libelleArrayMode[$refMode]["editeur"],
+            "lblDateMode" => $libelleArrayMode[$refMode]["date"],
+            "montant" => $depense->getMontantDep(),
+            "moisFacture" => $tabMois[$depense->getMoisFacture() - 1] ,
+            "anneeFacture" => $depense->getAnneeFacture(),
+            "description" => $depense->getDescription(),
+            "statut" => $depense->getStatut()->getNom(),
+        ] ;
+
+        $details = $this->entityManager->getRepository(DepDetails::class)->findBy([
+             "depense" => $depense
+        ]) ;
+
+        return $this->render('comptabilite/depense/detailsDepense.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Détails Dépense ",
+            "with_foot" => true,
+            "depense" => $element,
+            "details" => $details,
         ]);
     }
 
@@ -464,7 +545,7 @@ class ComptabiliteController extends AbstractController
         $depense_editor = $request->request->get("depense_editor") ;
         $dep_date_declaration = $request->request->get("dep_date_declaration") ;
         $add_new_service = $request->request->get("add_new_service") ;
-
+        $dep_editeur_mode = $request->request->get("dep_editeur_mode") ;
         $result = $this->appService->verificationElement([
             $dep_nom_concerne,
             $dep_element,
@@ -508,11 +589,12 @@ class ComptabiliteController extends AbstractController
         }
         else
         {
-            $service = $this->entityManager->getRepository(DepMotif::class)->find($dep_service) ;
+            $service = $this->entityManager->getRepository(DepService::class)->find($dep_service) ;
         }
 
         $dateMode = null ;
         $numeroMode = null ;
+        $editeurMode = null ;
 
         if(isset($dep_date_mode))
         {
@@ -522,6 +604,7 @@ class ComptabiliteController extends AbstractController
             }
 
             $numeroMode = !empty($dep_numero_mode) ? $dep_numero_mode : null ;
+            $editeurMode = !empty($dep_editeur_mode) ? $dep_editeur_mode : null ;
         }
 
         $depense = new Depense() ;
@@ -535,17 +618,41 @@ class ComptabiliteController extends AbstractController
         $depense->setNomConcerne($dep_nom_concerne) ;
         $depense->setDateMode($dateMode) ;
         $depense->setNumeroMode($numeroMode) ;
+        $depense->setEditeurMode($editeurMode) ;
         $depense->setMontantDep($dep_montant) ;
         $depense->setNumFacture($dep_num_facture) ;
         $depense->setMoisFacture($dep_mois_facture) ;
         $depense->setAnneeFacture(empty($dep_annee_facture) ? date("Y") : $dep_annee_facture ) ;
         $depense->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$dep_date_declaration)) ;
         $depense->setStatutGen(True) ;
+        $depense->setDescription($depense_editor) ;
         $depense->setCreatedAt(new \DateTimeImmutable) ;
         $depense->setUpdatedAt(new \DateTimeImmutable) ;
 
         $this->entityManager->persist($depense) ;
         $this->entityManager->flush() ;
+
+        $dep_item_id_libelle = (array)$request->request->get("dep_item_id_libelle") ;
+        $dep_item_designation = $request->request->get("dep_item_designation") ;
+        $dep_item_quantite = $request->request->get("dep_item_quantite") ;
+        $dep_item_prix = $request->request->get("dep_item_prix") ;
+
+        foreach ($dep_item_id_libelle as $key => $value) {
+            $libelle = $this->entityManager->getRepository(DepLibelle::class)->find($dep_item_id_libelle[$key]) ;
+
+            $detail = new DepDetails() ;
+
+            $detail->setAgence($this->agence) ;
+            $detail->setDepense($depense) ;
+            $detail->setLibelle($libelle) ;
+            $detail->setDesignation($dep_item_designation[$key]) ;
+            $detail->setQuantite($dep_item_quantite[$key]) ;
+            $detail->setPrixUnitaire($dep_item_prix[$key]) ;
+            $detail->setStatutGen(True) ;
+
+            $this->entityManager->persist($detail) ;
+            $this->entityManager->flush() ;
+        }
 
         $filename = $this->filename."depense(agence)/".$this->nameAgence ;
 
@@ -598,11 +705,53 @@ class ComptabiliteController extends AbstractController
         ]);
     }
 
+    #[Route('/comptabilite/depense/service/get', name: 'compta_dep_content_service_get')]
+    public function comptaGetContentService(Request $request)
+    {
+        $type = $request->request->get("type") ;
+
+        if($type == "NEW")
+        {
+            $response = $this->renderView("comptabilite/depense/service/getNewService.html.twig",[]) ;
+        }
+        else
+        {
+            $services = $this->entityManager->getRepository(DepService::class)->findBy([
+                "agence" => $this->agence    
+            ]) ;
+            $response = $this->renderView("comptabilite/depense/service/getExistingService.html.twig",[
+                "services" => $services
+            ]) ;
+        }
+
+        return new Response($response) ;
+    }
+    
+    #[Route('/comptabilite/depense/libelle/get', name: 'compta_dep_content_libelle_get')]
+    public function comptaGetContentLibelle(Request $request)
+    {
+        $type = $request->request->get("type") ;
+
+        if($type == "NEW")
+        {
+            $response = $this->renderView("comptabilite/depense/libelle/getNewLibelle.html.twig",[]) ;
+        }
+        else
+        {
+            $libelles = $this->entityManager->getRepository(DepLibelle::class)->findBy([
+                "agence" => $this->agence    
+            ]) ;
+            $response = $this->renderView("comptabilite/depense/libelle/getExistingLibelle.html.twig",[
+                "libelles" => $libelles
+            ]) ;
+        }
+
+        return new Response($response) ;
+    }
+
     #[Route('/comptabilite/caisse/journal', name: 'compta_journal_caisse_consultation')]
     public function comptaConsultationJournalCaisse()
     {
-
-        
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
         return $this->render('comptabilite/journaldeCaisse.html.twig', [

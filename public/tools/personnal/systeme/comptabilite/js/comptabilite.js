@@ -219,26 +219,6 @@ $(document).ready(function(){
         })
     })
 
-    for (let i = 1; i <= 4 ; i++) {
-      $("#ttpPaiement_"+i).easyTooltip({
-        content: '<span class="text-white">'+$("#ttpPaiement_"+i).data("content")+'</span>',
-        defaultRadius: "3px",
-        tooltipZindex: 1000,
-        tooltipPadding: "10px 15px",
-        tooltipBgColor: "rgba(0,0,0,0.85)",
-      })
-    }
-
-    for (let j = 1; j <= $(".elemDepense tr").length ; j++) {
-      $("#ttpStatut_"+j).easyTooltip({
-        content: '<div class="text-white text-center">'+$("#ttpStatut_"+j).data("content")+'</div>',
-        defaultRadius: "3px",
-        tooltipZindex: 1000,
-        tooltipPadding: "10px 15px",
-        tooltipBgColor: "rgba(0,0,0,0.85)",
-      })
-    }
-
     $("#formDepense").submit(function(){
       var self = $(this);
       $("#depense_editor").val(depense_editor.getEditorText('#depense_editor'))
@@ -306,6 +286,11 @@ $(document).ready(function(){
 
       $(".totalDepGeneral").text(totalGeneral) ;
 
+      $("#dep_details_designation").val("")
+      $("#dep_details_quantite").val("")
+      $("#dep_details_prix").val("")
+
+      $(".chosen_select").trigger("chosen:updated")
     }
 
     $(".dep_details_ajouter").click(function(){
@@ -333,15 +318,46 @@ $(document).ready(function(){
 
           return result["allow"] ;
       }
+
       var totalLigne = parseFloat(dep_details_quantite) * parseFloat(dep_details_prix) ;
 
       if($("#add_new_designation").val() == "NON")
       {
+        isAjoute = true ;
+        $(".elemDetailsDepense tr").each(function(){
+          var idLibelle = $(this).find("#dep_item_id_libelle").val()
+          if(dep_details_designation == idLibelle)
+          {
+            isAjoute = false ;
+            return ;
+          }
+        })
+
+        if(!isAjoute)
+        {
+          $.alert({
+            title: "Message",
+            content: "Désolé, cette désignation existe déjà sur la liste",
+            type: "orange",
+            buttons: {
+              OK: function(){
+                $("#dep_details_designation").val("")
+                $("#dep_details_quantite").val("")
+                $("#dep_details_prix").val("")
+
+                $(".chosen_select").trigger("chosen:updated")
+              }
+            }
+          });
+          
+          return false ;
+        }
+
         var itemLigne = `
           <tr>
             <td>
             `+$("#dep_details_designation option:selected").text()+`
-            <input type="hidden" name="dep_item_id_libelle[]" value="`+dep_details_designation+`">
+            <input type="hidden" name="dep_item_id_libelle[]" id="dep_item_id_libelle" value="`+dep_details_designation+`">
             <input type="hidden" name="dep_item_designation[]" value="`+$("#dep_details_designation option:selected").text()+`">
             <input type="hidden" name="dep_item_quantite[]" id="dep_item_quantite" value="`+dep_details_quantite+`">
             <input type="hidden" name="dep_item_prix[]" id="dep_item_prix" value="`+dep_details_prix+`">
@@ -356,12 +372,12 @@ $(document).ready(function(){
         </tr>
         `
         $(".elemDetailsDepense").append(itemLigne) ;
-
         calculMontantDetails()
       }
       else
       {
-        var realinstance = instance.loading()
+        var oldContentDetail = $(".elemDetailsDepense").html()
+        $(".elemDetailsDepense").html(instance.search(5))
         $.ajax({
             url: routes.compta_libelle_depense_save,
             type:'post',
@@ -371,7 +387,6 @@ $(document).ready(function(){
             },
             dataType: 'json',
             success: function(json){
-                realinstance.close()
                 var itemLigne = `
                   <tr>
                     <td>
@@ -390,12 +405,11 @@ $(document).ready(function(){
                     </td>
                 </tr>
                 `
-                $(".elemDetailsDepense").append(itemLigne) ;
+                $(".elemDetailsDepense").empty().html(oldContentDetail+itemLigne) ;
 
                 calculMontantDetails()
             },
             error: function(resp){
-                realinstance.close()
                 $.alert(JSON.stringify(resp)) ;
             }
         })
@@ -405,6 +419,112 @@ $(document).ready(function(){
     $(document).on('click',".dep_supprime_ligne",function(){
       $(this).closest("tr").remove()
       calculMontantDetails()
+    })
+
+    function getContentService(type)
+    {
+      $("#contentService").empty().html(instance.otherSearch())
+      var formData = new FormData();
+      formData.append("type",type)
+      $.ajax({
+          url: routes.compta_dep_content_service_get,
+          type:'post',
+          cache: false,
+          data:formData,
+          dataType: 'html',
+          processData: false,
+          contentType: false,
+          success: function(response){
+              $("#contentService").empty().html(response)
+          },
+          error: function(resp){
+            $("#contentService").empty().html(resp)
+              $.alert(JSON.stringify(resp)) ;
+          }
+      })
+    }
+
+    $(document).on("click",".dep_existing_service",function(){
+      getContentService("EXISTING")
+    })
+
+    $(document).on("click",".dep_new_service",function(){
+      getContentService("NEW")
+    })
+
+    function getContentLibelle(type)
+    {
+      $("#contentLibelle").empty().html(instance.otherSearch())
+      var formData = new FormData();
+      formData.append("type",type)
+      $.ajax({
+          url: routes.compta_dep_content_libelle_get,
+          type:'post',
+          cache: false,
+          data:formData,
+          dataType: 'html',
+          processData: false,
+          contentType: false,
+          success: function(response){
+              $("#contentLibelle").empty().html(response)
+          },
+          error: function(resp){
+              $.alert(JSON.stringify(resp)) ;
+          }
+      })
+    }
+
+    $(document).on("click",".dep_existing_libelle",function(){
+      getContentLibelle("EXISTING")
+    })
+
+    $(document).on("click",".dep_new_libelle",function(){
+      getContentLibelle("NEW")
+    })
+
+    $("#dep_mode_paiement").change(function(){
+      var reference = $(this).find("option:selected").data("reference")
+
+      var dataElement = {
+        "CHK":{
+          numero:"N° Chèque",
+          editeur:"Nom du Chèquier",
+          date:"Date Chèque",
+        },
+        "VRM":{
+          numero:"N° Virement",
+          editeur:"Virement émit par",
+          date:"Date Virement",
+        },
+        "CBR":{
+          numero:"Reference Carte",
+          editeur:"Editeur de la Carte",
+          date:"Date Paiement",
+        },
+        "MOB":{
+          numero:"Reference de Transfert",
+          editeur:"Editeur de Transfert",
+          date:"Date Transfert",
+        },
+      }
+
+      if(reference == "ESP")
+      {
+        $(".caption_mode_numero").parent().hide()
+        $(".caption_mode_editeur").parent().hide()
+        $(".caption_mode_date").parent().hide()
+      }
+      else
+      {
+        $(".caption_mode_numero").parent().show()
+        $(".caption_mode_editeur").parent().show()
+        $(".caption_mode_date").parent().show()
+
+        $(".caption_mode_numero").text(dataElement[reference].numero)
+        $(".caption_mode_editeur").text(dataElement[reference].editeur)
+        $(".caption_mode_date").text(dataElement[reference].date)
+      }
+
     })
 
 })

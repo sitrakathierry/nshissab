@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-md-9">
+        <select name="dep_service" class="custom-select chosen_select custom-select-sm" id="dep_service">
+            <option value="">-</option>
+            {% for service in services %}
+                <option value="{{service.id}}">{{service.nom|upper}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="add_new_service" id="add_new_service" value="NON" >
+    </div>
+    <div class="col-md-3">
+        <button type="button" class="btn btn-sm dep_new_service btn-primary btn-block"><i class="fa fa-plus-square"></i></button>
+    </div>
+</div>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

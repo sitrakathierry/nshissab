@@ -1163,11 +1163,9 @@ class AppService extends AbstractController
             $element["id"] = $entrepot->getId() ;
             $element["encodedId"] = $this->encodeChiffre($entrepot->getId()) ;
             $element["nom"] = $entrepot->getNom() ;
+            $element["stock"] = 0 ;
             foreach ($stockEntrepots as $stockEntrepot) {
-                if(!isset($element["stock"]))
-                    $element["stock"] = $stockEntrepot->getStock() ;
-                else
-                    $element["stock"] += $stockEntrepot->getStock() ;
+                $element["stock"] += $stockEntrepot->getStock() ;
             }
             array_push($elements,$element) ;
         }
@@ -2135,7 +2133,7 @@ class AppService extends AbstractController
         $depenses = $this->entityManager->getRepository(Depense::class)->findBy([
             "agence" => $agence,
             "statutGen" => True,
-            ]) ;
+        ]) ;
 
         $items = [] ;
 
@@ -2143,6 +2141,7 @@ class AppService extends AbstractController
             $item = [] ;
 
             $item["id"] = $depense->getId() ;
+            $item["encodedId"] = $this->encodeChiffre($depense->getId()) ;
             $item["agence"] = $depense->getAgence()->getId() ;
             $item["dateDeclaration"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["element"] = $depense->getElement() ;
