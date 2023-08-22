@@ -786,7 +786,6 @@ class StockController extends AbstractController
 
         $preferences = explode(",",$preferences[0]) ;
 
-        
         foreach ($preferences as $key => $value) {
             $categorie = $this->entityManager->getRepository(PrdCategories::class)->find($value) ;
             $preference = $this->entityManager->getRepository(PrdPreferences::class)->findOneBy([

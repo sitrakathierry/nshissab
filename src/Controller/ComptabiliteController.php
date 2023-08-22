@@ -697,11 +697,51 @@ class ComptabiliteController extends AbstractController
 
         $depenses = json_decode(file_get_contents($filename)) ;
 
+        $search = [
+            "anneeDepense" => date("Y"),
+        ] ;
+
+        $depenses = $this->appService->searchData($depenses,$search) ;
+
+        $items = [] ;
+        foreach ($depenses as $depense) {
+            $key = $tabMois[intval($depense->moisDepense) - 1]." ".$depense->anneeDepense ;
+
+            if(!isset($items[$key]))
+            {
+                $items[$key] = [] ;
+                $items[$key]["montant"] = $depense->montant ;
+                $items[$key]["statMotif"] = [] ;
+                $items[$key]["statMotif"][$depense->refMotif] = 1 ;
+                $items[$key]["statPaiement"] = [] ;
+                $items[$key]["statPaiement"][$depense->refMode] = 1 ;
+                $items[$key]["nbElement"] = 1 ;
+                $items[$key]["detail"] = [] ;
+                $items[$key]["detail"][] = $depense ;
+            }
+            else
+            {
+                if(isset($items[$key]["statPaiement"][$depense->refMode]))
+                    $items[$key]["statPaiement"][$depense->refMode] += 1 ;
+                else
+                    $items[$key]["statPaiement"][$depense->refMode] = 1 ;
+
+                if(isset($items[$key]["statMotif"][$depense->refMotif]))
+                    $items[$key]["statMotif"][$depense->refMotif] += 1 ;
+                else
+                    $items[$key]["statMotif"][$depense->refMotif] = 1 ;
+
+                $items[$key]["nbElement"] += 1 ;
+                $items[$key]["montant"] += $depense->montant ;
+                $items[$key]["detail"][] = $depense ;
+            }
+        }
+        
         return $this->render('comptabilite/depense/consultationDepense.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Consultation des dépenses",
             "with_foot" => false,
-            "depenses" => $depenses, 
+            "depenses" => $items, 
         ]);
     }
 

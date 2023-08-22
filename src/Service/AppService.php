@@ -2144,17 +2144,24 @@ class AppService extends AbstractController
             $item["encodedId"] = $this->encodeChiffre($depense->getId()) ;
             $item["agence"] = $depense->getAgence()->getId() ;
             $item["dateDeclaration"] = $depense->getDateDeclaration()->format("d/m/Y") ;
+            $item["date"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["element"] = $depense->getElement() ;
             $item["beneficiaire"] = $depense->getNomConcerne() ;
             $item["numFacture"] = $depense->getNumFacture() ;
+            $item["moisDepense"] = $depense->getDateDeclaration()->format("m") ;
+            $item["anneeDepense"] = $depense->getDateDeclaration()->format("Y") ;
             $item["service"] = $depense->getService()->getNom() ;
             $item["motif"] = $depense->getMotif()->getNom() ;
+            $item["refMotif"] = $depense->getMotif()->getReference() ;
             $item["modePaiement"] = $depense->getModePaiement()->getNom() ;
+            $item["refMode"] = $depense->getModePaiement()->getReference() ;
             $item["montant"] = $depense->getMontantDep();
             $item["statut"] = $depense->getStatut()->getNom();
 
             array_push($items,$item) ;
         }
+
+        usort($items, [self::class, 'comparaisonDates']);
 
         file_put_contents($filename,json_encode($items)) ;
     }
