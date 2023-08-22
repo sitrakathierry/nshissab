@@ -13,8 +13,11 @@ $(document).ready(function(){
         }
     }
 
-    toolTipSelector(".elemModePaiement div","#ttpPaiement_") ;
-    toolTipSelector(".elemMotif div","#ttpMotif_") ;
-    toolTipSelector(".elemDepense tr","#ttpStatut_") ;
+    
+    for (let j = 1; j <= $(".elemMoisDepense").length; j++) {
+        toolTipSelector(".elemModePaiement_"+j+" div","#ttpPaiement_"+j+"_") ;
+        toolTipSelector(".elemMotif_"+j+" div","#ttpMotif_"+j+"_") ;
+        toolTipSelector(".elemDepense_"+j+" tr","#ttpStatut_"+j+"_") ;
+    }
 
 })

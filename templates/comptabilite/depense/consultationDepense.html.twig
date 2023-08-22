@@ -19,7 +19,7 @@
     </div>
     <div class="container-fluid px-3 pt-3 pb-4">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">Bénéficiaire</label>
                 <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
             </div>
@@ -27,7 +27,7 @@
         <div class="accordion" id="accordionExample">
             {% set index = 1 %}
             {% for key,element in depenses %}
-                <div class="barre_left rounded shadow mt-4">
+                <div class="barre_left rounded elemMoisDepense shadow mt-4">
                     <div class="d-flex flex-row align-items-center justify-content-center">
                         <div class="w-100 px-3 height_box d-flex flex-column justify-content-center">
                             <h5 class="title_form title_barre_left text-uppercase" data-toggle="collapse" data-target="#collapse_{{index}}" aria-expanded="true" aria-controls="collapse_{{index}}"><i class="fa fa-arrow-circle-right"></i>&nbsp;{{key}}</h5>
@@ -40,19 +40,21 @@
                             {% set percentVirement = element.statPaiement.VRM is defined ? ((element.statPaiement.VRM * 100)/ element.nbElement) : 0 %}
                             {% set percentCarteBancaire = element.statPaiement.CBR is defined ? ((element.statPaiement.CBR * 100)/ element.nbElement) : 0 %}
                             {% set percentMobileMoney = element.statPaiement.MOB is defined ? ((element.statPaiement.MOB * 100)/ element.nbElement) : 0 %}
-                            <div class="d-flex w-100 align-items-center justify-content-center elemModePaiement">
-                                <div class="rounded-left fixed_height" id="ttpPaiement_1" data-content="Espèce :{{percentEspece}}%"  style="background-color: #f4511e ; width:{{percentEspece}}% ;" title="test" ></div>
-                                <div class="fixed_height" id="ttpPaiement_2" data-content="Chèque :{{percentCheque}}%"  style="background-color: #1565c0 ; width: {{percentCheque}}% ;" title="test" ></div>
-                                <div class="fixed_height" id="ttpPaiement_3" data-content="Virement :{{percentVirement}}%"  style="background-color: #ffca28 ; width: {{percentVirement}}% ;" title="test" ></div>
-                                <div class="fixed_height" id="ttpPaiement_4" data-content="Carte Bancaire :{{percentCarteBancaire}}%"  style="background-color: #ec407a ; width:{{percentCarteBancaire}}% ;" title="test" ></div>
-                                <div class="rounded-right fixed_height" id="ttpPaiement_5" data-content="Mobile Money :{{percentMobileMoney}}%"  style="background-color: #009688 ; width: {{percentMobileMoney}}% ;" title="test" ></div>
+                            <div class="d-flex w-100 align-items-center justify-content-center rounded elemModePaiement_{{index}}">
+                                <div class="fixed_height" id="ttpPaiement_{{index}}_1" data-content="Espèce :{{percentEspece}}%"  style="background-color: #f4511e ; width:{{percentEspece}}% ;" title="test" ></div>
+                                <div class="fixed_height" id="ttpPaiement_{{index}}_2" data-content="Chèque :{{percentCheque}}%"  style="background-color: #1565c0 ; width: {{percentCheque}}% ;" title="test" ></div>
+                                <div class="fixed_height" id="ttpPaiement_{{index}}_3" data-content="Virement :{{percentVirement}}%"  style="background-color: #ffca28 ; width: {{percentVirement}}% ;" title="test" ></div>
+                                <div class="fixed_height" id="ttpPaiement_{{index}}_4" data-content="Carte Bancaire :{{percentCarteBancaire}}%"  style="background-color: #ec407a ; width:{{percentCarteBancaire}}% ;" title="test" ></div>
+                                <div class="fixed_height" id="ttpPaiement_{{index}}_5" data-content="Mobile Money :{{percentMobileMoney}}%"  style="background-color: #009688 ; width: {{percentMobileMoney}}% ;" title="test" ></div>
                             </div>
                         </div>
                         <div class="w-100 height_box border-left d-flex flex-column align-items-center justify-content-center px-3">
                             <h6 class="title_form text-black text-uppercase">Motif</h6>
-                            <div class="d-flex w-100 elemMotif align-items-center justify-content-center" >
-                                <div class="fixed_height rounded-left" id="ttpMotif_1" data-content="Motif :" style="background-color: #03a9f4 ; width: 20% ;"></div>
-                                <div class="fixed_height rounded-right" id="ttpMotif_2" data-content="Motif :" style="background-color: #cddc39 ; width: 60% ;" ></div>
+                            {% set percentDepense = element.statMotif.DEP is defined ? ((element.statMotif.DEP * 100)/ element.nbElement) : 0 %}
+                            {% set percentAutre = element.statMotif.AUT is defined ? ((element.statMotif.AUT * 100)/ element.nbElement) : 0 %}
+                            <div class="d-flex w-100 elemMotif_{{index}} align-items-center rounded justify-content-center" >
+                                <div class="fixed_height" id="ttpMotif_{{index}}_1" data-content="Dépense : {{percentDepense}}%" style="background-color: #03a9f4 ; width: {{percentDepense}}% ;"></div>
+                                <div class="fixed_height" id="ttpMotif_{{index}}_2" data-content="Autre : {{percentAutre}}%" style="background-color: #cddc39 ; width: {{percentAutre}}% ;" ></div>
                             </div>
                         </div>
                         <div class="w-100 height_box px-3 border-left d-flex flex-column align-items-center justify-content-center">
@@ -77,7 +79,7 @@
                                         <th></th>
                                     </tr>
                                 </thead>
-                                <tbody class="elemDepense">
+                                <tbody class="elemDepense_{{index}}">
                                     {% set i = 1 %}
                                     {% for depense in element.detail %}
                                         <tr>
@@ -90,7 +92,7 @@
                                             <td>{{depense.modePaiement|upper}}</td>
                                             <td>{{depense.montant}}</td>
                                             <td class="align-middle">
-                                                <div class="fixed_height rounded w-100" id="ttpStatut_{{i}}" data-content="{{depense.statut|upper|raw}}"  style="background-color: #1565c0 ;" title="test" ></div>
+                                                <div class="fixed_height rounded w-100" id="ttpStatut_{{index}}_{{i}}" data-content="{{depense.statut|upper|raw}}"  style="background-color: #1565c0 ;" title="test" ></div>
                                             </td>
                                             <td class="text-center align-middle">
                                                 <a href="{{path('compta_depense_details',{'id':depense.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
@@ -106,7 +108,6 @@
                 {% set index = index + 1 %}
             {% endfor %}
         </div>
-        
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                 <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
