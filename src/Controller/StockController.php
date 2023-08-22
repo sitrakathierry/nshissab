@@ -1225,6 +1225,7 @@ class StockController extends AbstractController
         ] ;
 
         $currentEntrepot = $this->appService->searchData($entrepots,$search) ;
+        $currentEntrepot = array_values($currentEntrepot) ;
 
         $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
@@ -1249,7 +1250,7 @@ class StockController extends AbstractController
             "stockGenerales" => $stockGenerales,
             "stockEntrepots" => $stockEntrepots,
             "idEntrepot" => $id,
-            "currentEntrepot" => $currentEntrepot,
+            "currentEntrepot" => $currentEntrepot[0],
         ]);
     }
 
