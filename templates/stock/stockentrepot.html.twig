@@ -14,7 +14,7 @@
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}} : <span class="text-white px-2 py-1 rounded badge-warning">{{stockEntrepots[0].entrepot}}</span></h4>
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}} : <span class="text-white px-2 py-1 rounded badge-warning">{{currentEntrepot.nom|upper}}</span></h4>
     </div>
     <div class="container-fluid px-3 pt-3">
         <input type="hidden" name="search_entrepot_ste" id="search_entrepot_ste" value="{{idEntrepot}}" >

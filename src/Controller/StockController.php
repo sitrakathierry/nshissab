@@ -1214,13 +1214,18 @@ class StockController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
-        
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
         $this->appService->generateStockEntrepot($filename,$this->agence) ;
         
         $entrepots = json_decode(file_get_contents($filename)) ; 
-        
+
+        $search = [
+            "id" => is_null($id)? "" : $id,
+        ] ;
+
+        $currentEntrepot = $this->appService->searchData($entrepots,$search) ;
+
         $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
             $this->appService->generateStockInEntrepot($filename, $this->agence);
@@ -1234,7 +1239,7 @@ class StockController extends AbstractController
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
         
         $stockEntrepots = array_values($stockEntrepots) ;
-
+ 
         return $this->render('stock/stockentrepot.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock d'entrepot",
@@ -1243,7 +1248,8 @@ class StockController extends AbstractController
             "categories" => $preferences,
             "stockGenerales" => $stockGenerales,
             "stockEntrepots" => $stockEntrepots,
-            "idEntrepot" => $id
+            "idEntrepot" => $id,
+            "currentEntrepot" => $currentEntrepot,
         ]);
     }
 
