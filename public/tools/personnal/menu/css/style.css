@@ -49,6 +49,13 @@ background-color: #ecb534 !important;
 .title_barre_left
 {
     color:  #ff5722 !important;
+    cursor: pointer ;
+    transition: .3s;
+}
+
+.title_barre_left:hover
+{
+    color: #c6421a !important;
 }
 
 .text-black

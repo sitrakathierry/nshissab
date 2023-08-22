@@ -701,7 +701,7 @@ class ComptabiliteController extends AbstractController
             "filename" => "comptabilite",
             "titlePage" => "Consultation des dépenses",
             "with_foot" => false,
-            "depenses" => $depenses,
+            "depenses" => $depenses, 
         ]);
     }
 

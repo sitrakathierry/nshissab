@@ -783,24 +783,25 @@ class StockController extends AbstractController
     public function stockSavePrefs(Request $request)
     {
         $preferences = (array)$request->request->get('preferences') ;
+
         $preferences = explode(",",$preferences[0]) ;
 
+        
         foreach ($preferences as $key => $value) {
             $categorie = $this->entityManager->getRepository(PrdCategories::class)->find($value) ;
-
-            $preference = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
-                "user" => $this->user,
+            $preference = $this->entityManager->getRepository(PrdPreferences::class)->findOneBy([
+                "user" => $this->userObj,
                 "statut" => True,
                 "categorie" => $categorie,
-            ]) ;
+            ],["id" => "ASC"]) ;
 
             if(is_null($preference))
             { 
-                $preference = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
-                    "user" => $this->user,
+                $preference = $this->entityManager->getRepository(PrdPreferences::class)->findOneBy([
+                    "user" => $this->userObj,
                     "statut" => False,
                     "categorie" => $categorie,
-                ]) ;
+                ],["id" => "ASC"]) ;
 
                 if(!is_null($preference))
                 {
