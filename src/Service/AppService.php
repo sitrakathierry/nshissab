@@ -1224,6 +1224,7 @@ class AppService extends AbstractController
             $element["montantRecu"] = $commande->getMontantRecu() ;
             $element["montantPayee"] = $commande->getMontantPayee();
             $element["totalTva"] = $commande->getTva();
+            $element["montant"] = $commande->getMontantPayee();
             $element["date"] = $commande->getDate()->format('d/m/Y') ;
             array_push($elements,$element) ;
         }
@@ -1256,6 +1257,7 @@ class AppService extends AbstractController
             $element["numFact"] = $facture->getNumFact() ;
             $element["modele"] = $facture->getModele()->getNom() ;
             $element["type"] = $facture->getType()->getNom() ;
+            $element["refType"] = $facture->getType()->getReference() ;
             $element["dateCreation"] = $facture->getCreatedAt()->format('d/m/Y')  ;
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
             $element["client"] = $this->getFactureClient($facture)["client"] ;
@@ -2148,6 +2150,9 @@ class AppService extends AbstractController
             $item["element"] = $depense->getElement() ;
             $item["beneficiaire"] = $depense->getNomConcerne() ;
             $item["numFacture"] = $depense->getNumFacture() ;
+            $item["currentDate"] = $depense->getDateDeclaration()->format("d/m/Y") ;
+            $item["dateDebut"] = $depense->getDateDeclaration()->format("d/m/Y") ;
+            $item["dateFin"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["moisDepense"] = $depense->getDateDeclaration()->format("m") ;
             $item["anneeDepense"] = $depense->getDateDeclaration()->format("Y") ;
             $item["service"] = $depense->getService()->getNom() ;
@@ -2231,6 +2236,32 @@ class AppService extends AbstractController
         usort($elements, [self::class, 'comparaisonCommandeAchat']);
 
         file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateAchCommande($filename, $agence)
+    {
+        $bonCommandes = $this->entityManager->getRepository(AchBonCommande::class)->findBy([
+            "agence" => $agence,
+            "statutGen" => True
+        ]) ;
+
+        $items = [] ;
+
+        foreach ($bonCommandes as $bonCommande) {
+            $item = [] ;
+
+            $item["id"] = $bonCommande->getId() ;
+            $item["agence"] = $bonCommande->getAgence()->getId() ;
+            $item["date"] = $bonCommande->getDate()->format("d/m/Y") ;
+            $item["montant"] = $bonCommande->getMontant();
+            $item["operation"] = "Achat";
+            $item["refOperation"] = "ACHAT" ;
+            $item["refJournal"] = "CREDIT" ;
+
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
     }
 
     public function updateStatutFinance($finance)

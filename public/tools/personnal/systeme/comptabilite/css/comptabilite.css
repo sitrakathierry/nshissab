@@ -12,3 +12,13 @@
 {
     box-shadow: 0 2px 2px #c8c7c7 ;
 }
+
+.toggleIcon i
+{
+    transition: 1s;
+}
+
+.rotateIcon
+{
+    transform: rotate(360deg);
+}

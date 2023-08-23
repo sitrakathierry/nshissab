@@ -742,6 +742,7 @@ class ComptabiliteController extends AbstractController
             "titlePage" => "Consultation des dépenses",
             "with_foot" => false,
             "depenses" => $items, 
+            "tabMois" => $tabMois, 
         ]);
     }
 
@@ -789,16 +790,281 @@ class ComptabiliteController extends AbstractController
         return new Response($response) ;
     }
 
+    public static function comparaisonDates($a, $b) {
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        return $dateB <=> $dateA;
+    }
+
     #[Route('/comptabilite/caisse/journal', name: 'compta_journal_caisse_consultation')]
     public function comptaConsultationJournalCaisse()
     {
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
+        /*
+            - refOperation : ACHAT, FACTURE, DEPENSE, CAISSE
+        */
+
+        $filename = "files/systeme/achat/commande(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateAchCommande($filename, $this->agence) ;
+
+        $achats = json_decode(file_get_contents($filename)) ;
+
+        $elements = [] ;
+
+        foreach ($achats as $achat) {
+            # code...
+            $item = [
+                "id" => $achat->id,
+                "date" => $achat->date,
+                "montant" => $achat->montant,
+                "operation" => $achat->operation,
+                "refOperation" => $achat->refOperation,
+                "refJournal" => $achat->refJournal
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        $filename = $this->filename."depense(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateDepListeDepense($filename, $this->agence) ;
+
+        $depenses = json_decode(file_get_contents($filename)) ;
+
+        foreach ($depenses as $depense) {
+            # code...
+            $item = [
+                "id" => $depense->id,
+                "date" => $depense->dateDeclaration,
+                "montant" => $depense->montant,
+                "operation" => "Dépense",
+                "refOperation" => "DEPENSE",
+                "refJournal" => "CREDIT"
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateFacture($filename, $this->agence) ;
+
+        $factures = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refType" => "DF",
+        ] ;
+
+        $factures = $this->appService->searchData($factures,$search) ;
+
+        foreach ($factures as $facture) {
+            # code...
+            $item = [
+                "id" => $facture->id,
+                "date" => $facture->dateFacture,
+                "montant" => $facture->total,
+                "operation" => "Facture",
+                "refOperation" => "FACTURE",
+                "refJournal" => "DEBIT"
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        // corriger le montant dans la caisse en appliquant la remise !!
+        $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
+        if(!file_exists($filename))
+            $this->appService->generateCaisseCommande($filename, $this->agence) ;
+
+        $caisses = json_decode(file_get_contents($filename)) ;
+
+        foreach ($caisses as $caisse) {
+            $item = [
+                "id" => $caisse->id,
+                "date" => $caisse->date,
+                "montant" => $caisse->montant,
+                "operation" => "Caisse",
+                "refOperation" => "CAISSE",
+                "refJournal" => "DEBIT"
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        usort($elements, [self::class, 'comparaisonDates']);  ;
+
+        $journals = $elements ;
+        
+        $items = [] ;
+        foreach ($journals as $journal) {
+            $mois = intval(explode("/",$journal["date"])[1]);
+            $annee = intval(explode("/",$journal["date"])[2]);
+            $key = $tabMois[$mois - 1]." ".$annee ;
+
+            if(!isset($items[$key]))
+            {
+                $items[$key] = [] ;
+                $items[$key]["montant"] = $journal["montant"] ;
+                $items[$key][$journal["refJournal"]] = 1 ;
+                $items[$key][$journal["refOperation"]] = 1 ;
+                $items[$key]["nbElement"] = 1 ;
+                $items[$key]["detail"] = [] ;
+                $items[$key]["detail"][] = $journal ;
+            }
+            else
+            {
+                if(isset($items[$key][$journal["refJournal"]]))
+                    $items[$key][$journal["refJournal"]] += 1 ;
+                else
+                    $items[$key][$journal["refJournal"]] = 1 ;
+
+                if(isset($items[$key][$journal["refOperation"]]))
+                    $items[$key][$journal["refOperation"]] += 1 ;
+                else
+                    $items[$key][$journal["refOperation"]] = 1 ;
+
+                $items[$key]["nbElement"] += 1 ;
+                $items[$key]["montant"] += $journal["montant"] ;
+                $items[$key]["detail"][] = $journal ;
+            }
+        }
+
         return $this->render('comptabilite/journaldeCaisse.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Journal de caisse",
             "with_foot" => false,
             "tabMois" => $tabMois,
+            "journals" => $items,
         ]);
     }
+
+    #[Route('/comptabilite/depense/search', name: 'compta_depense_search')]
+    public function comptaSearchDepense(Request $request)
+    {
+        $currentDate = $request->request->get('currentDate') ;
+        $dateDeclaration = $request->request->get('dateDeclaration') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $anneeDepense = $request->request->get('anneeDepense') ;
+        $moisDepense = $request->request->get('moisDepense') ;
+        $affichage = $request->request->get('affichage') ;
+
+        if($affichage == "JOUR")
+        {
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+        else if($affichage == "SPEC")
+        {
+            $currentDate = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+        else if($affichage == "LIMIT")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+        else if($affichage == "MOIS")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+        }
+        else if($affichage == "ANNEE")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $moisDepense = "" ;
+        }
+        else
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+
+        $search = [
+            "currentDate" => $currentDate,
+            "dateDeclaration" => $dateDeclaration,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "anneeDepense" => $anneeDepense,
+            "moisDepense" => $moisDepense,
+        ] ;
+
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        
+        $filename = $this->filename."depense(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateDepListeDepense($filename, $this->agence) ;
+
+        $depenses = json_decode(file_get_contents($filename)) ;
+
+        $depenses = $this->appService->searchData($depenses,$search) ;
+
+        $items = [] ;
+        foreach ($depenses as $depense) {
+            $key = $tabMois[intval($depense->moisDepense) - 1]." ".$depense->anneeDepense ;
+
+            if(!isset($items[$key]))
+            {
+                $items[$key] = [] ;
+                $items[$key]["montant"] = $depense->montant ;
+                $items[$key]["statMotif"] = [] ;
+                $items[$key]["statMotif"][$depense->refMotif] = 1 ;
+                $items[$key]["statPaiement"] = [] ;
+                $items[$key]["statPaiement"][$depense->refMode] = 1 ;
+                $items[$key]["nbElement"] = 1 ;
+                $items[$key]["detail"] = [] ;
+                $items[$key]["detail"][] = $depense ;
+            }
+            else
+            {
+                if(isset($items[$key]["statPaiement"][$depense->refMode]))
+                    $items[$key]["statPaiement"][$depense->refMode] += 1 ;
+                else
+                    $items[$key]["statPaiement"][$depense->refMode] = 1 ;
+
+                if(isset($items[$key]["statMotif"][$depense->refMotif]))
+                    $items[$key]["statMotif"][$depense->refMotif] += 1 ;
+                else
+                    $items[$key]["statMotif"][$depense->refMotif] = 1 ;
+
+                $items[$key]["nbElement"] += 1 ;
+                $items[$key]["montant"] += $depense->montant ;
+                $items[$key]["detail"][] = $depense ;
+            }
+        }
+
+        if(!empty($items))
+        {
+            $response = $this->renderView("comptabilite/depense/searchDepense.html.twig", [
+                "depenses" => $items
+            ]) ;
+        }
+        else
+        {
+            $response = '<div class="w-100 p-4"><div class="alert alert-sm alert-warning">Désolé, aucun élément trouvé</div></div>' ;
+        }
+
+        return new Response($response) ; 
+    }
+
 }
