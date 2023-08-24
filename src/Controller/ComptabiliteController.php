@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\ChkCheque;
+use App\Entity\ChkStatut;
+use App\Entity\ChkType;
 use App\Entity\CmpBanque;
 use App\Entity\CmpCategorie;
 use App\Entity\CmpCompte;
@@ -102,10 +105,8 @@ class ComptabiliteController extends AbstractController
     public function comptaBanqueOperationBancaire()
     {
         $filename = $this->filename."banque(agence)/".$this->nameAgence ;
-
         if(!file_exists($filename))
             $this->appService->generateCmpBanque($filename, $this->agence) ;
-        
         $banques = json_decode(file_get_contents($filename)) ;
 
         $categories = $this->entityManager->getRepository(CmpCategorie::class)->findAll() ;
@@ -407,13 +408,20 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/cheque/enregistrement', name: 'compta_cheque_enregistrement')]
     public function comptaChequeEnregistrement()
     {
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCmpBanque($filename, $this->agence) ;
 
-        
+        $banques = json_decode(file_get_contents($filename)) ;
+
+        $types = $this->entityManager->getRepository(ChkType::class)->findAll() ;
 
         return $this->render('comptabilite/cheque/enregistrementCheque.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Enregistrement Chèque",
             "with_foot" => true,
+            "banques" => $banques,
+            "types" => $types,
         ]);
     } 
 
@@ -421,12 +429,27 @@ class ComptabiliteController extends AbstractController
     public function comptaChequeConsultation()
     {
 
-        
+        $filename = $this->filename."cheque(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateChkCheque($filename,$this->agence) ;
+
+        $cheques = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCmpBanque($filename, $this->agence) ;
+
+        $banques = json_decode(file_get_contents($filename)) ;
+
+        $types = $this->entityManager->getRepository(ChkType::class)->findAll() ;
 
         return $this->render('comptabilite/cheque/consultationCheque.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Consultation Chèques",
             "with_foot" => false,
+            "cheques" => $cheques,
+            "banques" => $banques,
+            "types" => $types,
         ]);
     }
 
@@ -528,7 +551,7 @@ class ComptabiliteController extends AbstractController
         ]);
     }
 
-    #[Route('/comptabilite/depense/depense/save', name: 'compta_declaration_depense_save')]
+    #[Route('/comptabilite/depense/save', name: 'compta_declaration_depense_save')]
     public function comptaSaveDeclarationDepense(Request $request)
     {
         $dep_nom_concerne = $request->request->get("dep_nom_concerne") ;
@@ -897,7 +920,7 @@ class ComptabiliteController extends AbstractController
         usort($elements, [self::class, 'comparaisonDates']);  ;
 
         $journals = $elements ;
-        
+
         $items = [] ;
         foreach ($journals as $journal) {
             $mois = intval(explode("/",$journal["date"])[1]);
@@ -1067,4 +1090,320 @@ class ComptabiliteController extends AbstractController
         return new Response($response) ; 
     }
 
+    #[Route('/comptabilite/journal/search', name: 'compta_journal_search')]
+    public function comptaSearchJournal(Request $request)
+    {
+        $currentDate = $request->request->get('currentDate') ;
+        $dateDeclaration = $request->request->get('dateDeclaration') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $anneeDepense = $request->request->get('anneeDepense') ;
+        $moisDepense = $request->request->get('moisDepense') ;
+        $affichage = $request->request->get('affichage') ;
+
+        if($affichage == "JOUR")
+        {
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+        else if($affichage == "SPEC")
+        {
+            $currentDate = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+        else if($affichage == "LIMIT")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+        else if($affichage == "MOIS")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+        }
+        else if($affichage == "ANNEE")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $moisDepense = "" ;
+        }
+        else
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $anneeDepense = "" ;
+            $moisDepense = "" ;
+        }
+
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        
+        $filename = "files/systeme/achat/commande(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateAchCommande($filename, $this->agence) ;
+
+        $achats = json_decode(file_get_contents($filename)) ;
+
+        $elements = [] ;
+
+        foreach ($achats as $achat) {
+            # code...
+            $item = [
+                "id" => $achat->id,
+                "date" => $achat->date,
+                "currentDate" => $achat->date,
+                "dateDeclaration" => $achat->date,
+                "dateDebut" => $achat->date,
+                "dateFin" => $achat->date,
+                "anneeDepense" => explode("/",$achat->date)[2],
+                "moisDepense" => explode("/",$achat->date)[1],
+                "montant" => $achat->montant,
+                "operation" => $achat->operation,
+                "refOperation" => $achat->refOperation,
+                "refJournal" => $achat->refJournal
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        $filename = $this->filename."depense(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateDepListeDepense($filename, $this->agence) ;
+
+        $depenses = json_decode(file_get_contents($filename)) ;
+
+        foreach ($depenses as $depense) {
+            # code...
+            $item = [
+                "id" => $depense->id,
+                "date" => $depense->dateDeclaration,
+                "currentDate" => $depense->dateDeclaration,
+                "dateDeclaration" => $depense->dateDeclaration,
+                "dateDebut" => $depense->dateDeclaration,
+                "dateFin" => $depense->dateDeclaration,
+                "anneeDepense" => explode("/",$depense->dateDeclaration)[2],
+                "moisDepense" => explode("/",$depense->dateDeclaration)[1],
+                "montant" => $depense->montant,
+                "operation" => "Dépense",
+                "refOperation" => "DEPENSE",
+                "refJournal" => "CREDIT"
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateFacture($filename, $this->agence) ;
+
+        $factures = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refType" => "DF",
+        ] ;
+
+        $factures = $this->appService->searchData($factures,$search) ;
+
+        foreach ($factures as $facture) {
+            # code...
+            $item = [
+                "id" => $facture->id,
+                "date" => $facture->dateFacture,
+                "currentDate" => $facture->dateFacture,
+                "dateDeclaration" => $facture->dateFacture,
+                "dateDebut" => $facture->dateFacture,
+                "dateFin" => $facture->dateFacture,
+                "anneeDepense" => explode("/",$facture->dateFacture)[2],
+                "moisDepense" => explode("/",$facture->dateFacture)[1],
+                "montant" => $facture->total,
+                "operation" => "Facture",
+                "refOperation" => "FACTURE",
+                "refJournal" => "DEBIT"
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        // corriger le montant dans la caisse en appliquant la remise !!
+        $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
+        if(!file_exists($filename))
+            $this->appService->generateCaisseCommande($filename, $this->agence) ;
+
+        $caisses = json_decode(file_get_contents($filename)) ;
+
+        foreach ($caisses as $caisse) {
+            $item = [
+                "id" => $caisse->id,
+                "date" => $caisse->date,
+                "currentDate" => $caisse->date,
+                "dateDeclaration" => $caisse->date,
+                "dateDebut" => $caisse->date,
+                "dateFin" => $caisse->date,
+                "anneeDepense" => explode("/",$caisse->date)[2],
+                "moisDepense" => explode("/",$caisse->date)[1],
+                "montant" => $caisse->montant,
+                "operation" => "Caisse",
+                "refOperation" => "CAISSE",
+                "refJournal" => "DEBIT"
+            ] ;
+
+            array_push($elements,$item) ;
+        }
+
+        usort($elements, [self::class, 'comparaisonDates']);  ;
+
+        $journals = $elements ;
+
+        $search = [
+            "currentDate" => $currentDate,
+            "dateDeclaration" => $dateDeclaration,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "anneeDepense" => $anneeDepense,
+            "moisDepense" => $moisDepense,
+        ] ;
+
+        $datas = [] ;
+
+        foreach ($journals as $data) {
+            $datas[] = (object)$data ;
+        }
+
+        $journals = $this->appService->searchData($datas,$search) ;
+
+        $datas = [] ;
+
+        foreach ($journals as $data) {
+            $datas[] = (array)$data ;
+        }
+        $journals = $datas ;
+
+        $items = [] ;
+        foreach ($journals as $journal) {
+            $mois = intval(explode("/",$journal["date"])[1]);
+            $annee = intval(explode("/",$journal["date"])[2]);
+            $key = $tabMois[$mois - 1]." ".$annee ;
+
+            if(!isset($items[$key]))
+            {
+                $items[$key] = [] ;
+                $items[$key]["montant"] = $journal["montant"] ;
+                $items[$key][$journal["refJournal"]] = 1 ;
+                $items[$key][$journal["refOperation"]] = 1 ;
+                $items[$key]["nbElement"] = 1 ;
+                $items[$key]["detail"] = [] ;
+                $items[$key]["detail"][] = $journal ;
+            }
+            else
+            {
+                if(isset($items[$key][$journal["refJournal"]]))
+                    $items[$key][$journal["refJournal"]] += 1 ;
+                else
+                    $items[$key][$journal["refJournal"]] = 1 ;
+
+                if(isset($items[$key][$journal["refOperation"]]))
+                    $items[$key][$journal["refOperation"]] += 1 ;
+                else
+                    $items[$key][$journal["refOperation"]] = 1 ;
+
+                $items[$key]["nbElement"] += 1 ;
+                $items[$key]["montant"] += $journal["montant"] ;
+                $items[$key]["detail"][] = $journal ;
+            }
+        }
+
+        if(!empty($items))
+        {
+            $response = $this->renderView("comptabilite/searchJournal.html.twig", [
+                "journals" => $items
+            ]) ;
+        }
+        else
+        {
+            $response = '<div class="w-100 p-4"><div class="alert alert-sm alert-warning">Désolé, aucun élément trouvé</div></div>' ;
+        }
+
+        return new Response($response) ; 
+    }
+
+    
+    #[Route('/comptabilite/cheque/save', name: 'compta_cheque_save')]
+    public function comptaSaveCheque(Request $request)
+    {
+        $chk_nom_chequier = $request->request->get("chk_nom_chequier") ;
+        $chk_banque = $request->request->get("chk_banque") ;
+        $chk_type = $request->request->get("chk_type") ;
+        $chk_numCheque = $request->request->get("chk_numCheque") ;
+        $chk_date_cheque = $request->request->get("chk_date_cheque") ;
+        $chk_montant = $request->request->get("chk_montant") ;
+        $cheque_editor = $request->request->get("cheque_editor") ;
+        $chk_date_declaration = $request->request->get("chk_date_declaration") ;
+
+        $result = $this->appService->verificationElement([
+            $chk_nom_chequier,
+            $chk_banque,
+            $chk_type,
+            $chk_numCheque,
+            $chk_date_cheque,
+            $chk_montant,
+            $chk_date_declaration,
+        ], [
+            "Nom Chèquier",
+            "Banque",
+            "Type",
+            "Numéro de Chèque",
+            "Date de Chèque",
+            "Montant",
+            "Date déclaration",
+            ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $banque = $this->entityManager->getRepository(CmpBanque::class)->find($chk_banque) ;
+        $type = $this->entityManager->getRepository(ChkType::class)->find($chk_type) ;
+        $statut = $this->entityManager->getRepository(ChkStatut::class)->findOneBy([
+            "reference" =>  "DECLARE"
+        ]) ;
+
+        $cheque = new ChkCheque() ;
+
+        $cheque->setAgence($this->agence) ;
+        $cheque->setBanque($banque) ;
+        $cheque->setType($type) ;
+        $cheque->setNomChequier($chk_nom_chequier) ;
+        $cheque->setNumCheque($chk_numCheque) ;
+        $cheque->setDateCheque(\DateTime::createFromFormat("d/m/Y",$chk_date_cheque)) ;
+        $cheque->setMontant($chk_montant) ;
+        $cheque->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$chk_date_declaration)) ;
+        $cheque->setDescription($cheque_editor) ;
+        $cheque->setStatut($statut) ;
+        $cheque->setStatutGen(True) ;
+        $cheque->setCreatedAt(new \DateTimeImmutable) ;
+        $cheque->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($cheque) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."cheque(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse($result) ;
+    }
 }

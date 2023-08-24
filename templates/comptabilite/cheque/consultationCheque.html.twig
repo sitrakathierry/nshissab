@@ -17,11 +17,47 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <h5 class="title_form text-black text-uppercase">Information société</h5>
-
-        <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold">Date</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table-sm table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date Déclaration</th>
+                        <th>Banque</th>
+                        <th>Nom Chèquier</th>
+                        <th>N° Chèque</th>
+                        <th>Date Chèque</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cheque in cheques %}
+                        <tr>
+                            <td class="align-middle">{{cheque.date}}</td>
+                            <td class="align-middle">{{cheque.banque|upper}}</td>
+                            <td class="align-middle">{{cheque.nomChequier|upper}}</td>
+                            <td class="align-middle">{{cheque.numCheque}}</td>
+                            <td class="align-middle">{{cheque.dateCheque}}</td>
+                            <td class="align-middle">{{cheque.type|upper}}</td>
+                            <td class="align-middle">{{cheque.montant}}</td>
+                            <td class="text-center align-middle">{{cheque.statut|upper|raw}}</td>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                <button class="btn btn-sm ml-2 btn-outline-primary font-smaller"><i class="fa fa-check"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

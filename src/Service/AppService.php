@@ -15,6 +15,7 @@ use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
+use App\Entity\ChkCheque;
 use App\Entity\CmdBonCommande;
 use App\Entity\CmpBanque;
 use App\Entity\CmpCompte;
@@ -2124,6 +2125,36 @@ class AppService extends AbstractController
             $item["agence"] = $marchandise->getAgence()->getId() ;
             $item["designation"] = $marchandise->getDesignation() ;
             $item["prix"] = $marchandise->getPrix();
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateChkCheque($filename,$agence)
+    {
+        $cheques = $this->entityManager->getRepository(ChkCheque::class)->findBy([
+            "agence" => $agence,
+            "statutGen" => True,
+            ]) ;
+
+        $items = [] ;
+
+        foreach ($cheques as $cheque) {
+            $item = [] ;
+
+            $item["id"] = $cheque->getId() ;
+            $item["agence"] = $cheque->getAgence()->getId() ;
+            $item["nomChequier"] = $cheque->getNomChequier() ;
+            $item["banque"] = $cheque->getBanque()->getNom() ;
+            $item["type"] = $cheque->getType()->getNom() ;
+            $item["dateCheque"] = $cheque->getDateCheque()->format("d/m/Y") ;
+            $item["numCheque"] = $cheque->getNumCheque() ;
+            $item["date"] = $cheque->getDateDeclaration()->format("d/m/Y") ;
+            $item["montant"] = $cheque->getMontant() ;
+            $item["statut"] = $cheque->getStatut()->getNom() ; ;
+            $item["refStatut"] = $cheque->getStatut()->getReference() ; ;
+
             array_push($items,$item) ;
         }
 

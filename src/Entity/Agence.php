@@ -205,6 +205,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: DepDetails::class)]
     private Collection $depDetails;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: ChkCheque::class)]
+    private Collection $chkCheques;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -258,6 +261,7 @@ class Agence
         $this->depenses = new ArrayCollection();
         $this->depLibelles = new ArrayCollection();
         $this->depDetails = new ArrayCollection();
+        $this->chkCheques = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1932,6 +1936,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($depDetail->getAgence() === $this) {
                 $depDetail->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChkCheque>
+     */
+    public function getChkCheques(): Collection
+    {
+        return $this->chkCheques;
+    }
+
+    public function addChkCheque(ChkCheque $chkCheque): self
+    {
+        if (!$this->chkCheques->contains($chkCheque)) {
+            $this->chkCheques->add($chkCheque);
+            $chkCheque->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChkCheque(ChkCheque $chkCheque): self
+    {
+        if ($this->chkCheques->removeElement($chkCheque)) {
+            // set the owning side to null (unless already changed)
+            if ($chkCheque->getAgence() === $this) {
+                $chkCheque->setAgence(null);
             }
         }
 

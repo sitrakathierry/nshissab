@@ -36,10 +36,14 @@ class CmpBanque
     #[ORM\OneToMany(mappedBy: 'banque', targetEntity: CmpOperation::class)]
     private Collection $cmpOperations;
 
+    #[ORM\OneToMany(mappedBy: 'banque', targetEntity: ChkCheque::class)]
+    private Collection $chkCheques;
+
     public function __construct()
     {
         $this->cmpComptes = new ArrayCollection();
         $this->cmpOperations = new ArrayCollection();
+        $this->chkCheques = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -161,6 +165,36 @@ class CmpBanque
             // set the owning side to null (unless already changed)
             if ($cmpOperation->getBanque() === $this) {
                 $cmpOperation->setBanque(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChkCheque>
+     */
+    public function getChkCheques(): Collection
+    {
+        return $this->chkCheques;
+    }
+
+    public function addChkCheque(ChkCheque $chkCheque): self
+    {
+        if (!$this->chkCheques->contains($chkCheque)) {
+            $this->chkCheques->add($chkCheque);
+            $chkCheque->setBanque($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChkCheque(ChkCheque $chkCheque): self
+    {
+        if ($this->chkCheques->removeElement($chkCheque)) {
+            // set the owning side to null (unless already changed)
+            if ($chkCheque->getBanque() === $this) {
+                $chkCheque->setBanque(null);
             }
         }
 

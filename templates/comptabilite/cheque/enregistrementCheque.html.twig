@@ -9,7 +9,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/cheque.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -17,17 +17,65 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <h5 class="title_form text-black text-uppercase">Information société</h5>
-
-        <label for="nom" class="mt-2 font-weight-bold">Nom</label>
-        <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-
-
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+        <form id="formCheque">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="chk_nom_chequier" class="mt-2 font-weight-bold">Nom du Chèquier</label>
+                    <input type="text" name="chk_nom_chequier" oninput="this.value = this.value.toUpperCase();" id="chk_nom_chequier" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-4">
+                    <label for="chk_banque" class="mt-2 font-weight-bold">Banque</label>
+                    <select name="chk_banque" class="custom-select chosen_select custom-select-sm" id="chk_type">
+                        <option value="">-</option>
+                        {% for banque in banques %}
+                            <option value="{{banque.id}}" >{{banque.nom|upper}}</option>
+                        {% endfor %} 
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="chk_type" class="mt-2 font-weight-bold">Type</label>
+                    <select name="chk_type" class="custom-select chosen_select custom-select-sm" id="chk_type">
+                        <option value="">-</option>
+                        {% for type in types %}
+                            <option value="{{type.id}}" >{{type.nom|upper}}</option>
+                        {% endfor %} 
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="chk_numCheque" class="mt-3 font-weight-bold">Numéro de chèque</label>
+                    <input type="text" name="chk_numCheque" id="chk_numCheque" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-4">
+                    <label for="chk_date_cheque" class="mt-3 font-weight-bold">Date de chèque</label>
+                    <input type="text" name="chk_date_cheque" id="chk_date_cheque" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-4">
+                    <label for="chk_montant" class="mt-3 font-weight-bold">Montant</label>
+                    <input type="text" name="chk_montant" id="chk_montant" class="form-control" placeholder=". . .">
+                </div>
             </div>
-        {% endif %} 
+            <div class="w-100 mt-3">
+                <label for="cheque_editor" class="mt-2 font-weight-bold">Description</label>
+                <textarea name="cheque_editor" class="form-control" id="cheque_editor" cols="10" rows="5"></textarea>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold">Date déclaration,</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="chk_date_declaration" value="{{ 'now'|date('d/m/Y') }}" placeholder=". . ." aria-label="Date Dépense" id="chk_date_declaration">
+                    </div>
+                </div>
+            </div>
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="submit" class="btn btn-sm ml-3 px-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}
