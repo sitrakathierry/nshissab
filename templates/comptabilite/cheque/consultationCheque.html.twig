@@ -9,7 +9,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/cheque.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -19,8 +19,67 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">Date</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="search_type_cheque" class="mt-2 font-weight-bold text-uppercase">Type de chèque</label>
+                <select name="search_type_cheque" class="custom-select chosen_select custom-select-sm" id="search_type_cheque">
+                    <option value="">TOUS</option>
+                    {% for type in types %}
+                        <option value="{{type.id}}" >{{type.nom|upper}}</option>
+                    {% endfor %} 
+                </select>
+                <input type="hidden" id="search_current_date" value="{{'now'|date('d/m/Y')}}" >
+            </div>
+            <div class="col-md-3">
+                <label for="search_cheque" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
+                <select name="search_cheque" class="custom-select chosen_select custom-select-sm" id="search_cheque">
+                    <option value="">AFFICHER TOUS</option>
+                    <option value="JOUR">{{"Aujourd'hui"|upper}}</option>
+                    <option value="SPEC">{{"Date Spécifique"|upper}}</option>
+                    <option value="LIMIT">{{"Fourchette"|upper}}</option>
+                    <option value="MOIS">{{"Mois"|upper}}</option>
+                </select>
+                <input type="hidden" id="search_current_date" value="{{'now'|date('d/m/Y')}}" >
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_date">
+                <label for="search_date" class="mt-2 font-weight-bold text-uppercase">Date</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_date_debut">
+                <label for="search_date_debut" class="mt-2 font-weight-bold text-uppercase">Date début</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date_debut" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_date_fin">
+                <label for="search_date_fin" class="mt-2 font-weight-bold text-uppercase">Date Fin</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date_fin" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_mois">
+                {% set i = 1 %}
+                <label for="search_mois" class="mt-2 font-weight-bold text-uppercase">Mois</label>
+                <select name="search_mois" class="custom-select chosen_select custom-select-sm" id="search_mois">
+                    <option value="">-</option>
+                    {% for tabMois in tabMois %}
+                        <option value="{{i}}">{{tabMois|upper}}</option>
+                        {% set i = i + 1 %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_annee">
+                <label for="search_annee" class="mt-2 font-weight-bold text-uppercase">Année</label>
+                <input type="number" name="search_annee" id="search_annee" value="{{'now'|date('Y')}}" class="form-control search_annee">
             </div>
         </div>
         <div class="table-responsive mt-4">
@@ -38,7 +97,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elemCheque">
                     {% for cheque in cheques %}
                         <tr>
                             <td class="align-middle">{{cheque.date}}</td>
@@ -48,11 +107,13 @@
                             <td class="align-middle">{{cheque.dateCheque}}</td>
                             <td class="align-middle">{{cheque.type|upper}}</td>
                             <td class="align-middle">{{cheque.montant}}</td>
-                            <td class="text-center align-middle">{{cheque.statut|upper|raw}}</td>
+                            <th class="text-center align-middle">{{cheque.statut|upper|raw}}</th>
                             <td>
                                 <div class="d-flex flex-column align-items-center justify-content-center">
-                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                                    <button class="btn btn-sm mt-2 btn-outline-primary font-smaller"><i class="fa fa-check"></i></button>
+                                    <a href="{{path('compta_cheque_details',{'id':cheque.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                    {% if cheque.refStatut == "DECLARE" %}
+                                        <button data-value="{{cheque.id}}" class="btn btn-sm mt-2 btn-outline-primary chk_btn_valider font-smaller"><i class="fa fa-check"></i></button>   
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>

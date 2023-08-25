@@ -2136,7 +2136,7 @@ class AppService extends AbstractController
         $cheques = $this->entityManager->getRepository(ChkCheque::class)->findBy([
             "agence" => $agence,
             "statutGen" => True,
-            ]) ;
+        ]) ;
 
         $items = [] ;
 
@@ -2144,16 +2144,24 @@ class AppService extends AbstractController
             $item = [] ;
 
             $item["id"] = $cheque->getId() ;
+            $item["encodedId"] = $this->encodeChiffre($cheque->getId()) ;
             $item["agence"] = $cheque->getAgence()->getId() ;
             $item["nomChequier"] = $cheque->getNomChequier() ;
             $item["banque"] = $cheque->getBanque()->getNom() ;
-            $item["type"] = $cheque->getType()->getNom() ;
+            $item["type"] = $cheque->getType()->getNom() ; 
+            $item["idType"] = $cheque->getType()->getId() ; 
             $item["dateCheque"] = $cheque->getDateCheque()->format("d/m/Y") ;
             $item["numCheque"] = $cheque->getNumCheque() ;
             $item["date"] = $cheque->getDateDeclaration()->format("d/m/Y") ;
+            $item["currentDate"] = $cheque->getDateDeclaration()->format("d/m/Y") ;
+            $item["dateDeclaration"] = $cheque->getDateDeclaration()->format("d/m/Y") ;
+            $item["dateDebut"] = $cheque->getDateDeclaration()->format("d/m/Y") ;
+            $item["dateFin"] = $cheque->getDateDeclaration()->format("d/m/Y") ;
+            $item["annee"] = $cheque->getDateDeclaration()->format("Y") ;
+            $item["mois"] = $cheque->getDateDeclaration()->format("m") ;
             $item["montant"] = $cheque->getMontant() ;
-            $item["statut"] = $cheque->getStatut()->getNom() ; ;
-            $item["refStatut"] = $cheque->getStatut()->getReference() ; ;
+            $item["statut"] = $cheque->getStatut()->getNom() ; 
+            $item["refStatut"] = $cheque->getStatut()->getReference() ; 
 
             array_push($items,$item) ;
         }

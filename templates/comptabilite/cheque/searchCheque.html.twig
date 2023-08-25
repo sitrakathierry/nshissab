@@ -1,0 +1,20 @@
+{% for cheque in cheques %}
+    <tr>
+        <td class="align-middle">{{cheque.date}}</td>
+        <td class="align-middle">{{cheque.banque|upper}}</td>
+        <td class="align-middle">{{cheque.nomChequier|upper}}</td>
+        <td class="align-middle">{{cheque.numCheque}}</td>
+        <td class="align-middle">{{cheque.dateCheque}}</td>
+        <td class="align-middle">{{cheque.type|upper}}</td>
+        <td class="align-middle">{{cheque.montant}}</td>
+        <th class="text-center align-middle">{{cheque.statut|upper|raw}}</th>
+        <td>
+            <div class="d-flex flex-column align-items-center justify-content-center">
+                <a href="{{path('compta_cheque_details',{'id':cheque.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                {% if cheque.refStatut == "DECLARE" %}
+                    <button data-value="{{cheque.id}}" class="btn btn-sm mt-2 btn-outline-primary chk_btn_valider font-smaller"><i class="fa fa-check"></i></button>   
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+{% endfor %}

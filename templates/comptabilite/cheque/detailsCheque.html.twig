@@ -1,0 +1,77 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/cheque.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        {% set statutCheque = cheque.refStatut == "DECLARE" ? "Déclaré" : "Déclaré et Validé" %}
+        <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
+            {{titlePage}}
+            &nbsp;
+            N° :&nbsp;<span class="text-white px-2 py-1 rounded badge-warning">{{cheque.numCheque}}</span>
+            <span class="ml-auto font-weight-bold">{{statutCheque|upper}}</span>
+        </h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="chk_nom_chequier" class="mt-2 font-weight-bold">Nom du Chèquier</label>
+                <input type="text" value="{{cheque.nomChequier|upper}}" name="chk_nom_chequier"  id="chk_nom_chequier" class="form-control bg-white text-primary font-weight-bold" >
+            </div>
+            <div class="col-md-4">
+                <label for="chk_banque" class="mt-2 font-weight-bold">Banque</label>
+                <input type="text" value="{{cheque.banque|upper}}" name="chk_banque"  id="chk_banque" class="form-control bg-white text-primary font-weight-bold" >
+            </div>
+            <div class="col-md-4">
+                <label for="chk_type" class="mt-2 font-weight-bold">Type</label>
+                <input type="text" value="{{cheque.type|upper}}" name="chk_type"  id="chk_type" class="form-control bg-white text-primary font-weight-bold" >
+            </div>
+            <div class="col-md-4">
+                <label for="chk_numCheque" class="mt-3 font-weight-bold">Numéro de chèque</label>
+                <input type="text" value="{{cheque.numCheque}}" name="chk_numCheque" id="chk_numCheque" class="form-control bg-white text-primary font-weight-bold" >
+            </div>
+            <div class="col-md-4">
+                <label for="chk_date_cheque" class="mt-3 font-weight-bold">Date de chèque</label>
+                <input type="text" value="{{cheque.dateCheque}}" name="chk_date_cheque" id="chk_date_cheque" class="form-control bg-white text-primary font-weight-bold" >
+            </div>
+            <div class="col-md-4">
+                <label for="chk_montant" class="mt-3 font-weight-bold">Montant</label>
+                <input type="text" value="{{cheque.montant}}" name="chk_montant" id="chk_montant" class="form-control bg-white text-primary font-weight-bold" >
+            </div>
+        </div>
+        <div class="w-100 mt-3">
+            <label for="cheque_editor" class="mt-2 font-weight-bold">Description</label>
+            <textarea name="cheque_editor" class="form-control" id="cheque_editor" cols="10" rows="5">{{cheque.desciprtion}}</textarea>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-7"></div>
+            <div class="col-md-5"> 
+                <label for="nom" class="mt-1 font-weight-bold">Date déclaration,</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <input type="text" class="form-control bg-white text-primary font-weight-bold" name="chk_date_declaration" value="{{cheque.date}}"  aria-label="Date Dépense" id="chk_date_declaration">
+                </div>
+            </div>
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm ml-3 px-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

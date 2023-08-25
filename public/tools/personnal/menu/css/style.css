@@ -306,3 +306,10 @@ background-color: #ecb534 !important;
     max-height: 350px !important;
     overflow: auto;
 }
+
+.general_height
+{
+    max-height: 450px !important;
+    overflow: auto;
+    padding: 15px 0 ;
+}
