@@ -405,4 +405,6 @@ $(document).ready(function(){
         $(".icone_menu i").removeClass()
         $(".icone_menu i").addClass("fa fa-"+$(this).val())
     })
+
+    $("#abonnement").datepicker() ;
 });

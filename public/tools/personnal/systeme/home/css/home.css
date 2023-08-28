@@ -1,0 +1,49 @@
+.board_logo i
+{
+    font-size: 1.2em !important;
+    /* border: 1px solid black;
+    width: fit-content !important;
+    padding: 0px 12px;
+    border-radius: 30px; */
+    padding: 10px 12px;
+}
+
+.board_bloc1
+{
+    background: linear-gradient(90deg, rgba(20,136,204,1) 0%, rgba(43,50,178,1) 100%);
+}
+
+.board_bloc2
+{
+    background: linear-gradient(90deg, rgba(173,209,0,1) 0%, rgba(123,146,10,1) 100%);
+}
+
+.board_bloc3
+{
+    background: linear-gradient(90deg, rgba(170,7,107,1) 0%, rgba(97,4,95,1) 100%);
+}
+
+.board_bloc4
+{
+    background: linear-gradient(90deg, rgba(250,162,53,1) 0%, rgba(185,111,0,1) 100%);
+}
+
+.board_bloc5
+{
+    background: linear-gradient(90deg, rgba(239,71,58,1) 0%, rgba(203,45,62,1) 100%);
+}
+
+.board_bloc6
+{
+    background: linear-gradient(90deg, rgba(0,180,219,1) 0%, rgba(0,111,149,1) 100%);
+}
+
+.board_bloc7
+{
+    background: linear-gradient(90deg, rgba(242,7,148,1) 0%, rgba(124,38,91,1) 100%);
+}
+
+.board_bloc8
+{
+    background: linear-gradient(90deg, rgba(167,55,55,1) 0%, rgba(122,40,40,1) 100%);
+}

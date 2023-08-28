@@ -16,6 +16,7 @@ use App\Entity\BtpEnoncee;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\ChkCheque;
+use App\Entity\CltHistoClient;
 use App\Entity\CmdBonCommande;
 use App\Entity\CmpBanque;
 use App\Entity\CmpCompte;
@@ -2125,6 +2126,31 @@ class AppService extends AbstractController
             $item["agence"] = $marchandise->getAgence()->getId() ;
             $item["designation"] = $marchandise->getDesignation() ;
             $item["prix"] = $marchandise->getPrix();
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function generateCltClient($filename, $agence)
+    {
+        $histoClients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,    
+        ]) ;
+
+        $items = [] ;
+
+        foreach ($histoClients as $histoClient) {
+            $item = [] ;
+
+            $item["id"] = $histoClient->getId() ;
+            $item["agence"] = $histoClient->getAgence()->getId() ;
+            $item["numClient"] = str_pad($histoClient->getId(), 4, "0", STR_PAD_LEFT) ;
+            $item["nom"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getNom() : $histoClient->getClient()->getNom();
+            $item["type"] = $histoClient->getType()->getNom() ;
+            $item["adresse"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getAdresse() : $histoClient->getClient()->getAdresse();
+            $item["telephone"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getTelFixe() : $histoClient->getClient()->getTelephone();
             array_push($items,$item) ;
         }
 

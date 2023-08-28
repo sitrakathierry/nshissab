@@ -2,11 +2,146 @@
 
 {% block title %}Tableau de bord{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/home/css/home.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }} 
+    {# <script src="{{asset('tools/personnal/systeme/home/js/jquery.flot.min.js')}}" ></script> #}
+    {# <script src="{{asset('tools/personnal/systeme/home/js/jquery.peity.js')}}" ></script> #}
+    {# <script src="{{asset('tools/personnal/systeme/home/js/jquery.sparkline.js')}}" ></script> #}
+    {# <script src="{{asset('tools/personnal/systeme/home/js/chart.min.js')}}" ></script> #}
+    <script src="{{asset('tools/personnal/systeme/home/js/home.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/home/js/canvasjs.min.js')}}" ></script>
+    
+{% endblock %}
+
 {% block body %}
-<h2>Tableau de bord</h2>
+{# <h2>Tableau de bord</h2> #}
 {# <div class="w-100 text-center">
     <img src="{{asset('data/images/loading.svg')}}" alt="" >
     <h5>Mise à jour en cours . . .</h5>
+</div>
+ #}
+
+<div class="row">
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc1 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Client(s)</h5>
+                <h3 class="font-weight-bold text-white">05</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc2 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Produit(s)</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc4 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Inventaire</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc5 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Commande(s)</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded  board_bloc3 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Chiffre d'affaire</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc6 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Débit</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc7 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Crédit</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 p-2">
+        <div class="w-100 rounded board_bloc8 text-white shadow d-flex flex-row justify-content-center">
+            <div class="board_stats pl-4 pt-4 text-white">
+                <h5 class="title_form text-white text-uppercase mb-0">Balance</h5>
+                <h3 class="font-weight-bold text-white">350 000</h3>
+                <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+            </div>
+            <div class="board_logo ml-auto">
+                <i class="fa fa-diamond"></i>
+            </div>
+        </div>
+    </div>
+</div>
+{# <div id="chart" style="width: 400px; height: 300px;"></div> #}
+{# <span class="line">50,30,90,60,50,90,70,30,50,20</span> #}
+{# <p>
+Inline Sparkline: <span class="inlinesparkline">1,4,4,7,5,9,10</span>
+</p> #}
+{# <div class="mt-4 w-100">
+    <span class="dynamicsparkline">Loading..</span>
 </div> #}
+{# <p>
+Bar chart with dynamic data: <span class="dynamicbar">Loading..</span>
+</p>
+<p>
+Bar chart with inline data: <span class="inlinebar">1,3,4,5,3,5</span>
+</p> #}
+<div class="p-4">
+    {# <canvas id="myChart"></canvas> #}
+    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+</div>
+
 
 {% endblock %}

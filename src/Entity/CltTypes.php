@@ -21,6 +21,9 @@ class CltTypes
     #[ORM\OneToMany(mappedBy: 'type', targetEntity: CltHistoClient::class)]
     private Collection $cltHistoClients;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reference = null;
+
     public function __construct()
     {
         $this->cltHistoClients = new ArrayCollection();
@@ -69,6 +72,18 @@ class CltTypes
                 $cltHistoClient->setType(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
 
         return $this;
     }

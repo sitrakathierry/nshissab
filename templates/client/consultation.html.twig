@@ -20,21 +20,9 @@
         <div class="row">
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Statut</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">AUCUN</option>
+                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+                    <option value="">-</option>
                 </select>
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">N° Client</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Nom</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
             </div>
         </div>
         <div class="table-responsive mt-4">
@@ -50,14 +38,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="text-center"><a href="#"><i class="fa fa-edit"></i></a></td>
-                    </tr>
+                    {% for client in clients %}
+                        <tr>
+                            <td>{{client.numClient}}</td>
+                            <td>{{client.nom|upper}}</td>
+                            <td>{{client.type|upper}}</td>
+                            <td>{{client.adresse|upper}}</td>
+                            <td>{{client.telephone}}</td>
+                            <td class="text-center align-middle" >
+                                <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

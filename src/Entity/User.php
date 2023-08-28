@@ -85,6 +85,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: SavAnnulation::class)]
     private Collection $savAnnulations;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsrAbonnement::class)]
+    private Collection $usrAbonnements;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
@@ -95,6 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->caisseCommandes = new ArrayCollection();
         $this->factures = new ArrayCollection();
         $this->savAnnulations = new ArrayCollection();
+        $this->usrAbonnements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -485,6 +489,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($savAnnulation->getUser() === $this) {
                 $savAnnulation->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UsrAbonnement>
+     */
+    public function getUsrAbonnements(): Collection
+    {
+        return $this->usrAbonnements;
+    }
+
+    public function addUsrAbonnement(UsrAbonnement $usrAbonnement): self
+    {
+        if (!$this->usrAbonnements->contains($usrAbonnement)) {
+            $this->usrAbonnements->add($usrAbonnement);
+            $usrAbonnement->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsrAbonnement(UsrAbonnement $usrAbonnement): self
+    {
+        if ($this->usrAbonnements->removeElement($usrAbonnement)) {
+            // set the owning side to null (unless already changed)
+            if ($usrAbonnement->getUser() === $this) {
+                $usrAbonnement->setUser(null);
             }
         }
 

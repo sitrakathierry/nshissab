@@ -7,6 +7,7 @@ use App\Entity\Menu;
 use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
 use App\Entity\User;
+use App\Entity\UsrAbonnement;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -90,9 +91,10 @@ class AdminController extends AbstractController
         $password = $request->request->get('password') ;
         $email = $request->request->get('email') ;
         $poste = $request->request->get('poste') ;
+        $abonnement = $request->request->get('abonnement') ;
 
-        $data = [$nom, $region, $capacite, $adresse, $telephone,$username ,$password ,$email ,$poste ] ;
-        $dataMessage = ["nom", "region", "nombre de compte", "adresse", "telephone","nom d'utilisateur" ,"mot de passe" ,"email" ,"responsabilite" ] ;
+        $data = [$nom, $region, $capacite, $adresse, $telephone,$username ,$password ,$email ,$poste,$abonnement ] ;
+        $dataMessage = ["nom", "region", "nombre de compte", "adresse", "telephone","nom d'utilisateur" ,"mot de passe" ,"email" ,"responsabilite", "Date d'abonnement" ] ;
         
         $result = $this->appService->verificationElement($data,$dataMessage) ;
 
@@ -163,14 +165,24 @@ class AdminController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
+        $userAbonnement = new UsrAbonnement() ;
+
+        $userAbonnement->setUser($user) ;
+        $userAbonnement->setDateEtHeure(\DateTime::createFromFormat("d/m/Y H:i:s", $abonnement.date(" H:i:s"))) ;
+        $userAbonnement->setDateDebut(\DateTime::createFromFormat("d/m/Y",date("d/m/Y"))) ;
+        $userAbonnement->setStatut(True) ;
+        $userAbonnement->setCreatedAt(new \DateTimeImmutable) ;
+        $userAbonnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($userAbonnement);
+        $this->entityManager->flush();
+
         return new JsonResponse(["message"=>$message, "type"=>$type]) ;
     }
 
     #[Route('/admin/password/get', name:"getRandomPass")]
     public function getRandomPass()
     {
-        
-
         $randomPass = $this->appService->generatePassword() ;
 
         return new JsonResponse(["randomPass" => $randomPass]) ;

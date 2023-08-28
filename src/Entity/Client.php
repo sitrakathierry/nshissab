@@ -55,6 +55,9 @@ class Client
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: CltHistoClient::class)]
     private Collection $cltHistoClients;
 
+    #[ORM\ManyToOne(inversedBy: 'clients')]
+    private ?Agence $agence = null;
+
     public function __construct()
     {
         $this->cltHistoClients = new ArrayCollection();
@@ -235,6 +238,18 @@ class Client
                 $cltHistoClient->setClient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }
