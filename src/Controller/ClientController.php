@@ -90,6 +90,7 @@ class ClientController extends AbstractController
 
         $type = $this->entityManager->getRepository(CltTypes::class)->find($idType) ;
 
+        $response = "";
         if($type->getReference() == "MORAL")
         {
             $typeSocietes = $this->entityManager->getRepository(CltTypeSociete::class)->findAll() ;

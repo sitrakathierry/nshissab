@@ -351,4 +351,15 @@ class ParametresController extends AbstractController
 
         return new JsonResponse($result) ;
     }
+
+    #[Route('/parametres/modele/pdf/creation', name: 'param_modele_pdf_creation')]
+    public function paramCreationModelePdf()
+    {
+        
+        return $this->render('parametres/modele/creationModelePdf.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Création Modèle Pdf",
+            "with_foot" => true,
+        ]);
+    }
 }

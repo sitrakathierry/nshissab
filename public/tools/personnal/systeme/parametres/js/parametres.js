@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
+    var modele_editor = new LineEditor("#modele_editor") ;
+
     $("#devise_symbole_change").keyup(function(){
         $("#devise_montant_change").val("1 "+$(this).val())
     })
@@ -136,5 +138,4 @@ $(document).ready(function(){
         })
     })
 
-    
 })

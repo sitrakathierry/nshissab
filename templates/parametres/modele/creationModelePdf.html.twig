@@ -1,0 +1,39 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/modele.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <h5 class="title_form text-black text-uppercase">Sélectionner le modèle à créer</h5>
+        <div class="w-100 d-flex flex-row align-items-center">
+            <button class="btn btn-outline-primary text-uppercase px-3 btn-sm"><i class="fa fa-diamond"></i>&nbsp;Entête de page</button>
+            <button class="btn btn-outline-primary text-uppercase px-3 ml-3 btn-sm"><i class="fa fa-diamond"></i>&nbsp;Bas de page</button>
+        </div>
+
+        <label for="modele_editor" class="mt-3 font-weight-bold">Entête de page</label>
+        <input type="text" name="modele_editor" id="modele_editor" class="form-control" placeholder=". . .">
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+
