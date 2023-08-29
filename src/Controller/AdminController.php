@@ -36,7 +36,6 @@ class AdminController extends AbstractController
     #[Route('/admin', name: 'app_admin')]
     public function index(): Response
     {
-        
         $this->regenerateUserMenu() ;
         return $this->render('admin/index.html.twig');
     }
@@ -47,6 +46,7 @@ class AdminController extends AbstractController
             $user = $is_user ;
         else
             $user = $this->session->get("user")  ; 
+
         $filename = "files/json/menu/".strtolower($user['username']).".json" ;
         if(!file_exists($filename))
         {
@@ -173,7 +173,7 @@ class AdminController extends AbstractController
         $userAbonnement->setStatut(True) ;
         $userAbonnement->setCreatedAt(new \DateTimeImmutable) ;
         $userAbonnement->setUpdatedAt(new \DateTimeImmutable) ;
-
+        
         $this->entityManager->persist($userAbonnement);
         $this->entityManager->flush();
 
@@ -203,8 +203,6 @@ class AdminController extends AbstractController
     #[Route('/admin/menu/attribution',name:'menu_attribution')]
     public function menuAttribution()
     {
-        
-   
         $menus = [] ;
         $filename = "files/json/menuUser.json" ;
         if(!file_exists($filename))
@@ -539,7 +537,7 @@ class AdminController extends AbstractController
 
         $filename = "files/json/menu/".strtolower($user['username']).".json" ;
         if(!file_exists($filename))
-            $this->regenerateUserMenu() ;
+            $this->regenerateUserMenu($user['username']) ;
         
         $menuManager = json_decode(file_get_contents($filename)) ;
         $response = [
