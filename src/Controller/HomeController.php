@@ -24,6 +24,7 @@ class HomeController extends AbstractController
     private $session ;
     private $appService ;
     private $urlGenerator ;
+
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
@@ -37,10 +38,11 @@ class HomeController extends AbstractController
      */
     public function index(): Response
     {
+        $username = $this->session->get("user")["username"] ;
         // $user = $this->entityManager->getRepository(User::class)->findOneBy(["username" => "SHISSAB"]) ;
         // dd($this->appService->hashPassword($user, "HikamSM#23")) ;
         return $this->render('home/index.html.twig', [
-            
+           "username" => $username 
         ]);
     }
 
@@ -49,7 +51,6 @@ class HomeController extends AbstractController
      */
     public function homeUpdateData(): Response
     {
-        
         $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findAll() ;
         
         foreach($variationPrixs as $variationPrix)

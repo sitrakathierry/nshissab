@@ -20,325 +20,327 @@
 {% endblock %}
 
 {% block body %}
-<div class="w-100 shadow rounded mt-4">
-    <div class="bord_entete board_bloc1 d-flex flex-row text-white align-items-center px-3 pt-2">
-        <div class="w-100">
-            <h4 class="text-uppercase text-white entete_page mb-0">{{"Client(s)"|upper}}</h4> 
-            <h4 class="font-weight-bold text-white entete_page ml-auto">Nombre : 05</h4>
-            {# <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 60 000 KMF</h4> #}
+{% if username == "HIKAM" %}
+    <div class="w-100 shadow rounded mt-4">
+        <div class="bord_entete board_bloc1 d-flex flex-row text-white align-items-center px-3 pt-2">
+            <div class="w-100">
+                <h4 class="text-uppercase text-white entete_page mb-0">{{"Client(s)"|upper}}</h4> 
+                <h4 class="font-weight-bold text-white entete_page ml-auto">Nombre : 05</h4>
+                {# <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 60 000 KMF</h4> #}
+            </div>
+            <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
+            <label class="ml-3"><i class="fa fa-diamond"></i></label>
         </div>
-        <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
-        <label class="ml-3"><i class="fa fa-diamond"></i></label>
-    </div>
-    <div class="w-100 py-3 container">
-        <div class="d-flex flex-row align-items-center flex-wrap">
-            <div class="d-flex flex-column flex-col justify-content-center w-50">
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail1 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Client Moral</h5>
-                        <div data-value="80" data-label="Client Moral(04)" class="progress_client w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
-                            {# <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li> #}
-                        </ul>
+        <div class="w-100 py-3 container">
+            <div class="d-flex flex-row align-items-center flex-wrap">
+                <div class="d-flex flex-column flex-col justify-content-center w-50">
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail1 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Client Moral</h5>
+                            <div data-value="80" data-label="Client Moral(04)" class="progress_client w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
+                                {# <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li> #}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail1 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Client Physique</h5>
+                            <div data-value="10" data-label="Client Physique(01)" class="progress_client w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
+                                {# <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li> #}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail1 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Client Physique</h5>
-                        <div data-value="10" data-label="Client Physique(01)" class="progress_client w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
-                            {# <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li> #}
-                        </ul>
-                    </div>
+                <div class="w-50">
+                    <div id="donut_client" ></div>
                 </div>
             </div>
-            <div class="w-50">
-                <div id="donut_client" ></div>
-            </div>
-        </div>
-        <div class="w-100 ">
-            <div class="w-100 board_detail  ">
-                
-            </div>
-        </div>
-        
-    </div>
-</div>
-<div class="w-100 shadow rounded mt-4">
-    <div class="bord_entete board_bloc2 d-flex flex-row text-white align-items-center px-3 pt-2">
-        <div class="w-100">
-            <h4 class="text-uppercase text-white entete_page mb-0">{{"Article(s)"|upper}}</h4> 
-            <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 153</h4>
-            <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 1 836 000 KMF</h4>
-        </div>
-        <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
-        <label class="ml-3"><i class="fa fa-diamond"></i></label>
-    </div>
-    <div class="w-100 py-3 container">
-        <div class="d-flex flex-row align-items-center flex-wrap">
-            <div class="w-50">
-                <div id="bar_article" ></div>
-            </div>
-            <div class="d-flex flex-column flex-col justify-content-center w-50">
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail2 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Article en Cours</h5>
-                        <div data-value="70" data-label="Client Moral(04)" class="progress_stock w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail2 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Article expiré</h5>
-                        <div data-value="20" data-label="Client Moral(04)" class="progress_stock w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail2 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Article déduit</h5>
-                        <div data-value="10" data-label="Client Physique(01)" class="progress_stock w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
-                        </ul>
-                    </div>
+            <div class="w-100 ">
+                <div class="w-100 board_detail  ">
+                    
                 </div>
             </div>
+            
         </div>
     </div>
-</div>
-<div class="w-100 shadow rounded mt-4">
-    <div class="bord_entete board_bloc4 d-flex flex-row text-white align-items-center px-3 pt-2">
-        <div class="w-100">
-            <h4 class="text-uppercase text-white entete_page mb-0">{{"Caisse(s)"|upper}}</h4> 
-            <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 46</h4>
-            <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 552 000 KMF</h4>
+    <div class="w-100 shadow rounded mt-4">
+        <div class="bord_entete board_bloc2 d-flex flex-row text-white align-items-center px-3 pt-2">
+            <div class="w-100">
+                <h4 class="text-uppercase text-white entete_page mb-0">{{"Article(s)"|upper}}</h4> 
+                <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 153</h4>
+                <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 1 836 000 KMF</h4>
+            </div>
+            <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
+            <label class="ml-3"><i class="fa fa-diamond"></i></label>
         </div>
-        <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
-        <label class="ml-3"><i class="fa fa-diamond"></i></label>
-    </div>
-    <div class="w-100 py-3 container">
-        <div class="d-flex flex-row align-items-center flex-wrap">
-            <div class="d-flex flex-column flex-col justify-content-center w-50">
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail3 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Article(s) vendu</h5>
-                        <div data-value="43" data-label="Article(s) vendu" class="progress_caisse w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">001 | CIMENT | GLOBAL 25kg :&emsp;<span class="font-weight-bold">26&emsp;=>&emsp;450 000 KMF</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark">154265 | KINDER | BUENO :&emsp;<span class="font-weight-bold">6&emsp;=>&emsp;50 000 KMF</span></label></li>
-                        </ul>
+        <div class="w-100 py-3 container">
+            <div class="d-flex flex-row align-items-center flex-wrap">
+                <div class="w-50">
+                    <div id="bar_article" ></div>
+                </div>
+                <div class="d-flex flex-column flex-col justify-content-center w-50">
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail2 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Article en Cours</h5>
+                            <div data-value="70" data-label="Client Moral(04)" class="progress_stock w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail2 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Article expiré</h5>
+                            <div data-value="20" data-label="Client Moral(04)" class="progress_stock w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail2 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Article déduit</h5>
+                            <div data-value="10" data-label="Client Physique(01)" class="progress_stock w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                {# <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail1 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Client Physique</h5>
-                        <div data-value="10" data-label="Client Physique(01)" class="progress_client w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
-                             <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
-                        </ul>
-                    </div>
-                </div>  #}
-            </div>
-            <div class="w-50">
-                <div id="area_caisse" ></div>
             </div>
         </div>
     </div>
-</div>
-<div class="w-100 shadow rounded mt-4">
-    <div class="bord_entete board_bloc5 d-flex flex-row text-white align-items-center px-3 pt-2">
-        <div class="w-100">
-            <h4 class="text-uppercase text-white entete_page mb-0">{{"Facture(s)"|upper}}</h4> 
-            <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 46</h4>
-            <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 552 000 KMF</h4>
-        </div>
-        <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
-        <label class="ml-3"><i class="fa fa-diamond"></i></label>
-    </div>
-    <div class="w-100 py-3 container">
-        <div class="d-flex flex-row align-items-center flex-wrap">
-            <div class="w-50">
-                <div id="donut_facture" ></div>
+    <div class="w-100 shadow rounded mt-4">
+        <div class="bord_entete board_bloc4 d-flex flex-row text-white align-items-center px-3 pt-2">
+            <div class="w-100">
+                <h4 class="text-uppercase text-white entete_page mb-0">{{"Caisse(s)"|upper}}</h4> 
+                <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 46</h4>
+                <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 552 000 KMF</h4>
             </div>
-            <div class="d-flex flex-column flex-col justify-content-center w-50">
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail4 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Facture Définitive</h5>
-                        <div data-value="43" data-label="Facture Définitive" class="progress_facture w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> Nombre: <span class="font-weight-bold">123</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
-                        </ul>
+            <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
+            <label class="ml-3"><i class="fa fa-diamond"></i></label>
+        </div>
+        <div class="w-100 py-3 container">
+            <div class="d-flex flex-row align-items-center flex-wrap">
+                <div class="d-flex flex-column flex-col justify-content-center w-50">
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail3 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Article(s) vendu</h5>
+                            <div data-value="43" data-label="Article(s) vendu" class="progress_caisse w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">001 | CIMENT | GLOBAL 25kg :&emsp;<span class="font-weight-bold">26&emsp;=>&emsp;450 000 KMF</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark">154265 | KINDER | BUENO :&emsp;<span class="font-weight-bold">6&emsp;=>&emsp;50 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div>
+                    {# <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail1 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Client Physique</h5>
+                            <div data-value="10" data-label="Client Physique(01)" class="progress_client w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">123</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div>  #}
+                </div>
+                <div class="w-50">
+                    <div id="area_caisse" ></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-100 shadow rounded mt-4">
+        <div class="bord_entete board_bloc5 d-flex flex-row text-white align-items-center px-3 pt-2">
+            <div class="w-100">
+                <h4 class="text-uppercase text-white entete_page mb-0">{{"Facture(s)"|upper}}</h4> 
+                <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 46</h4>
+                <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 552 000 KMF</h4>
+            </div>
+            <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
+            <label class="ml-3"><i class="fa fa-diamond"></i></label>
+        </div>
+        <div class="w-100 py-3 container">
+            <div class="d-flex flex-row align-items-center flex-wrap">
+                <div class="w-50">
+                    <div id="donut_facture" ></div>
+                </div>
+                <div class="d-flex flex-column flex-col justify-content-center w-50">
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail4 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Facture Définitive</h5>
+                            <div data-value="43" data-label="Facture Définitive" class="progress_facture w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> Nombre: <span class="font-weight-bold">123</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> Montant : <span class="font-weight-bold">450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail4 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Facture Proforma/Devis</h5>
+                            <div data-value="10" data-label="Facture Proforma/Devis" class="progress_facture w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">26</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">50 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-100 shadow rounded mt-4">
+        <div class="bord_entete board_bloc3 d-flex flex-row text-white align-items-center px-3 pt-2">
+            <div class="w-100">
+                <h4 class="text-uppercase text-white entete_page mb-0">{{"Bon de commande & Bon de Livraison"|upper}}</h4> 
+                <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 46</h4>
+                <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 552 000 KMF</h4>
+            </div>
+            <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
+            <label class="ml-3"><i class="fa fa-diamond"></i></label>
+        </div>
+        <div class="w-100 py-3 container">
+            <div class="d-flex flex-row align-items-center flex-wrap">
+                <div class="d-flex flex-column flex-col justify-content-center w-50">
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail5 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Bon de Commande</h5>
+                            <div data-value="43" data-label="Bon de Commande" class="progress_bon w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> En Cours:&emsp;<span class="font-weight-bold">16&emsp;=>&emsp;450 000 KMF</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> Validée :&emsp;<span class="font-weight-bold">25&emsp;=>&emsp;450 000 KMF</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> Supprimée :&emsp;<span class="font-weight-bold">08&emsp;=>&emsp;450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="h-100 p-3">
+                        <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail5 rounded shadow">
+                            <h5 class="title_form text-uppercase mb-0">Bon de Livraison</h5>
+                            <div data-value="10" data-label="Bon de Livraison" class="progress_bon w-100"></div>
+                            <ul class="list-unstyled">
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> En Cours:&emsp;<span class="font-weight-bold">16&emsp;=>&emsp;450 000 KMF</span></label></li>
+                                <li class=""><label class="text-uppercase mb-0 text-dark"> Validée :&emsp;<span class="font-weight-bold">25&emsp;=>&emsp;450 000 KMF</span></label></li>
+                            </ul>
+                        </div>
+                    </div> 
+                </div>
+                <div class="w-50">
+                    <div id="line_bon" ></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="px-2 mt-4">
+        <div class="row">
+            <div class="col-md-4 p-2">
+                <div class="w-100 rounded board_bloc6 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Inventaire(s)</h5>
+                        <h5 class="font-weight-bold text-white mb-0">Nombre d'article : 5320</h5>
+                        <h5 class="font-weight-bold text-white">Montant : 4 420 000 KMF</h5>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
                     </div>
                 </div>
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail4 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Facture Proforma/Devis</h5>
-                        <div data-value="10" data-label="Facture Proforma/Devis" class="progress_facture w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark">Nombre : <span class="font-weight-bold">26</span></label></li>
-                             <li class=""><label class="text-uppercase mb-0 text-dark">Montant : <span class="font-weight-bold">50 000 KMF</span></label></li>
-                        </ul>
-                    </div>
-                </div> 
             </div>
-        </div>
-    </div>
-</div>
-<div class="w-100 shadow rounded mt-4">
-    <div class="bord_entete board_bloc3 d-flex flex-row text-white align-items-center px-3 pt-2">
-        <div class="w-100">
-            <h4 class="text-uppercase text-white entete_page mb-0">{{"Bon de commande & Bon de Livraison"|upper}}</h4> 
-            <h4 class="font-weight-bold text-white entete_page ml-auto mb-0">Nombre : 46</h4>
-            <h4 class="font-weight-bold text-white entete_page ml-auto">Montant : 552 000 KMF</h4>
-        </div>
-        <label for="" class="ml-auto w-100 text-right">30 Jan. - 28 Aug.</label>
-        <label class="ml-3"><i class="fa fa-diamond"></i></label>
-    </div>
-    <div class="w-100 py-3 container">
-        <div class="d-flex flex-row align-items-center flex-wrap">
-            <div class="d-flex flex-column flex-col justify-content-center w-50">
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail5 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Bon de Commande</h5>
-                        <div data-value="43" data-label="Bon de Commande" class="progress_bon w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> En Cours:&emsp;<span class="font-weight-bold">16&emsp;=>&emsp;450 000 KMF</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> Validée :&emsp;<span class="font-weight-bold">25&emsp;=>&emsp;450 000 KMF</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> Supprimée :&emsp;<span class="font-weight-bold">08&emsp;=>&emsp;450 000 KMF</span></label></li>
-                        </ul>
+            <div class="col-md-4 p-2">
+                <div class="w-100 rounded board_bloc7 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Chiffre d'affaire(s)</h5>
+                        {# <h5 class="font-weight-bold text-white mb-0">Nombre : 5320</h5> #}
+                        <h5 class="font-weight-bold text-white">Montant : 4 420 000 KMF</h5>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
                     </div>
                 </div>
-                <div class="h-100 p-3">
-                    <div class="w-100 pt-3 pb-1 px-3 board_detail barre_detail5 rounded shadow">
-                        <h5 class="title_form text-uppercase mb-0">Bon de Livraison</h5>
-                        <div data-value="10" data-label="Bon de Livraison" class="progress_bon w-100"></div>
-                        <ul class="list-unstyled">
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> En Cours:&emsp;<span class="font-weight-bold">16&emsp;=>&emsp;450 000 KMF</span></label></li>
-                            <li class=""><label class="text-uppercase mb-0 text-dark"> Validée :&emsp;<span class="font-weight-bold">25&emsp;=>&emsp;450 000 KMF</span></label></li>
-                        </ul>
+            </div>
+            <div class="col-md-4 p-2">
+                <div class="w-100 rounded board_bloc8 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Balance</h5>
+                        <h5 class="font-weight-bold text-white mb-0">Nombre : 1236</h5>
+                        <h5 class="font-weight-bold text-white">Montant : 1 120 000 KMF</h5>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
                     </div>
-                </div> 
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
+                    </div>
+                </div>
             </div>
-            <div class="w-50">
-                <div id="line_bon" ></div>
+            {# <div class="col-md-3 p-2">
+                <div class="w-100 rounded board_bloc5 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Commande(s)</h5>
+                        <h3 class="font-weight-bold text-white">350 000</h3>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
+                    </div>
+                </div>
             </div>
+            <div class="col-md-3 p-2">
+                <div class="w-100 rounded  board_bloc3 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Chiffre d'affaire</h5>
+                        <h3 class="font-weight-bold text-white">350 000</h3>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 p-2">
+                <div class="w-100 rounded board_bloc6 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Débit</h5>
+                        <h3 class="font-weight-bold text-white">350 000</h3>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 p-2">
+                <div class="w-100 rounded board_bloc7 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Crédit</h5>
+                        <h3 class="font-weight-bold text-white">350 000</h3>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 p-2">
+                <div class="w-100 rounded board_bloc8 text-white shadow d-flex flex-row justify-content-center">
+                    <div class="board_stats pl-4 pt-4 text-white">
+                        <h5 class="title_form text-white text-uppercase mb-0">Balance</h5>
+                        <h3 class="font-weight-bold text-white">350 000</h3>
+                        <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
+                    </div>
+                    <div class="board_logo ml-auto">
+                        <i class="fa fa-diamond"></i>
+                    </div>
+                </div>
+            </div> #}
         </div>
     </div>
-</div>
-<div class="px-2 mt-4">
-    <div class="row">
-        <div class="col-md-4 p-2">
-            <div class="w-100 rounded board_bloc6 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Inventaire(s)</h5>
-                    <h5 class="font-weight-bold text-white mb-0">Nombre d'article : 5320</h5>
-                    <h5 class="font-weight-bold text-white">Montant : 4 420 000 KMF</h5>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 p-2">
-            <div class="w-100 rounded board_bloc7 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Chiffre d'affaire(s)</h5>
-                    {# <h5 class="font-weight-bold text-white mb-0">Nombre : 5320</h5> #}
-                    <h5 class="font-weight-bold text-white">Montant : 4 420 000 KMF</h5>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 p-2">
-            <div class="w-100 rounded board_bloc8 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Balance</h5>
-                    <h5 class="font-weight-bold text-white mb-0">Nombre : 1236</h5>
-                    <h5 class="font-weight-bold text-white">Montant : 1 120 000 KMF</h5>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        {# <div class="col-md-3 p-2">
-            <div class="w-100 rounded board_bloc5 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Commande(s)</h5>
-                    <h3 class="font-weight-bold text-white">350 000</h3>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 p-2">
-            <div class="w-100 rounded  board_bloc3 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Chiffre d'affaire</h5>
-                    <h3 class="font-weight-bold text-white">350 000</h3>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 p-2">
-            <div class="w-100 rounded board_bloc6 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Débit</h5>
-                    <h3 class="font-weight-bold text-white">350 000</h3>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 p-2">
-            <div class="w-100 rounded board_bloc7 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Crédit</h5>
-                    <h3 class="font-weight-bold text-white">350 000</h3>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 p-2">
-            <div class="w-100 rounded board_bloc8 text-white shadow d-flex flex-row justify-content-center">
-                <div class="board_stats pl-4 pt-4 text-white">
-                    <h5 class="title_form text-white text-uppercase mb-0">Balance</h5>
-                    <h3 class="font-weight-bold text-white">350 000</h3>
-                    <label for="" class="mb-2 mt-3">30 Jan. - 28 Aug.</label>
-                </div>
-                <div class="board_logo ml-auto">
-                    <i class="fa fa-diamond"></i>
-                </div>
-            </div>
-        </div> #}
-    </div>
-</div>
+{% endif %}
 
 {% endblock %}
