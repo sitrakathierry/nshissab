@@ -537,7 +537,7 @@ class AdminController extends AbstractController
 
         $filename = "files/json/menu/".strtolower($user['username']).".json" ;
         if(!file_exists($filename))
-            $this->regenerateUserMenu($user['username']) ;
+            $this->regenerateUserMenu($user) ;
         
         $menuManager = json_decode(file_get_contents($filename)) ;
         $response = [
