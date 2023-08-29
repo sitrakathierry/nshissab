@@ -38,64 +38,128 @@ $(document).ready(function() {
 
     // /* Use 'html' instead of an array of values to pass options 
     // to a sparkline with data in the tag */
-    // $('.inlinebar').sparkline('html', {type: 'bar', barColor: 'red'} );
-
-    var options = {
-        animationEnabled: true,
-        title:{
-            text: "Stock Price of BMW - September"
+    // $('.inlinebar').sparkline('html', {type: 'bar', barColor: 'red'} ); 
+    var elementProgress = [
+        {
+            selector: '.progress_client',
+            bgColor: '#1488CC',
         },
-        axisX:{
-            valueFormatString: "DD MMM",
-            crosshair: {
-                enabled: true,
-                snapToDataPoint: true
-            }
+        {
+            selector: '.progress_stock',
+            bgColor: '#ADD100',
         },
-        axisY: {
-            title: "Closing Price (in USD)",
-            valueFormatString: "$##0.00",
-            crosshair: {
-                enabled: true,
-                snapToDataPoint: true,
-                labelFormatter: function(e) {
-                    return "$" + CanvasJS.formatNumber(e.value, "##0.00");
-                }
-            }
+        {
+            selector: '.progress_caisse',
+            bgColor: '#FAA235',
         },
-        data: [{
-            type: "area",
-            xValueFormatString: "DD MMM",
-            yValueFormatString: "$##0.00",
-            dataPoints: [
-                { x: new Date('2017', '08', '01'), y: 85.83 },
+        {
+            selector: '.progress_facture',
+            bgColor: '#EF473A',
+        },
+        {
+            selector: '.progress_bon',
+            bgColor: '#AA076B',
+        }
+    ] ; 
     
-                { x: new Date('2017', '08', '04'), y: 84.42 },
-                { x: new Date('2017', '08', '05'), y: 84.97 },
-                { x: new Date('2017', '08', '06'), y: 84.89 },
-                { x: new Date('2017', '08', '07'), y: 84.78 },
-                { x: new Date('2017', '08', '08'), y: 85.09 },
-                { x: new Date('2017', '08', '09'), y: 85.14 },
     
-                { x: new Date('2017', '08', '11'), y: 84.46 },
-                { x: new Date('2017', '08', '12'), y: 84.71 },
-                { x: new Date('2017', '08', '13'), y: 84.62 },
-                { x: new Date('2017', '08', '14'), y: 84.83 },
-                { x: new Date('2017', '08', '15'), y: 84.37 },
-                
-                { x: new Date('2017', '08', '18'), y: 84.07 },
-                { x: new Date('2017', '08', '19'), y: 83.60 },
-                { x: new Date('2017', '08', '20'), y: 82.85 },
-                { x: new Date('2017', '08', '21'), y: 82.52 },
-                
-                { x: new Date('2017', '08', '25'), y: 82.65 },
-                { x: new Date('2017', '08', '26'), y: 81.76 },
-                { x: new Date('2017', '08', '27'), y: 80.50 },
-                { x: new Date('2017', '08', '28'), y: 79.13 },
-                { x: new Date('2017', '08', '29'), y: 79.00 }
-            ]
-        }]
-    };
+    elementProgress.forEach(function(elem){
+        $(elem.selector).each(function(){
+            var self = $(this)
+            $(this).rProgressbar({
+                percentage: parseFloat(self.data("value")),
+                fillBackgroundColor: elem.bgColor,
+                backgroundColor: 'lightgrey',
+                height: '10px',
+                // width: '100%',
+            });
+        })
+    })
 
-    $("#chartContainer").CanvasJSChart(options);
+
+    var clientDonut = [] ;
+    $('.progress_client').each(function(){
+        var self = $(this)
+        clientDonut.push({
+        value: self.data("value"),
+        label: self.data("label"),
+        })
+    })
+
+    var factureDonut = []
+    $('.progress_facture').each(function(){
+        var self = $(this)
+        factureDonut.push({
+        value: self.data("value"),
+        label: self.data("label"),
+        })
+    })
+
+    Morris.Donut({
+        element: 'donut_client',
+        data: clientDonut,
+        formatter: function (x) { return x + "%"}
+      }).on('click', function(i, row){
+        console.log(i, row);
+    });
+
+    Morris.Donut({
+        element: 'donut_facture',
+        data: factureDonut,
+        formatter: function (x) { return x + "%"}
+      }).on('click', function(i, row){
+        console.log(i, row);
+    });
+
+    // Use Morris.Bar
+    Morris.Bar({
+        element: 'bar_article',
+        data: [
+            {x: 'Article(s)', y: 25, z: 5, a: 1},
+            // {x: '2011 Q2', y: 2, z: null, a: 1},
+            // {x: '2011 Q3', y: 0, z: 2, a: 4},
+            // {x: '2011 Q4', y: 2, z: 4, a: 3}
+        ],
+        xkey: 'x',
+        ykeys: ['y', 'z', 'a'],
+        labels: ['En Cours', 'Expiré', 'Déduit']
+        }).on('click', function(i, row){
+        console.log(i, row);
+    });
+
+    // Use Morris.Area instead of Morris.Line
+    Morris.Area({
+        element: 'area_caisse',
+        data: [
+            {x: '2023-08-25', y: 3, z: 30000},
+            {x: '2023-08-12', y: 6, z: 60000},
+            {x: '2023-07-03', y: 2, z: 20000},
+            // {x: '2011 Q2', y: null, z: 1},
+            // {x: '2011 Q3', y: 2, z: 5},
+            // {x: '2011 Q4', y: 8, z: 2},
+            // {x: '2012 Q1', y: 4, z: 4}
+        ],
+        xkey: 'x',
+        ykeys: ['y'],
+        ykeys: ['y', 'z'],
+        labels: ['Vente','Montant']
+        }).on('click', function(i, row){
+        console.log(i, row);
+    });
+
+    // Use Morris.Bar
+    Morris.Bar({
+        element: 'line_bon',
+        data: [
+            {x: 'Bon commande(s)', y: 25, z: 5, a: 8},
+            {x: 'Bon Livraison(s)', y: 2, z: 5},
+            // {x: '2011 Q3', y: 0, z: 2, a: 4},
+            // {x: '2011 Q4', y: 2, z: 4, a: 3}
+        ],
+        xkey: 'x',
+        ykeys: ['y', 'z', 'a'],
+        labels: ['En Cours', 'Validée', 'Supprimée']
+        }).on('click', function(i, row){
+        console.log(i, row);
+    });
 });

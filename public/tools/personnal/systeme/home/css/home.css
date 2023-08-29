@@ -47,3 +47,36 @@
 {
     background: linear-gradient(90deg, rgba(167,55,55,1) 0%, rgba(122,40,40,1) 100%);
 }
+
+.bord_entete
+{
+    /* height: 55px; */
+    border-radius: 5px 5px 0px 0px;
+    padding-top: 5px !important;
+}
+
+.barre_detail1
+{
+    border-left: 5px solid #1488CC;
+}
+.barre_detail2
+{
+    border-left: 5px solid #ADD100 ;
+}
+.barre_detail3
+{
+    border-left: 5px solid #FAA235 ;
+}
+.barre_detail4
+{
+    border-left: 5px solid #EF473A ;
+} 
+.barre_detail5
+{
+    border-left: 5px solid #AA076B ;
+}
+.board_detail
+{
+    /* height: 90px !important; */
+    /* color: #5b5656 !important; */
+}
