@@ -5,7 +5,7 @@ class AppBase
         
     }
 
-    checkData(elements)
+    checkData(elements) 
       {
         var message = ""
         var type = ""

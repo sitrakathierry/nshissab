@@ -281,7 +281,6 @@ class AdminController extends AbstractController
                 ]) ;
 
                 // dd($menuAgAll) ;
-
                 foreach ($menuAgAll as $mAgence) {
                     if(!in_array($mAgence->getMenu()->getId(),$compareMenu))
                     {
@@ -543,10 +542,11 @@ class AdminController extends AbstractController
             $this->regenerateUserMenu($user) ;
         
         $menuManager = json_decode(file_get_contents($filename)) ;
+
         $response = [
             "manager" => strtolower($user["username"]),
             "menuManager" => $menuManager
-            ] ;
+        ] ;
         
         return new JsonResponse($response) ;
     }

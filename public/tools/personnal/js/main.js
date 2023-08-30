@@ -312,7 +312,7 @@ $(document).ready(function(){
             }
         }   
     })
-
+ 
     function checkSociety(agence)
     {
         $.alert({

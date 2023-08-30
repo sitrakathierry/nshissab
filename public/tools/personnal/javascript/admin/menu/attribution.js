@@ -31,9 +31,16 @@ $(document).ready(function(){
             parcoursMenu(item.submenu); // appel récursif sur les sous-menus
           }
         });
-      }
+    }
 
-
+    $(".menu_item").each(function(){
+      $(this).find(".menuCheck").removeClass("fa text-info")
+      $(this).find(".menuCheck").addClass("far")
+      if($(this).find(".menuPlus").hasClass("text-info"))
+      {
+        $(this).find(".menuPlus").click()
+      }  
+    })
 
     $(".oneSociety").click(function(){
         if($(this).hasClass("active"))
@@ -50,7 +57,7 @@ $(document).ready(function(){
             $.ajax({
                 url: routes.manager_agence,
                 type:'post',
-                data:{idAgence:$(this).attr("value")},
+                data:{idAgence:$(this).attr("value")}, 
                 dataType:'json',
                 success: function(response){
                     instance.close()
@@ -60,7 +67,7 @@ $(document).ready(function(){
                       $.alert({
                         title:"Message",
                         type:"orange",
-                        content:"Cet agence n'a aucun menu"
+                        content:"Veuiller ajouter des menus"
                         
                       })
                     
