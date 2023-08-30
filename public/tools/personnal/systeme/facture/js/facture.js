@@ -72,6 +72,7 @@ $(document).ready(function(){
         var btnClass = $(this).data("class")
         var target = $(this).data("target")
         var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
+
         var inputValue = $(this).attr("value")
         var self = $(this)
         var btnText = $(this).data("text")
@@ -125,32 +126,79 @@ $(document).ready(function(){
         var self = $(this)
         var numCaption = $(this).data('numcaption')
         var libelleCaption = $(this).data('libelle')
+        var reference = $(this).data('reference')
 
         $(target).val(inputValue) ;
 
         $(".fact_table_paiement").text(btnText)
 
-        if(libelleCaption != "")
+        if(reference != "ES")
         {
-            $("#fact_libelle").show();
             $(".fact_libelle_caption").text(libelleCaption)
+            $("#fact_libelle").parent().show()
+            $(".fact_num_caption").text(numCaption)
+            $("#fact_num").parent().show();
+
+            if(reference == "AC" || reference == "CR")
+            {
+                $(".fact_num_caption").text("")
+                $("#fact_num").parent().hide()
+                $(".teleportMontant").html($("#fact_libelle").parent().html())
+                $(".contentMontant").empty()
+            }
+            else
+            {
+                if($(".teleportMontant").html() != "")
+                {
+                    $(".contentMontant").html($(".teleportMontant").html())
+                    $(".teleportMontant").empty()
+                }
+            }
+
         }
         else
         {
-            $("#fact_libelle").hide();
             $(".fact_libelle_caption").text("")
+            $("#fact_libelle").parent().hide()
+            $(".fact_num_caption").text("")
+            $("#fact_num").parent().hide()
         }   
 
-        if(numCaption != "")
+        // AGENDA
+        if ($(this).hasClass('CR'))
         {
-            $("#fact_num").show();
-            $(".fact_num_caption").text(numCaption)
+            $("#agd_echance").show()
         }
         else
         {
-            $("#fact_num").hide();
-            $(".fact_num_caption").text("")
+            $("#agd_echance").hide()
         }
+
+        // Agenda acompte
+        if ($(this).hasClass('AC')) {
+            $(".agd_acompte").show()
+        }
+        else
+        {
+            $(".agd_acompte").hide()
+        }
+
+        // if($(this).hasClass('AC') || $(this).hasClass('CR'))
+        // {
+        //     var contentMontant = $(".contentMontant").html()
+        //     if(contentMontant != "")
+        //     {
+        //         $(".teleportMontant").html(contentMontant)
+        //         $(".contentMontant").empty()
+        //     }
+        // }else{
+        //     var teleportMontant = $(".teleportMontant").html()
+        //     if(teleportMontant != "")
+        //     {
+        //         $(".contentMontant").html(teleportMontant)
+        //         $(".teleportMontant").empty()
+        //     }
+        // }
 
         $(this).addClass(btnClass)
         $(this).removeClass(currentbtnClass)
@@ -160,43 +208,6 @@ $(document).ready(function(){
                 $(this).removeClass(btnClass);
             }
         })
-
-        // AGENDA
-
-        if ($(this).hasClass('CR')) {
-            $("#agd_echance").show()
-        }
-        else
-        {
-            $("#agd_echance").hide()
-        }
-
-        // Agenda acompte
-
-        if ($(this).hasClass('AC')) {
-            $(".agd_acompte").show()
-        }
-        else
-        {
-            $(".agd_acompte").hide()
-        }
-
-        if($(this).hasClass('AC') || $(this).hasClass('CR'))
-        {
-            var contentMontant = $(".contentMontant").html()
-            if(contentMontant != "")
-            {
-                $(".teleportMontant").html(contentMontant)
-                $(".contentMontant").empty()
-            }
-        }else{
-            var teleportMontant = $(".teleportMontant").html()
-            if(teleportMontant != "")
-            {
-                $(".contentMontant").html(teleportMontant)
-                $(".teleportMontant").empty()
-            }
-        }
     })
 
     function displayTemplateFacture(factRoute = [], indice)

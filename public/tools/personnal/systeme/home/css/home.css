@@ -80,3 +80,15 @@
     /* height: 90px !important; */
     /* color: #5b5656 !important; */
 }
+.progressbar
+{
+    margin-bottom: 5px !important;
+}
+#donut_client
+{
+    height: 220px !important;
+}
+#bar_article,#area_caisse,#line_bon
+{
+    height: 250px !important;
+}

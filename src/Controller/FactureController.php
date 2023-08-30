@@ -82,9 +82,11 @@ class FactureController extends AbstractController
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
 
-        $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
-            "agence" => $this->agence 
-        ]) ; 
+        $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCltClient($filename, $this->agence) ;
+
+        $clients = json_decode(file_get_contents($filename)) ;
 
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
@@ -123,6 +125,8 @@ class FactureController extends AbstractController
             "statut" => True
         ]) ; 
 
+        $typeRemises = $this->entityManager->getRepository(FactRemiseType::class)->findAll() ; 
+
         $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
@@ -133,7 +137,8 @@ class FactureController extends AbstractController
         $responses = $this->renderView("facture/produit.html.twig",[
             "stockGenerales" => $stockGenerales,
             "devises" => $devises,
-            "agcDevise" => $agcDevise
+            "agcDevise" => $agcDevise,
+            "typeRemises" => $typeRemises,
         ]) ;
 
         return new Response($responses) ;
@@ -232,9 +237,17 @@ class FactureController extends AbstractController
         return new Response($responses) ;
     }
 
+    public static function comparaisonDates($a, $b) {
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        return $dateB <=> $dateA;
+    }
+
+
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
     { 
+
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
 
         if(!file_exists($filename))
@@ -247,7 +260,8 @@ class FactureController extends AbstractController
         ] ;
         
         $item1 = $this->appService->searchData($factures, $search) ;
-        
+        $item1 = $this->appService->objectToArray($item1) ;
+
         $filename = "files/systeme/sav/annulation(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateSavAnnulation($filename,$this->agence) ;
@@ -259,8 +273,9 @@ class FactureController extends AbstractController
         ] ;
 
         $item2 = $this->appService->searchData($annulations,$search) ;
-        
         $item2 = $this->appService->formatAnnulationToFacture($item2) ;
+
+        $item2 = $this->appService->objectToArray($item2) ;
 
         $search = [
             "refSpec" => "ACN"
@@ -271,6 +286,8 @@ class FactureController extends AbstractController
         $item3 = $this->appService->formatAnnulationToFacture($item3) ;
 
         $factures = array_merge($item1, $item2, $item3);
+
+        usort($factures, [self::class, 'comparaisonDates']);
 
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
 
@@ -293,9 +310,15 @@ class FactureController extends AbstractController
 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
 
-        $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
-            "agence" => $this->agence 
-        ]) ; 
+        // $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
+        //     "agence" => $this->agence 
+        // ]) ; 
+
+        $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCltClient($filename, $this->agence) ;
+            
+        $clients = json_decode(file_get_contents($filename)) ;
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
 

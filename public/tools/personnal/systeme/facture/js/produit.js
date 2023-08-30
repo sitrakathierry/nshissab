@@ -210,48 +210,50 @@ $(document).ready(function(){
 
         }
 
+        fact_text_prix = parseFloat(fact_text_prix) ;
+        fact_mod_prod_qte = parseFloat(fact_mod_prod_qte) ;
+        fact_mod_prod_tva_val = parseFloat(fact_mod_prod_tva_val) ;
+
         var fact_mod_prod_type_remise = $("#fact_mod_prod_type_remise").val()
-        var fact_text_type_remise = fact_mod_prod_type_remise == 1 ? "%" : (fact_mod_prod_type_remise == 2 ? "Montant" : "") ;
+        var selectedTypeRemise = $("#fact_mod_prod_type_remise").find("option:selected")
+        var fact_text_type_remise = selectedTypeRemise.text() ; 
         var fact_mod_prod_remise = $("#fact_mod_prod_remise").val()
         var fact_valeur_tva = ((fact_text_prix * fact_mod_prod_tva_val) / 100) * fact_mod_prod_qte
         var fact_total_partiel = fact_text_prix * fact_mod_prod_qte ;
 
-        if(fact_text_type_remise != "")
+        if(fact_mod_prod_type_remise != "")
         {
-            if(fact_mod_prod_remise == "")
+            var result = appBase.verificationElement([
+                fact_mod_prod_remise,
+            ],[
+                "Remise",
+            ])
+    
+            if(!result["allow"])
             {
                 $.alert({
-                    title: 'Champ vide',
-                    content: "Remise est vide",
-                    type:'orange',
-                })
-                return false;
+                    title: 'Message',
+                    content: result["message"],
+                    type: result["type"],
+                });
+    
+                return result["allow"] ;
+            }
+
+            fact_mod_prod_remise = parseFloat(fact_mod_prod_remise) ;
+            var remiseCalcul = selectedTypeRemise.data("calcul")
+            var remise = 0 ;
+            if(remiseCalcul == 100)
+            {
+                remise = ((fact_text_prix * fact_mod_prod_remise) / 100 ) * fact_mod_prod_qte
+                fact_total_partiel = fact_total_partiel - remise 
             }
             else
             {
-                if(parseFloat(fact_mod_prod_remise) < 0)
-                {
-                    $.alert({
-                        title: 'Valeur négatif',
-                        content: "Remise doit être positif ",
-                        type:'red',
-                    })
-                    return false;
-                }
-                else
-                {
-                    if(fact_mod_prod_type_remise == 2)
-                    {
-                        var remise = fact_mod_prod_remise != "" ? (fact_total_partiel * fact_mod_prod_remise) / 100 : 0
-                        fact_total_partiel = fact_total_partiel - remise 
-                    }
-                    else
-                    {
-                        var remise = fact_mod_prod_remise != "" ? fact_mod_prod_remise : 0
-                        fact_total_partiel = fact_total_partiel - remise
-                    }
-                }
+                remise = fact_mod_prod_remise
+                fact_total_partiel = fact_total_partiel - remise
             }
+           
         }
         else
         {
@@ -333,6 +335,7 @@ $(document).ready(function(){
         var totalApresDeduction = 0
         
         var remiseType = $("#fact_type_remise_prod_general").val()
+        var selectedTypeRemise = $("#fact_type_remise_prod_general").find("option:selected")
         var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : parseFloat($("#fact_remise_prod_general").val())
         
         $(".elem_facture_produit tr").each(function(index, item){
@@ -344,8 +347,11 @@ $(document).ready(function(){
             totalHT += parseFloat(totalLigne) ;
             totalTva += (((parseFloat(tvaLigne) * parseFloat(prixLigne)) / 100) * parseFloat(quantiteLigne)) ;
         })
-        
-        var remise = remiseType == 1 ? remiseVal : (totalHT * remiseVal) / 100 
+
+        var remise = 0 ;
+
+        if(selectedTypeRemise.data("calcul") != "")
+            remise = selectedTypeRemise.data("calcul") == 1 ? remiseVal : (totalHT * remiseVal) / 100 
 
         totalTTC = (totalHT + totalTva) - remise ;
         totalApresDeduction = totalHT - remise ; 

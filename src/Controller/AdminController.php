@@ -264,7 +264,7 @@ class AdminController extends AbstractController
                 }
 
                 for ($i=0; $i < count($addMenus); $i++) { 
-                    $menuAgence = new MenuAgence($agence) ;
+                    $menuAgence = new MenuAgence() ;
                     $menuAgence->setAgence($agence) ;
                     $menu = $this->entityManager->getRepository(Menu::class)->find($addMenus[$i]) ;
                     $menuAgence->setMenu($menu) ;
@@ -279,6 +279,9 @@ class AdminController extends AbstractController
                 $menuAgAll = $this->entityManager->getRepository(MenuAgence::class)->findBy([
                     "agence" => $agence
                 ]) ;
+
+                // dd($menuAgAll) ;
+
                 foreach ($menuAgAll as $mAgence) {
                     if(!in_array($mAgence->getMenu()->getId(),$compareMenu))
                     {

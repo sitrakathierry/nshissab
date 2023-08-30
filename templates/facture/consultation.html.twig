@@ -59,7 +59,7 @@
                     <select name="fact_search_client" class="custom-select chosen_select custom-select-sm" id="fact_search_client">
                         <option value="">TOUS</option>
                         {% for client in clients %}
-                            <option value="{{client.id}}">{{client.client.nom|upper}}</option>
+                            <option value="{{client.id}}">{{client.nom|upper}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -97,11 +97,11 @@
                         {% for facture in factures %}
                             <tr>
                                 <td>{{ facture.numFact }}</td>
-                                <td>{{ facture.modele }}</td>
-                                <td>{{ facture.type }}</td>
+                                <td>{{ facture.modele|upper}}</td>
+                                <td>{{ facture.type|upper}}</td>
                                 <td>{{ facture.dateCreation }}</td>
                                 <td>{{ facture.dateFacture }}</td>
-                                <td>{{ facture.client }}</td>
+                                <td>{{ facture.client|upper}}</td>
                                 <td>{{ facture.total }}</td>
                                 <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id,'nature':facture.nature})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
                             </tr>  

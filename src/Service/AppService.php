@@ -1251,6 +1251,7 @@ class AppService extends AbstractController
             $element["idM"] = $facture->getModele()->getId()  ;
             $element["mois"] = $facture->getDate()->format('m')   ;
             $element["annee"] = $facture->getDate()->format('Y')   ;
+            $element["date"] = $facture->getDate()->format('d/m/Y')  ;
             $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
             $element["dateDebut"] = $facture->getDate()->format('d/m/Y')   ;
             $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
@@ -1293,6 +1294,17 @@ class AppService extends AbstractController
         }
 
         file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function objectToArray($objects)
+    {
+        $elements = [] ;
+        foreach($objects as $item)
+        {
+            $elements[] = (array)$item ;
+        }
+
+        return $elements ;
     }
 
     public function generateInterneMateriel($filename,$agence) 
@@ -2697,6 +2709,7 @@ class AppService extends AbstractController
             $element["idM"] = $facture->getModele()->getId()  ;
             $element["mois"] = $facture->getDate()->format('m')   ;
             $element["annee"] = $facture->getDate()->format('Y')   ;
+            $element["date"] = $facture->getDate()->format('d/m/Y')  ;
             $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
             $element["dateDebut"] = $facture->getDate()->format('d/m/Y')   ;
             $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
