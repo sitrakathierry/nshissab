@@ -587,23 +587,23 @@ class FactureController extends AbstractController
         
         $paiement = $this->entityManager->getRepository(FactPaiement::class)->find($fact_paiement) ; 
 
-        if(!is_null($paiement))
-        {
-            if($paiement->getReference() != "CR" && $paiement->getReference() != "AC")
-            {
-                if(!is_null($paiement->getLibelleCaption()))
-                {
-                    array_push($data,$fact_libelle) ;
-                    array_push($dataMessage,$paiement->getLibelleCaption()) ;
-                }
+        // if(!is_null($paiement))
+        // {
+        //     if($paiement->getReference() != "CR" && $paiement->getReference() != "AC")
+        //     {
+        //         if(!is_null($paiement->getLibelleCaption()))
+        //         {
+        //             array_push($data,$fact_libelle) ;
+        //             array_push($dataMessage,$paiement->getLibelleCaption()) ;
+        //         }
     
-                if(!is_null($paiement->getNumCaption()))
-                {
-                    array_push($data,$fact_num) ;
-                    array_push($dataMessage,$paiement->getNumCaption()) ;
-                }
-            }
-        }
+        //         if(!is_null($paiement->getNumCaption()))
+        //         {
+        //             array_push($data,$fact_num) ;
+        //             array_push($dataMessage,$paiement->getNumCaption()) ;
+        //         }
+        //     }
+        // }
 
         $result = $this->appService->verificationElement($data, $dataMessage) ;
 
