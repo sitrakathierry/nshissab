@@ -185,7 +185,8 @@ $(document).ready(function(){
         var fact_mod_prod_prix =  $("#fact_mod_prod_prix").val()
         var fact_mod_prod_qte = $("#fact_mod_prod_qte").val()
         var fact_mod_prod_tva_val = $("#fact_mod_prod_tva_val").val()
-
+        fact_mod_prod_tva_val = fact_mod_prod_tva_val == "" ? 0 : fact_mod_prod_tva_val
+        
         if(fact_mod_prod_type != "autre")
         {
             if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
