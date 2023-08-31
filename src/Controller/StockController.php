@@ -164,7 +164,7 @@ class StockController extends AbstractController
         foreach ($crt_code as $key => $value) {
             $data = [
                 $crt_entrepot[$key],
-                $crt_prix_achat[$key],
+                // $crt_prix_achat[$key],
                 // $crt_prix_revient[$key],
                 $crt_prix_vente[$key],
                 $crt_stock_alert[$key],
@@ -175,7 +175,7 @@ class StockController extends AbstractController
     
             $dataMessage = [
                 "Entrepot",
-                "Prix Achat",
+                // "Prix Achat",
                 // "Prix Revient",
                 "Prix Vente",
                 "Stock Alert",
@@ -306,7 +306,7 @@ class StockController extends AbstractController
             $approvisionnement->setVariationPrix($variationPrix) ;
             $approvisionnement->setMargeType($margeType) ;
             $approvisionnement->setQuantite($crt_stock[$key]) ;
-            $approvisionnement->setPrixAchat($crt_prix_achat[$key]) ;
+            $approvisionnement->setPrixAchat(empty($crt_prix_achat[$key]) ? null : $crt_prix_achat[$key]) ;
             $approvisionnement->setCharge(empty($crt_charge[$key]) ? null : $crt_charge[$key]) ;
             $approvisionnement->setMargeValeur(empty($crt_marge[$key]) ? null : $crt_marge[$key]) ;
             $approvisionnement->setPrixRevient(empty($crt_prix_revient[$key]) ? null : $crt_prix_revient[$key]) ;
