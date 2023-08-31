@@ -500,8 +500,10 @@ class AppService extends AbstractController
     public function generateStockCategorie($filename,$agence)
     {
         $categories = $this->entityManager->getRepository(PrdCategories::class)->findBy([
-            "agence" => $agence
+            "agence" => $agence,
+            "statut" => True 
         ]) ;
+        
         $elements = [] ;
         
         foreach ($categories as $cat) {

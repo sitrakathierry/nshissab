@@ -165,22 +165,22 @@ class StockController extends AbstractController
             $data = [
                 $crt_entrepot[$key],
                 $crt_prix_achat[$key],
-                $crt_prix_revient[$key],
+                // $crt_prix_revient[$key],
                 $crt_prix_vente[$key],
                 $crt_stock_alert[$key],
-                $crt_charge[$key],
-                $crt_marge[$key],
+                // $crt_charge[$key],
+                // $crt_marge[$key],
                 $crt_stock[$key]
             ];
     
             $dataMessage = [
                 "Entrepot",
                 "Prix Achat",
-                "Prix Revient",
+                // "Prix Revient",
                 "Prix Vente",
                 "Stock Alert",
-                "Charge",
-                "Marge",
+                // "Charge",
+                // "Marge",
                 "Stock",
             ] ;
 
@@ -307,9 +307,9 @@ class StockController extends AbstractController
             $approvisionnement->setMargeType($margeType) ;
             $approvisionnement->setQuantite($crt_stock[$key]) ;
             $approvisionnement->setPrixAchat($crt_prix_achat[$key]) ;
-            $approvisionnement->setCharge($crt_charge[$key]) ;
-            $approvisionnement->setMargeValeur($crt_marge[$key]) ;
-            $approvisionnement->setPrixRevient($crt_prix_revient[$key]) ;
+            $approvisionnement->setCharge(empty($crt_charge[$key]) ? null : $crt_charge[$key]) ;
+            $approvisionnement->setMargeValeur(empty($crt_marge[$key]) ? null : $crt_marge[$key]) ;
+            $approvisionnement->setPrixRevient(empty($crt_prix_revient[$key]) ? null : $crt_prix_revient[$key]) ;
             $approvisionnement->setPrixVente($crt_prix_vente[$key]) ;
             $expirer = !empty($crt_expiree_le[$key]) ? \DateTime::createFromFormat('j/m/Y', $crt_expiree_le[$key]) : null;
             $approvisionnement->setExpireeLe($expirer) ;
@@ -697,6 +697,7 @@ class StockController extends AbstractController
         $categorie->setAgence($agence) ;
         $categorie->setImages($image) ;
         $categorie->setNom($nom) ;
+        $categorie->setStatut(True) ;
         $categorie->setCreatedAt(new \DateTimeImmutable) ;
         $categorie->setUpdatedAt(new \DateTimeImmutable) ;
 
@@ -715,7 +716,7 @@ class StockController extends AbstractController
         $id = $request->request->get("id") ;
         $categorie = $this->entityManager->getRepository(PrdCategories::class)->find($id) ; 
 
-        $this->entityManager->remove($categorie);
+        $categorie->setStatut(False) ;
         $this->entityManager->flush();
 
         $user = $this->session->get("user") ;
