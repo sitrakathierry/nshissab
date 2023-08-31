@@ -67,7 +67,7 @@ CmdBonCommande, CaisseCommande, CaissePanier, ...
 var self = $(this)
         $.confirm({
             title: "Confirmation",
-            content:"Vous êtes sûre ?",
+            content:"Êtes-vous sûre ?",
             type:"blue",
             theme:"modern",
             buttons:{
@@ -81,15 +81,15 @@ var self = $(this)
                     keys: ['enter', 'shift'],
                     action: function(){
                         var realinstance = instance.loading()
+                        var data = self.serialize()
                         $.ajax({
-                            url: routes.cmd_check_bon_commande,
+                            url: routes.param_modele_pdf_save,
                             type:'post',
                             cache: false,
-                            data:{id:self.attr('value')},
+                            data:data,
                             dataType: 'json',
-                            processData: false,
-                            contentType: false,
                             success: function(){
+                                realinstance.close()
                                 $.alert({
                                     title: 'Message',
                                     content: json.message,
@@ -113,6 +113,7 @@ var self = $(this)
                 }
             }
         })
+        return false ;
 
         
         $filename = $this->filename."releveloyer(agence)/".$this->nameAgence."_relevePL_".$id  ;

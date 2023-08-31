@@ -58,7 +58,7 @@ $(document).ready(function(){
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 150, function(resizedBase64) {
+            resizeBase64Image(reader.result, 170, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 range = selection.getRangeAt(0);
                 var imageContent = range.createContextualFragment(imageContent);
@@ -115,26 +115,26 @@ $(document).ready(function(){
         if($("#modele_forme").val() == 1)
         {
             content = `
-            <div class="w-100 config-editor" >
+            <div class="config-editor" style="width:100%;" >
             </div>
             `
         }
         else if($("#modele_forme").val() == 2)
         {
             content = `
-            <div class="w-100 d-flex flex-row" >
-                <div class="w-100 config-editor h-auto"></div>
-                <div class="w-100 config-editor h-auto"></div>
+            <div style="width:100%;display: flex; flex-direction:row" >
+                <div class="config-editor" style="width:100%;height:auto"></div>
+                <div class="config-editor" style="width:100%;height:auto"></div>
             </div>
             `
         }
         else if($("#modele_forme").val() == 3)
         {
             content = `
-            <div class="w-100 d-flex flex-row" >
-                <div class="w-100 config-editor h-auto"></div>
-                <div class="w-100 config-editor h-auto"></div>
-                <div class="w-100 config-editor h-auto"></div>
+            <div style="width:100%;display: flex; flex-direction:row" >
+                <div class="config-editor" style="width:100%;height:auto"></div>
+                <div class="config-editor" style="width:100%;height:auto"></div>
+                <div class="config-editor" style="width:100%;height:auto"></div>
             </div>
             `
         }
@@ -185,5 +185,125 @@ $(document).ready(function(){
             })
         }
     })
+    qz.websocket.connect() ;
+    $(".apercu_modele").click(function(){
+        qz.printers.find().then((allPrinters) => {
+            var options = '<option>-</option>' ;
+            for (var i = 0; i < allPrinters.length; i++) {
+                options += '<option>' + allPrinters[i] + '</option>';
+            }
+            $.confirm({
+                title: 'Aperçu',
+                content:`
+                    <div class="w-100 text-left">
+                        <label for="stock_printers" class="font-weight-bold">Imprimante</label>  
+                        <select class="custom-select custom-select-sm" id="stock_printers">
+                            `+options+`
+                        </select>
+                    </div>
+                    `,
+                type:"blue",
+                theme:"modern",
+                buttons : {
+                    Annuler : function(){},
+                    btn2 : 
+                    {
+                        text: 'Valider',
+                        btnClass: 'btn-blue',
+                        keys: ['enter', 'shift'],
+                        action: function(){
+                            $(".Editor-editor .config-editor").each(function(){
+                                $(this).css("padding","10px 20px")
+                                $(this).css("min-height","100px")
+                            })
+
+                            $(".Editor-editor .none-editor").each(function(){
+                                $(this).css("padding","10px 20px")
+                                $(this).css("min-height","100px")
+                            })
+                            var myprinter = $("#stock_printers").val()
+                            if(myprinter == "")
+                            {
+                                $.alert({
+                                    title: 'Message',
+                                    content: "Veuiller séléctionner une imprimante",
+                                    type: "orange",
+                                });
+                                return false ;
+                            }
+                            var config = qz.configs.create(myprinter); 
+                            var dataToPdf = `
+                                    <div style="width:100%">${$(".Editor-editor").html()}</div>
+                                `
+
+                            var printData = [{
+                                type: 'pixel',
+                                format: 'html',
+                                flavor: 'plain',
+                                data: dataToPdf
+                            }];
+                            
+                            qz.print(config, printData) ;
+                        }
+                    }
+                }
+            })
+        })
+    })
     
+    $("#formModele").submit(function(){
+        var self = $(this)
+        $('#modele_editor').val(modele_editor.getEditorText('#modele_editor')) 
+        $.confirm({
+            title: "Confirmation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize()
+                        $.ajax({
+                            url: routes.param_modele_pdf_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                $("input,select").val("")
+                                                $(".chosen_select").trigger("chosen:updated")
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
 })

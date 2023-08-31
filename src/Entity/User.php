@@ -88,6 +88,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsrAbonnement::class)]
     private Collection $usrAbonnements;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ModModelePdf::class)]
+    private Collection $modModelePdfs;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
@@ -99,6 +102,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->factures = new ArrayCollection();
         $this->savAnnulations = new ArrayCollection();
         $this->usrAbonnements = new ArrayCollection();
+        $this->modModelePdfs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -519,6 +523,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($usrAbonnement->getUser() === $this) {
                 $usrAbonnement->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ModModelePdf>
+     */
+    public function getModModelePdfs(): Collection
+    {
+        return $this->modModelePdfs;
+    }
+
+    public function addModModelePdf(ModModelePdf $modModelePdf): self
+    {
+        if (!$this->modModelePdfs->contains($modModelePdf)) {
+            $this->modModelePdfs->add($modModelePdf);
+            $modModelePdf->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeModModelePdf(ModModelePdf $modModelePdf): self
+    {
+        if ($this->modModelePdfs->removeElement($modModelePdf)) {
+            // set the owning side to null (unless already changed)
+            if ($modModelePdf->getUser() === $this) {
+                $modModelePdf->setUser(null);
             }
         }
 

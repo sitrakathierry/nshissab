@@ -43,6 +43,7 @@ use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
 use App\Entity\Menu;
 use App\Entity\MenuUser;
+use App\Entity\ModModelePdf;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdEntrepot;
@@ -1228,6 +1229,30 @@ class AppService extends AbstractController
             $element["totalTva"] = $commande->getTva();
             $element["montant"] = $commande->getMontantPayee();
             $element["date"] = $commande->getDate()->format('d/m/Y') ;
+            array_push($elements,$element) ;
+        }
+
+        file_put_contents($filename,json_encode($elements)) ;
+    }
+
+    public function generateModModelePdf($filename,$user)
+    {
+        $modelePdfs = $this->entityManager->getRepository(ModModelePdf::class)->findBy([
+            "user" => $user,
+            "statut" => True,
+        ],
+        [ "id" => "DESC" ]) ;
+        
+        $elements = [] ;
+
+        foreach ($modelePdfs as $modelePdf) {
+            $element = [] ;
+            $element["id"] = $modelePdf->getId() ;
+            $element["user"] = $modelePdf->getUser()->getId() ;
+            $element["nom"] = $modelePdf->getNom() ;
+            $element["type"] = $modelePdf->getType() == "ENTETE" ? "Entête de page" : "Bas de page" ;
+            $element["statut"] = $modelePdf->isStatut();
+
             array_push($elements,$element) ;
         }
 

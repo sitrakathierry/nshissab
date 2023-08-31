@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\AgcDevise;
 use App\Entity\Agence;
 use App\Entity\Devise;
+use App\Entity\ModModelePdf;
 use App\Entity\ParamTvaType;
 use App\Entity\Produit;
 use App\Entity\User;
@@ -381,5 +382,62 @@ class ParametresController extends AbstractController
         }
 
         return new Response($response) ;
+    }
+
+    #[Route('/parametres/modele/pdf/consultation', name: 'param_modele_pdf_consultation')]
+    public function paramConsultationModelePdf()
+    {
+        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;    
+        if(!file_exists($filename))
+            $this->appService->generateModModelePdf($filename,$this->userObj) ;
+        
+        $modelePdfs = json_decode(file_get_contents($filename)) ;
+        
+        return $this->render('parametres/modele/consultationModelePdf.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Liste Modèle Pdf",
+            "with_foot" => true,
+            "modelePdfs" => $modelePdfs,
+        ]);
+    }
+    
+    #[Route('/parametres/modele/pdf/save', name: 'param_modele_pdf_save')]
+    public function paramSaveModelePdf(Request $request)
+    {
+        $modele_nom = $request->request->get("modele_nom") ;
+        $modele_value = $request->request->get("modele_value") ;
+        $modele_editor = $request->request->get("modele_editor") ;
+
+        $result = $this->appService->verificationElement([
+            $modele_nom,
+            $modele_value,
+            $modele_editor
+        ],[
+            "Nom Modele",
+            "Type Modèle",
+            "Contenu Modèle",
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $modelePdf = new ModModelePdf() ;
+        
+        $modelePdf->setUser($this->userObj) ;
+        $modelePdf->setNom($modele_nom) ;
+        $modelePdf->setType($modele_value) ;
+        $modelePdf->setContenu($modele_editor) ;
+        $modelePdf->setStatut(True) ;
+        $modelePdf->setCreatedAt(new \DateTimeImmutable) ;
+        $modelePdf->setUpdatedAt(new \DateTimeImmutable) ;
+        
+        $this->entityManager->persist($modelePdf) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ; 
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse($result) ;
     }
 }
