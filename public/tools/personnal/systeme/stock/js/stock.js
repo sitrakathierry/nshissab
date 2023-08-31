@@ -19,17 +19,33 @@ $(document).ready(function(){
         $("#imageImport").click()
     })
 
+    function resizeBase64Image(base64, newWidth, callback) {
+        var img = new Image();
+        img.src = base64;
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            canvas.width = newWidth;
+            canvas.height = (img.height / img.width) * newWidth;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            callback(canvas.toDataURL('image/jpeg'));
+        };
+    }
 
     $('#imageImport').on('change', function() {
         var reader = new FileReader();
         reader.onloadend = function() {
-          // Afficher les données du fichier
-          var image = new CustomImage(reader.result)
-          var basePromise = image.limitBase64ImageSize(2097152)
-          basePromise.then(base64 => {
-            $(".image_categorie").attr("src",base64)
-            $("#prod_image").val(base64) ;
-          });
+            // Afficher les données du fichier
+            resizeBase64Image(reader.result, 220, function(resizedBase64) {
+                $(".image_categorie").attr("src",resizedBase64)
+                $("#prod_image").val(resizedBase64) ;
+            });
+            // var image = new CustomImage(reader.result)
+            // var basePromise = image.limitBase64ImageSize(2097152)
+            // basePromise.then(base64 => {
+            //     $(".image_categorie").attr("src",base64)
+            //     $("#prod_image").val(base64) ;
+            // });
         }
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);

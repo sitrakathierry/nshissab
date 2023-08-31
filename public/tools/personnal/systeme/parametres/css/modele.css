@@ -2,3 +2,16 @@
 {
     min-height: 400px !important;
 }
+
+.config-editor
+{
+    border: 2px dashed lightgrey ;
+    padding: 10px ;
+    min-height: 100px;
+}
+
+.none-editor
+{
+    padding: 10px ;
+    min-height: 100px;
+}

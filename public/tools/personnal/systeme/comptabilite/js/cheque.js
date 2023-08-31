@@ -4,7 +4,7 @@ $(document).ready(function(){
 
     $("#chk_date_cheque").datepicker()
     $("#chk_date_declaration").datepicker()
-    cheque_editor.setEditorText($("#cheque_editor").val())
+    cheque_editor.setEditorText($("#cheque_editor").text())
 
     $("#formCheque").submit(function(){
         var self = $(this);

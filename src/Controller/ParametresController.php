@@ -362,4 +362,24 @@ class ParametresController extends AbstractController
             "with_foot" => true,
         ]);
     }
+
+    #[Route('/parametres/information/societe/get', name: 'params_information_societe_get')]
+    public function paramsGetInformationSociete(Request $request)
+    {
+        $information = $request->request->get("information") ;
+        if($information == "SOCIETE")
+        {
+            $response = $this->renderView('parametres/modele/getInformationSociete.html.twig', [
+                "agence" => $this->agence 
+            ]);
+        }
+        else
+        {
+            $response = $this->renderView('parametres/modele/getInformationPersonnel.html.twig', [
+                "user" => $this->userObj
+            ]);
+        }
+
+        return new Response($response) ;
+    }
 }

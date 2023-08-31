@@ -11,6 +11,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/modele.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -18,17 +19,47 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <h5 class="title_form text-black text-uppercase">Sélectionner le modèle à créer</h5>
-        <div class="w-100 d-flex flex-row align-items-center">
-            <button class="btn btn-outline-primary text-uppercase px-3 btn-sm"><i class="fa fa-diamond"></i>&nbsp;Entête de page</button>
-            <button class="btn btn-outline-primary text-uppercase px-3 ml-3 btn-sm"><i class="fa fa-diamond"></i>&nbsp;Bas de page</button>
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="title_form text-black text-uppercase mt-1">Sélectionner le modèle à créer</h5>
+                <div class="w-100 d-flex flex-row align-items-center">
+                    <button class="btn btn-outline-primary text-uppercase edit_modele mx-1 w-100 btn-sm" data-value="ENTETE" data-class="btn-primary"><i class="fa fa-diamond"></i>&nbsp;Entête de page</button>
+                    <button class="btn btn-outline-primary text-uppercase edit_modele mx-1 w-100 btn-sm" data-value="BAS" data-class="btn-primary"><i class="fa fa-diamond"></i>&nbsp;Bas de page</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="modele_forme" class=" font-weight-bold">Séléctionner une forme générale</label>
+                <select name="modele_forme" class="custom-select chosen_select custom-select-sm" id="modele_forme">
+                    <option value="" >-</option>
+                    <option value="1" >{{"Forme 1"|upper}}</option>
+                    <option value="2" >{{"Forme 2"|upper}}</option>
+                    <option value="3" >{{"Forme 3"|upper}}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class=" font-weight-bold">&nbsp;</label>
+                <button class="btn-sm btn btn-warning btn-block" id="insert_modele_forme" ><i class="fa fa-plus-square"></i>&nbsp;Insérer Forme</button>
+            </div>
+            <div class="col-md-3">
+                <label class=" font-weight-bold">&nbsp;</label>
+            </div>
         </div>
-
-        <label for="modele_editor" class="mt-3 font-weight-bold">Entête de page</label>
+        <div class="w-100 d-flex flex-row align-items-center p-3 mt-5">
+            <label for="modele_editor" class="font-weight-bold text-uppercase caption_modele">-</label>
+            <button class="btn btn-sm ml-auto px-3 btn-info modele_info_societe" data-value="SOCIETE" ><i class="fa fa-info-circle"></i>&nbsp;Information société</button>
+            <button class="btn btn-sm ml-3 px-3 btn-info modele_info_societe" data-value="PERSONNEL" ><i class="fa fa-info-circle"></i>&nbsp;Coordonées personnel</button>
+            <button class="btn btn-sm ml-3 px-3 btn-success btnInsertImage"><i class="fa fa-image"></i>&nbsp;Insérer une image</button>
+                <button class="btn-sm ml-3 px-3 btn btn-danger modele_bordure"><i class="fa fa-square"></i>&nbsp;Aucune bordure</button>
+            <form enctype="multipart/form-data">
+                <input type="file" name="fileImage" id="imageInsert" class="d-none">
+            </form>
+        </div>
+        <input type="hidden" name="modele_value" id="modele_value">
         <input type="text" name="modele_editor" id="modele_editor" class="form-control" placeholder=". . .">
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm ml-3 btn-info"><i class="fa fa-print"></i>&nbsp;Aperçu</button>
                 <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
             </div>
         {% endif %} 

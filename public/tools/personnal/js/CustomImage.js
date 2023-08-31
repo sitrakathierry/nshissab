@@ -31,17 +31,19 @@ class CustomImage
         return deferred.promise();
     }
 
-    resizeBase64Img(width, height) 
+    resizeBase64Img(width) 
     {
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         var img = new Image();
         img.src = this.base64;
         canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-        return canvas.toDataURL();
+        canvas.height = (img.height / img.width) * width;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg');
     }
+
+
 
     encodeToBase64(file) {
         return new Promise((resolve, reject) => {
