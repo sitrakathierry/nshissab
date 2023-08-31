@@ -1,5 +1,6 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
+    var appBase = new AppBase() ;
     var selection = null 
     $(document).on('mouseup',".Editor-editor", function() {
         // Récupérer la sélection
@@ -111,35 +112,38 @@ $(document).ready(function(){
 
     $("#insert_modele_forme").click(function(){
         var content = ''
-        
-        if($("#modele_forme").val() == 1)
+        var modele_forme = $("#modele_forme").val()
+
+        var result = appBase.verificationElement([
+            modele_forme
+        ],[
+            "Nombre de colonne",
+        ])
+
+        if(!result["allow"])
         {
-            content = `
-            <div class="config-editor" style="width:100%;" >
-            </div>
-            `
+            $.alert({
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            });
+
+            return result["allow"] ;
         }
-        else if($("#modele_forme").val() == 2)
-        {
-            content = `
+
+        modele_forme = parseInt(modele_forme) ;
+        element = '' ;
+        for (let i = 0; i < modele_forme; i++) {
+            element += '<div class="config-editor" style="width:100%;height:auto"></div>' ;
+        }
+        content = `
             <div style="width:100%;display: flex; flex-direction:row" >
-                <div class="config-editor" style="width:100%;height:auto"></div>
-                <div class="config-editor" style="width:100%;height:auto"></div>
+            `+element+`
             </div>
-            `
-        }
-        else if($("#modele_forme").val() == 3)
-        {
-            content = `
-            <div style="width:100%;display: flex; flex-direction:row" >
-                <div class="config-editor" style="width:100%;height:auto"></div>
-                <div class="config-editor" style="width:100%;height:auto"></div>
-                <div class="config-editor" style="width:100%;height:auto"></div>
-            </div>
-            `
-        }
+        `
         var contentEditor = modele_editor.getEditorText('#modele_editor') ;
         modele_editor.setEditorText(contentEditor+content)
+        $("#modele_forme").val("")
     })
 
     $(".edit_modele").click(function(){
