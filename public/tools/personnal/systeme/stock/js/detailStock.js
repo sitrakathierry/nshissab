@@ -434,7 +434,7 @@ $(document).ready(function(){
                                       OK: function(){
                                           if(json.type == "green")
                                           {
-                                              location.reload()
+                                              location.assign(routes.stock_general) ;
                                           }
                                       }
                                   }
