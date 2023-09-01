@@ -59,7 +59,7 @@
                                 <td>{{bailleur.adresse}}</td>
                                 <td class="text-center">
                                     <a href="{{path('prest_location_bailleur_detail',{'id':bailleur.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
-                                    <button value="{{bailleur.id}}" class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                    <button data-value="{{bailleur.id}}" class="btn btn-sm prest_bailleur_suppr btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
                                 </td>
                             </tr>
                         {% endfor %}

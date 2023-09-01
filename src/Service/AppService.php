@@ -925,7 +925,6 @@ class AppService extends AbstractController
         $childs = [] ;
         
         $totalReleve = 0 ;
-
         foreach ($repartitions as $repartition) {
             $item = [] ;
 
@@ -985,11 +984,15 @@ class AppService extends AbstractController
 
             $totalReleve += $lastRepartition->getMontant() ; 
             array_push($childs,$lastItem) ;
+
+            
         }
 
         $frequence = is_null($contrat->getFrequenceRenouv()) ? 1 : $contrat->getFrequenceRenouv() ; 
 
         $response = [] ;
+        $moisDebut = $contrat->getDateDebut()->format("m") ;
+        $indexMois = intval($moisDebut) - 1 ;
 
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
@@ -1007,7 +1010,7 @@ class AppService extends AbstractController
                 $tableauMois = $this->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(),null) ;
                 
                 $count = count($tableauMois);
-
+                
                 for ($i=0; $i < $count; $i++) { 
                     if ($i + 1 < $count && $tableauMois[$i]["indexMois"] > $tableauMois[$i + 1]["indexMois"]) {
                         // dd("passe".$i) ;
@@ -1020,7 +1023,8 @@ class AppService extends AbstractController
                     $tableauMois[$i]["commission"] = "-" ;
                     $tableauMois[$i]["commissionVal"] = 0 ;
                     $tableauMois[$i]["versement"] = "-" ;
-
+                    $tableauMois[$i]["mois"] = $tabMois[$indexMois] ;
+                    
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
                         {
@@ -1033,6 +1037,11 @@ class AppService extends AbstractController
                             $tableauMois[$i]["designation"] = $child["designation"] ;
                             break;
                         }
+                    }
+                    $indexMois++ ;
+                    if($indexMois >= 12 )
+                    {
+                        $indexMois = 0 ;
                     }
                 }
 
@@ -1058,6 +1067,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["commission"] = "-" ;
                     $tableauMois[$i]["commissionVal"] = 0 ;
                     $tableauMois[$i]["versement"] = "-" ;
+                    $tableauMois[$i]["mois"] = $tabMois[$indexMois] ;
 
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
@@ -1071,6 +1081,11 @@ class AppService extends AbstractController
                             $tableauMois[$i]["designation"] = $child["designation"] ;
                             break;
                         }
+                    }
+                    $indexMois++ ;
+                    if($indexMois >= 12 )
+                    {
+                        $indexMois = 0 ;
                     }
                 }
 

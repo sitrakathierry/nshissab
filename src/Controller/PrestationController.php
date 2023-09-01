@@ -602,7 +602,8 @@ class PrestationController extends AbstractController
     }
 
     #[Route('/prestation/location/bailleur', name: 'prest_location_bailleur')]
-    public function prestLocationBailleur(){
+    public function prestLocationBailleur()
+    {
 
         $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -618,7 +619,7 @@ class PrestationController extends AbstractController
         ]);
     }
 
-    #[Route('/prestation/location/detail/{id}', name: 'prest_location_bailleur_detail')]
+    #[Route('/prestation/location/detail/bailleur/{id}', name: 'prest_location_bailleur_detail')]
     public function prestDetailLocationBailleur($id){
         $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($id) ;
 
@@ -633,6 +634,26 @@ class PrestationController extends AbstractController
             "bailleur" => $bailleur,
             "bails" => $bails
         ]);
+    }
+
+    #[Route('/prestation/location/bailleur/delete', name: 'param_location_bailleur_delete')]
+    public function prestLocationDeleteBailleur(Request $request)
+    {
+        $idBailleur = $request->request->get("idBailleur") ;
+
+        $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($idBailleur) ;
+
+        $bailleur->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué",
+        ]) ;
     }
 
     #[Route('/prestation/location/bailleur/save', name: 'prest_location_bailleur_save')]
@@ -1843,7 +1864,7 @@ class PrestationController extends AbstractController
             "message" => "Activation effectué.",
         ]) ;
     }
-
+    
     #[Route('/prestation/location/contrat/renouvellement', name: 'prest_location_contrat_renouvellement')]
     public function prestRenouvContratLocation(Request $request = null, $refContrat = null)
     {
