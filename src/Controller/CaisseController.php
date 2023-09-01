@@ -84,7 +84,7 @@ class CaisseController extends AbstractController
         $commande->setAgence($this->agence) ;
         $commande->setUser($this->userObj) ; 
         $commande->setNumCommande($numCommande) ;
-        $commande->setMontantRecu($cs_mtn_recu) ;
+        $commande->setMontantRecu(floatval($cs_mtn_recu)) ;
         $commande->setMontantPayee($csenr_total_general) ;
         $commande->setTva($csenr_total_tva) ;
         $commande->setRemiseType($margeType) ;
