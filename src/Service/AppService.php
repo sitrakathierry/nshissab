@@ -2898,9 +2898,7 @@ class AppService extends AbstractController
         for ($i = 0; $i < $nombreMois; $i++) {
             // Calculer la date après le nombre de jours spécifié
             $dateApresNJours = $this->calculerDateApresNjours($dateInitiale, 30 * ($i + 1));
-            // Extraire le mois de la date
-            // $date->modify("+30 days");
-            
+     
             $annee = intval(explode("/",$dateApresNJours)[2]);
             if($mois == null)
             {

@@ -1297,6 +1297,15 @@ class FactureController extends AbstractController
                         $dateGenere = $dateDebut ;
                 }
                 
+                if($moisExist <= 0)
+                {
+                    $moisExist = 11 ;
+                }
+                else
+                {
+                    $moisExist -= 1 ;
+                }
+
                 $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(), $moisExist) ;
 
                 $count = count($tableauMois);
