@@ -10,7 +10,10 @@ use App\Entity\BtpCategorie;
 use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\BtpPrix;
+use App\Entity\Client;
 use App\Entity\CltHistoClient;
+use App\Entity\CltSociete;
+use App\Entity\CltTypes;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\CrdStatut;
@@ -97,6 +100,36 @@ class FactureController extends AbstractController
             "paiements" => $paiements,
             "clients" => $clients,
         ]); 
+    }
+
+    #[Route('/facture/client/get', name: 'ftr_client_information_get')]
+    public function factureGetInformationClient(Request $request)
+    {
+        $type = $request->request->get("type") ;
+
+        if($type == "NEW")
+        {
+            $types = $this->entityManager->getRepository(CltTypes::class)->findAll() ;
+            
+            $response = $this->renderView("facture/client/getNewClient.html.twig",[
+                "types" => $types,
+            ]) ;
+        }
+        else
+        {
+            $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
+
+            if(!file_exists($filename))
+                $this->appService->generateCltClient($filename, $this->agence) ;
+
+            $clients = json_decode(file_get_contents($filename)) ;
+
+            $response = $this->renderView("facture/client/getExistingClient.html.twig",[
+                "clients" => $clients,
+            ]) ;
+        }
+
+        return new Response($response) ;
     }
 
     #[Route('/facture/modele/get', name: 'ftr_modele_get')]
@@ -648,6 +681,10 @@ class FactureController extends AbstractController
             }
         } 
 
+
+
+
+
         // DEBUT D'INSERTION DE DONNEE
 
         $fact_type_remise_prod_general = !empty($request->request->get('fact_type_remise_prod_general')) ? $this->entityManager->getRepository(FactRemiseType::class)->find($request->request->get('fact_type_remise_prod_general')) : null ; 
@@ -658,10 +695,72 @@ class FactureController extends AbstractController
         
         $fact_enr_total_tva = $request->request->get('fact_enr_total_tva') ; 
 
-        $client = $this->entityManager->getRepository(CltHistoClient::class)->find($fact_client) ; 
-        
-        
-        
+        $fact_nouveau_client = $request->request->get('fact_nouveau_client') ; 
+
+        if($fact_nouveau_client == "OUI")
+        {
+            $clt_type = $request->request->get("clt_type") ;
+
+            $result = $this->appService->verificationElement([
+                $clt_type
+            ], [
+                "Statut"
+                ]) ;
+
+            if(!$result["allow"])
+                return new JsonResponse($result) ;
+
+            $typeClient = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
+
+            if($typeClient->getReference() == "MORAL")
+            {
+                $societe = new CltSociete() ;
+
+                $societe->setAgence($this->agence) ;
+                $societe->setNom($fact_client) ;
+
+                $this->entityManager->persist($societe) ;
+                $this->entityManager->flush() ;
+                $clientP = null ;
+            }
+            else
+            {
+                $clientP = new Client() ;
+
+                $clientP->setAgence($this->agence) ;
+                $clientP->setNom($fact_client) ;
+                
+
+                $this->entityManager->persist($clientP) ;
+                $this->entityManager->flush() ;
+                $societe = null ;
+            }
+
+            $client = new CltHistoClient() ;
+
+            $client->setAgence($this->agence) ;
+            $client->setClient($clientP) ;
+            $client->setSociete($societe) ;
+            $client->setType($typeClient) ;
+            $client->setUrgence(null) ;
+            $client->setStatut(True) ;
+            $client->setCreatedAt(new \DateTimeImmutable) ;
+            $client->setUpdatedAt(new \DateTimeImmutable) ;
+
+            $this->entityManager->persist($client) ;
+            $this->entityManager->flush() ;
+
+            $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
+
+            if(file_exists($filename))
+                unlink($filename) ;
+
+        }
+        else
+        {
+            $client = $this->entityManager->getRepository(CltHistoClient::class)->find($fact_client) ; 
+        }
+ 
         $lastRecordFacture = $this->entityManager->getRepository(Facture::class)->findOneBy([], ['id' => 'DESC']);
         $numFacture = !is_null($lastRecordFacture) ? ($lastRecordFacture->getId()+1) : 1 ;
         $numFacture = str_pad($numFacture, 3, "0", STR_PAD_LEFT);

@@ -321,4 +321,34 @@ $(document).ready(function(){
         })
     })
 
+    function getContentClient(type)
+    {
+      $("#contentClient").empty().html(instance.otherSearch())
+      var formData = new FormData();
+      formData.append("type",type)
+      $.ajax({
+          url: routes.ftr_client_information_get,
+          type:'post',
+          cache: false,
+          data:formData,
+          dataType: 'html',
+          processData: false,
+          contentType: false,
+          success: function(response){
+              $("#contentClient").empty().html(response)
+          },
+          error: function(resp){
+            $("#contentClient").empty().html(resp)
+              $.alert(JSON.stringify(resp)) ;
+          }
+      })
+    }
+
+    $(document).on("click",".fact_existing_client",function(){
+      getContentClient("EXISTING")
+    })
+
+    $(document).on("click",".fact_new_client",function(){
+      getContentClient("NEW")
+    })
 })
