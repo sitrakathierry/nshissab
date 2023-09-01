@@ -2982,6 +2982,24 @@ class AppService extends AbstractController
 
     public function synchronisationGeneral()
     {
+        $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => False
+        ]) ; 
+
+        foreach($produitFalses as $produitFalse)
+        {
+            $variationPrixTrues = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produitFalse,
+                "statut" => True
+            ]) ; 
+
+            foreach ($variationPrixTrues as $variationPrixTrue) {
+                $variationPrixTrue->setStatut(False) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
         $produits = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,
             "statut" => True
