@@ -2997,6 +2997,16 @@ class AppService extends AbstractController
             foreach ($variationPrixTrues as $variationPrixTrue) {
                 $variationPrixTrue->setStatut(False) ;
                 $this->entityManager->flush() ;
+
+                $histoEntrepotTrues = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                    "variationPrix" => $variationPrixTrue,
+                    "statut" => True
+                ],["stock" => "DESC"]) ; 
+
+                foreach ($histoEntrepotTrues as $histoEntrepotTrue) {
+                    $histoEntrepotTrue->setStatut(False) ;
+                    $this->entityManager->flush() ;
+                }
             }
         }
 
