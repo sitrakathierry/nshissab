@@ -1152,20 +1152,20 @@ class StockController extends AbstractController
 
         $data = [
             $frns_nom,
-            $frns_tel_bureau,
-            $frns_adresse,
-            $frns_nom_contact,
-            $frns_tel_mobile,
-            $frns_email,
+            // $frns_tel_bureau,
+            // $frns_adresse,
+            // $frns_nom_contact,
+            // $frns_tel_mobile,
+            // $frns_email,
         ] ;
 
         $dataMessage = [
             "Nom",
-            "Tél Bureau",
-            "Adresse",
-            "Nom Contact",
-            "Tél Mobile",
-            "Email"
+            // "Tél Bureau",
+            // "Adresse",
+            // "Nom Contact",
+            // "Tél Mobile",
+            // "Email"
         ] ;
 
         $result = $this->appService->verificationElement($data,$dataMessage) ;
@@ -1176,11 +1176,11 @@ class StockController extends AbstractController
         $fournisseur = new PrdFournisseur() ;
 
         $fournisseur->setNom($frns_nom) ;
-        $fournisseur->setTelBureau($frns_tel_bureau) ;
-        $fournisseur->setAdresse($frns_adresse) ;
-        $fournisseur->setNomContact($frns_nom_contact) ;
-        $fournisseur->setTelMobile($frns_tel_mobile,) ;
-        $fournisseur->setEmail($frns_email) ;
+        $fournisseur->setTelBureau(empty($frns_tel_bureau) ? null : $frns_tel_bureau) ;
+        $fournisseur->setAdresse(empty($frns_adresse) ? null : $frns_adresse) ;
+        $fournisseur->setNomContact(empty($frns_nom_contact) ? null : $frns_nom_contact) ;
+        $fournisseur->setTelMobile(empty($frns_tel_mobile) ? null : $frns_tel_mobile) ;
+        $fournisseur->setEmail(empty($frns_email) ? null : $frns_email) ;
         $fournisseur->setStatut(True) ;
         $fournisseur->setAgence($this->agence) ;
         $fournisseur->setCreatedAt(new \DateTimeImmutable) ;

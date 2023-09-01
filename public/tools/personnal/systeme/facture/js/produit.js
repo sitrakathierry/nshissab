@@ -409,6 +409,6 @@ $(document).ready(function(){
     })
 
     $(document).on("change","#fact_type_remise_prod_general",function(){
-            $("#fact_remise_prod_general").keyup()
+        calculFacture()
     })
 })

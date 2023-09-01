@@ -150,6 +150,8 @@ class CaisseController extends AbstractController
     #[Route('/caisse/vente/liste', name: 'caisse_liste_vente')]
     public function caisseListeVente()
     {
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
         $filename = $this->filename."panierCommande(agence)/".$this->nameAgence ; 
         if(!file_exists($filename))   
             $this->appService->generateCaissePanierCommande($filename, $this->agence->getId()) ; 
@@ -174,7 +176,8 @@ class CaisseController extends AbstractController
             "with_foot" => false,
             "stockGenerales" => $stockGenerales,
             "paniersCommande" => $paniersCommande,
-            "commandes" => $commandes
-        ]);
+            "commandes" => $commandes,
+            "tabMois" => $tabMois
+        ]); 
     }
 }

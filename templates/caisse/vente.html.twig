@@ -19,60 +19,69 @@
     <div class="container-fluid px-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Produit</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Numéro Reçu</label>
+                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+                    <option value="">TOUS</option>
+                    {% for commande in commandes %}
+                        <option value="{{commande.id}}">{{commande.numCommande}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
+                <label for="search_depense" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
+                <select name="search_depense" class="custom-select chosen_select custom-select-sm" id="search_depense">
+                    <option value="">AFFICHER TOUS</option>
+                    <option value="JOUR">{{"Aujourd'hui"|upper}}</option>
+                    <option value="SPEC">{{"Date Spécifique"|upper}}</option>
+                    <option value="LIMIT">{{"Fourchette"|upper}}</option>
+                    <option value="MOIS">{{"Mois"|upper}}</option>
                 </select>
+                <input type="hidden" id="search_current_date" value="{{'now'|date('d/m/Y')}}" >
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
+            <div class="col-md-3" style="display: none;" id="caption_search_date">
+                <label for="search_date" class="mt-2 font-weight-bold text-uppercase">Date</label>
                 <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
                 </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                    <input type="text" id="search_date" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
                 </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date Début</label>
+            <div class="col-md-3" style="display: none;" id="caption_search_date_debut">
+                <label for="search_date_debut" class="mt-2 font-weight-bold text-uppercase">Date début</label>
                 <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
                 </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                    <input type="text" id="search_date_debut" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
                 </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date fin</label>
+            <div class="col-md-3" style="display: none;" id="caption_search_date_fin">
+                <label for="search_date_fin" class="mt-2 font-weight-bold text-uppercase">Date Fin</label>
                 <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                    </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date_fin" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
                 </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Avril</option>
+            <div class="col-md-3" style="display: none;" id="caption_search_mois">
+                {% set i = 1 %}
+                <label for="search_mois" class="mt-2 font-weight-bold text-uppercase">Mois</label>
+                <select name="search_mois" class="custom-select chosen_select custom-select-sm" id="search_mois">
+                    <option value="">-</option>
+                    {% for tabMois in tabMois %}
+                        <option value="{{i}}">{{tabMois|upper}}</option>
+                        {% set i = i + 1 %}
+                    {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Année</label>
-                <input type="number" name="nom" id="nom" class="form-control" placeholder="2023">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
+            <div class="col-md-3" style="display: none;" id="caption_search_annee">
+                <label for="search_annee" class="mt-2 font-weight-bold text-uppercase">Année</label>
+                <input type="number" name="search_annee" id="search_annee" value="{{'now'|date('Y')}}" class="form-control search_annee">
             </div>
         </div>
-        <div class="table-responsive mt-3">
+        <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>

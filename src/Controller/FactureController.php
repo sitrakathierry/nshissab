@@ -179,6 +179,8 @@ class FactureController extends AbstractController
     #[Route('/facture/creation/prest/service', name: 'ftr_creation_prest_service')]
     public function factureCreationPrestService(): Response
     {
+        $typeRemises = $this->entityManager->getRepository(FactRemiseType::class)->findAll() ; 
+
         $devises = $this->entityManager->getRepository(Devise::class)->findBy([
             "agence" => $this->agence,
             "statut" => True
@@ -195,7 +197,8 @@ class FactureController extends AbstractController
         $responses = $this->renderView("facture/prestStandard.html.twig",[
             "devises" => $devises,
             "agcDevise" => $agcDevise,
-            "services" => $services
+            "services" => $services,
+            "typeRemises" => $typeRemises,
         ]) ;
 
         return new Response($responses) ;

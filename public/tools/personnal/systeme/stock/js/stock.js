@@ -689,6 +689,8 @@ $(document).ready(function(){
                         type:"post",
                         data:data,
                         dataType:"html",
+                        processData: false,
+                        contentType: false,
                         success : function(resp){
                             $(".content_fournisseur").html(resp) ;
                             var elements = data.split("&") ;
@@ -723,24 +725,24 @@ $(document).ready(function(){
                     // $(".crt_fournisseur").trigger("chosen:updated");
                 },
                 OUI : function(){
-                    var crt_frns_vide = false
-                    $(".crt_fournisseur").each(function(){
-                        if($(this).val().length == 0)
-                        {
-                            crt_frns_vide = true ;
-                            return ;
-                        }
-                    })
+                    // var crt_frns_vide = false
+                    // $(".crt_fournisseur").each(function(){
+                    //     if($(this).val().length == 0)
+                    //     {
+                    //         crt_frns_vide = true ;
+                    //         return ;
+                    //     }
+                    // })
 
-                    if(crt_frns_vide)
-                    {
-                        $.alert({
-                            title: 'Fournisseur vide',
-                            content: "Veuillez séléctionner au moins un fournisseur",
-                            type:'orange',
-                        })
-                        return ;
-                    }
+                    // if(crt_frns_vide)
+                    // {
+                    //     $.alert({
+                    //         title: 'Fournisseur vide',
+                    //         content: "Veuillez séléctionner au moins un fournisseur",
+                    //         type:'orange',
+                    //     })
+                    //     return ;
+                    // }
                     var data = self.serialize();
                     var realinstance = instance.loading()
                     $.ajax({
