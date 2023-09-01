@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\CaissePanier;
+use App\Entity\FactDetails;
+use App\Entity\FactType;
+use App\Entity\Facture;
 use App\Entity\IntLibelle;
 use App\Entity\IntMateriel;
 use App\Entity\IntMouvement;
@@ -1814,7 +1817,7 @@ class StockController extends AbstractController
         ]) ;
 
         $listes = [] ;
-        
+        $newArray = [] ;
         foreach($variationPrixs as $variationPrix)
         {
             $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
@@ -1828,7 +1831,7 @@ class StockController extends AbstractController
                 $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
 
                 $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
-                $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
+                // $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $caissePanier->getQuantite() ;
                 $item["prix"] = $caissePanier->getPrix() ;
@@ -1847,7 +1850,7 @@ class StockController extends AbstractController
                 $item = [] ;
                 $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
                 $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
-                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                // $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $appro->getQuantite() ;
                 $item["prix"] = $prixVente ;
@@ -1856,7 +1859,50 @@ class StockController extends AbstractController
 
                 array_push($listes,$item) ;
             }
+
+            $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
+                "reference" => "DF"
+            ]) ; 
+            
+            $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
+                "type" => $typeFacture,
+                "agence" => $this->agence,
+                "statut" => True
+            ]) ; 
+                // dd($factureDefinitives) ;
+            foreach ($factureDefinitives as $factureDefinitive) {
+                $factureVariations = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                    "facture" => $factureDefinitive,    
+                    "activite" => 'Produit',    
+                    "entite" => $variationPrix->getId(),    
+                    "statut" => True    
+                ]) ;
+                
+                if(empty($factureVariations))
+                    continue;
+                // ->displayFactureVariation([
+                //     "facture" => $factureDefinitive->getId(),
+                //     "variationPrix" => $variationPrix->getId(),
+                // ]) ;
+                foreach($factureVariations as $factureVariation)
+                {
+                    $item = [] ;
+                    $item["date"] = $factureVariation->getFacture()->getDate()->format("d/m/Y");
+                    // $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                    $item["produit"] = $factureVariation->getDesignation() ;
+                    $item["quantite"] = $factureVariation->getQuantite() ;
+                    $item["prix"] = $factureVariation->getPrix() ;
+                    $item["total"] = ($factureVariation->getPrix() * $appro->getQuantite());
+                    $item["type"] = "Facture Definitif" ;
+    
+                    array_push($listes,$item) ;
+                }
+
+                // $factureVariations
+                // $newArray = array_merge($listes,$factureVariations) ;
+            }
         }
+        // dd($factureVariations) ;
 
         usort($listes, [self::class, 'compareDates']);
 

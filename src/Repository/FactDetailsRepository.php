@@ -42,12 +42,24 @@ class FactDetailsRepository extends ServiceEntityRepository
     public function stockTotalFactureVariation($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(`quantite`) as totalFactureVariation FROM `fact_details` WHERE `activite` = 'Produit' AND `statut` = 1 AND `facture_id` = ? AND `entite` = ?  ";
+        $sql = "SELECT SUM(`quantite`) as totalFactureVariation FROM `fact_details` WHERE `activite` = 'Produit' AND `statut` = 1 AND `facture_id` = ? AND `entite` = ? ";
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([$params["facture"],$params["variationPrix"]]);
         return $resultSet->fetchAssociative();
     }
 
+    public function displayFactureVariation($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT DATE_FORMAT(f.date, '%d/%m/%Y') as 'date',fd.designation as produit,fd.quantite as quantite, fd.prix as prix, (fd.prix * fd.quantite) as total , 'Facture Definitif' as type FROM `fact_details` fd
+        JOIN facture f ON fd.facture_id = f.id
+        WHERE fd.activite = 'Produit' AND fd.statut = 1 AND fd.facture_id = ? AND fd.entite = ? ";
+        // $sql = "SELECT fd.designation as produit,fd.quantite as quantite, fd.prix as prix, (fd.prix * fd.quantite) as total , 'Facture Definitif' as 'type' FROM `fact_details` fd
+        // WHERE fd.`activite` = 'Produit' AND fd.`statut` = 1 AND fd.`facture_id` = ? AND fd.`entite` = ?";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["facture"],$params["variationPrix"]]);
+        return $resultSet->fetchAllAssociative();
+    }
 //    /**
 //     * @return FactDetails[] Returns an array of FactDetails objects
 //     */
