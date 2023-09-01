@@ -60,6 +60,14 @@ class CaissePanierRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function stockTotalCaisseVariationPrix($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as totalCaisseVariation FROM `caisse_panier` WHERE `variation_prix_id` = ? AND `statut` = 1";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
+        return $resultSet->fetchAssociative();
+    }
 //    /**
 //     * @return CaissePanier[] Returns an array of CaissePanier objects
 //     */

@@ -521,6 +521,8 @@ class StockController extends AbstractController
 
         $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
 
+        $this->appService->synchronisationGeneral() ;
+
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",

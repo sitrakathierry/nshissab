@@ -56,10 +56,10 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
     public function stockTotalVariationPrix($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(`quantite`) as stockTotal FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? ";
+        $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? AND `histo_entrepot_id` = ? ";
         $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
-        return $resultSet->fetchAllAssociative();
+        $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
+        return $resultSet->fetchAssociative();
     }
 
 //    /**

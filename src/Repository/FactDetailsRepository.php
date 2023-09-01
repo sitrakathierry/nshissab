@@ -39,6 +39,15 @@ class FactDetailsRepository extends ServiceEntityRepository
         }
     }
 
+    public function stockTotalFactureVariation($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as totalFactureVariation FROM `fact_details` WHERE `activite` = 'Produit' AND `statut` = 1 AND `facture_id` = ? AND `entite` = ?  ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["facture"],$params["variationPrix"]]);
+        return $resultSet->fetchAssociative();
+    }
+
 //    /**
 //     * @return FactDetails[] Returns an array of FactDetails objects
 //     */

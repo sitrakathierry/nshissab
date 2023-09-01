@@ -28,6 +28,7 @@ use App\Entity\Depense;
 use App\Entity\Devise;
 use App\Entity\FactDetails;
 use App\Entity\FactPaiement;
+use App\Entity\FactType;
 use App\Entity\Facture;
 use App\Entity\IntLibelle;
 use App\Entity\IntMateriel;
@@ -2992,30 +2993,115 @@ class AppService extends AbstractController
                 "produit" => $produit,
                 "statut" => True
             ]) ; 
-
+            $stockAddProduit = 0 ;
             foreach ($variationPrixs as $variationPrix) {
-                // $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                //     "variationPrix" => $variationPrix,
-                //     "statut" => True
-                // ],
-                // ["stock" => "DESC"]) ; 
+                $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                    "variationPrix" => $variationPrix,
+                    "statut" => True
+                ],["stock" => "DESC"]) ; 
 
-                // if(is_null($histoEntrepots) || empty($histoEntrepots)) 
-                //     continue;
+                $stockAddVariation = 0 ;
+                foreach ($histoEntrepots as $histoEntrepot) {
+                    // $approvisionnements = $this->entityManager->getRepository(PrdApprovisionnement::class)->find([
+                    //     "variationPrix" => $variationPrix
+                    // ]) ;
+                    $stockTotalEntrepot = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalVariationPrix([
+                        "variationPrix" => $variationPrix->getId(),
+                        "histoEntrepot" => $histoEntrepot->getId(),
+                    ]) ;
 
-                // if(count($histoEntrepots) == 1)
-                // {
-                    
-                // }
-                // else
-                // {
-                    
-                // }
+                    $stockAddVariation += $stockTotalEntrepot["stockTotalEntrepot"] ;
 
-                $approvisionnements = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalVariationPrix([
-                    "variationPrix" => $variationPrix->getId(),
-                ]) ;
+                    $histoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
+                    $this->entityManager->flush() ;
+                }
+                
+                $variationPrix->setStock($stockAddVariation) ;
+                $this->entityManager->flush() ;
+
+                $stockAddProduit += $stockAddVariation ;
             }
+
+            $produit->setStock($stockAddProduit) ;
+            $this->entityManager->flush() ;
+        }
+
+        $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
+            "reference" => "DF"
+        ]) ; 
+
+        $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
+            "type" => $typeFacture,
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
+
+        foreach($produits as $produit)
+        {
+            $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produit,
+                "statut" => True
+            ]) ; 
+            $stockRemoveVariation = 0 ;
+            foreach ($variationPrixs as $variationPrix) {
+                foreach ($factureDefinitives as $factureDefinitive) {
+                    $detailFactureVariation = $this->entityManager->getRepository(FactDetails::class)->stockTotalFactureVariation([
+                        "facture" => $factureDefinitive->getId(),
+                        "variationPrix" => $variationPrix->getId(),
+                    ]) ;
+                    $stockRemoveVariation += $detailFactureVariation["totalFactureVariation"] ;
+                }
+
+                $caisseVariation = $this->entityManager->getRepository(CaissePanier::class)->stockTotalCaisseVariationPrix([
+                    "variationPrix" => $variationPrix->getId(),
+                ]) ; 
+
+                $stockRemoveVariation += $caisseVariation["totalCaisseVariation"] ;
+
+                // REPARTITION de la diminution
+    
+                $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                    "variationPrix" => $variationPrix,
+                    "statut" => True
+                ],["stock" => "DESC"]) ; 
+    
+                $repartitionDeduction = $stockRemoveVariation ;
+                foreach ($histoEntrepots as $histoEntrepot) {
+                    $totalStockEntrepot = $histoEntrepot->getStock() ;
+    
+                    if($repartitionDeduction > $totalStockEntrepot)
+                    {
+                        $histoEntrepot->setStock(0) ;
+                        $this->entityManager->flush() ;
+    
+                        $repartitionDeduction -= $histoEntrepot->getStock() ;
+                    }
+                    else
+                    {
+                        $histoEntrepot->setStock($histoEntrepot->getStock() - $repartitionDeduction) ;
+                        $this->entityManager->flush() ;
+                    }
+                }
+    
+                $variationPrix->setStock($variationPrix->getStock() - $stockRemoveVariation) ;
+                $this->entityManager->flush() ;
+            }
+
+            $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
+            $this->entityManager->flush() ;
+        }
+
+        $dataFilenames = [
+            "files/systeme/stock/stock_general(agence)/".$this->nameAgence,
+            "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
+            "files/systeme/stock/type(agence)/".$this->nameAgence,
+            "files/systeme/stock/stockType(agence)/".$this->nameAgence ,
+            "files/systeme/stock/stockGEntrepot(agence)/".$this->nameAgence ,
+        ] ;
+
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
         }
     }
 }
