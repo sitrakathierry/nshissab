@@ -1892,7 +1892,7 @@ class StockController extends AbstractController
                     $item["produit"] = $factureVariation->getDesignation() ;
                     $item["quantite"] = $factureVariation->getQuantite() ;
                     $item["prix"] = $factureVariation->getPrix() ;
-                    $item["total"] = ($factureVariation->getPrix() * $appro->getQuantite());
+                    $item["total"] = ($factureVariation->getPrix() * $factureVariation->getQuantite());
                     $item["type"] = "Facture Definitif" ;
     
                     array_push($listes,$item) ;
