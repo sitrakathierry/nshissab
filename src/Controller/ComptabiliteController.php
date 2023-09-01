@@ -654,8 +654,8 @@ class ComptabiliteController extends AbstractController
             $dep_motif,
             $dep_mode_paiement,
             $dep_montant,
-            $dep_num_facture,
-            $dep_mois_facture,
+            // $dep_num_facture,
+            // $dep_mois_facture,
             $dep_date_declaration,
         ], [
             "Nom Concerné",
@@ -664,8 +664,8 @@ class ComptabiliteController extends AbstractController
             "Motif",
             "Mode de Paiement",
             "Montant",
-            "Numéro Facture",
-            "Mois Facture",
+            // "Numéro Facture",
+            // "Mois Facture",
             "Date de déclaration",
             ]) ;
 
@@ -721,8 +721,8 @@ class ComptabiliteController extends AbstractController
         $depense->setNumeroMode($numeroMode) ;
         $depense->setEditeurMode($editeurMode) ;
         $depense->setMontantDep($dep_montant) ;
-        $depense->setNumFacture($dep_num_facture) ;
-        $depense->setMoisFacture($dep_mois_facture) ;
+        $depense->setNumFacture(empty($dep_num_facture) ? null : $dep_num_facture) ;
+        $depense->setMoisFacture(empty($dep_mois_facture) ? null : $dep_mois_facture) ;
         $depense->setAnneeFacture(empty($dep_annee_facture) ? date("Y") : $dep_annee_facture ) ;
         $depense->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$dep_date_declaration)) ;
         $depense->setStatutGen(True) ;
