@@ -1177,7 +1177,8 @@ class AppService extends AbstractController
         foreach($entrepots as $entrepot)
         {
             $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                "entrepot" => $entrepot
+                "entrepot" => $entrepot,
+                "statut" => True
             ]) ;
 
             $element = [] ;
