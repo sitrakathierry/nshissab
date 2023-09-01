@@ -78,7 +78,7 @@ class FactureController extends AbstractController
             "parent" => NULL
         ],[
             "rang" => "ASC"
-            ]) ; 
+        ]) ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
 
@@ -96,7 +96,7 @@ class FactureController extends AbstractController
             "types" => $types,
             "paiements" => $paiements,
             "clients" => $clients,
-        ]);
+        ]); 
     }
 
     #[Route('/facture/modele/get', name: 'ftr_modele_get')]

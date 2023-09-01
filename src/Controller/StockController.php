@@ -108,7 +108,8 @@ class StockController extends AbstractController
     {
         $codeProduit = $request->request->get('code_produit') ;
         $produitcChk = $this->entityManager->getRepository(Produit::class)->findOneBy([
-            "codeProduit" => $codeProduit
+            "codeProduit" => $codeProduit,
+            "agence" => $this->agence
         ]) ;
 
         if(!empty($codeProduit) && !is_null($produitcChk))
