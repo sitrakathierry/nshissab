@@ -681,10 +681,6 @@ class FactureController extends AbstractController
             }
         } 
 
-
-
-
-
         // DEBUT D'INSERTION DE DONNEE
 
         $fact_type_remise_prod_general = !empty($request->request->get('fact_type_remise_prod_general')) ? $this->entityManager->getRepository(FactRemiseType::class)->find($request->request->get('fact_type_remise_prod_general')) : null ; 

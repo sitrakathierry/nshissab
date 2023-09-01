@@ -61,7 +61,7 @@
                         {% set totalGeneral = 0 %}
                         {% set totalStock = 0 %}
                         {% for stockEntrepot in stockEntrepots %}
-                            {% set total = total + (stockEntrepot.stock * stockEntrepot.prixVente) %}
+                            {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
                             <tr>
                                 <td>{{stockEntrepot.entrepot}}</td>
                                 <td>{{stockEntrepot.categorie|upper}}</td>
