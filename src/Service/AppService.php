@@ -3089,6 +3089,10 @@ class AppService extends AbstractController
 
             $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
             $this->entityManager->flush() ;
+
+            $filename = "files/systeme/stock/variationProduit(agence)/vartPrd_".$produit->getId()."_".$this->nameAgence  ;
+            if(file_exists($filename))
+                unlink($filename) ;
         }
 
         $dataFilenames = [
@@ -3097,6 +3101,7 @@ class AppService extends AbstractController
             "files/systeme/stock/type(agence)/".$this->nameAgence,
             "files/systeme/stock/stockType(agence)/".$this->nameAgence ,
             "files/systeme/stock/stockGEntrepot(agence)/".$this->nameAgence ,
+            
         ] ;
 
         foreach ($dataFilenames as $dataFilename) {
