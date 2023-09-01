@@ -2476,4 +2476,22 @@ class StockController extends AbstractController
             "stockExpirees" => $produitExpirees,
         ]);
     }
+
+    #[Route('/stock/general/produit/delete', name: 'stock_general_produit_delete')]
+    public function stockSupprimerProduit(Request $request)
+    {
+        $idProduit = $request->request->get("idProduit") ;
+
+        $produit = $this->entityManager->getRepository(Produit::class)->find($idProduit) ;
+
+        $produit->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $this->appService->synchronisationGeneral() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué"
+        ]) ;
+    }
 }

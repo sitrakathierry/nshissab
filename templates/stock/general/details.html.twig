@@ -127,7 +127,7 @@
                     </div>
                     {% if with_foot %}
                         <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                            <button type="submit" class="btn btn-sm ml-3 btn-danger"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
+                            <button type="button" data-value="{{infoProduit.id}}" class="btn btn-sm ml-3 stock_supprimer_produit btn-danger"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
                             <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
                         </div>
                     {% endif %}
@@ -188,7 +188,6 @@
                         </div>
                     </div>
                 </div>
-                
                 {# Fin Variation de Produit #}
             </div>
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
