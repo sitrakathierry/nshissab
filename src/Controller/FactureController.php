@@ -635,8 +635,7 @@ class FactureController extends AbstractController
             }
         }
 
-        
-
+    
         $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
 
         if(!is_null($fact_libelle) && ($paiement->getReference() == "CR" || $paiement->getReference() == "AC"))
@@ -684,7 +683,9 @@ class FactureController extends AbstractController
         $facture->setDescription($facture_editor) ;
         $facture->setTvaVal(floatval($fact_enr_total_tva)) ;
         $facture->setLieu($fact_lieu) ;
+
         $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $fact_date);
+
         $facture->setDate($dateTime) ;
         $facture->setTotal(floatval($fact_enr_total_general)) ;
         $facture->setDevise($fact_enr_val_devise) ;
@@ -769,8 +770,11 @@ class FactureController extends AbstractController
                 $factDetail->setPrix($fact_enr_text_prix[$key]) ;
                 $factDetail->setTvaVal($dtlsTvaVal) ;
                 $factDetail->setStatut(True) ;
+
                 $this->entityManager->persist($factDetail) ;
                 $this->entityManager->flush() ; 
+
+
             }
         } 
         else if($modeleRef == "PBAT")
@@ -1476,4 +1480,6 @@ class FactureController extends AbstractController
 
         return new JsonResponse($result) ;
     }
+
+    
 }

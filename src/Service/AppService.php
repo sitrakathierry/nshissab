@@ -2964,4 +2964,43 @@ class AppService extends AbstractController
         return $tableauDates;
     }
 
+    public function synchronisationGeneral()
+    {
+        $produits = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
+
+        foreach($produits as $produit)
+        {
+            $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produit,
+                "statut" => True
+            ]) ; 
+
+            foreach ($variationPrixs as $variationPrix) {
+                // $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                //     "variationPrix" => $variationPrix,
+                //     "statut" => True
+                // ],
+                // ["stock" => "DESC"]) ; 
+
+                // if(is_null($histoEntrepots) || empty($histoEntrepots)) 
+                //     continue;
+
+                // if(count($histoEntrepots) == 1)
+                // {
+                    
+                // }
+                // else
+                // {
+                    
+                // }
+
+                $approvisionnements = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalVariationPrix([
+                    "variationPrix" => $variationPrix->getId(),
+                ]) ;
+            }
+        }
+    }
 }

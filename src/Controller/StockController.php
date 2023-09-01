@@ -301,6 +301,7 @@ class StockController extends AbstractController
 
             $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($crt_calcul[$key]) ;
 
+            $approvisionnement->setAgence($this->agence) ;
             $approvisionnement->setUser($this->userObj) ;
             $approvisionnement->setHistoEntrepot($histoEntrepot) ;
             $approvisionnement->setVariationPrix($variationPrix) ;
@@ -2038,6 +2039,7 @@ class StockController extends AbstractController
 
         $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($dataToInsert["margeType"]) ;
 
+        $approvisionnement->setAgence($this->agence) ;
         $approvisionnement->setUser($this->userObj) ;
         $approvisionnement->setHistoEntrepot($histoEntrepot) ;
         $approvisionnement->setVariationPrix($variationPrix) ;

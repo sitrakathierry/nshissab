@@ -21,11 +21,11 @@
         <label for="srv_nom" class="font-weight-bold text-uppercase">Nom</label>
         <input type="text" name="srv_nom" id="srv_nom" value="{{service.nom}}" class="form-control w-50" placeholder=". . .">
 
-        <label for="srv_description" class="mt-2 font-weight-bold text-uppercase">Description</label>
-        <textarea name="srv_description" class="form-control prest_prestation_editor" cols="30" rows="10">{{service.description}}</textarea>
+        <label for="prest_prestation_editor" class="mt-2 font-weight-bold text-uppercase">Description</label>
+        <textarea name="prest_prestation_editor" class="form-control prest_prestation_editor" cols="30" rows="10">{{service.description}}</textarea>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
+                <button type="button" data-value="{{service.id}}" class="btn btn-sm ml-3 srv_modif_service btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
             </div>
         {% endif %} 
 
@@ -65,11 +65,11 @@
                     <tbody>
                     {% for tarif in tarifs %}
                         <tr>
-                            <td>{{tarif.nom|upper}}</td>
-                            <td>{{tarif.prix}}</td>
+                            <td class="srv_libelle_Tarif">{{tarif.nom|upper}}</td>
+                            <td class="srv_prix_Tarif">{{tarif.prix}}</td>
                             <td class="align-middle text-center">
-                                <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                <button data-value="{{tarif.id}}" class="btn btn-sm btn-outline-warning font-smaller param_tarif_modifier"><i class="fa fa-edit"></i></button>
+                                <button data-value="{{tarif.id}}" class="btn btn-sm param_tarif_supprimer btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>
                     {% endfor %}

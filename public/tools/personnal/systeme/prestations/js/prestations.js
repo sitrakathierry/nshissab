@@ -319,4 +319,232 @@ $(document).ready(function(){
     $(".fiche_caution_display").click(function(){
       
     })
+
+    $(document).on('click',".pres_service_supprimer", function(){
+      var self = $(this)
+      $.confirm({
+          title: "Suppression",
+          content:"Êtes-vous sûre de vouloir supprimer ?",
+          type:"red",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-red',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      
+                      $.ajax({
+                          url: routes.param_service_element_delete,
+                          type:'post',
+                          cache: false,
+                          data:{idService:self.data("value")},
+                          dataType: 'json',
+                          success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                              location.reload()
+                                          }
+                                      }
+                                  }
+                              });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+      return false ;
+    })
+
+    $(document).on("click",".param_tarif_supprimer",function(){
+      var self = $(this)
+      $.confirm({
+          title: "Suppression",
+          content:"Êtes-vous sûre de vouloir supprimer ?",
+          type:"red",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-red',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      
+                      $.ajax({
+                          url: routes.param_service_tarif_delete,
+                          type:'post',
+                          cache: false,
+                          data:{idTarif:self.data("value")},
+                          dataType: 'json',
+                          success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                              location.reload()
+                                          }
+                                      }
+                                  }
+                              });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+      return false ;
+    })
+
+    $(document).on("click",".param_tarif_modifier",function(){
+      var self = $(this)
+      var tarif = self.closest("tr").find(".srv_libelle_Tarif").text()
+      var prixTarif = self.closest("tr").find(".srv_prix_Tarif").text()
+      $.confirm({
+          title: "Modification",
+          content:`
+            <div class="text-left">
+              <label for="" class="font-weight-bold text-uppercase">Tarif</label>
+              <input type="text" name="nom_tarif" id="nom_tarif" class="form-control" value="`+tarif+`" readonly placeholder=". . .">
+
+              <label for="srv_tarif_modif_prix" class="font-weight-bold mt-3 text-uppercase">Prix</label>
+              <input type="number" step="any" name="srv_tarif_modif_prix" id="srv_tarif_modif_prix" class="form-control" value="`+prixTarif+`" placeholder=". . .">
+            </div>
+          `,
+          type:"orange",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-orange',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      $.ajax({
+                          url: routes.param_service_tarif_update,
+                          type:'post',
+                          cache: false,
+                          data:{
+                            idTarif:self.data("value"),
+                            prixMTarif : $("#srv_tarif_modif_prix").val()
+                          },
+                          dataType: 'json',
+                          success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                              location.reload()
+                                          }
+                                      }
+                                  }
+                              });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+      return false ;
+    })
+
+    $(".srv_modif_service").click(function()
+    {
+      var self = $(this)
+      $.confirm({
+          title: "Modification",
+          content:"Êtes-vous sûre ?",
+          type:"orange",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-orange',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      $.ajax({
+                        url: routes.params_service_element_update,
+                        type:'post',
+                        cache: false,
+                        data:{
+                          idService:self.data("value"),
+                          srv_nom:$("#srv_nom").val(),
+                          srv_description:prest_prestation_editor.getEditorText('.prest_prestation_editor'),
+                        },
+                        dataType: 'json',
+                        success: function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                      }
+                    })
+                  }
+              }
+          }
+      })
+      return false ;
+    }) ;
 })

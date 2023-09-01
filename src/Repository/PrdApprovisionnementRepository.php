@@ -53,6 +53,15 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
         return $query->getOneOrNullResult();
     }
 
+    public function stockTotalVariationPrix($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as stockTotal FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return PrdApprovisionnement[] Returns an array of PrdApprovisionnement objects
 //     */

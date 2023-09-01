@@ -94,7 +94,86 @@ class PrestationController extends AbstractController
             "with_foot" => false,
             "services" => $services
         ]);
+    } 
+
+    #[Route('/prestation/service/delete', name: 'param_service_element_delete')]
+    public function prestDeleteServicePrestation(Request $request)
+    {
+        $idService = $request->request->get("idService") ;
+
+        $service = $this->entityManager->getRepository(Service::class)->find($idService) ;
+
+        $service->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."service(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué"
+        ]) ;
     }
+
+    #[Route('/prestation/service/update', name: 'params_service_element_update')]
+    public function prestUpdateServicePrestation(Request $request)
+    {
+        $idService = $request->request->get("idService") ;
+        $srv_nom = $request->request->get("srv_nom") ;
+        $srv_description = $request->request->get("srv_description") ;
+
+        $service = $this->entityManager->getRepository(Service::class)->find($idService) ;
+
+        $service->setNom($srv_nom) ;
+        $service->setDescription($srv_description) ;
+        $service->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."service(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué"
+        ]) ;
+    }
+
+    #[Route('/prestation/service/tarif/delete', name: 'param_service_tarif_delete')]
+    public function prestDeleteTarifServicePrestation(Request $request)
+    {
+        $idTarif = $request->request->get("idTarif") ;
+
+        $tarif = $this->entityManager->getRepository(SrvTarif::class)->find($idTarif) ;
+
+        $tarif->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué"
+        ]) ;
+    }
+
+    #[Route('/prestation/service/tarif/update', name: 'param_service_tarif_update')]
+    public function prestUpdateTarifServicePrestation(Request $request)
+    {
+        $idTarif = $request->request->get("idTarif") ;
+        $prixMTarif = $request->request->get("prixMTarif") ;
+
+        $tarif = $this->entityManager->getRepository(SrvTarif::class)->find($idTarif) ;
+
+        $tarif->setPrix(floatval($prixMTarif)) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué"
+        ]) ;
+    }
+
 
     #[Route('/prestation/service/save', name: 'prest_service_save')]
     public function prestSaveService(Request $request)
@@ -140,7 +219,6 @@ class PrestationController extends AbstractController
 
         $service = $this->entityManager->getRepository(Service::class)->find($id) ;
         $formats = $this->entityManager->getRepository(SrvFormat::class)->findAll() ;
-
         $tarifs = $this->entityManager->getRepository(SrvTarif::class)->findBy([
             "service" => $service,
             "statut" => True,
@@ -152,7 +230,7 @@ class PrestationController extends AbstractController
             "with_foot" => true,
             "service" => $service,
             "formats" => $formats,
-            "tarifs" => $tarifs
+            "tarifs" => $tarifs,
         ]);
     }
 
@@ -448,7 +526,7 @@ class PrestationController extends AbstractController
 
         $responses = $this->renderView('prestations/getDuree.html.twig',[
             "durees" => $durees
-            ]) ;
+        ]) ;
         
         return new Response($responses) ;
     }

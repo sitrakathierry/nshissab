@@ -444,13 +444,15 @@ class ParametresController extends AbstractController
     #[Route('/parametres/declaration/service', name: 'param_declaration_service')]
     public function paramDeclatationService(Request $request)
     {
-        
+        $services = $this->entityManager->getRepository(DepService::class)->findBy([
+            "agence" => $this->agence    
+        ]) ;
 
         return $this->render('parametres/service/configurationService.html.twig', [
             "filename" => "parametres",
             "titlePage" => "Paramètre Service",
             "with_foot" => true,
-            // "modelePdfs" => $modelePdfs,
+            "services" => $services,
         ]);
     }
 }
