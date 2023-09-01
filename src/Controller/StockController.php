@@ -480,7 +480,8 @@ class StockController extends AbstractController
     {
         $codeProduit = $request->request->get('codeProduit') ;
         $produit = $this->entityManager->getRepository(Produit::class)->findOneBy([
-            "codeProduit" => $codeProduit
+            "codeProduit" => $codeProduit,
+            "agence" => $this->agence
         ]) ;
 
         if(!is_null($produit))
@@ -500,6 +501,8 @@ class StockController extends AbstractController
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
     {       
+        $this->appService->synchronisationGeneral() ;
+
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generatePrdType($filename,$this->agence) ;
@@ -523,8 +526,6 @@ class StockController extends AbstractController
             $this->appService->generatePrdGenEntrepot($filename, $this->agence);
 
         $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
-
-        $this->appService->synchronisationGeneral() ;
 
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
