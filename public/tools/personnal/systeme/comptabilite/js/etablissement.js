@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    var instance = new Loading(files.loading)
 
     $(document).on('click',".btn_banque_update",function(){
         var nomBanque = $(this).closest("tr").find(".elem_nom_banque").text() ;
