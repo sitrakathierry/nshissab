@@ -10,6 +10,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/etablissement.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -45,10 +46,10 @@
                     <tbody>
                         {% for banque in banques %}
                             <tr>
-                                <td>{{banque.nom}}</td>
+                                <td class="elem_nom_banque">{{banque.nom}}</td>
                                 <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                    <button data-value="{{banque.id}}" class="btn btn-sm btn_banque_update btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                    <button data-value="{{banque.id}}" class="btn btn-sm btn_banque_delete btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
                                 </td>
                             </tr>
                         {% endfor %}

@@ -107,6 +107,7 @@ class ComptabiliteController extends AbstractController
         $filename = $this->filename."banque(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateCmpBanque($filename, $this->agence) ;
+
         $banques = json_decode(file_get_contents($filename)) ;
 
         $categories = $this->entityManager->getRepository(CmpCategorie::class)->findAll() ;
@@ -138,6 +139,55 @@ class ComptabiliteController extends AbstractController
             "with_foot" => false,
             "operations" => $operations,
         ]);  
+    }
+
+    #[Route('/comptabilite/banque/update', name: 'compta_banque_update')]
+    public function comptaUpdateBanque(Request $request)
+    {
+        $nomBanque = $request->request->get("nomBanque") ;
+        $idBanque = $request->request->get("idBanque") ;
+
+        $banque = $this->entityManager->getRepository(CmpBanque::class)->find($idBanque) ;
+
+        if(empty($nomBanque))
+        {
+            $result["message"] = "Nom Banque Vide" ;
+            $result["type"] = "orange" ;
+
+            return new JsonResponse($result) ;
+        }
+
+        $banque->setNom($nomBanque) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $result["message"] = "Modification effectué" ;
+        $result["type"] = "green" ;
+
+        return new JsonResponse($result) ;
+    }
+    
+    #[Route('/comptabilite/banque/delete', name: 'compta_banque_delete')]
+    public function comptaDeleteBanque(Request $request)
+    {
+        $idBanque = $request->request->get('idBanque') ;
+
+        $banque = $this->entityManager->getRepository(CmpBanque::class)->find($idBanque) ;
+
+        $banque->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $result["message"] = "Suppression effectué" ;
+        $result["type"] = "green" ;
+
+        return new JsonResponse($result) ;
     }
 
     #[Route('/comptabilite/banque/etablissement/save', name: 'compta_banque_etablissement_save')]
@@ -298,6 +348,9 @@ class ComptabiliteController extends AbstractController
         $cmp_operation_date = $request->request->get("cmp_operation_date") ;
         $cmp_operation_personne = $request->request->get("cmp_operation_personne") ;
 
+        $cmp_numero_mode = $request->request->get("cmp_numero_mode") ;
+        $cmp_editeur_mode = $request->request->get("cmp_editeur_mode") ;
+
         $result = $this->appService->verificationElement([
             $cmp_operation_banque,
             $cmp_operation_compte,
@@ -354,6 +407,8 @@ class ComptabiliteController extends AbstractController
         $operation->setMontant($cmp_operation_montant) ;
         $operation->setDate(\DateTime::createFromFormat('j/m/Y',$cmp_operation_date)) ;
         $operation->setPersonne($cmp_operation_personne) ;
+        $operation->setNumeroMode(empty($cmp_numero_mode) ? null : $cmp_numero_mode) ;
+        $operation->setEditeurMode(empty($cmp_editeur_mode) ? null : $cmp_editeur_mode) ;
         $operation->setStatut(True) ;
         $operation->setCreatedAt(new \DateTimeImmutable) ;
         $operation->setUpdatedAt(new \DateTimeImmutable) ;

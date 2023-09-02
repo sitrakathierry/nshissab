@@ -2158,6 +2158,8 @@ class AppService extends AbstractController
             $item["categorie"] = $operation->getCategorie()->getNom() ;
             $item["refCategorie"] = $operation->getCategorie()->getReference() ;
             $item["type"] = $operation->getType()->getNom() ;
+            $item["numeroMode"] = is_null($operation->getNumeroMode()) ? "-" : $operation->getNumeroMode() ;
+            $item["editeurMode"] = is_null($operation->getEditeurMode()) ? "-" : $operation->getEditeurMode() ;
             $item["numero"] = $operation->getNumero() ;
             $item["montant"] = $operation->getMontant() ;
             $item["personne"] = $operation->getPersonne() ;

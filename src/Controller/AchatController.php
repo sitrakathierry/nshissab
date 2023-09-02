@@ -195,7 +195,7 @@ class AchatController extends AbstractController
         else
         {
             $marchandise = new AchMarchandise() ;
-
+            
             $marchandise->setAgence($this->agence) ;
             $marchandise->setStatutGen(True) ;
             $marchandise->setCreatedAt(new \DateTimeImmutable) ;

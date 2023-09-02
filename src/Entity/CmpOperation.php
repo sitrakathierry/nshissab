@@ -50,6 +50,12 @@ class CmpOperation
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numeroMode = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $editeurMode = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -195,6 +201,30 @@ class CmpOperation
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getNumeroMode(): ?string
+    {
+        return $this->numeroMode;
+    }
+
+    public function setNumeroMode(?string $numeroMode): self
+    {
+        $this->numeroMode = $numeroMode;
+
+        return $this;
+    }
+
+    public function getEditeurMode(): ?string
+    {
+        return $this->editeurMode;
+    }
+
+    public function setEditeurMode(?string $editeurMode): self
+    {
+        $this->editeurMode = $editeurMode;
 
         return $this;
     }

@@ -44,6 +44,8 @@
                             <th>Banque</th>
                             <th>N° Opération</th>
                             <th>Type</th>
+                            <th>N° Type</th>
+                            <th>Editeur Type</th>
                             <th>Compte Bancaire</th>
                             <th>Personne concerné</th>
                             <th>Opération</th>
@@ -64,6 +66,8 @@
                                 <td>{{operation.banque}}</td>
                                 <td>{{operation.numero}}</td>
                                 <td>{{operation.type|upper}}</td>
+                                <td>{{operation.numeroMode|upper}}</td>
+                                <td>{{operation.editeurMode|upper}}</td>
                                 <td>{{operation.compte}}</td>
                                 <td>{{operation.personne|upper}}</td>
                                 <td>{{operation.categorie|upper}}</td>
@@ -77,7 +81,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="7">Montant Total</th>
+                            <th colspan="9">Montant Total</th>
                             <th colspan="2" class="text-white bg-primary">{{total}}</th>
                         </tr>
                     </tfoot>

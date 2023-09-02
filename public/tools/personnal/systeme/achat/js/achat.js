@@ -632,44 +632,11 @@ $(document).ready(function(){
         return false ;
     })
 
-    // $(".ach_valider_credit_livraison").parent().hide()
-
     $(document).on('click',".ach_check_credit_livraison",function(){
-        // if($(this).hasClass("btn-outline-success"))
-        // {
-        //     var idData = $(this).data("value") ;
-        //     $(this).removeClass("btn-outline-success") ;
-        //     $(this).addClass("btn-success") ;
-        //     $(this).text(("Livré").toUpperCase())
-        //     $(this).parent().append('<input type="hidden" class="credit_id_livraison" value="'+idData+'">') ;
-        // }
-        // else
-        // {
-        //     $(this).removeClass("btn-success") ;
-        //     $(this).addClass("btn-outline-success") ;
-        //     $(this).html('<i class="fa fa-check"></i>') ;
-        //     $(this).parent().find(".credit_id_livraison").remove()
-        // }
-
-        // var showButton = false ;
-        // $(".ach_check_credit_livraison").each(function(){
-        //     if($(this).hasClass("btn-success"))
-        //     {
-        //         $(".ach_valider_credit_livraison").parent().show() ;
-        //         showButton = true ;
-        //         return ;
-        //     }
-        // })
-
-        // if(!showButton)
-        //     $(".ach_valider_credit_livraison").parent().hide() ;
         var idData = $(this).data("value") ;
         var self = $(this).parent()
         $(this).parent().empty().html(instance.otherSearch())
-        // var dataEnr = [] ;
-        // $(".credit_id_livraison").each(function(){
-        //     dataEnr.push($(this).val()) ;
-        // })
+
         var formData = new FormData() ;
         formData.append("idData",idData) ;
         $.ajax({
@@ -689,64 +656,6 @@ $(document).ready(function(){
             }
         })
     })
-
-    // $(document).on('click',".ach_valider_credit_livraison",function(){
-    //     var self = $(this)
-    //     $.confirm({
-    //         title: "Validation Livraison",
-    //         content:"Êtes-vous sûre que les produits seléctionés sont livrés ?",
-    //         type:"blue",
-    //         theme:"modern",
-    //         buttons:{
-    //             btn1:{
-    //                 text: 'Non',
-    //                 action: function(){}
-    //             },
-    //             btn2:{
-    //                 text: 'Oui',
-    //                 btnClass: 'btn-blue',
-    //                 keys: ['enter', 'shift'],
-    //                 action: function(){
-    //                     var realinstance = instance.loading()
-    //                     var dataEnr = [] ;
-    //                     $(".credit_id_livraison").each(function(){
-    //                         dataEnr.push($(this).val()) ;
-    //                     })
-    //                     $.ajax({
-    //                         url: routes.achat_validation_credit_save,
-    //                         type:'post',
-    //                         cache: false,
-    //                         data:{
-    //                             dataEnr:dataEnr,
-    //                         },
-    //                         dataType: 'json',
-    //                         success: function(json){
-    //                             realinstance.close()
-    //                             $.alert({
-    //                                 title: 'Message',
-    //                                 content: json.message,
-    //                                 type: json.type,
-    //                                 buttons: {
-    //                                     OK: function(){
-    //                                         if(json.type == "green")
-    //                                         {
-    //                                             location.reload()
-    //                                         }
-    //                                     }
-    //                                 }
-    //                             });
-    //                         },
-    //                         error: function(resp){
-    //                             realinstance.close()
-    //                             $.alert(JSON.stringify(resp)) ;
-    //                         }
-    //                     })
-    //                 }
-    //             }
-    //         }
-    //     })
-    //     return false ;
-    // })
 
     $(document).on("click",".bon_supprimer_ligne",function(){
         $(this).closest("tr").remove()
