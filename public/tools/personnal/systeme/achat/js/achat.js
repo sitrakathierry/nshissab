@@ -63,32 +63,47 @@ $(document).ready(function(){
     $(document).on('change',"#achat_bon_designation", function(){
         if(!$(this).is("select"))
             return false ;
-        var realinstance = instance.loading()
-        var self = $(this)
-        $.ajax({
-            url: routes.achat_marchandise_prix_get,
-            type:'post',
-            cache: false,
-            data:{id:self.val()},
-            dataType: 'json',
-            success: function(json){
-                realinstance.close();
-                if (json.type == "green") {
-                    $("#achat_bon_prix").val(json.prix) ;
-                }
-                else
-                {
-                    $("#achat_bon_prix").val("") ;
-                }
-            },
-            error: function(resp){
-                realinstance.close()
-                $.alert(JSON.stringify(resp)) ;
-            }
-        })
+        // var realinstance = instance.loading()
+        // var self = $(this)
+        // $.ajax({
+        //     url: routes.achat_marchandise_prix_get,
+        //     type:'post',
+        //     cache: false,
+        //     data:{id:self.val()},
+        //     dataType: 'json',
+        //     success: function(json){
+        //         realinstance.close();
+        //         if (json.type == "green") {
+        //             $("#achat_bon_prix").val(json.prix) ;
+        //         }
+        //         else
+        //         {
+        //             $("#achat_bon_prix").val("") ;
+        //         }
+        //     },
+        //     error: function(resp){
+        //         realinstance.close()
+        //         $.alert(JSON.stringify(resp)) ;
+        //     }
+        // })
     })
 
-    var totalGeneral = 0
+    function calculMontantMarchandise()
+    {
+        var totalGeneral = 0
+        
+        $("#contentItemMarchandise tr").each(function(){
+            var quantiteLigne = $(this).find("#achat_bon_enr_quantite").val()
+            var prixLigne = $(this).find("#achat_bon_enr_prix").val()
+            var totalLigne = parseFloat(quantiteLigne) * parseFloat(prixLigne)
+
+            totalGeneral += totalLigne ;
+        })
+
+        $("#achat_bon_total_Gen").text(totalGeneral)
+        $("#achat_bon_val_total_Gen").val(totalGeneral)
+    }
+
     $(document).on('click',"#ajout_marchandise", function(){
 
         var designation = $("#achat_bon_designation").val()
@@ -97,7 +112,7 @@ $(document).ready(function(){
             if($("#achat_bon_designation").val() != "")
             {
                 var optionSelected = $("#achat_bon_designation").find("option:selected")
-                designation = optionSelected.text().split(" | ")[0]
+                designation = optionSelected.text()
             }
             else
             {
@@ -106,6 +121,7 @@ $(document).ready(function(){
         }
         var quantite = $("#achat_bon_quantite").val()
         var prix = $("#achat_bon_prix").val()
+        var reference = $("#achat_bon_reference").val()
 
         var result = appBase.verificationElement([
             designation,
@@ -135,14 +151,16 @@ $(document).ready(function(){
         if($("#new_marchandise").val() == "NON")
         {
             total = parseFloat(quantite) * parseFloat(prix) ;
-            totalGeneral += total ;
-
             item = `
                     <tr>
                         <td>
                             `+designation+`
                             <input type="hidden" name="achat_bon_enr_designation[]" id="achat_bon_enr_designation" value="`+designation+`">
                             <input type="hidden" name="achat_bon_enr_design_id[]" id="achat_bon_enr_design_id" value="`+$("#achat_bon_designation").val()+`">
+                        </td>
+                        <td>
+                            `+reference+`
+                            <input type="hidden" name="achat_bon_enr_reference[]" id="achat_bon_enr_reference" value="`+reference+`">
                         </td>
                         <td>
                             `+quantite+`
@@ -154,17 +172,18 @@ $(document).ready(function(){
                         </td>
                         <td>`+total+`</td>
                         <td class="text-center align-middle">
-                            <button class="btn btn-sm btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
+                            <button type="button" class="btn btn-sm bon_supprimer_ligne btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
                         </td>
                     </tr>
                 `
             $("#contentItemMarchandise").append(item) ;
-            $("#achat_bon_total_Gen").text(totalGeneral)
-            $("#achat_bon_val_total_Gen").val(totalGeneral)
             $("#achat_bon_designation").val("")
             $(".chosen_select").trigger("chosen:updated")
             $("#achat_bon_quantite").val("")
             $("#achat_bon_prix").val("")
+            $("#achat_bon_reference").val("")
+
+            calculMontantMarchandise()
 
             return false ;
         }
@@ -175,19 +194,21 @@ $(document).ready(function(){
             url: routes.achat_marchandise_creation,
             type:'post',
             cache: false,
-            data:{designation:designation,prix:prix},
+            data:{designation:designation},
             dataType: 'json',
             success: function(json){
                 realinstance.close();
                 total = parseFloat(quantite) * parseFloat(prix) ;
-                totalGeneral += total ;
-
                 item = `
                     <tr>
                         <td>
                             `+designation+`
                             <input type="hidden" name="achat_bon_enr_designation[]" id="achat_bon_enr_designation" value="`+designation+`">
                             <input type="hidden" name="achat_bon_enr_design_id[]" id="achat_bon_enr_design_id" value="`+json.id+`">
+                        </td>
+                        <td>
+                            `+reference+`
+                            <input type="hidden" name="achat_bon_enr_reference[]" id="achat_bon_enr_reference" value="`+reference+`">
                         </td>
                         <td>
                             `+quantite+`
@@ -199,17 +220,18 @@ $(document).ready(function(){
                         </td>
                         <td>`+total+`</td>
                         <td class="text-center align-middle">
-                            <button class="btn btn-sm btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
+                            <button type="button" class="btn btn-sm bon_supprimer_ligne btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
                         </td>
                     </tr>
                 `
 
                 $("#contentItemMarchandise").append(item) ;
-                $("#achat_bon_total_Gen").text(totalGeneral)
-                $("#achat_bon_val_total_Gen").val(totalGeneral)
                 $("#achat_bon_designation").val("")
                 $("#achat_bon_quantite").val("")
                 $("#achat_bon_prix").val("")
+                $("#achat_bon_reference").val("")
+
+                calculMontantMarchandise()
             },
             error: function(resp){
                 realinstance.close()
@@ -354,7 +376,7 @@ $(document).ready(function(){
                             url: routes.achat_marchandise_creation,
                             type:'post',
                             cache: false,
-                            data:data,
+                            data:data, 
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()
@@ -386,16 +408,13 @@ $(document).ready(function(){
 
     $(document).on('click',".ach_edit_marchandise",function(){
         var designation = $(this).closest("tr").find(".elem_designation").text() ;
-        var prix = $(this).closest("tr").find(".elem_prix").text() ;
+        // var prix = $(this).closest("tr").find(".elem_prix").text() ;
         var idM = $(this).attr("value") ;
 
         var element = `
             <div class="w-100 text-left">
                 <label for="mrch_modif_designation" class="font-weight-bold">Désignation</label>
                 <input type="text" name="designation" id="mrch_modif_designation" oninput="this.value = this.value.toUpperCase();" value="`+designation+`" class="form-control" placeholder=". . .">
-                
-                <label for="mrch_modif_prix" class="font-weight-bold mt-3">Prix</label>
-                <input type="number" step="any" name="prix" id="mrch_modif_prix" value="`+prix+`" class="form-control" placeholder=". . .">
             </div>
             `
         $.confirm({
@@ -420,7 +439,7 @@ $(document).ready(function(){
                             cache: false,
                             data: {
                                 designation: $("#mrch_modif_designation").val(),
-                                prix: $("#mrch_modif_prix").val(),
+                                // prix: $("#mrch_modif_prix").val(),
                                 idM:idM,
                             },
                             dataType: 'json',
@@ -613,95 +632,124 @@ $(document).ready(function(){
         return false ;
     })
 
-    $(".ach_valider_credit_livraison").parent().hide()
+    // $(".ach_valider_credit_livraison").parent().hide()
 
     $(document).on('click',".ach_check_credit_livraison",function(){
-        if($(this).hasClass("btn-outline-success"))
-        {
-            var idData = $(this).data("value") ;
+        // if($(this).hasClass("btn-outline-success"))
+        // {
+        //     var idData = $(this).data("value") ;
+        //     $(this).removeClass("btn-outline-success") ;
+        //     $(this).addClass("btn-success") ;
+        //     $(this).text(("Livré").toUpperCase())
+        //     $(this).parent().append('<input type="hidden" class="credit_id_livraison" value="'+idData+'">') ;
+        // }
+        // else
+        // {
+        //     $(this).removeClass("btn-success") ;
+        //     $(this).addClass("btn-outline-success") ;
+        //     $(this).html('<i class="fa fa-check"></i>') ;
+        //     $(this).parent().find(".credit_id_livraison").remove()
+        // }
 
-            $(this).removeClass("btn-outline-success") ;
-            $(this).addClass("btn-success") ;
-            $(this).text(("Livré").toUpperCase())
-            $(this).parent().append('<input type="hidden" class="credit_id_livraison" value="'+idData+'">') ;
-        }
-        else
-        {
-            $(this).removeClass("btn-success") ;
-            $(this).addClass("btn-outline-success") ;
-            $(this).html('<i class="fa fa-check"></i>') ;
-            $(this).parent().find(".credit_id_livraison").remove()
-        }
+        // var showButton = false ;
+        // $(".ach_check_credit_livraison").each(function(){
+        //     if($(this).hasClass("btn-success"))
+        //     {
+        //         $(".ach_valider_credit_livraison").parent().show() ;
+        //         showButton = true ;
+        //         return ;
+        //     }
+        // })
 
-        var showButton = false ;
-        $(".ach_check_credit_livraison").each(function(){
-            if($(this).hasClass("btn-success"))
-            {
-                $(".ach_valider_credit_livraison").parent().show() ;
-                showButton = true ;
-                return ;
+        // if(!showButton)
+        //     $(".ach_valider_credit_livraison").parent().hide() ;
+        var idData = $(this).data("value") ;
+        var self = $(this).parent()
+        $(this).parent().empty().html(instance.otherSearch())
+        // var dataEnr = [] ;
+        // $(".credit_id_livraison").each(function(){
+        //     dataEnr.push($(this).val()) ;
+        // })
+        var formData = new FormData() ;
+        formData.append("idData",idData) ;
+        $.ajax({
+            url: routes.achat_validation_credit_save,
+            type:'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false,
+            contentType:false,
+            success: function(response){
+                self.empty().html(response)
+            },
+            error: function(resp){
+                self.empty().html("")
+                $.alert(JSON.stringify(resp)) ;
             }
         })
-
-        if(!showButton)
-            $(".ach_valider_credit_livraison").parent().hide() ;
     })
 
-    $(document).on('click',".ach_valider_credit_livraison",function(){
-        var self = $(this)
-        $.confirm({
-            title: "Validation Livraison",
-            content:"Êtes-vous sûre que les produits seléctionés sont livrés ?",
-            type:"blue",
-            theme:"modern",
-            buttons:{
-                btn1:{
-                    text: 'Non',
-                    action: function(){}
-                },
-                btn2:{
-                    text: 'Oui',
-                    btnClass: 'btn-blue',
-                    keys: ['enter', 'shift'],
-                    action: function(){
-                        var realinstance = instance.loading()
-                        var dataEnr = [] ;
-                        $(".credit_id_livraison").each(function(){
-                            dataEnr.push($(this).val()) ;
-                        })
-                        $.ajax({
-                            url: routes.achat_validation_credit_save,
-                            type:'post',
-                            cache: false,
-                            data:{
-                                dataEnr:dataEnr,
-                            },
-                            dataType: 'json',
-                            success: function(json){
-                                realinstance.close()
-                                $.alert({
-                                    title: 'Message',
-                                    content: json.message,
-                                    type: json.type,
-                                    buttons: {
-                                        OK: function(){
-                                            if(json.type == "green")
-                                            {
-                                                location.reload()
-                                            }
-                                        }
-                                    }
-                                });
-                            },
-                            error: function(resp){
-                                realinstance.close()
-                                $.alert(JSON.stringify(resp)) ;
-                            }
-                        })
-                    }
-                }
-            }
-        })
-        return false ;
+    // $(document).on('click',".ach_valider_credit_livraison",function(){
+    //     var self = $(this)
+    //     $.confirm({
+    //         title: "Validation Livraison",
+    //         content:"Êtes-vous sûre que les produits seléctionés sont livrés ?",
+    //         type:"blue",
+    //         theme:"modern",
+    //         buttons:{
+    //             btn1:{
+    //                 text: 'Non',
+    //                 action: function(){}
+    //             },
+    //             btn2:{
+    //                 text: 'Oui',
+    //                 btnClass: 'btn-blue',
+    //                 keys: ['enter', 'shift'],
+    //                 action: function(){
+    //                     var realinstance = instance.loading()
+    //                     var dataEnr = [] ;
+    //                     $(".credit_id_livraison").each(function(){
+    //                         dataEnr.push($(this).val()) ;
+    //                     })
+    //                     $.ajax({
+    //                         url: routes.achat_validation_credit_save,
+    //                         type:'post',
+    //                         cache: false,
+    //                         data:{
+    //                             dataEnr:dataEnr,
+    //                         },
+    //                         dataType: 'json',
+    //                         success: function(json){
+    //                             realinstance.close()
+    //                             $.alert({
+    //                                 title: 'Message',
+    //                                 content: json.message,
+    //                                 type: json.type,
+    //                                 buttons: {
+    //                                     OK: function(){
+    //                                         if(json.type == "green")
+    //                                         {
+    //                                             location.reload()
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             });
+    //                         },
+    //                         error: function(resp){
+    //                             realinstance.close()
+    //                             $.alert(JSON.stringify(resp)) ;
+    //                         }
+    //                     })
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     return false ;
+    // })
+
+    $(document).on("click",".bon_supprimer_ligne",function(){
+        $(this).closest("tr").remove()
+        calculMontantMarchandise() ;
     })
 })

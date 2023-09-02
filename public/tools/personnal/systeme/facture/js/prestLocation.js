@@ -54,29 +54,13 @@ $(document).ready(function(){
 
         $("#listePaiement").empty() ;
 
-        // $("#listePaiement").find("tr:first").each(function(){
-        //     var ligne = $(this)
-        //     var montantInitial = parseFloat(ligne.find("#partie_montant_initial").val())
-        //     var statutInitial = ligne.find("#partie_statut_initial").val()
-        //     ligne.find(".montantPayee").text(montantInitial == 0 ? "-" : montantInitial)
-        //     ligne.find(".statutPment").empty().html(statutInitial)
-        //     ligne.find("#partie_montant_payee").val("")
-        //     ligne.find("#partie_statut").val("")
-        // })
-        
-        // $("#listePaiement").find("tr:not(:first-child)").each(function(){
-        //     $(this).remove()
-        // })
-
         for (let i = 0; i < tableauDates.length; i++) {
             const element = tableauDates[i];
             
-            // var ligne = $("#listePaiement").find("tr:nth-child("+(i + 1)+")")
-            // var montantInitial = parseFloat(ligne.find("#partie_montant_initial").val())
             var montantInitial = 0 ;
             if(element.montant != undefined)
                 montantInitial = parseFloat(element.montant) ;
-                
+
             var captionMtnPayee = "" ;
             var captionStatut = "" ;
             var valMontantPayee = 0 ; 
@@ -91,10 +75,6 @@ $(document).ready(function(){
                 valMontantPayee = montantPayee  ;
                 valStatut = "ACOMPTE" ; 
                 captionDesignation = "ACOMPTE. "
-                // ligne.find(".montantPayee").text(montantPayee)
-                // ligne.find(".statutPment").empty().html()
-                // ligne.find("#partie_montant_payee").val()
-                // ligne.find("#partie_statut").val()
             }
             else if( montantPayee >= montantparMois)
             {
@@ -104,10 +84,6 @@ $(document).ready(function(){
                 valMontantPayee = montantparMois ;
                 valStatut = "PAYE" ; 
                 captionDesignation = "PAIEMENT. "
-                // ligne.find(".statutPment").empty().html() ;
-                // ligne.find(".montantPayee").text(montantparMois)
-                // ligne.find("#partie_montant_payee").val(valMontantPayee)
-                // ligne.find("#partie_statut").val("PAYE")
             }
             
             totalInitial += montantInitial ;

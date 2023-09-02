@@ -9,15 +9,19 @@
         <button type="button" class="btn btn-sm btn-purple btn-block text-uppersace" id="achat_bon_existing_marchandise"><i class="fa fa-layer-group"></i></button>
     </div>
     <div class="col-md-2">
+        <label for="achat_bon_reference" class="font-weight-bold">Référence</label>
+        <input type="text" name="achat_bon_reference" id="achat_bon_reference" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-md-2">
         <label for="achat_bon_quantite" class="font-weight-bold">Quantité</label>
-    <input type="text" name="achat_bon_quantite" id="achat_bon_quantite" class="form-control" placeholder=". . .">
+        <input type="number" step="any" name="achat_bon_quantite" id="achat_bon_quantite" class="form-control" placeholder=". . .">
     </div>
     <div class="col-md-2">
         <label for="achat_bon_prix" class="font-weight-bold">Prix Unitaire</label>
-    <input type="text" name="achat_bon_prix" id="achat_bon_prix" class="form-control" placeholder=". . .">
+        <input type="number" step="any" name="achat_bon_prix" id="achat_bon_prix" class="form-control" placeholder=". . .">
     </div>
-    <div class="col-md-2">
-        <label for="" class="font-weight-bold">&nbsp;</label>
-        <button type="button" class="btn btn-sm btn-success btn-block text-uppersace" id="ajout_marchandise"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
-    </div>
+</div>
+<div class="text-right w-100 mt-3">
+    <label for="" class="font-weight-bold">&nbsp;</label>
+    <button type="button" class="btn btn-sm btn-success px-5 text-uppercase" id="ajout_marchandise"><i class="fa fa-plus-square"></i>&nbsp;Ajouter</button>
 </div>

@@ -39,9 +39,9 @@
                 </select>
             </div>
         </div>
-        <div class="w-100 text-right mt-3">
+        {# <div class="w-100 text-right mt-3">
             <button class="btn btn-sm btn-perso-one ach_valider_credit_livraison px-4 text-uppercase"><i class="fa fa-thumbs-up"></i>&nbsp;Valider Livraison</button>
-        </div>
+        </div> #}
         <div class="table-responsive mt-3">
             <table class="table table-sm table-bordered">
                 <thead class="thead-dark">
@@ -51,6 +51,7 @@
                         <th>Fournisseur</th>
                         <th>Type</th>
                         <th>Marchandises</th>
+                        <th>Référence</th>
                         <th>Quantité</th>
                         <th>Prix Unitaire</th>
                         <th>Montant Total</th>
@@ -80,9 +81,9 @@
                             {% set compteur = 1 %}
                             {% set totalHT = 0 %}
                             {% if bonCommande.refType == "CREDIT" %}
-                                {% set addLigne = 3 %}
+                                {% set addLigne = 4 %}
                             {% else %}
-                                {% set addLigne = 1 %}
+                                {% set addLigne = 2 %}
                             {% endif %}
                         {% endif %}
                         <tr>
@@ -95,20 +96,19 @@
                                 <td rowspan="{{ligne + addLigne}}" class="align-middle">{{bonCommande.fournisseur|upper}}</td>
                                 <td rowspan="{{ligne + addLigne}}" class="align-middle">{{bonCommande.type|upper}}</td>
                                 {% set passe = false %}
-                            {% endif %}
+                            {% endif %} 
                             <td>{{bonCommande.designation}}</td>
+                            <td>{{bonCommande.reference}}</td>
                             <td>{{bonCommande.quantite}}</td>
                             <td>{{bonCommande.prix}}</td>
-                            <td {{ bonCommande.refType == "TOTAL" ? 'colspan="2"' : "" }} >{{bonCommande.totalLigne}}</td>
-                            {% if bonCommande.refType == "CREDIT" %}
-                                <td class="text-center align-middle">
-                                    {% if bonCommande.refStatut == "LVR" %}
-                                        <span class="text-success font-weight-bold">{{"Livré"|upper}}</span>
-                                    {% else %}
-                                        <button data-value="{{bonCommande.idDetail}}" class="btn btn-sm btn-outline-success ach_check_credit_livraison font-smaller"><i class="fa fa-check"></i></button>
-                                    {% endif %}
-                                </td>
-                            {% endif %}
+                            <td >{{bonCommande.totalLigne}}</td>
+                            <td class="text-center align-middle">
+                                {% if bonCommande.refStatut == "LVR" %}
+                                    <span class="text-success font-weight-bold">{{"Livré"|upper}}</span>
+                                {% else %}
+                                    <button data-value="{{bonCommande.idDetail}}" class="btn btn-sm btn-outline-success ach_check_credit_livraison font-smaller"><i class="fa fa-check"></i></button>
+                                {% endif %}
+                            </td>
                             {% set totalHT = totalHT + bonCommande.totalTtc %}
                             {% if passeM %}
                                 {% if bonCommande.refStatut == "ENCR" %}
@@ -139,20 +139,20 @@
                         {% if compteur == ligne %}
                         {% if bonCommande.refType == "TOTAL" %}
                             <tr>
-                                <th colspan="3">Total</th>
+                                <th colspan="4">Total</th>
                                 <th colspan="2" class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
                             </tr>
                         {% else %}
                             <tr>
-                                <th colspan="3">Total</th>
+                                <th colspan="4">Total</th>
                                 <th colspan="2" class="text-white bg-secondary">{{bonCommande.totalTtc}}</th>
                             </tr>
                             <tr>
-                                <th colspan="3">Total Payé</th>
+                                <th colspan="4">Total Payé</th>
                                 <th colspan="2" class="text-white bg-success">{{bonCommande.totalPaiement}}</th>
                             </tr>
                             <tr>
-                                <th colspan="3">Total Restant</th>
+                                <th colspan="4">Total Restant</th>
                                 <th colspan="2" class="text-white bg-purple">{{bonCommande.totalTtc - bonCommande.totalPaiement}}</th>
                             </tr>
                         {% endif %}
@@ -168,7 +168,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="7" >Total General</th>
+                        <th colspan="8" >Total General</th>
                         <th colspan="5" class="text-white bg-primary">{{totalGeneral}}</th>
                     </tr>
                 </tfoot>

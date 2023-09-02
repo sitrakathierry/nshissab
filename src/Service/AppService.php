@@ -2342,6 +2342,7 @@ class AppService extends AbstractController
                 $element["description"] = $bonCommande->getDescription() ;
                 $element["numero"] = $bonCommande->getNumero() ;
                 $element["designation"] = $achatDetail->getDesignation() ;
+                $element["reference"] = is_null($achatDetail->getReference()) ? "" : $achatDetail->getReference() ;
                 $element["quantite"] = $achatDetail->getQuantite() ;
                 $element["prix"] = $achatDetail->getPrix() ;
                 $element["totalLigne"] = $achatDetail->getPrix() * $achatDetail->getQuantite() ;

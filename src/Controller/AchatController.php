@@ -175,14 +175,14 @@ class AchatController extends AbstractController
     {
         $idM = $request->request->get("idM") ;
         $designation = $request->request->get("designation") ;
-        $prix = $request->request->get("prix") ;
+        // $prix = $request->request->get("prix") ;
 
         $result = $this->appService->verificationElement([
             $designation,
-            $prix,
+            // $prix,
         ],[
             "designation",
-            "prix",
+            // "prix",
         ]) ;
         
         if(!$result["allow"])
@@ -202,7 +202,7 @@ class AchatController extends AbstractController
         }
 
         $marchandise->setDesignation($designation) ;
-        $marchandise->setPrix($prix) ;
+        $marchandise->setPrix(null) ;
         $marchandise->setUpdatedAt(new \DateTimeImmutable) ;
 
         $this->entityManager->persist($marchandise) ;
@@ -303,6 +303,7 @@ class AchatController extends AbstractController
         $achat_bon_enr_design_id = (array)$request->request->get('achat_bon_enr_design_id') ; 
         $achat_bon_enr_quantite = $request->request->get('achat_bon_enr_quantite') ; 
         $achat_bon_enr_prix = $request->request->get('achat_bon_enr_prix') ; 
+        $achat_bon_enr_reference = $request->request->get('achat_bon_enr_reference') ; 
 
         foreach ($achat_bon_enr_design_id as $key => $value) {
             $marchandise = $this->entityManager->getRepository(AchMarchandise::class)->find($value) ;
@@ -315,6 +316,7 @@ class AchatController extends AbstractController
             $detail->setStatut($statut) ;
             $detail->setStatutGen(True) ;
             $detail->setDesignation($achat_bon_enr_designation[$key]) ;
+            $detail->setReference($achat_bon_enr_reference[$key]) ;
             $detail->setQuantite($achat_bon_enr_quantite[$key]) ;
             $detail->setPrix($achat_bon_enr_prix[$key]) ;
 
@@ -474,37 +476,20 @@ class AchatController extends AbstractController
     #[Route('/achat/validation/credit/save', name: 'achat_validation_credit_save')]
     public function achatSaveValidationCredit(Request $request)
     {
-        $dataEnr = (array)$request->request->get("dataEnr") ;
-
-        if(is_null($dataEnr))
-        {
-            $result["message"] = "Veuiller séléctionner des éléments" ;
-            $result["type"] = "orange" ;
-
-            return new JsonResponse($result) ;
-        }
+        $idData = $request->request->get("idData") ;
 
         $statut = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
             "reference" => "LVR"   
         ]) ;
 
-        foreach ($dataEnr as $data) {
-            $idDetail = $data ;
-            $achatDetail = $this->entityManager->getRepository(AchDetails::class)->find($idDetail) ;
-
-            $achatDetail->setStatut($statut) ;
-
-            $this->entityManager->flush() ;     
-        }
+        $achatDetail = $this->entityManager->getRepository(AchDetails::class)->find($idData) ;
+        $achatDetail->setStatut($statut) ;
+        $this->entityManager->flush() ;     
 
         $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
-
         if(file_exists($filename))
             unlink($filename) ;
 
-        return new JsonResponse([
-            "type" => "green",    
-            "message" => "Information enregistré avec succès",    
-        ]) ;
+        return new Response('<span class="text-success font-weight-bold text-uppercase">Livré</span>') ;
     }
 }

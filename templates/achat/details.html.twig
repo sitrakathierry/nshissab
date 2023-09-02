@@ -36,6 +36,7 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>Marchandise</th>
+                        <th>Reference</th>
                         <th>Quantité</th>
                         <th>Prix</th>
                         <th>Montant Total</th>
@@ -46,6 +47,7 @@
                     {% for listBonCommande in listBonCommandes %}
                         <tr>
                             <td>{{listBonCommande.designation}}</td>
+                            <td>{{listBonCommande.reference}}</td>
                             <td>{{listBonCommande.quantite}}</td>
                             <td>{{listBonCommande.prix}}</td>
                             <td>{{listBonCommande.totalLigne}}</td>

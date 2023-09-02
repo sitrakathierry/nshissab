@@ -37,6 +37,9 @@ class AchDetails
     #[ORM\ManyToOne(inversedBy: 'achDetails')]
     private ?AchStatut $statut = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reference = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -134,6 +137,18 @@ class AchDetails
     public function setStatut(?AchStatut $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
 
         return $this;
     }

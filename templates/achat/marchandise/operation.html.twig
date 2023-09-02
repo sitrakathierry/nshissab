@@ -21,14 +21,14 @@
             <div class="px-3 pb-3 mt-2">
                 <h5 class="title_form text-black text-uppercase">Création marchandise</h5>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <label for="ach_mrch_designation" class="font-weight-bold">Désignation</label>
                         <input type="text" name="designation" oninput="this.value = this.value.toUpperCase();" id="ach_mrch_designation" class="form-control" placeholder=". . .">
                     </div>
-                    <div class="col-md-3">
+                    {# <div class="col-md-3">
                         <label for="ach_mrch_prix" class="font-weight-bold">Prix</label>
                         <input type="number" step="any" name="prix" id="ach_mrch_prix" class="form-control" placeholder=". . .">
-                    </div>
+                    </div> #}
                     <div class="col-md-3">
                         <label class="font-weight-bold">&nbsp;</label>
                         <button type="submit" class="btn btn-sm btn-block btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
@@ -44,7 +44,7 @@
                     <thead class="thead-dark">
                         <tr>
                             <th>Designation</th>
-                            <th>Prix</th>
+                            {# <th>Prix</th> #}
                             <th></th>
                         </tr>
                     </thead>
@@ -52,7 +52,7 @@
                         {% for marchandise in marchandises %}
                         <tr>
                             <td class="elem_designation">{{marchandise.designation}}</td>
-                            <td class="elem_prix">{{marchandise.prix}}</td>
+                            {# <td class="elem_prix">{{marchandise.prix}}</td> #}
                             <td class="text-center align-middle">
                                 <button value="{{marchandise.id}}" class="btn btn-sm btn-outline-warning ach_edit_marchandise font-smaller"><i class="fa fa-edit"></i></button>
                                 <button value="{{marchandise.id}}" class="btn btn-sm btn-outline-danger ach_delete_marchandise ml-1 font-smaller"><i class="fa fa-trash"></i></button>
