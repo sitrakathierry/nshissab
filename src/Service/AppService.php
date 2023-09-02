@@ -1039,6 +1039,7 @@ class AppService extends AbstractController
                             break;
                         }
                     }
+                    
                     $indexMois++ ;
                     if($indexMois >= 12 )
                     {

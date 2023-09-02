@@ -1184,305 +1184,92 @@ class FactureController extends AbstractController
     {
         $id = $request->request->get('id') ;
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
-        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-        $item = [] ;
-
-        if($contrat->getPeriode()->getReference() == "J")
-        {
-            $periode = "Jour(s)" ;
-        }
-        else if($contrat->getPeriode()->getReference() == "M")
-        {
-            $periode = "Mois" ;
-        } 
-        else if($contrat->getPeriode()->getReference() == "A")
-        {
-            $periode = "An(s)" ;
-        }
-
-        $item["id"] = $contrat->getId() ;
-        $item["agence"] = $contrat->getAgence()->getId() ;
-        $item["numContrat"] = $contrat->getNumContrat() ;
-        $item["dateContrat"] = $contrat->getDateContrat()->format("d/m/Y") ;
-        $item["bailleur"] = $contrat->getBailleur()->getNom() ;
-        $item["bail"] = $contrat->getBail()->getNom() ;
-        $item["locataire"] = $contrat->getLocataire()->getNom() ;
-        $item["cycle"] = $contrat->getCycle()->getNom() ;
-        $item["dateDebut"] = $contrat->getDateDebut()->format("d/m/Y") ;
-        $item["dateFin"] = $contrat->getDateFin()->format("d/m/Y") ;
-        $item["dureeContrat"] = $contrat->getDuree()." ".$periode ;
-        $item["montantForfait"] = $contrat->getMontantForfait() ;
-        $item["forfaitLibelle"] = $contrat->getForfait()->getLibelle() ;
-        $item["refForfait"] = $contrat->getForfait()->getReference() ;
-        $item["typePaiement"] = $contrat->getForfait()->getNom() ;
-        $item["statut"] = $contrat->getStatut()->getNom() ;
         
-        $tableauMois = [] ;
+        if($contrat->getPeriode()->getReference() == "J")
+            $periode = "Jour(s)" ;
+        else if($contrat->getPeriode()->getReference() == "M")
+            $periode = "Mois" ;
+        else if($contrat->getPeriode()->getReference() == "A")
+            $periode = "An(s)" ;
+
+        $item = [
+            "id" => $contrat->getId(),
+            "agence" => $contrat->getAgence()->getId(),
+            "numContrat" =>  $contrat->getNumContrat(),
+            "dateContrat" => $contrat->getDateContrat()->format("d/m/Y"),
+            "bailleur" => $contrat->getBailleur()->getNom(),
+            "bail" => $contrat->getBail()->getNom(),
+            "locataire" =>  $contrat->getLocataire()->getNom(),
+            "cycle" => $contrat->getCycle()->getNom(),
+            "dateDebut" => $contrat->getDateDebut()->format("d/m/Y") ,
+            "dateFin" => $contrat->getDateFin()->format("d/m/Y") ,
+            "dureeContrat" => $contrat->getDuree()." ".$periode ,
+            "montantForfait" =>  $contrat->getMontantForfait(),
+            "forfaitLibelle" =>  $contrat->getForfait()->getLibelle(),
+            "refForfait" => $contrat->getForfait()->getReference(),
+            "typePaiement" => $contrat->getForfait()->getNom(),
+            "statut" =>  $contrat->getStatut()->getNom(),
+        ] ;
+
+        $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
+
+        $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
+
+        $relevePaiements = json_decode(file_get_contents($filename)) ;
 
         $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
             "reference" => "PAYE"
         ]) ;
-        
+
+        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+            "contrat" => $contrat,
+            "statut" => $statutLoyerPaye
+        ]) ;
+
+        $tableauMois = [] ;
+        foreach ($relevePaiements as $relevePaiement) {
+            $existPaiement = False ;
+            foreach ($repartitions as $repartition) {
+                $debutLimite = is_null($repartition->getDateDebut()) ? "" : $repartition->getDateDebut()->format("d/m/Y")  ;
+                $resultCompare = $this->appService->compareDates($debutLimite, $relevePaiement->debutLimite, "E") ;
+                if($resultCompare)
+                {
+                    $existPaiement = True ;
+                    break;
+                }
+            }
+            if($existPaiement)
+                continue ;
+
+            array_push($tableauMois,$relevePaiement) ;
+        }
+
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
-            $moisExist = null ;
             if($contrat->getForfait()->getReference() == "FMOIS")
             {
-                $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
-                    "contrat" => $contrat
-                ],["id" => "DESC"]) ;
-
-                $elemExistant = [] ;
-                    
-                if(!is_null($lastPaiement))
-                {
-                    $moisEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-                        "contrat" => $contrat,
-                        "statut" => $statutLoyerPaye
-                    ]) ;
-                    
-                    $moisEcoule = !is_null($moisEcoule) ? count($moisEcoule) : 0 ;
-
-                    $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
-                        "paiement" => $lastPaiement
-                    ],["id" => "DESC"]) ;
-
-                    $statutLastRpt = $lastRepart->getStatut()->getReference() ;
-                    
-                    if($statutLastRpt == "ACOMPTE")
-                    {
-                        $elemExistant = [
-                            "montant" => $lastRepart->getMontant(),
-                            "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
-                        ] ;
-                        $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
-                        $moisExist = $lastRepart->getMois() ;
-                    }
-                    else if($statutLastRpt == "PAYE")
-                    {
-                        $moisExist = $lastRepart->getMois() + 1 ;
-                        $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),30) ;
-                    }
-                    else
-                    {
-                        $moisEcoule = 0 ;
-                        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                    }
-                }
-                else
-                {
-                    $moisEcoule = 0 ;
-                    $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                }
-
-                $frequence = is_null($contrat->getFrequenceRenouv()) ? 1 : $contrat->getFrequenceRenouv() ;
-
-                if($contrat->getPeriode()->getReference() == "M")
-                    $duree = $contrat->getDuree() * $frequence;  
-                else if($contrat->getPeriode()->getReference() == "A")
-                    $duree = $contrat->getDuree() * 12 * $frequence; 
-                
-                $duree -= $moisEcoule ;
-
-                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
-                if($contrat->getModePaiement()->getReference() == "DEBUT")
-                {
-                    $dateGenere =  $dateAvant ;
-                }
-                else
-                {
-                    if(!is_null($lastPaiement))
-                        $dateGenere = $this->appService->calculerDateAvantNjours($dateDebut,30) ;
-                    else
-                        $dateGenere = $dateDebut ;
-                }
-                
-                if($moisExist <= 0)
-                {
-                    $moisExist = 11 ;
-                }
-                else
-                {
-                    $moisExist -= 1 ;
-                }
-
-                $tableauMois = $this->appService->genererTableauMois($dateGenere,$duree, $contrat->getDateLimite(), $moisExist) ;
-
-                $count = count($tableauMois);
-                
-                if(!empty($elemExistant))
-                {
-                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
-                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
-                }
-                else
-                {
-                    $tableauMois[0]["montantInitial"] = 0 ;
-                    $tableauMois[0]["statut"] = "-" ;
-                }
-
-                for ($i=0; $i < count($tableauMois); $i++) { 
-                    if($i == 0)
-                    {
-                        $premierAnnee = explode("/",$tableauMois[$i]["finLimite"])[2] ;
-                        $tableauMois[$i]["annee"] = $premierAnnee ;
-                    }
-                    if ($i + 1 < $count && $tableauMois[$i]["indexMois"] > $tableauMois[$i + 1]["indexMois"]) {
-                        $tableauMois[$i + 1]["annee"] = $tableauMois[$i]["annee"] + 1;
-                    } 
-
-                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-                    if($i != 0)
-                    {
-                        $tableauMois[$i]["montantInitial"] = 0 ;
-                    }
-                }
-                
                 $response = $this->renderView("facture/location/paiementMensuel.html.twig",[
                     "item" => $item,
-                    "tableauMois" => $tableauMois,
-                    "elemExistant" => $elemExistant,
+                    "tableauMois" => $tableauMois
                 ]) ;
-            } 
+            }
         }
         else if($contrat->getCycle()->getReference() == "CJOUR")
         { 
             if($contrat->getForfait()->getReference() == "FJOUR")
             {
-                $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
-                    "contrat" => $contrat
-                ],["id" => "DESC"]) ;
-
-                $elemExistant = [] ;
-
-                if(!is_null($lastPaiement))
-                {
-                    $jourEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-                        "contrat" => $contrat,
-                        "statut" => $statutLoyerPaye
-                    ]) ;
-                    
-                    $jourEcoule = !is_null($jourEcoule) ? count($jourEcoule) : 0 ;
-
-                    $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
-                        "paiement" => $lastPaiement
-                    ],["id" => "DESC"]) ;
-
-                    $statutLastRpt = $lastRepart->getStatut()->getReference() ;
-                    if($statutLastRpt == "ACOMPTE")
-                    {
-                        $elemExistant = [
-                            "montant" => $lastRepart->getMontant(),
-                            "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
-                        ] ;
-                        $dateDebut = $lastRepart->getDateDebut()->format("d/m/Y") ;
-                    }
-                    else if($statutLastRpt == "PAYE")
-                    {
-                        $dateDebut = $this->appService->calculerDateApresNjours($lastRepart->getDateDebut()->format("d/m/Y"),1) ;
-                    }
-                    else
-                    {
-                        $moisEcoule = 0 ;
-                        $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                    }
-                }
-                else
-                {
-                    $jourEcoule = 0 ;
-                    $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ;
-                }
-
-                $dateAvant = $this->appService->calculerDateAvantNjours($dateDebut,1) ;
-                $dateGenere = $dateAvant ;
-                $duree = $contrat->getDuree() - $jourEcoule ;
-                $tableauMois = $this->appService->genererTableauJour($dateGenere,$duree) ;
-                
-                if(!empty($elemExistant))
-                {
-                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
-                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
-                }
-                else
-                {
-                    $tableauMois[0]["montantInitial"] = 0 ;
-                }
-
-                for ($i=0; $i < count($tableauMois); $i++) { 
-                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-                    if($i != 0)
-                    {
-                        $tableauMois[$i]["montantInitial"] = 0 ;
-                    }
-                }
-
                 $response = $this->renderView("facture/location/paiementJournaliere.html.twig",[
                     "item" => $item,
-                    "tableauMois" => $tableauMois,
-                    "elemExistant" => $elemExistant,
-                    // "dateLimite" => $contrat->getDateLimite(),
-                    // "bail" => $contrat->getBail()->getNom(),
-                    // "adresse" => $contrat->getBail()->getLieux()
+                    "tableauMois" => $tableauMois
                 ]) ;
             }
         } 
 
         if($contrat->getForfait()->getReference() == "FORFAIT")
         {
-            $lastPaiement = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
-                "contrat" => $contrat
-            ],["id" => "DESC"]) ;
-
-            $elemExistant = [] ;
-
-            if(!is_null($lastPaiement))
-            {
-                $jourEcoule = $this->entityManager->getRepository(LctRepartition::class)->findBy([
-                    "contrat" => $contrat,
-                    "statut" => $statutLoyerPaye
-                ]) ;
-                
-                $jourEcoule = !is_null($jourEcoule) ? count($jourEcoule) : 0 ;
-
-                $lastRepart = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
-                    "paiement" => $lastPaiement
-                ],["id" => "DESC"]) ;
-
-                $statutLastRpt = $lastRepart->getStatut()->getReference() ;
-                if($statutLastRpt == "ACOMPTE")
-                {
-                    $elemExistant = [
-                        "montant" => $lastRepart->getMontant(),
-                        "statut" => '<span class="text-info font-weight-bold">'.$statutLastRpt.'</span>',
-                    ] ;
-                }
-            }
-
-            $tableauMois = [[
-                "annee" => date('Y'),
-                "statut" =>'-',
-            ]] ;
-            if(!empty($elemExistant))
-                {
-                    $tableauMois[0]["montantInitial"] = $elemExistant["montant"] ;
-                    $tableauMois[0]["statut"] = $elemExistant["statut"] ;
-                }
-                else
-                {
-                    $tableauMois[0]["montantInitial"] = 0 ;
-                }
-
-                for ($i=0; $i < count($tableauMois); $i++) { 
-                    $tableauMois[$i]["designation"] = "LOYER ".$contrat->getBail()->getNom()." | ".$contrat->getBail()->getLieux() ;
-                    if($i != 0)
-                    {
-                        $tableauMois[$i]["montantInitial"] = 0 ;
-                    }
-                } 
             $response = $this->renderView("facture/location/paiementForfaitaire.html.twig",[
                 "item" => $item,
                 "tableauMois" => $tableauMois,
-                "elemExistant" => $elemExistant,
             ]) ;
         }
 

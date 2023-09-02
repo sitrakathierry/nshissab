@@ -23,11 +23,11 @@
                             <input type="hidden" name="partie_mois[]" id="partie_mois" value="{{ tableauM.indexMois }}">
                             <input type="hidden" name="partie_annee[]" id="partie_annee" value="{{ tableauM.annee }}">
                             <input type="hidden" name="partie_statut[]" id="partie_statut">
-                            {% if not passageElem and elemExistant is not empty %}
-                                {% set statutPaiement = elemExistant.statut %}
-                                {% set montatPayee = elemExistant.montant %}
-                                <input type="hidden" id="partie_montant_initial" value="{{elemExistant.montant}}"> 
-                                <input type="hidden" id="partie_statut_initial" value="{{elemExistant.statut}}"> 
+                            {% if not passageElem and tableauM.montant is defined %}
+                                {% set statutPaiement = tableauM.statut %}
+                                {% set montatPayee = tableauM.montant %}
+                                <input type="hidden" id="partie_montant_initial" value="{{tableauM.montant}}"> 
+                                <input type="hidden" id="partie_statut_initial" value="{{tableauM.statut}}"> 
                                 {% set passageElem = true %}
                             {% else %}
                                 <input type="hidden" id="partie_montant_initial" value="0"> 
