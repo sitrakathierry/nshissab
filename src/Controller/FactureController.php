@@ -1244,6 +1244,8 @@ class FactureController extends AbstractController
             array_push($tableauMois,$relevePaiement) ;
         }
 
+        $tableauMois = $this->appService->objectToArray($tableauMois) ;
+
         if($contrat->getCycle()->getReference() == "CMOIS")
         {
             if($contrat->getForfait()->getReference() == "FMOIS")

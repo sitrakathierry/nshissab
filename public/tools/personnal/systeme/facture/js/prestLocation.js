@@ -73,7 +73,10 @@ $(document).ready(function(){
             
             // var ligne = $("#listePaiement").find("tr:nth-child("+(i + 1)+")")
             // var montantInitial = parseFloat(ligne.find("#partie_montant_initial").val())
-            var montantInitial = parseFloat(element.montantInitial) ;
+            var montantInitial = 0 ;
+            if(element.montant != undefined)
+                montantInitial = parseFloat(element.montant) ;
+                
             var captionMtnPayee = "" ;
             var captionStatut = "" ;
             var valMontantPayee = 0 ; 
