@@ -790,6 +790,33 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($stocks)) ;
     }
 
+    public function generateProduitParategorie($filename,$agence, $user)
+    {
+        $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+
+        $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
+            "user" => $user,
+            "statut" => True
+        ]) ;
+
+        $stockCats = [] ;
+
+        foreach($preferences as $preference)
+        {
+            $stockCats[$preference->getCategorie->getNom()]["stock"] = 0 ;
+            $stockCats[$preference->getCategorie->getNom()]["encodedId"] = $this->encodeChiffre($preference->getId()) ;
+        }
+
+        // foreach($stockGenerales as $stockGenerale)
+        // {
+
+        // }
+
+    }
+
     public function generateProduitParamTypeTva($path,$filename,$agence)
     {
         unlink($path) ; 

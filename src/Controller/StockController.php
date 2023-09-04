@@ -530,14 +530,21 @@ class StockController extends AbstractController
 
         $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
 
+        $filename = $this->filename."stockParCategorie(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateProduitParategorie($filename, $this->agence,$this->userObj);
+
+        $stockParCategories = json_decode(file_get_contents($filename)) ; 
+
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",
             "with_foot" => false,
             "types" => $types,
             "entrepots" => $entrepots,
-            "stockGenerales" => (array)$stockGenerales,
+            // "stockGenerales" => (array)$stockGenerales,
             "stockGEntrepots" => $stockGEntrepots,
+            "stockParCategories" => $stockParCategories,
         ]);
     }
 
