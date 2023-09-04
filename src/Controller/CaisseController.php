@@ -92,6 +92,19 @@ class CaisseController extends AbstractController
         $numCommande = !is_null($lastRecordCommande) ? ($lastRecordCommande->getId()+1) : 1 ;
         $numCommande = str_pad($numCommande, 5, "0", STR_PAD_LEFT);
 
+        $checkMontantRemise = $this->appService->verificationElement([
+            $cs_mtn_remise
+        ], [
+            "Valeur Remise",
+        ]) ;
+
+        if(!$checkMontantRemise["allow"])
+        {
+            $margeType = null ;
+            $cs_mtn_remise = null ;
+        }
+            
+
         $commande = new CaisseCommande() ;
         
         $commande->setAgence($this->agence) ;
@@ -101,7 +114,7 @@ class CaisseController extends AbstractController
         $commande->setMontantPayee($csenr_total_general) ;
         $commande->setTva($csenr_total_tva) ;
         $commande->setRemiseType($margeType) ;
-        $commande->setRemiseValeur(empty($cs_mtn_remise) ? null : $cs_mtn_remise) ;
+        $commande->setRemiseValeur($cs_mtn_remise) ;
         $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $csenr_date_caisse);
         $commande->setDate($dateTime) ;
         $commande->setStatut(True) ;

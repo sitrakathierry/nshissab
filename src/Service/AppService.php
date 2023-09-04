@@ -3080,12 +3080,14 @@ class AppService extends AbstractController
                     $detailFactureVariation = $this->entityManager->getRepository(FactDetails::class)->stockTotalFactureVariation([
                         "facture" => $factureDefinitive->getId(),
                         "variationPrix" => $variationPrix->getId(),
+                        "statut" => True
                     ]) ;
                     $stockRemoveVariation += $detailFactureVariation["totalFactureVariation"] ;
                 }
 
                 $caisseVariation = $this->entityManager->getRepository(CaissePanier::class)->stockTotalCaisseVariationPrix([
                     "variationPrix" => $variationPrix->getId(),
+                    "statut" => True
                 ]) ; 
 
                 $stockRemoveVariation += $caisseVariation["totalCaisseVariation"] ;
