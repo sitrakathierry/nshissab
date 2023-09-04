@@ -57,8 +57,10 @@
                                     <th colspan="5" class="text-uppercase align-middle">Remise</th>
                                     <th colspan="1"class="bg-light align-middle">
                                         <select name="cs_mtn_type_remise" class="custom-select chosen_select cs_mtn_type_remise custom-select-sm" id="cs_mtn_type_remise">
-                                            <option value="1" selected>MONTANT</option>
-                                            <option value="2">%</option>
+                                            <option value="" >-</option>
+                                            {% for margeType in margeTypes %}
+                                                <option value="{{margeType.id}}">{{margeType.notation|upper}}</option>
+                                            {% endfor %}
                                         </select>
                                         <input type="number" name="cs_mtn_remise" id="cs_mtn_remise" class="form-control mt-2 cs_mtn_remise" placeholder=". . .">
                                     </th>
@@ -118,7 +120,7 @@
                     {% for stockGeneral in stockGenerales %}
                         {% set nomProduit = stockGeneral.codeProduit ~ " | " ~ stockGeneral.nomType|upper ~ " | " ~ stockGeneral.nom|upper ~ " | stock : " ~ stockGeneral.stock %}
                         {% set imageP = stockGeneral.images is empty ? asset('data/images/default.jpg') : stockGeneral.images %}
-                        <option value="{{stockGeneral.id}}" data-code="{{stockGeneral.codeProduit}}" data-images="{{imageP}}">{{nomProduit}}</option>
+                        <option value="{{stockGeneral.id}}" data-stock="{{stockGeneral.stock}}" data-code="{{stockGeneral.codeProduit}}" data-images="{{imageP}}">{{nomProduit}}</option>
                     {% endfor %}
                 </select>
                 {# <input type="text" name="caisse_search_produit" id="caisse_search_produit" class="form-control caisse_search_produit" placeholder="Rechercher un produit"> #}

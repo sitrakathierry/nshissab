@@ -60,8 +60,67 @@ $(document).ready(function(){
     });
 
     $("#caisse_search_prix").change(function(){
-        $("#caisse_search_quantite").val(1)
-        $(".caisse_ajout").click()
+        var self = $(this)
+        $.confirm({
+            title: "Quantité Produit",
+            content:`
+            <div class="w-100 text-left">
+                <label for="caisse_ajout_produit" class="mt-2 font-weight-bold">Produit</label>
+                <input type="text" name="caisse_ajout_produit" id="caisse_ajout_produit" class="form-control" value="`+$("#caisse_search_produit").find('option:selected').text()+`">
+
+                <label for="caisse_ajout_quantite" class="mt-2 font-weight-bold">Quantité</label>
+                <input type="number" step="any" name="caisse_ajout_quantite" id="caisse_ajout_quantite" class="form-control" placeholder=". . .">
+            </div>
+            `,
+            type:"blue",
+            // theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){
+                        $('#caisse_search_produit').val("")
+                        $('#caisse_search_prix').val("")
+                        $('#caisse_search_quantite').val("")
+                        $('#caisse_search_tva').val("")
+                        $(".chosen_select").trigger("chosen:updated"); 
+                    }
+                },
+                btn2:{
+                    text: 'OK',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var quantiteProduit = $("#caisse_ajout_quantite").val()
+                        if(quantiteProduit == "" || quantiteProduit <= 0)
+                        {
+                            $.alert({
+                                title: 'Message',
+                                content: "Quantité non valide",
+                                type: "orange"
+                            });
+                            return false ;
+                        }
+
+                        var produitSelected = $("#caisse_search_produit").find("option:selected");
+                        var stock = parseInt(produitSelected.data("stock"))
+
+                        if(stock < parseInt(quantiteProduit))
+                        {
+                            $.alert({
+                                title: "Stock insuffisant",
+                                content: "Veuiller entrer une quantité inférieure au stock",
+                                type:'red',
+                            })
+                            return false ;
+                        }
+
+                        $("#caisse_search_quantite").val(parseFloat(quantiteProduit)) ;
+                        $(".caisse_ajout").click()
+                    }
+                }
+            }
+        })
+        return false ;
     })
 
     $(document).on('click',".remove_ligne_caisse",function(){
@@ -98,17 +157,6 @@ $(document).ready(function(){
         }
 
         var produitText = $("#caisse_search_produit").find("option:selected").text();
-        var stock = parseInt(produitText.split(" | ")[2].split(" : ")[1])
-
-        if(stock < parseInt(caisse_quantite))
-        {
-            $.alert({
-                title: "Stock insuffisant",
-                content: "Veuiller entrer une quantité inférieure au stock",
-                type:'red',
-            })
-            return ;
-        }
 
         var existant = false ;
         $(".csenr_produit").each(function(){
