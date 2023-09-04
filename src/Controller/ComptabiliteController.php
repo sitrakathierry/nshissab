@@ -593,7 +593,7 @@ class ComptabiliteController extends AbstractController
         $motifs = $this->entityManager->getRepository(DepMotif::class)->findAll() ;
         $services = $this->entityManager->getRepository(DepService::class)->findBy([
             "agence" => $this->agence ,
-            "statut" => True   
+            // "statut" => True   
         ]) ;
         $libelles = $this->entityManager->getRepository(DepLibelle::class)->findBy([
             "agence" => $this->agence    
