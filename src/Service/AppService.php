@@ -2757,10 +2757,12 @@ class AppService extends AbstractController
             $element = [] ;
  
             $facture = $this->entityManager->getRepository(Facture::class)->find($annulation->idF) ; 
- 
+            
+            if(is_null($facture))
+                continue;
+
             $element["id"] = $annulation->id ;
-            // $element["idC"] = is_null($facture->getClient()) ? 0 : $facture->getClient()->getId() ;
-            $element["idC"] = 0 ;
+            $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
             $element["idM"] = $facture->getModele()->getId()  ;
             $element["mois"] = $facture->getDate()->format('m')   ;
