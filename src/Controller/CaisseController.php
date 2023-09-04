@@ -68,12 +68,23 @@ class CaisseController extends AbstractController
     #[Route('/caisse/activity/save', name: 'caisse_save_activites')]
     public function caisseSaveActivity(Request $request)
     {
+        
+
         $cs_mtn_recu = $request->request->get('cs_mtn_recu') ; 
         $csenr_total_general = $request->request->get('csenr_total_general') ; 
         $csenr_date_caisse = $request->request->get('csenr_date_caisse') ; 
         $csenr_total_tva = $request->request->get('csenr_total_tva') ; 
         $cs_mtn_type_remise = $request->request->get('cs_mtn_type_remise') ; 
         $cs_mtn_remise = $request->request->get('cs_mtn_remise') ; 
+
+        $result = $this->appService->verificationElement([
+            $cs_mtn_recu
+        ], [
+            "Montant Reçu",
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
 
         $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($cs_mtn_type_remise) ;
 

@@ -85,7 +85,7 @@ $(document).ready(function(){
                         var realinstance = instance.loading()
                         $.ajax({
                             url: routes.compta_banque_delete,
-                            type:'post',
+                            type:'post',      
                             cache: false,
                             data:{idBanque:self.data("value")},
                             dataType: 'json',
