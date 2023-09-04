@@ -20,6 +20,27 @@
     <div class="container-fluid px-3 pt-3 pb-4">
         <div class="row">
             <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Service</label>
+                <select name="prod_categorie" class="custom-select custom-select-sm" id="prod_categorie">
+                    <option value="">-</option>
+                    {# {% for services in services %}
+                        <option value="{{categorie.id}}" {{ infoProduit.categorie == categorie.id ? "selected" : "" }}>{{categorie.nom|upper}}</option>
+                    {% endfor %}  #}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">élément</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Nom Concerné</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois Dépense</label>
+                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            </div>
+            <div class="col-md-3">
                 <label for="search_depense" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
                 <select name="search_depense" class="custom-select chosen_select custom-select-sm" id="search_depense">
                     <option value="">AFFICHER TOUS</option>

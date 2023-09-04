@@ -1498,7 +1498,7 @@ $(document).ready(function(){
                         $.ajax({
                             url: routes.prest_location_commission_versement,
                             type:'post',
-                            cache: false,
+                            cache: false, 
                             data:{
                                 dataEnr:dataEnr,
                             },

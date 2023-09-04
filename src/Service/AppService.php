@@ -935,7 +935,7 @@ class AppService extends AbstractController
 
             $montant = is_null($repartition->getMontant()) ? 0 : $repartition->getMontant() ;
             $commission =  ($pourcentage * $montant) / 100 ;
-            $versement = '<button value="'.$repartition->getId().'" data-commission="'.$commission.'" class="btn btn-outline-success lct_check_versement btn-sm font-smaller"><i class="fa fa-hand-holding-dollar"></i></button>' ;
+            $versement = '<button value="'.$repartition->getId().'" data-commission="'.($montant - $commission).'" class="btn btn-outline-success lct_check_versement btn-sm font-smaller"><i class="fa fa-hand-holding-dollar"></i></button>' ;
             
             if(!is_null($repartition->getVersement()))
             {
@@ -955,6 +955,7 @@ class AppService extends AbstractController
             $item["commission"] = $commission." (".$pourcentage."%)";
             $item["commissionVal"] = $commission;
             $item["versement"] = $versement ;
+            $item["versementVal"] = $montant - $commission ;
             
             $totalReleve += $repartition->getMontant() ; 
             array_push($childs,$item) ;
@@ -981,6 +982,7 @@ class AppService extends AbstractController
                 "commission" => $commission." (".$pourcentage."%)",
                 "commissionVal" => $commission,
                 "versement" => $versement,
+                "versementVal" => 0,
             ] ;
 
             $totalReleve += $lastRepartition->getMontant() ; 
@@ -1024,6 +1026,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["commission"] = "-" ;
                     $tableauMois[$i]["commissionVal"] = 0 ;
                     $tableauMois[$i]["versement"] = "-" ;
+                    $tableauMois[$i]["versementVal"] = 0 ;
                     $tableauMois[$i]["mois"] = $tabMois[$indexMois] ;
                     
                     foreach ($childs as $child) {
@@ -1034,6 +1037,7 @@ class AppService extends AbstractController
                             $tableauMois[$i]["commission"] = $child["commission"] ;
                             $tableauMois[$i]["commissionVal"] = $child["commissionVal"] ;
                             $tableauMois[$i]["versement"] = $child["versement"] ;
+                            $tableauMois[$i]["versementVal"] = $child["versementVal"] ;
                             $tableauMois[$i]["montant"] = $child["montant"] ;
                             $tableauMois[$i]["designation"] = $child["designation"] ;
                             break;
@@ -1069,6 +1073,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["commission"] = "-" ;
                     $tableauMois[$i]["commissionVal"] = 0 ;
                     $tableauMois[$i]["versement"] = "-" ;
+                    $tableauMois[$i]["versementVal"] = 0 ;
                     $tableauMois[$i]["mois"] = $tabMois[$indexMois] ;
 
                     foreach ($childs as $child) {
@@ -1079,6 +1084,7 @@ class AppService extends AbstractController
                             $tableauMois[$i]["commission"] = $child["commission"] ;
                             $tableauMois[$i]["commissionVal"] = $child["commissionVal"] ;
                             $tableauMois[$i]["versement"] = $child["versement"] ;
+                            $tableauMois[$i]["versementVal"] = $child["versementVal"] ;
                             $tableauMois[$i]["montant"] = $child["montant"] ;
                             $tableauMois[$i]["designation"] = $child["designation"] ;
                             break;

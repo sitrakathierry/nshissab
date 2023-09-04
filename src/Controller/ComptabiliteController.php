@@ -592,7 +592,8 @@ class ComptabiliteController extends AbstractController
         $modePaiements = $this->entityManager->getRepository(DepModePaiement::class)->findAll() ;
         $motifs = $this->entityManager->getRepository(DepMotif::class)->findAll() ;
         $services = $this->entityManager->getRepository(DepService::class)->findBy([
-            "agence" => $this->agence    
+            "agence" => $this->agence ,
+            "statut" => True   
         ]) ;
         $libelles = $this->entityManager->getRepository(DepLibelle::class)->findBy([
             "agence" => $this->agence    

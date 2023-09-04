@@ -476,7 +476,7 @@ class SAVController extends AbstractController
             $client = null ;
             $recordAnnuation = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
                 "specification" => $specification,
-                "facture" => $facture
+                "caisse" => $caisse
             ]);
 
             $numAnnulation = !is_null($recordAnnuation) ? (count($recordAnnuation) + 1) : 1 ;
