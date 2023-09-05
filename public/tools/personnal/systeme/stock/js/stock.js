@@ -670,8 +670,8 @@ $(document).ready(function(){
 
     var produit_editor = new LineEditor(".produit_editor") ;
 
-    $("#formFournisseur").submit(function(event){
-        var data = $(this).serialize();
+    $("#formFournisseur").submit(function(){
+        var self = $(this)
         $.confirm({
             title: 'Confirmation',
             content:"Voulez-vous vraiment enregistrer ?",
@@ -680,22 +680,33 @@ $(document).ready(function(){
             buttons : {
                 NON : function(){},
                 OUI : function(){
-                    $(".content_fournisseur").html(instance.search(7))
+                    var realinstance = instance.loading()
+                    var data = self.serialize()
                     $.ajax({
                         url: routes.stock_save_fournisseur,
                         type:"post",
                         data:data,
-                        dataType:"html",
-                        processData: false,
-                        contentType: false,
-                        success : function(resp){
-                            $(".content_fournisseur").html(resp) ;
-                            var elements = data.split("&") ;
-                            elements.forEach(elem => {
-                                $("#"+elem.split("=")[0]).val("")
-                            })
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            $("input").val("")
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+
                         },
                         error: function(resp){
+                            realinstance.close()
                             $.alert(JSON.stringify(resp)) ;
                         }
                         

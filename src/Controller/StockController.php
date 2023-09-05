@@ -1224,6 +1224,7 @@ class StockController extends AbstractController
         $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateStockFournisseur($filename,$this->agence) ;
+
         $fournisseurs = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/fournisseur.html.twig', [
@@ -1269,6 +1270,7 @@ class StockController extends AbstractController
         
         $fournisseur = new PrdFournisseur() ;
 
+        $fournisseur->setAgence($this->agence) ;
         $fournisseur->setNom($frns_nom) ;
         $fournisseur->setTelBureau(empty($frns_tel_bureau) ? null : $frns_tel_bureau) ;
         $fournisseur->setAdresse(empty($frns_adresse) ? null : $frns_adresse) ;
@@ -1276,7 +1278,6 @@ class StockController extends AbstractController
         $fournisseur->setTelMobile(empty($frns_tel_mobile) ? null : $frns_tel_mobile) ;
         $fournisseur->setEmail(empty($frns_email) ? null : $frns_email) ;
         $fournisseur->setStatut(True) ;
-        $fournisseur->setAgence($this->agence) ;
         $fournisseur->setCreatedAt(new \DateTimeImmutable) ;
         $fournisseur->setUpdatedAt(new \DateTimeImmutable) ;
 
@@ -1284,16 +1285,14 @@ class StockController extends AbstractController
         $this->entityManager->flush() ;
 
         $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
-        $this->appService->generateStockFournisseur($filename,$this->agence) ;
-        
-        $fournisseurs = json_decode(file_get_contents($filename)) ;
 
-        $response = $this->renderView("stock/searchFournisseur.html.twig", [
-            "fournisseurs" => $fournisseurs
-        ]) ;
+        if(file_exists($filename))
+            unlink($filename) ;
 
-        return new Response($response) ;
+        return new JsonResponse($result) ;
     }
+
+    
 
     #[Route('/stock/stockentrepot/{id}', name: 'stock_stockentrepot', defaults: ["id" => null])]
     public function stockStockentrepot($id): Response
