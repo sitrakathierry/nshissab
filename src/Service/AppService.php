@@ -2507,7 +2507,7 @@ class AppService extends AbstractController
                         $spec = explode("-",$item->$key) ;
                         if(strtolower($spec[0]) == "dur")
                         {
-                            $condition = $condition && (strpos(strtolower($spec[1]), strtolower($value)) === 0) ;
+                            $condition = $condition && preg_match("/^".strtolower($value)."/", $spec[1]) ;
                         }
                         else
                         {
