@@ -117,7 +117,7 @@
                 <img src="{{asset('data/images/default.jpg')}}" alt="-" class="img img-thumbnail imageHover" style="display: none;">
                 <select name="caisse_search_produit" class="custom-select chosen_select caisse_search_produit custom-select-sm" id="caisse_search_produit">
                     <option value=""></option>
-                    {% for stockGeneral in stockGenerales %}
+                    {% for stockGeneral in stockGenerales %} 
                         {% set nomProduit = stockGeneral.codeProduit ~ " | " ~ stockGeneral.nomType|upper ~ " | " ~ stockGeneral.nom|upper ~ " | stock : " ~ stockGeneral.stock %}
                         {% set imageP = stockGeneral.images is empty ? asset('data/images/default.jpg') : stockGeneral.images %}
                         <option value="{{stockGeneral.id}}" data-stock="{{stockGeneral.stock}}" data-code="{{stockGeneral.codeProduit}}" data-images="{{imageP}}">{{nomProduit}}</option>
@@ -126,7 +126,7 @@
                 {# <input type="text" name="caisse_search_produit" id="caisse_search_produit" class="form-control caisse_search_produit" placeholder="Rechercher un produit"> #}
                 <div class="my-3 w-100">
                     <select name="caisse_search_prix" class="custom-select chosen_select caisse_search_prix custom-select-sm" id="caisse_search_prix">  
-                        <option value=""></option>
+                        <option value="" selected>-</option>
                     </select>
                 </div>
                 <div class="row mt-3 d-none">

@@ -806,8 +806,10 @@ class AppService extends AbstractController
 
         foreach($preferences as $preference)
         {
-            $stockCats[$preference->getCategorie()->getNom()]["stock"] = 0 ;
-            $stockCats[$preference->getCategorie()->getNom()]["encodedId"] = $this->encodeChiffre($preference->getId()) ;
+            $nomPref = strtolower($preference->getCategorie()->getNom()) ;
+            $stockCats[$nomPref] = [] ;
+            $stockCats[$nomPref]["stock"] = 0 ;
+            $stockCats[$nomPref]["encodedId"] = $this->encodeChiffre($preference->getId()) ;
         }
 
         foreach($stockGenerales as $stockGenerale)
@@ -3201,7 +3203,7 @@ class AppService extends AbstractController
             "files/systeme/stock/type(agence)/".$this->nameAgence,
             "files/systeme/stock/stockType(agence)/".$this->nameAgence ,
             "files/systeme/stock/stockGEntrepot(agence)/".$this->nameAgence ,
-            
+            "files/systeme/stock/stockParCategorie(agence)/".$this->nameAgence
         ] ;
 
         foreach ($dataFilenames as $dataFilename) {

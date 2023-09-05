@@ -487,7 +487,7 @@ class StockController extends AbstractController
             "statut" => True
         ]) ;
 
-        if(!is_null($produit))
+        if(!empty($codeProduit) && !is_null($produit))
         {
             return new JsonResponse([
                 "title" => "Code existant",
@@ -1223,6 +1223,7 @@ class StockController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateStockFournisseur($filename,$this->agence) ;
         $fournisseurs = json_decode(file_get_contents($filename)) ;
+        
         return $this->render('stock/fournisseur.html.twig', [
             "filename" => "stock",
             "titlePage" => "Fournisseur",

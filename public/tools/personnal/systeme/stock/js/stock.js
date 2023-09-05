@@ -671,7 +671,6 @@ $(document).ready(function(){
     var produit_editor = new LineEditor(".produit_editor") ;
 
     $("#formFournisseur").submit(function(event){
-        event.preventDefault()  
         var data = $(this).serialize();
         $.confirm({
             title: 'Confirmation',
@@ -679,9 +678,7 @@ $(document).ready(function(){
             type:"blue",
             theme:"modern",
             buttons : {
-                NON : function(){
-                    
-                },
+                NON : function(){},
                 OUI : function(){
                     $(".content_fournisseur").html(instance.search(7))
                     $.ajax({
@@ -697,12 +694,16 @@ $(document).ready(function(){
                             elements.forEach(elem => {
                                 $("#"+elem.split("=")[0]).val("")
                             })
-
+                        },
+                        error: function(resp){
+                            $.alert(JSON.stringify(resp)) ;
                         }
+                        
                     })
                 }
             }
         })
+        return false ;
     })
 
     $("#formCreateProduit").submit(function(event){

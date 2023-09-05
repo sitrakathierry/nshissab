@@ -27,13 +27,13 @@ $(document).ready(function(){
                 {
                     var optionsPrix = '<option value=""></option>' ;
                     resp.produitPrix.forEach(elem => {
-                        optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
+                        optionsPrix += '<option value="'+elem.id+'" data-prix="'+elem.prixVente+'" data-indice="'+elem.indice+'">'+elem.prixVente+' | '+elem.indice+'</option>'
                     });
                     $("#caisse_search_prix").html(optionsPrix)
                 }
                 else
                 {
-                    var optionsPrix = '<option selected value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
+                    var optionsPrix = '<option selected value="'+resp.produitPrix[0].id+'" data-prix="'+resp.produitPrix[0].prixVente+'" data-indice="'+resp.produitPrix[0].indice+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
                     $("#caisse_search_prix").html(optionsPrix)
                     $("#caisse_search_prix").change()
                 }
@@ -64,12 +64,30 @@ $(document).ready(function(){
         $.confirm({
             title: "Quantité Produit",
             content:`
-            <div class="w-100 text-left">
+            <div class="w-100 text-left container">
                 <label for="caisse_ajout_produit" class="mt-2 font-weight-bold">Produit</label>
-                <input type="text" name="caisse_ajout_produit" id="caisse_ajout_produit" class="form-control" value="`+$("#caisse_search_produit").find('option:selected').text()+`">
+                <input type="text" readonly name="caisse_ajout_produit" id="caisse_ajout_produit" class="form-control bg-white text-primary font-weight-bold" value="`+$("#caisse_search_produit").find('option:selected').text()+`">
 
-                <label for="caisse_ajout_quantite" class="mt-2 font-weight-bold">Quantité</label>
-                <input type="number" step="any" name="caisse_ajout_quantite" id="caisse_ajout_quantite" class="form-control" placeholder=". . .">
+                <div class="row">
+                    <div class="col-md-7">
+                        <label for="caisse_ajout_prix" class="mt-2 font-weight-bold">Prix Unitaire</label>
+                        <input type="text" readonly name="caisse_ajout_prix" id="caisse_ajout_prix" class="form-control bg-white text-primary font-weight-bold" value="`+$("#caisse_search_prix").find('option:selected').data("prix")+`">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="caisse_ajout_indice" class="mt-2 font-weight-bold">Indice</label>
+                        <input type="text" readonly name="caisse_ajout_indice" id="caisse_ajout_indice" class="form-control bg-white text-primary font-weight-bold" value="`+$("#caisse_search_prix").find('option:selected').data("indice")+`">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="caisse_ajout_quantite" class="mt-2 font-weight-bold">Quantité</label>
+                        <input type="number" step="any" name="caisse_ajout_quantite" id="caisse_ajout_quantite" class="form-control" placeholder=". . .">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="caisse_ajout_quantite" class="mt-2 font-weight-bold">&nbsp;</label>
+                        <button class="btn btn-sm btn-block btn_caisse_demi btn-outline-purple text-uppercase"><i class="fa fa-circle-half-stroke" ></i>&nbsp;Vente Demi</button>
+                    </div>
+                </div>
             </div>
             `,
             type:"blue",
@@ -91,6 +109,7 @@ $(document).ready(function(){
                     keys: ['enter', 'shift'],
                     action: function(){
                         var quantiteProduit = $("#caisse_ajout_quantite").val()
+                        var venteDemi = $(".btn_caisse_demi").hasClass("btn-purple") ? true : false ;
                         if(quantiteProduit == "" || quantiteProduit <= 0)
                         {
                             $.alert({
@@ -100,7 +119,7 @@ $(document).ready(function(){
                             });
                             return false ;
                         }
-
+                    
                         var produitSelected = $("#caisse_search_produit").find("option:selected");
                         var stock = parseInt(produitSelected.data("stock"))
 
@@ -115,7 +134,7 @@ $(document).ready(function(){
                         }
 
                         $("#caisse_search_quantite").val(parseFloat(quantiteProduit)) ;
-                        $(".caisse_ajout").click()
+                        ajoutProduitCaisse(venteDemi)
                     }
                 }
             }
@@ -123,12 +142,29 @@ $(document).ready(function(){
         return false ;
     })
 
+    $(document).on("click",".btn_caisse_demi",function(){
+        if($(this).hasClass("btn-outline-purple"))
+        {
+            $(this).addClass("btn-purple") ;
+            $(this).removeClass("btn-outline-purple") ;
+            $(this).find("i").removeClass("fa-circle-half-stroke")
+            $(this).find("i").addClass("fa-check")
+        }
+        else
+        {
+            $(this).addClass("btn-outline-purple") ;
+            $(this).removeClass("btn-purple") ;
+            $(this).find("i").removeClass("fa-check")
+            $(this).find("i").addClass("fa-circle-half-stroke")
+        }
+    })
+
     $(document).on('click',".remove_ligne_caisse",function(){
         $(this).closest('tr').remove()
         $(".cs_mtn_recu").keyup()
     })
 
-    $(".caisse_ajout").click(function(){
+    function ajoutProduitCaisse(venteDemi){
         var caisse_prix = $("#caisse_search_prix").val()
         var caisse_produit = $("#caisse_search_produit").val()
         var caisse_quantite = $("#caisse_search_quantite").val()
@@ -183,10 +219,11 @@ $(document).ready(function(){
             })
             return 
         }
-
+        
         var prixText = $("#caisse_search_prix").find("option:selected").text()
         var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
-
+        var valDemi = venteDemi ? ' | <span class="font-weight-bold text-purple">'+(totalPartiel / 2)+' </span>' : ""
+        console.log("test demi")
         var tvaVal = 0 
 
         if(caisse_tva != "")
@@ -208,6 +245,7 @@ $(document).ready(function(){
                 `+prixText+`
                 <input type="hidden" class="csenr_prix" name="csenr_prix[]" value="`+caisse_prix+`">
                 <input type="hidden" name="csenr_prixText[]" id="csenr_prixText" value="`+prixText+`">
+
             </td>
             <td class="align-middle text-center">
                 <input type="number" step="any" name="csenr_quantite[]" class="csenr_quantite form-control" value="`+caisse_quantite+`">
@@ -215,7 +253,7 @@ $(document).ready(function(){
             <td class="align-middle">
                 <input type="number" step="any" name="csenr_tva[]" `+(caisse_tva == "" ? "" : "readonly")+` class="csenr_tva form-control" value="`+(caisse_tva == "" ? 0 : caisse_tva)+`">
             </td>
-            <td class="align-middle csenr_total_partiel">`+totalPartiel+`</td>
+            <td class="align-middle csenr_total_partiel">`+totalPartiel+valDemi+`</td>
             <td class="text-center align-middle">
                 <button type="button" class="btn btn-sm remove_ligne_caisse font-smaller btn-outline-danger"><i class="fa fa-times"></i></button>
             </td>
@@ -246,7 +284,7 @@ $(document).ready(function(){
         $(".chosen_select").trigger("chosen:updated"); 
 
         $(".cs_mtn_recu").keyup()
-    })
+    }
 
     function updateMontant()
     {
