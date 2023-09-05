@@ -544,14 +544,15 @@ class StockController extends AbstractController
             "entrepots" => $entrepots,
             // "stockGenerales" => (array)$stockGenerales,
             "stockGEntrepots" => $stockGEntrepots,
-            "stockParCategories" => $stockParCategories,
+            "stockParCategories" => (array)$stockParCategories,
         ]);
     }
 
-    #[Route('/stock/general/type/{type}', name: 'stock_general_par_type', defaults: ["type" => null])]
-    public function stockGeneralParType($type): Response
+    #[Route('/stock/general/type/{type}/{idPref}', name: 'stock_general_par_type', defaults: ["type" => null,"idPref" => null])]
+    public function stockGeneralParType($type,$idPref): Response
     {
         $idType = $type == "NA" ? $type : $this->appService->decoderChiffre($type) ;
+        $idPref = $this->appService->decoderChiffre($idPref) ;
 
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
         if(!file_exists($filename))
@@ -567,6 +568,7 @@ class StockController extends AbstractController
 
         $search = [
             "type" => $idType,
+            "idC" => $idPref,
         ] ;
         if($idType == "NA")
         {
@@ -593,6 +595,78 @@ class StockController extends AbstractController
             "parent" => $parent,
             "categories" => $preferences,
             "stockTypes" => $stockTypes,
+        ]);
+    }
+
+    #[Route('/stock/general/preference/{preference}', name: 'stock_general_par_preference', defaults: ["preference" => null])]
+    public function stockGeneralParPreference($preference): Response
+    {
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockProduitParCats = json_decode(file_get_contents($filename)) ;
+
+        $idPrefs = $this->appService->decoderChiffre($preference) ;
+
+        $search = [
+            "idC" => $idPrefs,
+        ] ;
+        
+        $stockProduitParCats = $this->appService->searchData($stockProduitParCats,$search) ;
+
+        // dd($stockProduitParCats) ;
+        $stockTypes = [] ;
+
+        foreach($stockProduitParCats as $stockProduitParCat)
+        {
+            $nomType = ($stockProduitParCat->nomType == "NA") ? "Non Assignée" : $stockProduitParCat->nomType ;
+            if(!isset($stockTypes[$nomType]))
+            {
+                $stockTypes[$nomType] = [] ;
+                $stockTypes[$nomType]["stock"] = $stockProduitParCat->stock ;
+                $stockTypes[$nomType]["encodedId"] = $stockProduitParCat->type == "NA" ? $stockProduitParCat->type : $this->appService->encodeChiffre($stockProduitParCat->type) ;
+            }
+            else
+            {
+                $stockTypes[$nomType]["stock"]  += $stockProduitParCat->stock ;
+            }
+        }
+
+        // dd($stockTypes);
+        // $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        // if(!file_exists($filename))
+        //     $this->appService->generateStockPreferences($filename, $this->agence) ;
+
+        
+
+        // $search = [
+        //     "type" => $idPrefs,
+        // ] ;
+        // if($idType == "NA")
+        // {
+        //     $nomType = "Non Assignée" ;       
+        // }
+        // else
+        // {
+            $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($idPrefs) ;
+        //     $nomType = $type->getNom() ; 
+        // }
+
+        
+        $parent = [
+            "societe" => $this->agence->getNom(),
+            "preference" => $preference->getCategorie()->getNom(),
+            "idPref" => $this->appService->encodeChiffre($idPrefs),
+        ] ;
+
+        return $this->render('stock/stockgeneralParPreference.html.twig', [
+            "filename" => "stock",
+            "titlePage" => "Consultation Produit ",
+            "with_foot" => false,
+            "parent" => $parent,
+            // "categories" => $preferences,
+            "stockTypes" => (array)$stockTypes,
         ]);
     }
 
@@ -2352,24 +2426,31 @@ class StockController extends AbstractController
             
         $stockGenerales = json_decode(file_get_contents($filename)) ;
         
+        $filename = $this->filename."stockParCategorie(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateProduitParategorie($filename, $this->agence,$this->userObj);
+
+        $stockParCategories = json_decode(file_get_contents($filename)) ; 
+        
         $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
             $this->appService->generatePrdGenEntrepot($filename, $this->agence);
 
         $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
 
-        if($content == 1)
+        if($content == "")
         {
-            $response = $this->renderView("stock/general/displayStockBoth.html.twig",[
-                "stockGenerales" => (array)$stockGenerales,
-                "stockGEntrepots" => $stockGEntrepots
-            ]) ;
-        }else if($content == 2)
+            $response = '<div class="alert alert-warning w-100">Aucune Affichage Disponible</div>' ;
+
+        }else if($content == 1)
         {
-            $response = $this->renderView("stock/general/displayStockByNameProduct.html.twig",[
-                "stockGenerales" => (array)$stockGenerales,
+            // $response = $this->renderView("stock/general/displayStockByNameProduct.html.twig",[
+            //     "stockGenerales" => (array)$stockGenerales,
+            // ]) ;
+            $response = $this->renderView("stock/general/displayStockByPreference.html.twig",[
+                "stockParCategories" => (array)$stockParCategories,
             ]) ;
-        }else
+        }else  if($content == 2)
         {
             $response = $this->renderView("stock/general/displayStockByEntrepot.html.twig",[
                 "stockGEntrepots" => $stockGEntrepots

@@ -26,9 +26,9 @@
             <div class="col-md-3">
                 <label for="search_affichage" class="mt-2 font-weight-bold text-uppercase">Afficher par</label>
                 <select name="search_affichage" class="custom-select search_affichage chosen_select custom-select-sm" id="search_affichage">
-                    <option value="1">{{"Tous"|upper}}</option>
-                    <option value="2">{{"Catégorie"|upper}}</option>
-                    <option value="3">{{"Entrepôt"|upper}}</option>
+                    <option value="">{{"-"}}</option>
+                    <option value="1">{{"Catégorie"|upper}}</option>
+                    <option value="2">{{"Entrepôt"|upper}}</option>
                 </select>
             </div>
             {# <div class="col-md-3">
@@ -63,12 +63,13 @@
                     </thead>
                     <tbody>
                         {% set total = 0 %}
-                        {% for key, item in stockGenerales %}
+                        {% for key, item in stockParCategories %}
                             <tr>
                                 <td class="align-middle">{{key|upper}}</td>
                                 <td class="align-middle">{{ item.stock }}</td>
                                 <td class="text-center align-middle">
-                                <a href="{{path('stock_general_par_type',{'type': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                {# <a href="{{path('stock_general_par_type',{'type': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a> #}
+                                <a href="{{path('stock_general_par_preference',{'preference': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                                 </td>
                                 {% set total = total + item.stock %}
                             </tr>

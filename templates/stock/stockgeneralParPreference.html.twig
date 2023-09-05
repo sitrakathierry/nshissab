@@ -15,35 +15,35 @@
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
-            {{titlePage}}&nbsp;<span class="text-white px-2 py-1 rounded badge-warning">{{parent.type}}</span>
+            {{titlePage}}&nbsp;<span class="text-white px-2 py-1 rounded badge-warning">{{parent.preference}}</span>
             {# <a href="{{path('stock_general_excel_ticket')}}" class="btn-info btn-sm btn text-uppercase ml-auto font-smaller"><i class="fa fa-ticket"></i>&nbsp;Exporter tickets</a> #}
         </h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <input type="hidden" name="search_idType" id="search_idType" value="{{parent.idType}}">
+        <input type="hidden" name="search_idType" id="search_idPrefs" value="{{parent.idPref}}">
         <div class="row">
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Société</label>
                 <input type="text" name="societe" id="societe" class="form-control" value="{{parent.societe|upper}}" readonly>
             </div>
-            {# <div class="col-md-3">
-                <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
+            <div class="col-md-3">
+                <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Nom Produit</label>
                 <select name="search_categorie" class="custom-select search_categorie custom-select-sm" id="search_categorie">
                     <option value="">TOUS</option>
-                    {% for categorie in categories %}
+                    {# {% for categorie in categories %}
                         <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
-                    {% endfor %}
+                    {% endfor %} #}
                 </select>
-            </div> #}
-            <div class="col-md-3">
+            </div>
+            {# <div class="col-md-3">
                 <label for="search_produit" class="mt-2 font-weight-bold text-uppercase">Désignation Produit</label>
                 <select name="search_produit" class="custom-select search_produit custom-select-sm" id="search_produit">
                     <option value="">TOUS</option>
                     {% for stockType in stockTypes %}
-                        <option value="{{stockType.id}}">{{stockType.codeProduit}} | {{stockType.nomType}}  | {{stockType.nom}} | stock : {{stockType.stock}}</option>
+                        <option value="{{stockType.id}}">{{stockType.codeProduit}} | {{stockType.nom}} | stock : {{stockType.stock}}</option>
                     {% endfor %}
                 </select>
-            </div>
+            </div> #}
             {# <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
                 <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
@@ -53,29 +53,25 @@
             <table class="table table-sm table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Code Produit</th>
-                        {# <th>Catégorie</th> #}
-                        <th>Désignation Produit</th>
+                        <th>Nom Produit</th>
                         <th>Stock</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody class="elem_stock_general">
+                <tbody class="elem_stock_nom_produit">
                     {% set total = 0 %}
-                    {% for stockType in stockTypes %}
+                    {% for key, value in stockTypes %}
                         <tr>
-                            <td class="align-middle">{{stockType.codeProduit}}</td>
-                            {# <td class="align-middle">{{stockType.categorie|upper}}</td> #}
-                            <td class="align-middle">{{stockType.nom}}</td>
-                            <td class="align-middle">{{stockType.stock}}</td>
+                            <td class="align-middle">{{key|upper}}</td>
+                            <td class="align-middle">{{value.stock}}</td>
                             <td class="text-center align-middle">
-                            <a href="{{path('stock_general_details',{'id':stockType.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                            <a href="{{path('stock_general_par_type',{'type': value.encodedId,'idPref': parent.idPref})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                             </td>
                         </tr>
-                        {% set total = total + stockType.stock %}
+                        {% set total = total + value.stock %}
                     {% endfor %}
                     <tr>
-                        <th colspan="2" >Total</th>
+                        <th >Total</th>
                         <th colspan="2" class="bg-purple text-white">{{total}}</th>
                     </tr>
                 </tbody>

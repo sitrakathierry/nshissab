@@ -806,15 +806,17 @@ class AppService extends AbstractController
 
         foreach($preferences as $preference)
         {
-            $stockCats[$preference->getCategorie->getNom()]["stock"] = 0 ;
-            $stockCats[$preference->getCategorie->getNom()]["encodedId"] = $this->encodeChiffre($preference->getId()) ;
+            $stockCats[$preference->getCategorie()->getNom()]["stock"] = 0 ;
+            $stockCats[$preference->getCategorie()->getNom()]["encodedId"] = $this->encodeChiffre($preference->getId()) ;
         }
 
-        // foreach($stockGenerales as $stockGenerale)
-        // {
+        foreach($stockGenerales as $stockGenerale)
+        {
+            $prefProd = $stockGenerale->getPreference() ;
+            $stockCats[$prefProd->getCategorie()->getNom()]["stock"]  += $stockGenerale->getStock() ;
+        }
 
-        // }
-
+        file_put_contents($filename,json_encode($stockCats)) ;
     }
 
     public function generateProduitParamTypeTva($path,$filename,$agence)
