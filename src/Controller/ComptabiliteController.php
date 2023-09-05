@@ -900,6 +900,29 @@ class ComptabiliteController extends AbstractController
             "statut" => True   
         ]) ;
 
+
+
+        // ///
+
+        // // Liste des mots
+        // $liste = ["sarah", "marco", "aline", "alain", "malik", "salem", "arkalona"];
+
+        // // Mot à rechercher
+        // $motRecherche = "al";
+
+        // // Tableau pour stocker les mots correspondants
+        // $motsTrouves = [];
+
+        // // Parcours de la liste
+        // foreach ($liste as $mot) {
+        //     // Utilisation de la fonction strpos pour vérifier si le mot commence par la séquence
+        //     if (strpos($mot, $motRecherche) === 0) {
+        //         $motsTrouves[] = $mot;
+        //     }
+        // }
+
+        // dd($motsTrouves) ;
+        // ///
         
         return $this->render('comptabilite/depense/consultationDepense.html.twig', [
             "filename" => "comptabilite",
@@ -1182,8 +1205,8 @@ class ComptabiliteController extends AbstractController
             "anneeDepense" => $anneeDepense,
             "moisDepense" => $moisDepense,
             "idService" => $idService,
-            "element" => $element,
-            "beneficiaire" => $beneficiaire,
+            "dur-element" => $element,
+            "dur-beneficiaire" => $beneficiaire,
             "moisFacture" => $moisFacture,
             "anneeFacture" => $anneeFacture,
         ] ;

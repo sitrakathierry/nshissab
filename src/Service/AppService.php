@@ -2501,7 +2501,18 @@ class AppService extends AbstractController
                         $condition = $condition && ($dateSearch == $dateValue) ;
                     }
                     else
-                        $condition = $condition && (strpos(strtolower($item->$key), strtolower($value)) !== false) ;
+                    {
+                        $spec = explode("-",$item->$key) ;
+                        if(strtolower($spec[0]) == "dur")
+                        {
+                            $condition = $condition && (strpos(strtolower($spec[1]), strtolower($value)) === 0) ;
+                        }
+                        else
+                        {
+                            $condition = $condition && (strpos(strtolower($item->$key), strtolower($value)) !== false) ;
+                        }
+
+                    }
                 }
             }
             return $condition;
