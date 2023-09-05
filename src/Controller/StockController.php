@@ -570,6 +570,10 @@ class StockController extends AbstractController
             "type" => $idType,
             "idC" => $idPref,
         ] ;
+
+        
+        // $stockTypes = $this->appService->searchData($stockTypes,$search) ;
+
         if($idType == "NA")
         {
             $nomType = "Non Assignée" ;       
@@ -580,8 +584,6 @@ class StockController extends AbstractController
             $nomType = $type->getNom() ; 
         }
 
-        $stockTypes = $this->appService->searchData($stockTypes,$search) ;
-        
         $parent = [
             "societe" => $this->agence->getNom(),
             "type" => $nomType,
@@ -1223,7 +1225,7 @@ class StockController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateStockFournisseur($filename,$this->agence) ;
         $fournisseurs = json_decode(file_get_contents($filename)) ;
-        
+
         return $this->render('stock/fournisseur.html.twig', [
             "filename" => "stock",
             "titlePage" => "Fournisseur",
