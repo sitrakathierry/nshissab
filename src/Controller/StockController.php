@@ -572,7 +572,7 @@ class StockController extends AbstractController
         ] ;
 
         
-        // $stockTypes = $this->appService->searchData($stockTypes,$search) ;
+        $stockTypes = $this->appService->searchData($stockTypes,$search) ;
 
         if($idType == "NA")
         {
