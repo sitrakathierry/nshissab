@@ -2507,7 +2507,10 @@ class AppService extends AbstractController
                         $spec = explode("-",$item->$key) ;
                         if(strtolower($spec[0]) == "dur")
                         {
-                            $condition = $condition && preg_match("/^".strtolower($value)."/", $item->$key) ;
+                            // Utilisation de la fonction substr pour obtenir une sous-chaîne du début du mot
+                            $debutMot = substr(strtolower($item->$key), 0, strlen(strtolower($value)));
+                            
+                            $condition = $condition && strcasecmp($debutMot, strtolower($value)) === 0 ;
                         }
                         else
                         {
