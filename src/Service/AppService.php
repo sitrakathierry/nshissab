@@ -2504,7 +2504,7 @@ class AppService extends AbstractController
                     }
                     else
                     {
-                        $spec = explode("-",$item->$key) ;
+                        $spec = explode("-",$key) ;
                         if(strtolower($spec[0]) == "dur")
                         {
                             // Utilisation de la fonction substr pour obtenir une sous-chaîne du début du mot
