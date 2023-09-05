@@ -2300,6 +2300,10 @@ class AppService extends AbstractController
         $depenses = $this->entityManager->getRepository(Depense::class)->findBy([
             "agence" => $agence,
             "statutGen" => True,
+        ],
+        [
+            "moisFacture" => "ASC",
+            "anneeFacture" => "ASC",
         ]) ;
 
         $items = [] ;
@@ -2311,16 +2315,19 @@ class AppService extends AbstractController
             $item["encodedId"] = $this->encodeChiffre($depense->getId()) ;
             $item["agence"] = $depense->getAgence()->getId() ;
             $item["dateDeclaration"] = $depense->getDateDeclaration()->format("d/m/Y") ;
-            $item["date"] = $depense->getDateDeclaration()->format("d/m/Y") ;
+            $item["date"] = str_pad($depense->getMoisFacture(), 2, "0", STR_PAD_LEFT)."/".$depense->getAnneeFacture() ;
             $item["element"] = $depense->getElement() ;
             $item["beneficiaire"] = $depense->getNomConcerne() ;
             $item["numFacture"] = $depense->getNumFacture() ;
+            $item["moisFacture"] = $depense->getMoisFacture() ;
+            $item["anneeFacture"] = $depense->getAnneeFacture() ;
             $item["currentDate"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["dateDebut"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["dateFin"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["moisDepense"] = $depense->getDateDeclaration()->format("m") ;
             $item["anneeDepense"] = $depense->getDateDeclaration()->format("Y") ;
             $item["service"] = $depense->getService()->getNom() ;
+            $item["idService"] = $depense->getService()->getId() ;
             $item["motif"] = $depense->getMotif()->getNom() ;
             $item["refMotif"] = $depense->getMotif()->getReference() ;
             $item["modePaiement"] = $depense->getModePaiement()->getNom() ;

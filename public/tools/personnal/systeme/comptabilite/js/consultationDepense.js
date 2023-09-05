@@ -58,6 +58,37 @@ $(document).ready(function(){
             name: "moisDepense",
             action:"change",
             selector : "#search_mois"
+        },
+        {
+            name:"idService",
+            action:"change",
+            selector:"#search_service"
+        },
+        {
+            name:"element",
+            action:"keyup",
+            selector:"#search_element"
+        }
+        ,
+        {
+            name:"beneficiaire",
+            action:"keyup",
+            selector:"#search_nom_concerne"
+        },
+        {
+            name:"moisFacture",
+            action:"change",
+            selector:"#search_mois_facture"
+        },
+        {
+            name:"anneeFacture",
+            action:"change",
+            selector:".search_annee_facture"
+        },
+        {
+            name:"anneeFacture",
+            action:"keyup",
+            selector:".search_annee_facture"
         }
     ] 
 
@@ -156,5 +187,9 @@ $(document).ready(function(){
 
     $(document).on("mouseleave",".toggleIcon",function(){
         $(this).find("i").removeClass("rotateIcon")
+    })
+
+    $(".vider").click(function(){
+        searchDepense()
     })
 })

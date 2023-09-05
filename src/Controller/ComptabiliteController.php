@@ -593,7 +593,7 @@ class ComptabiliteController extends AbstractController
         $motifs = $this->entityManager->getRepository(DepMotif::class)->findAll() ;
         $services = $this->entityManager->getRepository(DepService::class)->findBy([
             "agence" => $this->agence ,
-            // "statut" => True   
+            "statut" => True   
         ]) ;
         $libelles = $this->entityManager->getRepository(DepLibelle::class)->findBy([
             "agence" => $this->agence    
@@ -711,7 +711,7 @@ class ComptabiliteController extends AbstractController
             $dep_mode_paiement,
             $dep_montant,
             // $dep_num_facture,
-            // $dep_mois_facture,
+            $dep_mois_facture,
             $dep_date_declaration,
         ], [
             "Nom Concerné",
@@ -721,7 +721,7 @@ class ComptabiliteController extends AbstractController
             "Mode de Paiement",
             "Montant",
             // "Numéro Facture",
-            // "Mois Facture",
+            "Mois Facture",
             "Date de déclaration",
             ]) ;
 
@@ -740,6 +740,7 @@ class ComptabiliteController extends AbstractController
 
             $service->setAgence($this->agence) ;
             $service->setNom($dep_service) ;
+            $service->setStatut(True) ;
 
             $this->entityManager->persist($service) ;
             $this->entityManager->flush() ;
@@ -862,7 +863,7 @@ class ComptabiliteController extends AbstractController
 
         $items = [] ;
         foreach ($depenses as $depense) {
-            $key = $tabMois[intval($depense->moisDepense) - 1]." ".$depense->anneeDepense ;
+            $key = $tabMois[intval($depense->moisFacture) - 1]." ".$depense->anneeFacture ;
 
             if(!isset($items[$key]))
             {
@@ -876,7 +877,7 @@ class ComptabiliteController extends AbstractController
                 $items[$key]["detail"] = [] ;
                 $items[$key]["detail"][] = $depense ;
             }
-            else
+            else 
             {
                 if(isset($items[$key]["statPaiement"][$depense->refMode]))
                     $items[$key]["statPaiement"][$depense->refMode] += 1 ;
@@ -893,6 +894,12 @@ class ComptabiliteController extends AbstractController
                 $items[$key]["detail"][] = $depense ;
             }
         }
+
+        $services = $this->entityManager->getRepository(DepService::class)->findBy([
+            "agence" => $this->agence ,
+            "statut" => True   
+        ]) ;
+
         
         return $this->render('comptabilite/depense/consultationDepense.html.twig', [
             "filename" => "comptabilite",
@@ -900,6 +907,7 @@ class ComptabiliteController extends AbstractController
             "with_foot" => false,
             "depenses" => $items, 
             "tabMois" => $tabMois, 
+            "services" => $services, 
         ]);
     }
 
@@ -1101,6 +1109,11 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/depense/search', name: 'compta_depense_search')]
     public function comptaSearchDepense(Request $request)
     {
+        $idService = $request->request->get('idService') ;
+        $moisFacture = $request->request->get('moisFacture') ;
+        $anneeFacture = $request->request->get('anneeFacture') ;
+        $element = $request->request->get('element') ;
+        $beneficiaire = $request->request->get('beneficiaire') ;
         $currentDate = $request->request->get('currentDate') ;
         $dateDeclaration = $request->request->get('dateDeclaration') ;
         $dateDebut = $request->request->get('dateDebut') ;
@@ -1157,6 +1170,10 @@ class ComptabiliteController extends AbstractController
             $moisDepense = "" ;
         }
 
+        if(empty($moisFacture))
+            $anneeFacture = "" ;
+
+
         $search = [
             "currentDate" => $currentDate,
             "dateDeclaration" => $dateDeclaration,
@@ -1164,6 +1181,11 @@ class ComptabiliteController extends AbstractController
             "dateFin" => $dateFin,
             "anneeDepense" => $anneeDepense,
             "moisDepense" => $moisDepense,
+            "idService" => $idService,
+            "element" => $element,
+            "beneficiaire" => $beneficiaire,
+            "moisFacture" => $moisFacture,
+            "anneeFacture" => $anneeFacture,
         ] ;
 
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
@@ -1178,7 +1200,7 @@ class ComptabiliteController extends AbstractController
 
         $items = [] ;
         foreach ($depenses as $depense) {
-            $key = $tabMois[intval($depense->moisDepense) - 1]." ".$depense->anneeDepense ;
+            $key = $tabMois[intval($depense->moisFacture) - 1]." ".$depense->anneeFacture ;
 
             if(!isset($items[$key]))
             {

@@ -19,29 +19,53 @@
     </div>
     <div class="container-fluid px-3 pt-3 pb-4">
         <div class="row">
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Service</label>
-                <select name="prod_categorie" class="custom-select custom-select-sm" id="prod_categorie">
+            <div class="col-md-4">
+                <label for="search_service" class="mt-2 font-weight-bold text-uppercase">Service</label>
+                <select name="search_service" class="custom-select chosen_select custom-select-sm" id="search_service">
                     <option value="">-</option>
-                    {# {% for services in services %}
-                        <option value="{{categorie.id}}" {{ infoProduit.categorie == categorie.id ? "selected" : "" }}>{{categorie.nom|upper}}</option>
-                    {% endfor %}  #}
+                    {% for service in services %}
+                        <option value="{{service.id}}" >{{service.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">élément</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+            <div class="col-md-4">
+                <label for="search_element" class="mt-2 font-weight-bold text-uppercase">élément</label>
+                <div class="input-group">
+                    <input type="text" name="search_element" id="search_element" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#search_element').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="search_nom_concerne" class="mt-2 font-weight-bold text-uppercase">Nom Concerné</label>
+                <div class="input-group">
+                    <input type="text" name="search_nom_concerne" id="search_nom_concerne" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#search_nom_concerne').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois Facture</label>
+                <div class="row">
+                    <div class="col-md-7" >
+                        {% set i = 1 %}
+                        <select name="search_mois_facture" class="custom-select chosen_select custom-select-sm" id="search_mois_facture">
+                            <option value="">-</option>
+                            {% for tabMois in tabMois %}
+                                <option value="{{i}}">{{tabMois|upper}}</option>
+                                {% set i = i + 1 %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="number" name="search_annee_facture" id="search_annee_facture" value="{{'now'|date('Y')}}" class="form-control search_annee_facture">
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Nom Concerné</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois Dépense</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="search_depense" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
+                <label for="search_depense" class="mt-2 font-weight-bold text-uppercase">Recherche déclaration</label>
                 <select name="search_depense" class="custom-select chosen_select custom-select-sm" id="search_depense">
                     <option value="">AFFICHER TOUS</option>
                     <option value="JOUR">{{"Aujourd'hui"|upper}}</option>

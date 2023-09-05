@@ -24,6 +24,9 @@ class DepService
     #[ORM\OneToMany(mappedBy: 'service', targetEntity: Depense::class)]
     private Collection $depenses;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $statut = null;
+
     public function __construct()
     {
         $this->depenses = new ArrayCollection();
@@ -84,6 +87,18 @@ class DepService
                 $depense->setService(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isStatut(): ?bool
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?bool $statut): self
+    {
+        $this->statut = $statut;
 
         return $this;
     }
