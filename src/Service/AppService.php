@@ -2317,7 +2317,9 @@ class AppService extends AbstractController
             $item["dateDeclaration"] = $depense->getDateDeclaration()->format("d/m/Y") ;
             $item["date"] = str_pad($depense->getMoisFacture(), 2, "0", STR_PAD_LEFT)."/".$depense->getAnneeFacture() ;
             $item["element"] = $depense->getElement() ;
+            $item["dur-element"] = $depense->getElement() ;
             $item["beneficiaire"] = $depense->getNomConcerne() ;
+            $item["dur-beneficiaire"] = $depense->getNomConcerne() ;
             $item["numFacture"] = $depense->getNumFacture() ;
             $item["moisFacture"] = $depense->getMoisFacture() ;
             $item["anneeFacture"] = $depense->getAnneeFacture() ;
