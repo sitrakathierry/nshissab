@@ -1024,6 +1024,7 @@ class AppService extends AbstractController
 
         $response = [] ;
         $moisDebut = $contrat->getDateDebut()->format("m") ;
+        $anneeDebut = $contrat->getDateDebut()->format("Y") ;
         $indexMois = intval($moisDebut) - 1 ;
 
         if($contrat->getCycle()->getReference() == "CMOIS")
@@ -1057,6 +1058,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["versement"] = "-" ;
                     $tableauMois[$i]["versementVal"] = 0 ;
                     $tableauMois[$i]["mois"] = $tabMois[$indexMois] ;
+                    $tableauMois[$i]["annee"] = $anneeDebut ;
                     
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
@@ -1077,6 +1079,7 @@ class AppService extends AbstractController
                     if($indexMois >= 12 )
                     {
                         $indexMois = 0 ;
+                        $anneeDebut++ ;
                     }
                 }
 
@@ -1104,6 +1107,7 @@ class AppService extends AbstractController
                     $tableauMois[$i]["versement"] = "-" ;
                     $tableauMois[$i]["versementVal"] = 0 ;
                     $tableauMois[$i]["mois"] = $tabMois[$indexMois] ;
+                    $tableauMois[$i]["annee"] = $anneeDebut ;
 
                     foreach ($childs as $child) {
                         if($child["debutLimite"] == $tableauMois[$i]["debutLimite"])
@@ -1123,6 +1127,7 @@ class AppService extends AbstractController
                     if($indexMois >= 12 )
                     {
                         $indexMois = 0 ;
+                        $anneeDebut++ ;
                     }
                 }
 
