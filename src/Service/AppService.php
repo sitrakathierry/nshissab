@@ -815,7 +815,7 @@ class AppService extends AbstractController
         foreach($stockGenerales as $stockGenerale)
         {
             $prefProd = $stockGenerale->getPreference() ;
-            $stockCats[$prefProd->getCategorie()->getNom()]["stock"]  += $stockGenerale->getStock() ;
+            $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"]  += $stockGenerale->getStock() ;
         }
 
         file_put_contents($filename,json_encode($stockCats)) ;
