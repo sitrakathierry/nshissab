@@ -132,12 +132,28 @@ class ComptabiliteController extends AbstractController
             $this->appService->generateCmpOperation($filename, $this->agence) ;
         
         $operations = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateCmpBanque($filename, $this->agence) ;
         
+        $banques = json_decode(file_get_contents($filename)) ;
+
+        $categories = $this->entityManager->getRepository(CmpCategorie::class)->findAll() ;
+
+        // $types = $this->entityManager->getRepository(CmpType::class)->findAll() ;
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
         return $this->render('comptabilite/banque/mouvementCompte.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Mouvement des comptes",
             "with_foot" => false,
             "operations" => $operations,
+            "banques" => $banques,
+            "categories" => $categories,
+            "tabMois" => $tabMois,
+            // "types" => $types
         ]);  
     }
 
@@ -240,7 +256,7 @@ class ComptabiliteController extends AbstractController
             "Banque",
             "Numéro de compte",
             "Solde",
-            ]) ;
+        ]) ;
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
@@ -312,6 +328,97 @@ class ComptabiliteController extends AbstractController
         
         return new JsonResponse($result) ; 
         
+    }
+
+    #[Route('/comptabilite/banque/compte/modif/get', name: 'compta_banque_compte_modif_get')]
+    public function comptaBanqueGetModifCompte(Request $request)
+    {
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateCmpBanque($filename, $this->agence) ;
+        
+        $banques = json_decode(file_get_contents($filename)) ;
+
+        $idCompte = $request->request->get("idCompte") ;
+        $compte = $this->entityManager->getRepository(CmpCompte::class)->find($idCompte) ;
+
+        $data = [
+            "id" => $compte->getId(),    
+            "idBanque" => $compte->getBanque()->getId(),    
+            "numCompte" => $compte->getNumero(),    
+            "solde" => $compte->getSolde(),    
+        ] ;
+
+        $response = $this->renderView("comptabilite/banque/getModifCompteBancaire.html.twig",[
+            "banques" => $banques,  
+            "compte" => $data,  
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/comptabilite/banque/compte/update', name: 'compta_banque_compte_bancaire_update')]
+    public function comptaBanqueUpdateCompte(Request $request)
+    {
+        $idCompte = $request->request->get("idCompte") ;
+        $cmp_compte_banque = $request->request->get("cmp_compte_banque") ;
+        $cmp_compte_numero = $request->request->get("cmp_compte_numero") ;
+        // $cmp_compte_solde = $request->request->get("cmp_compte_solde") ;
+
+        $result = $this->appService->verificationElement([
+            $cmp_compte_banque,
+            $cmp_compte_numero,
+            // $cmp_compte_solde,
+        ], [
+            "Banque",
+            "Numéro de compte",
+            // "Solde",
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $banque = $this->entityManager->getRepository(CmpBanque::class)->find($cmp_compte_banque) ;
+
+        $compte = $this->entityManager->getRepository(CmpCompte::class)->find($idCompte) ;
+
+        $compte->setAgence($this->agence) ;
+        $compte->setBanque($banque) ;
+        $compte->setNumero($cmp_compte_numero) ;
+        $compte->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."compte(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué",
+        ]);
+    }
+
+    #[Route('/comptabilite/banque/compte/delete', name: 'compta_banque_compte_bancaire_delete')]
+    public function comptaBanqueDeleteCompte(Request $request)
+    {
+        $idCompte = $request->request->get("idCompte") ;
+        $compte = $this->entityManager->getRepository(CmpCompte::class)->find($idCompte) ;
+
+        $compte->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."compte(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué",
+        ]);
     }
 
     #[Route('/comptabilite/banque/compte/get', name: 'compta_banque_compte_bancaire_get')]
@@ -1267,6 +1374,107 @@ class ComptabiliteController extends AbstractController
         }
 
         return new Response($response) ; 
+    }
+
+    #[Route('/comptabilite/mouvement/compte/search', name: 'compta_mouvement_compte_search')]
+    public function comptaSearchMouvementCompte(Request $request)
+    {
+        
+        $currentDate = $request->request->get('currentDate') ;
+        $dateDeclaration = $request->request->get('dateDeclaration') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $annee = $request->request->get('annee') ;
+        $mois = $request->request->get('mois') ;
+        $affichage = $request->request->get('affichage') ;
+        $compte = $request->request->get('compte') ;
+        $personne = $request->request->get('personne') ;
+        $idBanque = $request->request->get('idBanque') ;
+        $idCategorie = $request->request->get('idCategorie') ;
+        
+        if($affichage == "JOUR")
+        {
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+        else if($affichage == "SPEC")
+        {
+            $currentDate = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+        else if($affichage == "LIMIT")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+        else if($affichage == "MOIS")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+        }
+        else if($affichage == "ANNEE")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $mois = "" ;
+        }
+        else
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+
+        $search = [
+            "currentDate" => $currentDate,
+            "dateDeclaration" => $dateDeclaration,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
+            "idBanque" => $idBanque,
+            "dur-compte" => $compte,
+            "dur-personne" => $personne,
+            "idCategorie" => $idCategorie,
+        ] ;
+        
+        $filename = $this->filename."operation(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateCmpOperation($filename, $this->agence) ;
+        
+        $operations = json_decode(file_get_contents($filename)) ;
+
+        $operations = $this->appService->searchData($operations,$search) ;
+
+        if(!empty($operations))  
+        {
+            $response = $this->renderView("comptabilite/banque/searchMouvementCompte.html.twig", [
+                "operations" => $operations
+            ]) ;
+        }
+        else
+        {
+            $response = '<tr><td colspan="11" class="p-2"><div class="alert w-100 alert-sm alert-warning">Désolé, aucun élément trouvé</div></td></tr>' ;
+        }
+
+
+        return new Response($response) ;
     }
 
     #[Route('/comptabilite/journal/search', name: 'compta_journal_search')]

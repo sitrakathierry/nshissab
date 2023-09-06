@@ -22,10 +22,10 @@
         <label for="nom" class="mt-2 font-weight-bold">Nom</label>
         <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
 
-        <select name="prod_categorie" class="custom-select custom-select-sm" id="prod_categorie">
+        <select name="prod_categorie" class="custom-select chosen_select custom-select-sm" id="prod_categorie">
             <option value="">-</option>
             {% for categorie in categories %}
-                <option value="{{categorie.id}}" {{ infoProduit.categorie == categorie.id ? "selected" : "" }}>{{categorie.nom|upper}}</option>
+                <option value="{{categorie.id}}" >{{categorie.nom|upper}}</option>
             {% endfor %} 
         </select>
 

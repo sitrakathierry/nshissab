@@ -1293,6 +1293,100 @@ class StockController extends AbstractController
     }
 
     
+    #[Route('/stock/fournisseur/modif/get', name: 'stock_get_modif_fournisseur')]
+    public function stockGetModifFournisseur(Request $request)
+    {
+
+        $frns_id = $request->request->get('frns_id') ; 
+
+        $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->find($frns_id) ;
+
+        $data = [
+            "id" => $fournisseur->getId(),
+            "nom" => $fournisseur->getNom(),
+            "telBureau" => $fournisseur->getTelBureau(),
+            "adresse" => $fournisseur->getAdresse(),
+            "nomContact" => $fournisseur->getNomContact(),
+            "telMobile" => $fournisseur->getTelMobile(),
+            "email" => $fournisseur->getEmail() 
+        ] ;
+
+        $response = $this->renderView("stock/fournisseur/getModifTemplate.html.twig",[
+            "fournisseur" => $fournisseur
+        ],[
+            "fournisseur" => $data
+            ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/stock/fournisseur/update', name: 'stock_update_fournisseur')]
+    public function stockUpdateFournisseur(Request $request)
+    {
+        $frns_id = $request->request->get('frns_id') ; 
+        $frns_nom = $request->request->get('frns_nom') ; 
+        $frns_tel_bureau = $request->request->get('frns_tel_bureau') ; 
+        $frns_adresse = $request->request->get('frns_adresse') ; 
+        $frns_nom_contact = $request->request->get('frns_nom_contact') ; 
+        $frns_tel_mobile = $request->request->get('frns_tel_mobile') ; 
+        $frns_email = $request->request->get('frns_email') ; 
+
+        $data = [
+            $frns_nom,
+        ] ;
+
+        $dataMessage = [
+            "Nom",
+        ] ;
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+        
+        $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->find($frns_id) ;
+
+        $fournisseur->setNom($frns_nom) ;
+        $fournisseur->setTelBureau(empty($frns_tel_bureau) ? null : $frns_tel_bureau) ;
+        $fournisseur->setAdresse(empty($frns_adresse) ? null : $frns_adresse) ;
+        $fournisseur->setNomContact(empty($frns_nom_contact) ? null : $frns_nom_contact) ;
+        $fournisseur->setTelMobile(empty($frns_tel_mobile) ? null : $frns_tel_mobile) ;
+        $fournisseur->setEmail(empty($frns_email) ? null : $frns_email) ;
+        $fournisseur->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Modification effectué",    
+        ]) ;
+    }
+
+    #[Route('/stock/fournisseur/delete', name: 'stock_delete_fournisseur')]
+    public function stockDeleteFournisseur(Request $request)
+    {
+        $frns_id = $request->request->get('frns_id') ; 
+
+        $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->find($frns_id) ;
+
+        $fournisseur->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Suppression effectué",    
+        ]) ;
+    }
 
     #[Route('/stock/stockentrepot/{id}', name: 'stock_stockentrepot', defaults: ["id" => null])]
     public function stockStockentrepot($id): Response

@@ -117,6 +117,135 @@ $(document).ready(function(){
         return false;
     });
 
+    $(document).on("click",".btn_modif_compte",function(){
+      var self = $(this)
+      var formData = new FormData() ;
+      var realinstance = instance.loading()
+      formData.append('idCompte',self.data("value"))
+      $.ajax({
+          url: routes.compta_banque_compte_modif_get,
+          type:'post',
+          cache: false,
+          data:formData,
+          dataType: 'html',
+          processData: false,
+          contentType: false,
+          success: function(response){
+              realinstance.close()
+              $("#contentCompte").html(response)
+          },
+          error: function(resp){
+              realinstance.close()
+              $.alert(JSON.stringify(resp)) ;
+          }
+      })
+    })
+
+    $(document).on("submit","#formUpdateCompte",function(){
+      var self = $(this)
+      $.confirm({
+          title: "Modification",
+          content:"Êtes-vous sûre ?",
+          type:"orange",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-orange',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      var data = self.serialize() ;
+                      $.ajax({
+                          url: routes.compta_banque_compte_bancaire_update,
+                          type:'post',
+                          cache: false,
+                          data:data,
+                          dataType: 'json',
+                          success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                            location.reload()
+                                          }
+                                      }
+                                  }
+                              });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+      return false ;
+  })
+
+    $(document).on("click",".btn_delete_compte",function(){
+      var self = $(this)
+      $.confirm({
+          title: "Suppression",
+          content:"Êtes-vous sûre ?",
+          type:"red",
+          theme:"modern",
+          buttons:{
+              btn1:{
+                  text: 'Non',
+                  action: function(){}
+              },
+              btn2:{
+                  text: 'Oui',
+                  btnClass: 'btn-red',
+                  keys: ['enter', 'shift'],
+                  action: function(){
+                      var realinstance = instance.loading()
+                      $.ajax({
+                          url: routes.compta_banque_compte_bancaire_delete,
+                          type:'post',
+                          cache: false,
+                          data:{idCompte:self.data("value")},
+                          dataType: 'json',
+                          success: function(json){
+                              realinstance.close()
+                              $.alert({
+                                  title: 'Message',
+                                  content: json.message,
+                                  type: json.type,
+                                  buttons: {
+                                      OK: function(){
+                                          if(json.type == "green")
+                                          {
+                                              location.reload()
+                                          }
+                                      }
+                                  }
+                              });
+                          },
+                          error: function(resp){
+                              realinstance.close()
+                              $.alert(JSON.stringify(resp)) ;
+                          }
+                      })
+                  }
+              }
+          }
+      })
+      return false ;
+  })
+
     $("#formOperation").submit(function(){
         var self = $(this);
         $.confirm({

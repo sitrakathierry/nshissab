@@ -715,6 +715,135 @@ $(document).ready(function(){
             }
         })
         return false ;
+    }) 
+
+    $(document).on("click",".btn_delete_fournisseur",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.stock_delete_fournisseur,
+                            type:'post',
+                            cache: false,
+                            data:{frns_id:self.data("value")},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on("click",".btn_modif_fournisseur",function(){
+        var realinstance = instance.loading()
+        var self = $(this)
+        var formData = new FormData() ;
+        formData.append('frns_id',self.data("value"))
+        $.ajax({
+            url: routes.stock_get_modif_fournisseur,
+            type:'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#contentFournisseur").html(response)
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    })
+
+    $(document).on("submit","#formUpdateFournisseur",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Modification",
+            content:"Êtes-vous sûre ?",
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize() ;
+                        $.ajax({
+                            url: routes.stock_update_fournisseur,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
     })
 
     $("#formCreateProduit").submit(function(event){

@@ -9,7 +9,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/mouvementCompte.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -19,23 +19,105 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">Banque</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="nom" class="font-weight-bold mt-2">Banque</label>
+                <select name="cmp_search_banque" class="custom-select chosen_select custom-select-sm" id="cmp_search_banque">
+                    <option value="" >-</option>
+                    {% for banque in banques %}
+                        <option value="{{banque.id}}" >{{banque.nom|upper}}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">Numéro de compte</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="nom" class="font-weight-bold mt-2">Opération</label>
+                <select name="cmp_search_categorie" class="custom-select chosen_select custom-select-sm" id="cmp_search_categorie">
+                    <option value="" >-</option>
+                    {% for categorie in categories %}
+                        <option value="{{categorie.id}}" >{{categorie.nom|upper}}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">Opération</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="cmp_search_compte" class="font-weight-bold mt-2">Compte Bancaire</label>
+                <div class="input-group">
+                    <input type="text" name="cmp_search_compte" id="cmp_search_compte" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#cmp_search_compte').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            {# <div class="col-md-3">
+                <label for="nom" class="font-weight-bold mt-2">Type</label>
+                <select name="cmp_search_type" class="custom-select chosen_select custom-select-sm" id="cmp_search_type">
+                    <option value="" >-</option>
+                    {% for type in types %}
+                        <option value="{{type.id}}" data-reference="{{type.reference}}" >{{type.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div> #}
+            <div class="col-md-3">
+                <label for="cmp_search_nom_concerne" class="mt-2 font-weight-bold">Nom Concerné</label>
+                <div class="input-group">
+                    <input type="text" name="cmp_search_nom_concerne" id="cmp_search_nom_concerne" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#cmp_search_nom_concerne').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">Date</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder=". . .">
+                <label for="search_mouvement_compte" class="mt-3 font-weight-bold text-uppercase">Recherche operation</label>
+                <select name="search_mouvement_compte" class="custom-select chosen_select custom-select-sm" id="search_mouvement_compte">
+                    <option value="">AFFICHER TOUS</option>
+                    <option value="JOUR">{{"Aujourd'hui"|upper}}</option>
+                    <option value="SPEC">{{"Date Spécifique"|upper}}</option>
+                    <option value="LIMIT">{{"Fourchette"|upper}}</option>
+                    <option value="MOIS">{{"Mois"|upper}}</option>
+                </select>
+                <input type="hidden" id="search_current_date" value="{{'now'|date('d/m/Y')}}" >
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_date">
+                <label for="search_date" class="mt-3 font-weight-bold text-uppercase">Date</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_date_debut">
+                <label for="search_date_debut" class="mt-3 font-weight-bold text-uppercase">Date début</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date_debut" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_date_fin">
+                <label for="search_date_fin" class="mt-3 font-weight-bold text-uppercase">Date Fin</label>
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                </div>
+                    <input type="text" id="search_date_fin" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_mois">
+                {% set i = 1 %}
+                <label for="search_mois" class="mt-3 font-weight-bold text-uppercase">Mois</label>
+                <select name="search_mois" class="custom-select chosen_select custom-select-sm" id="search_mois">
+                    <option value="">-</option>
+                    {% for tabMois in tabMois %}
+                        <option value="{{i}}">{{tabMois|upper}}</option>
+                        {% set i = i + 1 %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3" style="display: none;" id="caption_search_annee">
+                <label for="search_annee" class="mt-3 font-weight-bold text-uppercase">Année</label>
+                <input type="number" name="search_annee" id="search_annee" value="{{'now'|date('Y')}}" class="form-control search_annee">
             </div>
         </div>
-        <div class="mt-2">
+        <div class="mt-4">
             <div class="table-responsive">
                 <table class="table table-sm table-bordered">
                     <thead class="thead-dark">
@@ -45,21 +127,23 @@
                             <th>N° Opération</th>
                             <th>Type</th>
                             <th>N° Type</th>
-                            <th>Editeur Type</th>
+                            <th>Editeur/Libellé</th>
                             <th>Compte Bancaire</th>
                             <th>Personne concerné</th>
                             <th>Opération</th>
                             <th>Montant</th>
-                            <th></th>
+                            {# <th></th> #}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="elementMouvementCompte">
                         {% set total = 0 %}
                         {% for operation in operations %}
                             {% if operation.refCategorie == "DEP" %}
                                 {% set statutClass = "text-success" %}
+                                {% set total = total + operation.montant %}
                             {% else %}
                                 {% set statutClass = "text-danger" %}
+                                {% set total = total - operation.montant %}
                             {% endif %}
                             <tr class="{{statutClass}}">
                                 <td>{{operation.date}}</td>
@@ -72,19 +156,16 @@
                                 <td>{{operation.personne|upper}}</td>
                                 <td>{{operation.categorie|upper}}</td>
                                 <td>{{operation.montant}}</td>
-                                <td class="text-center align-middle">
+                                {# <td class="text-center align-middle">
                                     <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
-                                </td>
+                                </td> #}
                             </tr>
-                            {% set total = total + operation.montant %}
                         {% endfor %}
-                    </tbody>
-                    <tfoot>
                         <tr>
                             <th colspan="9">Montant Total</th>
                             <th colspan="2" class="text-white bg-primary">{{total}}</th>
                         </tr>
-                    </tfoot>
+                    </tbody>
                 </table>
             </div>
         </div>

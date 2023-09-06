@@ -1,0 +1,32 @@
+<form id="formUpdateCompte">
+    <h5 class="title_form text-black text-uppercase">Modification Compte bancaire</h5>
+    <div class="row">
+        <div class="col-md-3">
+            <label for="cmp_compte_banque" class="font-weight-bold">Banque</label>
+            <select name="cmp_compte_banque" class="custom-select chosen_select custom-select-sm" id="cmp_compte_banque">
+                <option value="" >-</option>
+                {% for banque in banques %}
+                    <option value="{{banque.id}}" {{ compte.idBanque == banque.id ? "selected" : "" }} >{{banque.nom|upper}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="cmp_compte_numero" class="font-weight-bold">Numéro de compte</label>
+            <input type="text" name="cmp_compte_numero" id="cmp_compte_numero" class="form-control" value="{{compte.numCompte}}">
+            <input type="hidden" name="idCompte" id="idCompte" value="{{compte.id}}" >
+        </div>
+        <div class="col-md-3">
+            <label for="cmp_compte_solde" class="font-weight-bold">Solde du compte</label>
+            <input type="number" step="any" readonly name="cmp_compte_solde" id="cmp_compte_solde" class="form-control bg-white font-weight-bold text-primary" value="{{compte.solde}}">
+        </div>
+        <div class="col-md-3">
+            <label class="font-weight-bold">&nbsp;</label>
+            <button class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-database"></i>&nbsp;Mettre à jour</button>
+        </div>
+    </div>
+</form>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

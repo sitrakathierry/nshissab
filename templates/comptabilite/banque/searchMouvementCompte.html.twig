@@ -1,0 +1,30 @@
+{% set total = 0 %}
+{% for operation in operations %}
+    {% if operation.refCategorie == "DEP" %}
+        {% set statutClass = "text-success" %}
+        {% set total = total + operation.montant %}
+    {% else %}
+        {% set statutClass = "text-danger" %}
+        {% set total = total - operation.montant %}
+    {% endif %}
+    <tr class="{{statutClass}}">
+        <td>{{operation.date}}</td>
+        <td>{{operation.banque}}</td>
+        <td>{{operation.numero}}</td>
+        <td>{{operation.type|upper}}</td>
+        <td>{{operation.numeroMode|upper}}</td>
+        <td>{{operation.editeurMode|upper}}</td>
+        <td>{{operation.compte}}</td>
+        <td>{{operation.personne|upper}}</td>
+        <td>{{operation.categorie|upper}}</td>
+        <td>{{operation.montant}}</td>
+        {# <td class="text-center align-middle">
+            <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+        </td> #}
+    </tr>
+    
+{% endfor %}
+<tr>
+    <th colspan="9">Montant Total</th>
+    <th colspan="2" class="text-white bg-primary">{{total}}</th>
+</tr>

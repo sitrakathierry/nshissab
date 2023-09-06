@@ -66,9 +66,9 @@ CmdBonCommande, CaisseCommande, CaissePanier, ...
 
 var self = $(this)
         $.confirm({
-            title: "Confirmation",
+            title: "Suppression",
             content:"Êtes-vous sûre ?",
-            type:"blue",
+            type:"red",
             theme:"modern",
             buttons:{
                 btn1:{
@@ -77,18 +77,17 @@ var self = $(this)
                 },
                 btn2:{
                     text: 'Oui',
-                    btnClass: 'btn-blue',
+                    btnClass: 'btn-red',
                     keys: ['enter', 'shift'],
                     action: function(){
                         var realinstance = instance.loading()
-                        var data = self.serialize()
                         $.ajax({
-                            url: routes.param_modele_pdf_save,
+                            url: routes.stock_delete_fournisseur,
                             type:'post',
                             cache: false,
-                            data:data,
+                            data:{:self.data("value")},
                             dataType: 'json',
-                            success: function(){
+                            success: function(json){
                                 realinstance.close()
                                 $.alert({
                                     title: 'Message',

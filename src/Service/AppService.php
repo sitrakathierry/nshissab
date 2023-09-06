@@ -620,7 +620,8 @@ class AppService extends AbstractController
     public function generateStockFournisseur($filename,$agence)
     {
         $fournisseurs = $this->entityManager->getRepository(PrdFournisseur::class)->findBy([
-            "agence" => $agence
+            "agence" => $agence,
+            "statut" => True,
         ]) ;
         
         $elements = [] ;
@@ -2186,7 +2187,7 @@ class AppService extends AbstractController
         $operations = $this->entityManager->getRepository(CmpOperation::class)->findBy([
             "agence" => $agence,
             "statut" => True,
-            ]) ;
+        ],["date" => "DESC"]) ;
 
         $items = [] ;
 
@@ -2196,8 +2197,11 @@ class AppService extends AbstractController
             $item["id"] = $operation->getId() ;
             $item["agence"] = $operation->getAgence()->getId() ;
             $item["banque"] = $operation->getBanque()->getNom() ;
+            $item["idBanque"] = $operation->getBanque()->getId() ;
             $item["compte"] = $operation->getCompte()->getNumero() ;
+            $item["dur-compte"] = $operation->getCompte()->getNumero() ;
             $item["categorie"] = $operation->getCategorie()->getNom() ;
+            $item["idCategorie"] = $operation->getCategorie()->getId() ;
             $item["refCategorie"] = $operation->getCategorie()->getReference() ;
             $item["type"] = $operation->getType()->getNom() ;
             $item["numeroMode"] = is_null($operation->getNumeroMode()) ? "-" : $operation->getNumeroMode() ;
@@ -2205,7 +2209,14 @@ class AppService extends AbstractController
             $item["numero"] = $operation->getNumero() ;
             $item["montant"] = $operation->getMontant() ;
             $item["personne"] = $operation->getPersonne() ;
+            $item["dur-personne"] = $operation->getPersonne() ;
             $item["date"] = $operation->getDate()->format("d/m/Y") ;
+            $item["currentDate"] = $operation->getDate()->format("d/m/Y") ;
+            $item["dateDeclaration"] = $operation->getDate()->format("d/m/Y") ;
+            $item["dateDebut"] = $operation->getDate()->format("d/m/Y") ;
+            $item["dateFin"] = $operation->getDate()->format("d/m/Y") ;
+            $item["annee"] = $operation->getDate()->format("Y") ;
+            $item["mois"] = $operation->getDate()->format("m") ;
             array_push($items,$item) ;
         }
 

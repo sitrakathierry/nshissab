@@ -222,8 +222,8 @@ $(document).ready(function(){
         
         var prixText = $("#caisse_search_prix").find("option:selected").text()
         var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
-        var valDemi = venteDemi ? ' | <span class="font-weight-bold text-purple">'+(totalPartiel / 2)+' </span>' : ""
-        console.log("test demi")
+        var valDemi = venteDemi ? ' | <span class="font-weight-bold text-info">Demi : '+(totalPartiel / 2)+' </span>' : ""
+        // console.log(valDemi)
         var tvaVal = 0 
 
         if(caisse_tva != "")
@@ -303,7 +303,7 @@ $(document).ready(function(){
             totalTva += ((parseFloat(prixLigne) * parseFloat(tvaLigne)) / 100) * quantiteLigne ;
             totalGeneral += (prixLigne * quantiteLigne)
             totalLigne = prixLigne * quantiteLigne
-            $(elem).find(".csenr_total_partiel").text(totalLigne)
+            // $(elem).find(".csenr_total_partiel").text(totalLigne)
         })
 
         var montantRecu = $(".cs_mtn_recu").val()
