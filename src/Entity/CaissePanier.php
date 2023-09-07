@@ -22,10 +22,10 @@ class CaissePanier
     private ?PrdHistoEntrepot $histoEntrepot = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $prix = null;
+    private ?float $prix = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $quantite = null;
+    private ?float $quantite = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
@@ -76,24 +76,24 @@ class CaissePanier
         return $this;
     }
 
-    public function getPrix(): ?int
+    public function getPrix(): ?float
     {
         return $this->prix;
     }
 
-    public function setPrix(?int $prix): self
+    public function setPrix(?float $prix): self
     {
         $this->prix = $prix;
 
         return $this;
     }
 
-    public function getQuantite(): ?int
+    public function getQuantite(): ?float
     {
         return $this->quantite;
     }
 
-    public function setQuantite(?int $quantite): self
+    public function setQuantite(?float $quantite): self
     {
         $this->quantite = $quantite;
 

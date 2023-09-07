@@ -44,7 +44,7 @@ class LctContrat
     private ?float $montantForfait = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $duree = null;
+    private ?float $duree = null;
 
     #[ORM\ManyToOne(inversedBy: 'lctContrats')]
     private ?LctPeriode $periode = null;
@@ -228,12 +228,12 @@ class LctContrat
         return $this;
     }
 
-    public function getDuree(): ?int
+    public function getDuree(): ?float
     {
         return $this->duree;
     }
 
-    public function setDuree(?int $duree): self
+    public function setDuree(?float $duree): self
     {
         $this->duree = $duree;
 

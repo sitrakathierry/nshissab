@@ -23,25 +23,25 @@ class PrdApprovisionnement
     private ?PrdVariationPrix $variationPrix = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $quantite = null;
+    private ?float $quantite = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $prixAchat = null;
+    private ?float $prixAchat = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $charge = null;
+    private ?float $charge = null;
 
     #[ORM\ManyToOne(inversedBy: 'prdApprovisionnements')]
     private ?PrdMargeType $margeType = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $margeValeur = null;
+    private ?float $margeValeur = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $prixRevient = null;
+    private ?float $prixRevient = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $prixVente = null;
+    private ?float $prixVente = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expiree_le = null;
@@ -105,36 +105,36 @@ class PrdApprovisionnement
         return $this;
     }
 
-    public function getQuantite(): ?int
+    public function getQuantite(): ?float
     {
         return $this->quantite;
     }
 
-    public function setQuantite(?int $quantite): self
+    public function setQuantite(?float $quantite): self
     {
         $this->quantite = $quantite;
 
         return $this;
     }
 
-    public function getPrixAchat(): ?int
+    public function getPrixAchat(): ?float
     {
         return $this->prixAchat;
     }
 
-    public function setPrixAchat(?int $prixAchat): self
+    public function setPrixAchat(?float $prixAchat): self
     {
         $this->prixAchat = $prixAchat;
 
         return $this;
     }
 
-    public function getCharge(): ?int
+    public function getCharge(): ?float
     {
         return $this->charge;
     }
 
-    public function setCharge(?int $charge): self
+    public function setCharge(?float $charge): self
     {
         $this->charge = $charge;
 
@@ -153,36 +153,36 @@ class PrdApprovisionnement
         return $this;
     }
 
-    public function getMargeValeur(): ?int
+    public function getMargeValeur(): ?float
     {
         return $this->margeValeur;
     }
 
-    public function setMargeValeur(?int $margeValeur): self
+    public function setMargeValeur(?float $margeValeur): self
     {
         $this->margeValeur = $margeValeur;
 
         return $this;
     }
 
-    public function getPrixRevient(): ?int
+    public function getPrixRevient(): ?float
     {
         return $this->prixRevient;
     }
 
-    public function setPrixRevient(?int $prixRevient): self
+    public function setPrixRevient(?float $prixRevient): self
     {
         $this->prixRevient = $prixRevient;
 
         return $this;
     }
 
-    public function getPrixVente(): ?int
+    public function getPrixVente(): ?float
     {
         return $this->prixVente;
     }
 
-    public function setPrixVente(?int $prixVente): self
+    public function setPrixVente(?float $prixVente): self
     {
         $this->prixVente = $prixVente;
 

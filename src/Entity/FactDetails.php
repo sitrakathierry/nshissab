@@ -28,7 +28,7 @@ class FactDetails
     private ?string $designation = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $quantite = null;
+    private ?float $quantite = null;
 
     #[ORM\ManyToOne(inversedBy: 'factDetails')]
     private ?FactFormat $format = null;
@@ -117,12 +117,12 @@ class FactDetails
         return $this;
     }
 
-    public function getQuantite(): ?int
+    public function getQuantite(): ?float
     {
         return $this->quantite;
     }
 
-    public function setQuantite(?int $quantite): self
+    public function setQuantite(?float $quantite): self
     {
         $this->quantite = $quantite;
 

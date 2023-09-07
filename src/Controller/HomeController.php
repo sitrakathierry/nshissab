@@ -40,7 +40,7 @@ class HomeController extends AbstractController
     {
         $username = $this->session->get("user")["username"] ;
         // $user = $this->entityManager->getRepository(User::class)->findOneBy(["username" => "SHISSAB"]) ;
-        // dd($this->appService->hashPassword($user, "")) ;
+        // dd($this->appService->hashPassword($user, "ComCargo@23")) ;
         return $this->render('home/index.html.twig', [
            "username" => $username 
         ]);

@@ -19,10 +19,10 @@ class PrdVariationPrix
     private ?Produit $produit = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $prixVente = null;
+    private ?float $prixVente = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $stock = null;
+    private ?float $stock = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
@@ -40,7 +40,7 @@ class PrdVariationPrix
     private Collection $prdApprovisionnements;
 
     #[ORM\Column(nullable: true)]
-    private ?int $stock_alert = null;
+    private ?float $stock_alert = null;
 
     #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: PrdSolde::class)]
     private Collection $prdSoldes;
@@ -76,24 +76,24 @@ class PrdVariationPrix
         return $this;
     }
 
-    public function getPrixVente(): ?int
+    public function getPrixVente(): ?float
     {
         return $this->prixVente;
     }
 
-    public function setPrixVente(?int $prixVente): self
+    public function setPrixVente(?float $prixVente): self
     {
         $this->prixVente = $prixVente;
 
         return $this;
     }
 
-    public function getStock(): ?int
+    public function getStock(): ?float
     {
         return $this->stock;
     }
 
-    public function setStock(?int $stock): self
+    public function setStock(?float $stock): self
     {
         $this->stock = $stock;
 
@@ -196,12 +196,12 @@ class PrdVariationPrix
         return $this;
     }
 
-    public function getStockAlert(): ?int
+    public function getStockAlert(): ?float
     {
         return $this->stock_alert;
     }
 
-    public function setStockAlert(?int $stock_alert): self
+    public function setStockAlert(?float $stock_alert): self
     {
         $this->stock_alert = $stock_alert;
 

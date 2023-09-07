@@ -44,7 +44,7 @@ class Produit
     private ?User $user = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $stock = null;
+    private ?float $stock = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
@@ -183,12 +183,12 @@ class Produit
         return $this;
     }
 
-    public function getStock(): ?int
+    public function getStock(): ?float
     {
         return $this->stock;
     }
 
-    public function setStock(?int $stock): self
+    public function setStock(?float $stock): self
     {
         $this->stock = $stock;
 

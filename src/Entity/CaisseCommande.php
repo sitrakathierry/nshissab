@@ -23,10 +23,10 @@ class CaisseCommande
     private ?string $numCommande = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $montantRecu = null;
+    private ?float $montantRecu = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $montantPayee = null;
+    private ?float $montantPayee = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
@@ -97,24 +97,24 @@ class CaisseCommande
         return $this;
     }
 
-    public function getMontantRecu(): ?int
+    public function getMontantRecu(): ?float
     {
         return $this->montantRecu;
     }
 
-    public function setMontantRecu(?int $montantRecu): self
+    public function setMontantRecu(?float $montantRecu): self
     {
         $this->montantRecu = $montantRecu;
 
         return $this;
     }
 
-    public function getMontantPayee(): ?int
+    public function getMontantPayee(): ?float
     {
         return $this->montantPayee;
     }
 
-    public function setMontantPayee(?int $montantPayee): self
+    public function setMontantPayee(?float $montantPayee): self
     {
         $this->montantPayee = $montantPayee;
 

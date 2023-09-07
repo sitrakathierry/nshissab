@@ -110,7 +110,7 @@ $(document).ready(function(){
                     action: function(){
                         var quantiteProduit = $("#caisse_ajout_quantite").val()
                         var venteDemi = $(".btn_caisse_demi").hasClass("btn-purple") ? true : false ;
-                        if(quantiteProduit == "" || quantiteProduit <= 0)
+                        if(quantiteProduit == "")
                         {
                             $.alert({
                                 title: 'Message',
@@ -149,6 +149,9 @@ $(document).ready(function(){
             $(this).removeClass("btn-outline-purple") ;
             $(this).find("i").removeClass("fa-circle-half-stroke")
             $(this).find("i").addClass("fa-check")
+
+            $("#caisse_ajout_quantite").attr("readonly","true")
+            $("#caisse_ajout_quantite").val(0.5)
         }
         else
         {
@@ -156,6 +159,9 @@ $(document).ready(function(){
             $(this).removeClass("btn-purple") ;
             $(this).find("i").removeClass("fa-check")
             $(this).find("i").addClass("fa-circle-half-stroke")
+
+            $("#caisse_ajout_quantite").removeAttr("readonly")
+            $("#caisse_ajout_quantite").val("")
         }
     })
 
@@ -174,11 +180,11 @@ $(document).ready(function(){
         var result = appBase.verificationElement([
             caisse_produit,
             caisse_prix,
-            caisse_quantite,
+            // caisse_quantite,
         ],[
-            "Produit",
+            "Produit", 
             "Prix",
-            "Quantité",
+            // "Quantité",
         ])
 
         if(!result["allow"])
@@ -222,7 +228,7 @@ $(document).ready(function(){
         
         var prixText = $("#caisse_search_prix").find("option:selected").text()
         var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
-        var valDemi = venteDemi ? ' | <span class="font-weight-bold text-info">Demi : '+(totalPartiel / 2)+' </span>' : ""
+        // var valDemi = venteDemi ? ' | <span class="font-weight-bold text-info">Demi : '+(totalPartiel / 2)+' </span>' : ""
         // console.log(valDemi)
         var tvaVal = 0 
 
@@ -253,7 +259,7 @@ $(document).ready(function(){
             <td class="align-middle">
                 <input type="number" step="any" name="csenr_tva[]" `+(caisse_tva == "" ? "" : "readonly")+` class="csenr_tva form-control" value="`+(caisse_tva == "" ? 0 : caisse_tva)+`">
             </td>
-            <td class="align-middle csenr_total_partiel">`+totalPartiel+valDemi+`</td>
+            <td class="align-middle csenr_total_partiel">`+totalPartiel+`</td>
             <td class="text-center align-middle">
                 <button type="button" class="btn btn-sm remove_ligne_caisse font-smaller btn-outline-danger"><i class="fa fa-times"></i></button>
             </td>

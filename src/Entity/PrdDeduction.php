@@ -18,7 +18,7 @@ class PrdDeduction
     private ?PrdHistoEntrepot $histoEntrepot = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $quantite = null;
+    private ?float $quantite = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $cause = null;
@@ -49,12 +49,12 @@ class PrdDeduction
         return $this;
     }
 
-    public function getQuantite(): ?int
+    public function getQuantite(): ?float
     {
         return $this->quantite;
     }
 
-    public function setQuantite(?int $quantite): self
+    public function setQuantite(?float $quantite): self
     {
         $this->quantite = $quantite;
 
