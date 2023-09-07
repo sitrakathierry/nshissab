@@ -145,7 +145,6 @@ class AchatController extends AbstractController
         return new Response($response) ;
     }
 
-    
     #[Route('/achat/marchandise/prix/get', name: 'achat_marchandise_prix_get')]
     public function achatGetPrixMarchandise(Request $request)
     {
@@ -220,7 +219,6 @@ class AchatController extends AbstractController
         return new JsonResponse($result) ;
     } 
 
-    
     #[Route('/achat/marchandise/supprime', name: 'achat_marchandise_supprime')]
     public function achatSupprimeMarchandise(Request $request)
     {
@@ -238,6 +236,77 @@ class AchatController extends AbstractController
             unlink($filename) ;
         
         $result["message"] = "Suppression effectué" ;
+        $result["type"] = "green" ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/achat/bon/marchandise/item/supprime', name: 'achat_bon_marchandise_item_supprime')]
+    public function achatSupprimeItemBonMarchandise(Request $request)
+    {
+        $idDetailBon = $request->request->get('idDetailBon') ;
+
+        $detailBon = $this->entityManager->getRepository(AchDetails::class)->find($idDetailBon) ;
+
+        $detailBon->setStatutGen(False) ;
+        $this->entityManager->flush() ;
+        
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        $result["message"] = "Suppression effectué" ;
+        $result["type"] = "green" ;
+
+        return new JsonResponse($result) ;
+    }
+
+    #[Route('/achat/bon/marchandise/item/get', name: 'achat_get_modif_detail_bon')]
+    public function achatGetDetailBonCommande(Request $request)
+    {
+        $idDetailBon = $request->request->get('idDetailBon') ;
+        $detailBon = $this->entityManager->getRepository(AchDetails::class)->find($idDetailBon) ;
+
+        $filename = $this->filename."marchandise(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateAchMarchandise($filename,$this->agence) ;
+
+        $marchandises = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("achat/getDetailBonCommande.html.twig",[
+            "marchandises" => $marchandises,  
+            "detailBon" => $detailBon,  
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/achat/bon/marchandise/item/update', name: 'achat_update_detail_bon')]
+    public function achatUpdateItemBonMarchandise(Request $request)
+    {
+        $idDetailBon = $request->request->get('idDetailBon') ;
+        $achat_bon_designation = $request->request->get('achat_bon_designation') ;
+        $achat_bon_reference = $request->request->get('achat_bon_reference') ;
+        $achat_bon_quantite = $request->request->get('achat_bon_quantite') ;
+        $achat_bon_prix = $request->request->get('achat_bon_prix') ;
+    
+        $detailBon = $this->entityManager->getRepository(AchDetails::class)->find($idDetailBon) ;
+
+        $marchandise = $this->entityManager->getRepository(AchMarchandise::class)->find($achat_bon_designation) ;
+            
+        $detailBon->setMarchandise($marchandise) ;
+        $detailBon->setDesignation($marchandise->getDesignation()) ;
+        $detailBon->setReference($achat_bon_reference) ;
+        $detailBon->setQuantite($achat_bon_quantite) ;
+        $detailBon->setPrix($achat_bon_prix) ;
+
+        $this->entityManager->flush() ;
+        
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        $result["message"] = "Modification effectué" ;
         $result["type"] = "green" ;
 
         return new JsonResponse($result) ;
@@ -270,6 +339,7 @@ class AchatController extends AbstractController
         $statutBon = $this->entityManager->getRepository(AchStatutBon::class)->findOneBy([
             "reference" => "ENCR"
             ]) ;
+
         $statut = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
             "reference" => "NOTLVR"
             ]) ;
@@ -330,6 +400,54 @@ class AchatController extends AbstractController
             unlink($filename) ;
 
         return new JsonResponse($result) ;
+    }
+
+    #[Route('/achat/bon/commande/addition/save', name: 'achat_bon_commande_addition_save')]
+    public function achatSaveAdditionBonCommande(Request $request)
+    {
+        $idBonCommande = $request->request->get('achat_id_bon_commande') ; 
+
+        $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($idBonCommande) ;
+
+        $statut = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
+            "reference" => "NOTLVR"
+        ]) ;
+
+        // Details
+        $achat_bon_enr_designation = $request->request->get('achat_bon_enr_designation') ; 
+        $achat_bon_enr_design_id = (array)$request->request->get('achat_bon_enr_design_id') ; 
+        $achat_bon_enr_quantite = $request->request->get('achat_bon_enr_quantite') ; 
+        $achat_bon_enr_prix = $request->request->get('achat_bon_enr_prix') ; 
+        $achat_bon_enr_reference = $request->request->get('achat_bon_enr_reference') ; 
+
+        foreach ($achat_bon_enr_design_id as $key => $value) {
+            $marchandise = $this->entityManager->getRepository(AchMarchandise::class)->find($value) ;
+            
+            $detail = new AchDetails() ;
+
+            $detail->setAgence($this->agence) ;
+            $detail->setBonCommande($bonCommande) ;
+            $detail->setMarchandise($marchandise) ;
+            $detail->setStatut($statut) ;
+            $detail->setStatutGen(True) ;
+            $detail->setDesignation($achat_bon_enr_designation[$key]) ;
+            $detail->setReference($achat_bon_enr_reference[$key]) ;
+            $detail->setQuantite($achat_bon_enr_quantite[$key]) ;
+            $detail->setPrix($achat_bon_enr_prix[$key]) ;
+
+            $this->entityManager->persist($detail) ;
+            $this->entityManager->flush() ;
+        }
+
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Information enregistré avec succès",    
+        ]) ;
     }
 
     #[Route('/achat/credit/operation', name: 'achat_credit_operation')]
@@ -396,6 +514,13 @@ class AchatController extends AbstractController
             "bonCommande" => $bonCommande 
         ]) ; 
 
+        $filename = $this->filename."marchandise(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateAchMarchandise($filename,$this->agence) ;
+
+        $marchandises = json_decode(file_get_contents($filename)) ;
+
         return $this->render('achat/details.html.twig', [
             "filename" => "achat",
             "titlePage" => "Details Achat",
@@ -403,6 +528,7 @@ class AchatController extends AbstractController
             "achat" => $achat,
             "listBonCommandes" => $listBonCommandes,
             "histoPaiements" => $histoPaiements,
+            "marchandises" => $marchandises,
         ]);
     }
 
@@ -471,8 +597,7 @@ class AchatController extends AbstractController
             "message" => "Information enregistré avec succès",    
         ]) ;
     }
-
-    
+ 
     #[Route('/achat/validation/credit/save', name: 'achat_validation_credit_save')]
     public function achatSaveValidationCredit(Request $request)
     {

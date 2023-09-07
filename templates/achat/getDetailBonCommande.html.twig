@@ -1,0 +1,43 @@
+<form id="detailBonCommande">
+    <input type="hidden" name="idDetailBon" value="{{detailBon.id}}" >
+    <h5 class="title_form text-black text-uppercase">Modifier un Marchandise</h5>
+    <div id="contentMarchandise">
+        <div class="row">
+            <div class="col-md-5">
+                <label for="achat_bon_designation" class="font-weight-bold">Marchandise</label>
+                <select name="achat_bon_designation" class="custom-select chosen_select achat_bon_designation custom-select-sm" id="achat_bon_designation">
+                    <option value="" >-</option>
+                    {% for marchandise in marchandises %}
+                        <option value="{{marchandise.id}}" {{ detailBon.marchandise.id == marchandise.id ? "selected" : "" }} >{{marchandise.designation|upper}}</option>
+                    {% endfor %}
+                </select>
+                {# <input type="hidden" name="new_marchandise" id="new_marchandise" value="NON"> #}
+            </div>
+            {# <div class="col-md-1">
+                <label for="" class="font-weight-bold">&nbsp;</label>
+            <button type="button" class="btn btn-sm btn-primary btn-block text-uppersace" id="achat_bon_new_marchandise"><i class="fa fa-plus-circle"></i></button>
+            </div> #}
+            <div class="col-md-2">
+                <label for="achat_bon_reference" class="font-weight-bold">Référence</label>
+                <input type="text" name="achat_bon_reference" id="achat_bon_reference" oninput="this.value = this.value.toUpperCase();" class="form-control" value="{{detailBon.reference}}">
+            </div>
+            <div class="col-md-2">
+                <label for="achat_bon_quantite" class="font-weight-bold">Quantité</label>
+                <input type="number" step="any" name="achat_bon_quantite" id="achat_bon_quantite" class="form-control" value="{{detailBon.quantite}}">
+            </div>
+            <div class="col-md-3">
+                <label for="achat_bon_prix" class="font-weight-bold">Prix Unitaire</label>
+                <input type="number" step="any" name="achat_bon_prix" id="achat_bon_prix" class="form-control" value="{{detailBon.prix}}">
+            </div>
+        </div>
+        <div class="text-right w-100 mt-3">
+            <label for="" class="font-weight-bold">&nbsp;</label>
+            <button type="submit" class="btn btn-sm btn-perso-one px-5 text-uppercase"><i class="fa fa-database"></i>&nbsp;Mette à jour</button>
+        </div>
+    </div>
+</form>
+<script>
+    $(".chosen_select").chosen({
+            no_results_text: "Aucun resultat trouvé : "
+        });
+</script>

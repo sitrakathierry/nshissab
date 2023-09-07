@@ -93,10 +93,10 @@ $(document).ready(function(){
         var totalGeneral = 0
         
         $("#contentItemMarchandise tr").each(function(){
-            var quantiteLigne = $(this).find("#achat_bon_enr_quantite").val()
-            var prixLigne = $(this).find("#achat_bon_enr_prix").val()
-            var totalLigne = parseFloat(quantiteLigne) * parseFloat(prixLigne)
-
+            // var quantiteLigne = $(this).find("#achat_bon_enr_quantite").val()
+            // var prixLigne = $(this).find("#achat_bon_enr_prix").val()
+            // var totalLigne = parseFloat(quantiteLigne) * parseFloat(prixLigne)
+            var totalLigne = parseFloat($(this).find("#achat_bon_enr_total_ligne").val())
             totalGeneral += totalLigne ;
         })
 
@@ -170,7 +170,10 @@ $(document).ready(function(){
                             `+prix+`
                             <input type="hidden" name="achat_bon_enr_prix[]" id="achat_bon_enr_prix" value="`+prix+`">
                         </td>
-                        <td>`+total+`</td>
+                        <td>
+                        `+total+`
+                        <input type="hidden" id="achat_bon_enr_total_ligne" value="`+total+`">
+                        </td>
                         <td class="text-center align-middle">
                             <button type="button" class="btn btn-sm bon_supprimer_ligne btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
                         </td>
@@ -660,5 +663,191 @@ $(document).ready(function(){
     $(document).on("click",".bon_supprimer_ligne",function(){
         $(this).closest("tr").remove()
         calculMontantMarchandise() ;
+    })
+
+    $(".btn_update_bon_commande").click(function(){
+        $("#formAddCommande").submit()
+    })
+
+    $("#formAddCommande").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize()
+                        $.ajax({
+                            url: routes.achat_bon_commande_addition_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on('click',".btn_supprime_detail_bon", function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Vous êtes sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.achat_bon_marchandise_item_supprime,
+                            type:'post',
+                            cache: false,
+                            data:{idDetailBon:self.data('value')},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(document).on("click",".btn_modifie_detail_bon",function(){
+        var realinstance = instance.loading()
+        var self = $(this)
+        var formData = new FormData() ;
+        formData.append('idDetailBon',self.data("value"))
+        $.ajax({
+            url: routes.achat_get_modif_detail_bon,
+            type:'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#contentDetailBonCommande").html(response)
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    })
+
+    $(document).on("submit","#detailBonCommande",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Modification",
+            content:"Êtes-vous sûre ?",
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize() ;
+                        $.ajax({
+                            url: routes.achat_update_detail_bon,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
     })
 })

@@ -1,1 +1,1 @@
-[{"id":1,"agence":9,"designation":"CAHIER 100 P","prix":2400},{"id":2,"agence":9,"designation":"STYLO BIC","prix":2500},{"id":3,"agence":9,"designation":"PAPIER A4","prix":500},{"id":4,"agence":9,"designation":"LORAX","prix":4200}]
+[{"id":1,"agence":9,"designation":"CAHIER 100","prix":null},{"id":2,"agence":9,"designation":"STYLO BIC","prix":2500},{"id":3,"agence":9,"designation":"PAPIER A4","prix":500},{"id":4,"agence":9,"designation":"LORAX","prix":4200}]
