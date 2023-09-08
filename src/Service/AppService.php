@@ -1244,16 +1244,7 @@ class AppService extends AbstractController
         $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
         $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
 
-        $result =  $dateB <=> $dateA;
-        
-        if ($result !== 0) {
-            return $result;
-        }
-        
-        $numA = intval($a["numCommande"]) ;
-        $numB = intval($b["numCommande"]) ;
-
-        return $numA <=> $numB;;
+        return  $dateB <=> $dateA;
     }
 
     public function generateCaissePanierCommande($filename,$agence)
@@ -1261,7 +1252,7 @@ class AppService extends AbstractController
         $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
             "agence" => $agence,
             "statut" => True
-        ]) ;
+        ],["id" => "DESC"]) ;
 
         $elements = [] ;
 
