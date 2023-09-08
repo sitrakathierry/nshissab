@@ -422,6 +422,7 @@ $(document).ready(function(){
     })
 
     var elementTo = ''
+
     var arrayElem = [
         $("#caisse_search_quantite"),
         $(".cs_mtn_recu"),
@@ -554,7 +555,7 @@ $(document).ready(function(){
         },
         {
             name: "dateDeclaration",
-            action:"change",
+            action: "change",
             selector : "#search_date"
         },
         {
@@ -568,34 +569,40 @@ $(document).ready(function(){
             selector : "#search_date_fin"
         },
         {
-            name: "anneeDepense",
+            name: "annee",
             action:"keyup",
             selector : ".search_annee"
         },
         {
-            name: "anneeDepense",
+            name: "annee",
             action:"change",
             selector : ".search_annee"
         },
         {
-            name: "moisDepense",
+            name: "mois",
             action:"change",
             selector : "#search_mois"
-        }
+        },
+        {
+            name: "numCommande",
+            action:"keyup",
+            selector : "#search_num_commande"
+        },
+
     ] 
 
-    function searchDepense()
+    function searchCaisse()
     {
         var instance = new Loading(files.search) ;
-        $("#accordionExample").html(instance.otherSearch()) ;
+        $(".elem_caisse").html(instance.search(8)) ;
         var formData = new FormData() ;
         for (let j = 0; j < elemSearch.length; j++) {
             const search = elemSearch[j];
             formData.append(search.name,$(search.selector).val());
         }
-        formData.append("affichage",$("#search_depense").val())
+        formData.append("affichage",$("#search_caisse").val())
         $.ajax({
-            url: routes.compta_depense_search ,
+            url: routes.caisse_vente_search ,
             type: 'post',
             cache: false,
             data:formData,
@@ -603,18 +610,18 @@ $(document).ready(function(){
             processData: false, // important pour éviter la transformation automatique des données en chaîne
             contentType: false, // important pour envoyer des données binaires (comme les fichiers)
             success: function(response){
-                $("#accordionExample").empty().html(response) ;
+                $(".elem_caisse").empty().html(response) ;
             }
         })
     }
 
     elemSearch.forEach(elem => {
         $(document).on(elem.action,elem.selector,function(){
-            searchDepense()
+            searchCaisse()
         })
     })
 
-    $("#search_depense").change(function(){
+    $("#search_caisse").change(function(){
 
         $("#caption_search_date").hide()
         $("#caption_search_date_debut").hide()
@@ -635,7 +642,6 @@ $(document).ready(function(){
 
             $("#search_current_date").val(formattedDate)
 
-            searchDepense()
         }
         else if($(this).val() == "SPEC")
         {
@@ -658,7 +664,7 @@ $(document).ready(function(){
             $(".chosen_select").trigger("chosen:updated")
         }
         
-        searchDepense()
+        searchCaisse()
 
         var currentDate = new Date();
         var year = currentDate.getFullYear();
@@ -671,5 +677,9 @@ $(document).ready(function(){
         $(".search_annee").val(year)
 
         $(".chosen_select").trigger("chosen:updated")
+    })
+
+    $(".vider").click(function(){
+        searchCaisse()
     })
 })

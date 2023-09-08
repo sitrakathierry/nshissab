@@ -19,17 +19,17 @@
     <div class="container-fluid px-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Numéro Reçu</label>
-                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
-                    <option value="">TOUS</option>
-                    {% for commande in commandes %}
-                        <option value="{{commande.id}}">{{commande.numCommande}}</option>
-                    {% endfor %}
-                </select>
+                <label for="search_num_commande" class="mt-2 font-weight-bold text-uppercase">Numéro Reçu</label>
+                <div class="input-group">
+                    <input type="text" name="search_num_commande" id="search_num_commande" class="form-control" placeholder=". . .">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary vider font-smaller" type="button" onclick="document.querySelector('#search_num_commande').value=''"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
-                <label for="search_depense" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
-                <select name="search_depense" class="custom-select chosen_select custom-select-sm" id="search_depense">
+                <label for="search_caisse" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
+                <select name="search_caisse" class="custom-select chosen_select custom-select-sm" id="search_caisse">
                     <option value="">AFFICHER TOUS</option>
                     <option value="JOUR">{{"Aujourd'hui"|upper}}</option>
                     <option value="SPEC">{{"Date Spécifique"|upper}}</option>
@@ -95,7 +95,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="elem_caisse">
                     
                     {% set premier = (paniersCommande is not empty) ? paniersCommande[0].numCommande : "" %}
                     {% set passe = true %}
@@ -173,14 +173,12 @@
                             {% set compteur = compteur + 1 %}
                         {% endif %}
                     {% endfor %}
-                </tbody>
-                <tfoot>
                     <tr>
                         <th colspan="6">Total Géneral</th>
                         <th class="bg-success text-white">{{ totalGeneral }}</th>
                         <td class="bg-success"></td>
                     </tr>
-                </tfoot>
+                </tbody>
             </table>
         </div>
         {% if with_foot %}

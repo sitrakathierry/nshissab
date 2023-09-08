@@ -1246,7 +1246,7 @@ class AppService extends AbstractController
 
         return  $dateB <=> $dateA;
     }
-
+ 
     public function generateCaissePanierCommande($filename,$agence)
     {
         $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
@@ -1261,6 +1261,12 @@ class AppService extends AbstractController
 
             $element["id"] = $panierCommande->getCommande()->getId() ;
             $element["date"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
+            $element["currentDate"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
+            $element["dateDeclaration"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
+            $element["dateDebut"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
+            $element["dateFin"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
+            $element["annee"] = $panierCommande->getCommande()->getDate()->format('Y') ;
+            $element["mois"] = $panierCommande->getCommande()->getDate()->format('m') ;
             $element["numCommande"] = $panierCommande->getCommande()->getNumCommande() ;
             $element["codeProduit"] = $panierCommande->getVariationPrix()->getProduit()->getCodeProduit() ;
             $element["nom"] = $panierCommande->getVariationPrix()->getProduit()->getNom() ;

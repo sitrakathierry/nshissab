@@ -1,0 +1,82 @@
+
+{% set premier = (paniersCommande is not empty) ? paniersCommande[0].numCommande : "" %}
+{% set passe = true %}
+{% set passeM = true %}
+{% set compteur = 1 %}
+{% set total = 0 %}
+{% set totalGeneral = 0 %}
+{% for panierCommande in paniersCommande %}
+    {% if panierCommande.numCommande != premier %}
+        {% set premier = panierCommande.numCommande %}
+        {% set passe = true %}
+        {% set passeM = true %}
+        {% set compteur = 1 %}
+        {% set total = 0 %}
+    {% endif %}
+    <tr>
+        {% set elements = paniersCommande|filter(o => o.numCommande == premier) %}
+        {% set ligne = elements|length %}
+        {% if passe %}
+            <td rowspan="{{ligne + 4}}" class="align-middle">{{ panierCommande.date }}</td>
+            <td rowspan="{{ligne + 4}}" class="align-middle">{{ panierCommande.numCommande }}</td>
+            {% set passe = false %}
+        {% endif %}
+        {% set totalPartiel = panierCommande.quantite * panierCommande.prix  %}
+        {% set tvaVal = ((panierCommande.prix * panierCommande.tva) / 100) * panierCommande.quantite %}
+        {% set tvaSigne = panierCommande.tva == 0 ? "" : "(" ~ panierCommande.tva ~"%)" %}
+        <td>{{panierCommande.codeProduit}} | {{panierCommande.nom}} | {{compteur}}</td>
+        <td class="">{{panierCommande.quantite}}</td>
+        <td class="">{{panierCommande.prix}}</td>
+        <td class="">{{tvaVal}}{{tvaSigne}}</td> 
+        <td class="">{{totalPartiel}}</td> 
+        {% set total = total + totalPartiel %}
+        {% if passeM %}
+            <td rowspan="{{ligne + 4}}" class="text-center align-middle"><button class="btn btn-sm btn-outline-primary font-smaller"><i class="fa fa-print"></i></button></td>
+            {% set passeM = false %}
+        {% endif %}
+    </tr>
+    {% if compteur == ligne %}
+        <tr>
+            <th colspan="4">Total HT</th>
+            <th class="bg-secondary text-white">{{ total }}</th>
+        </tr>
+        {% set remise = 0 %}
+        {% set indice = "" %}
+        {% if panierCommande.remiseType != "-" %}
+            {% if panierCommande.remiseType == 1 %}
+                {% set indice = "" %}
+                {% set remise = panierCommande.remiseVal %} 
+            {% else %}
+                {% set indice =   "("~ panierCommande.remiseVal ~ "%)" %}
+                {% set remise = (total * panierCommande.remiseVal) / 100 %} 
+            {% endif %}
+        {% endif %}
+        <tr>
+            <th colspan="4">Remise</th>
+            <th class="bg-secondary text-white">{{ remise }}&nbsp;{{ indice }}</th>
+        </tr>
+        <tr>
+            <th colspan="4">Total Tva</th>
+            <th class="bg-secondary text-white">{{ panierCommande.totalTva }}</th>
+        </tr>
+        <tr>
+            <th colspan="4">Total TTC</th>
+            <th class="bg-primary text-white">{{ panierCommande.montantPayee + panierCommande.totalTva - remise }}</th>
+        </tr>
+        <tr class="bg-light border_dark">
+            <td colspan="8"></td>
+        </tr>
+        {% set totalGeneral = totalGeneral + (panierCommande.montantPayee + panierCommande.totalTva - remise) %}
+    {% endif %}
+    
+    {% if panierCommande.numCommande == premier %}
+        {% set passe = false %}
+        {% set passeM = false %}
+        {% set compteur = compteur + 1 %}
+    {% endif %}
+{% endfor %}
+<tr>
+    <th colspan="6">Total Géneral</th>
+    <th class="bg-success text-white">{{ totalGeneral }}</th>
+    <td class="bg-success"></td>
+</tr>

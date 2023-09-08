@@ -175,7 +175,7 @@ class CaisseController extends AbstractController
             "message" => "Enregistrement éffectué"
         ]) ;
     }
-
+ 
     #[Route('/caisse/vente/liste', name: 'caisse_liste_vente')]
     public function caisseListeVente()
     {
@@ -208,5 +208,101 @@ class CaisseController extends AbstractController
             "commandes" => $commandes,
             "tabMois" => $tabMois
         ]); 
+    }
+
+    #[Route('/caisse/vente/search', name: 'caisse_vente_search')]
+    public function comptaSearchDepense(Request $request)
+    {
+        $numCommande = $request->request->get('numCommande') ;
+        $currentDate = $request->request->get('currentDate') ;
+        $dateDeclaration = $request->request->get('dateDeclaration') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $annee = $request->request->get('annee') ;
+        $mois = $request->request->get('mois') ;
+        $affichage = $request->request->get('affichage') ;
+
+        if($affichage == "JOUR")
+        {
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+        else if($affichage == "SPEC")
+        {
+            $currentDate = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+        else if($affichage == "LIMIT")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+        else if($affichage == "MOIS")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+        }
+        else if($affichage == "ANNEE")
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $mois = "" ;
+        }
+        else
+        {
+            $currentDate = "" ;
+            $dateDeclaration = "" ;
+            $dateDebut = "" ;
+            $dateFin = "" ;
+            $annee = "" ;
+            $mois = "" ;
+        }
+
+        $search = [
+            "currentDate" => $currentDate,
+            "dateDeclaration" => $dateDeclaration,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
+            "numCommande" => $numCommande,
+        ] ;
+
+        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        
+        $filename = $this->filename."panierCommande(agence)/".$this->nameAgence ; 
+        if(!file_exists($filename))   
+            $this->appService->generateCaissePanierCommande($filename, $this->agence->getId()) ; 
+        
+        $paniersCommande = json_decode(file_get_contents($filename)) ;
+
+        $paniersCommande = $this->appService->searchData($paniersCommande,$search) ;
+        
+        $paniersCommande = array_values($paniersCommande) ;
+
+        if(!empty($paniersCommande))
+        {
+            $response = $this->renderView("caisse/searchCaisseVente.html.twig", [
+                "paniersCommande" => $paniersCommande
+            ]) ;
+        }
+        else
+        {
+            $response = '<div class="w-100 p-4"><div class="alert alert-sm alert-warning">Désolé, aucun élément trouvé</div></div>' ;
+        }
+
+        return new Response($response) ; 
     }
 }
