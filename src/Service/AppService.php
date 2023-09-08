@@ -1279,8 +1279,9 @@ class AppService extends AbstractController
     public function generateCaisseCommande($filename, $agence) 
     {
         $commandes = $this->entityManager->getRepository(CaisseCommande::class)->findBy([
-            "agence" => $agence
-        ]) ;
+            "agence" => $agence,
+            "statut" => True
+        ],["date" => "DESC"]) ;
         
         $elements = [] ;
 
