@@ -66,6 +66,7 @@ class SAVController extends AbstractController
             
         // $factures = $this->appService->searchData($factures,$search) ;
         
+        $this->appService->synchronisationServiceApresVente(["CAISSE","FACTURE"]) ;
         
         $types = $this->entityManager->getRepository(SavType::class)->findAll() ;
 
@@ -584,6 +585,7 @@ class SAVController extends AbstractController
         $totalTva = 0 ;
         $totalTtc = 0 ;
         $montantAnnulation = 0 ;
+
         for ($i=0; $i < count($sav_facture_detail); $i++) { 
             if($sav_type == "FACTURE")
             {
@@ -646,7 +648,7 @@ class SAVController extends AbstractController
         if($sav_type == "FACTURE")
         {
             $totalTtc = $totalHt + $totalTva ;
-    
+
             $annulation->setMontant($totalTtc) ;
     
             $facture->setTotal($facture->getTotal() - $totalTtc) ;

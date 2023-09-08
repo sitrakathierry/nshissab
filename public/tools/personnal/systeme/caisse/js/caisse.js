@@ -109,9 +109,23 @@ $(document).ready(function(){
                         <input type="number" step="any" name="caisse_ajout_quantite" id="caisse_ajout_quantite" class="form-control" placeholder=". . .">
                     </div>
                     <div class="col-md-6">
-                        <label for="caisse_ajout_quantite" class="mt-2 font-weight-bold">&nbsp;</label>
+                        <label for="" class="mt-2 font-weight-bold">&nbsp;</label>
                         <button class="btn btn-sm btn-block btn_caisse_demi btn-outline-purple text-uppercase"><i class="fa fa-circle-half-stroke" ></i>&nbsp;Vente Demi</button>
                     </div>
+                </div>
+                <div class="w-100 mt-3 text-center pt-3 barre_dashed">
+                    <button type="button" class="btn caisse_perso_qte_btn btn-outline-secondary">1</button>
+                    <button type="button" class="btn ml-2 caisse_perso_qte_btn btn-outline-secondary">2</button>
+                    <button type="button" class="btn ml-2 caisse_perso_qte_btn btn-outline-secondary">3</button><br>
+                    <button type="button" class="btn mt-2 caisse_perso_qte_btn btn-outline-secondary">4</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_qte_btn btn-outline-secondary">5</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_qte_btn btn-outline-secondary">6</button><br>
+                    <button type="button" class="btn mt-2 caisse_perso_qte_btn btn-outline-secondary">7</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_qte_btn btn-outline-secondary">8</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_qte_btn btn-outline-secondary">9</button><br>
+                    <button type="button" value="1" class="btn mt-2 caisse_perso_qte_btn btn-outline-secondary">CE</button>
+                    <button type="button" class="btn mt-2 ml-2 caisse_perso_qte_btn btn-outline-secondary">0</button>
+                    <button type="button" value="0" class="btn mt-2 ml-2 caisse_perso_qte_btn btn-outline-secondary">DEL</button>
                 </div>
             </div>
             `,
@@ -428,6 +442,8 @@ $(document).ready(function(){
         $(".cs_mtn_recu"),
         $("#caisse_search_quantite"),
         $(".cs_mtn_remise"),
+        $(".csenr_quantite"),
+        $(".csenr_tva")
     ]
 
     arrayElem.forEach(elem => {
@@ -436,15 +452,7 @@ $(document).ready(function(){
         })
     })
 
-    $(document).on('click',".csenr_quantite",function(){
-        elementTo = $(this)
-    })
-
-    $(document).on('click',".csenr_tva",function(){
-        elementTo = $(this)
-    })
-    
-    $(".caisse_perso_btn").click(function(){
+    $(document).on("click",".caisse_perso_btn",function(){
         if(!isNaN($(this).text()))
         {
             var quantite = elementTo.val()
@@ -462,6 +470,26 @@ $(document).ready(function(){
         }
 
         elementTo.keyup()
+    })
+
+    $(document).on("click",".caisse_perso_qte_btn",function(){
+        if(!isNaN($(this).text()))
+        {
+            var quantite = $("#caisse_ajout_quantite").val()
+            $("#caisse_ajout_quantite").val(quantite+$(this).text())
+        }
+        else if($(this).attr("value") == 1 )
+        {
+            $("#caisse_ajout_quantite").val("")
+        }
+        else
+        {
+            var oldChar = $("#caisse_ajout_quantite").val()
+            var newChar = oldChar.slice(0, -1);
+            $("#caisse_ajout_quantite").val(newChar)
+        }
+
+        $("#caisse_ajout_quantite").keyup()
     })
     
     var elemAction = [

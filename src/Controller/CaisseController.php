@@ -71,8 +71,6 @@ class CaisseController extends AbstractController
     #[Route('/caisse/activity/save', name: 'caisse_save_activites')]
     public function caisseSaveActivity(Request $request)
     {
-         
-
         $cs_mtn_recu = $request->request->get('cs_mtn_recu') ; 
         $csenr_total_general = $request->request->get('csenr_total_general') ; 
         $csenr_date_caisse = $request->request->get('csenr_date_caisse') ; 
@@ -187,25 +185,15 @@ class CaisseController extends AbstractController
         
         $paniersCommande = json_decode(file_get_contents($filename)) ;
 
-        $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
-            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
-
-        $stockGenerales = json_decode(file_get_contents($filename)) ;
-
-        $filename = $this->filename."commande(agence)/".$this->nameAgence ; 
-        if(!file_exists($filename))
-            $this->appService->generateCaisseCommande($filename, $this->agence) ;
-
-        $commandes = json_decode(file_get_contents($filename)) ;
+        $this->appService->synchronisationServiceApresVente(["CAISSE"]) ;
 
         return $this->render('caisse/vente.html.twig', [
             "filename" => "caisse",
             "titlePage" => "Liste des ventes",
             "with_foot" => false,
-            "stockGenerales" => $stockGenerales,
+            // "stockGenerales" => $stockGenerales,
             "paniersCommande" => $paniersCommande,
-            "commandes" => $commandes,
+            // "commandes" => $commandes,
             "tabMois" => $tabMois
         ]); 
     }

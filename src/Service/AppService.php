@@ -1343,7 +1343,8 @@ class AppService extends AbstractController
     public function generateFacture($filename, $agence)
     {
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
-            "agence" => $agence
+            "agence" => $agence,
+            "statut" => True
         ]) ; 
 
         $elements = [] ;
@@ -1354,13 +1355,13 @@ class AppService extends AbstractController
             $element["id"] = $facture->getId() ;
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
-            $element["idM"] = $facture->getModele()->getId()  ;
-            $element["mois"] = $facture->getDate()->format('m')   ;
-            $element["annee"] = $facture->getDate()->format('Y')   ;
-            $element["date"] = $facture->getDate()->format('d/m/Y')  ;
-            $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
-            $element["dateDebut"] = $facture->getDate()->format('d/m/Y')   ;
-            $element["dateFin"] = $facture->getDate()->format('d/m/Y')   ;
+            $element["idM"] = $facture->getModele()->getId() ;
+            $element["mois"] = $facture->getDate()->format('m') ;
+            $element["annee"] = $facture->getDate()->format('Y') ;
+            $element["date"] = $facture->getDate()->format('d/m/Y') ;
+            $element["currentDate"] = $facture->getDate()->format('d/m/Y') ;
+            $element["dateDebut"] = $facture->getDate()->format('d/m/Y') ;
+            $element["dateFin"] = $facture->getDate()->format('d/m/Y') ;
             $element["agence"] = $facture->getAgence()->getId() ;
             $element["user"] = $facture->getUser()->getId() ;
             $element["numFact"] = $facture->getNumFact() ;
@@ -1370,8 +1371,8 @@ class AppService extends AbstractController
             $element["dateCreation"] = $facture->getCreatedAt()->format('d/m/Y')  ;
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
             $element["client"] = $this->getFactureClient($facture)["client"] ;
-            $element["total"] = $facture->getTotal();
-            $element["specification"] = $specification;
+            $element["total"] = $facture->getTotal() ;
+            $element["specification"] = $specification ;
             $element["nature"] = "FACTURE";
 
             array_push($elements,$element) ;
@@ -3238,5 +3239,155 @@ class AppService extends AbstractController
             if(file_exists($dataFilename))
                 unlink($dataFilename) ;
         }
+    }
+
+    public function synchronisationServiceApresVente($params = [])
+    {
+        
+
+        foreach($params as $param)
+        {
+            // SYNCRO AVEC ANNULATION CAISSE
+            if($param == "CAISSE")
+            {
+                $commandes = $this->entityManager->getRepository(CaisseCommande::class)->findBy([
+                    "agence" => $this->agence,
+                    "statut" => True
+                ]) ;
+
+                foreach($commandes as $commande)
+                {
+                    $annulationCaisse = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+                        "caisse" => $commande
+                    ]) ;
+
+                    if(is_null($annulationCaisse))
+                        continue;
+
+                    $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+                        "commande" => $commande,
+                        "statut" => True
+                    ]) ;
+
+                    if(empty($panierCommandes))
+                    {
+                        $commande->setMontantPayee(0) ;
+                        $commande->setStatut(False) ;
+                        $this->entityManager->flush() ;
+                    }
+                    else
+                    {
+                        $totalMontantCaisse = 0 ;
+                        foreach($panierCommandes as $panierCommande)
+                        {
+                            $totalMontantCaisse += ($panierCommande->getPrix() * $panierCommande->getQuantite()) ;
+                        }
+                        
+                        $commande->setMontantPayee($totalMontantCaisse) ;
+                        $commande->setStatut(True) ;
+                        $this->entityManager->flush() ;
+                    }
+                }
+            }
+            else if($param == "FACTURE") // SYNCRO AVEC ANNULATION FACTURE
+            {
+                $factures = $this->entityManager->getRepository(Facture::class)->findBy([
+                    "agence" => $this->agence,
+                    "statut" => True
+                ]) ;
+
+                foreach($factures as $facture)
+                {
+                    $annulationFacture = $this->entityManager->getRepository(SavAnnulation::class)->findOneBy([
+                        "facture" => $facture
+                    ]) ;
+
+                    if(is_null($annulationFacture))
+                        continue;
+
+                    $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                        "facture" => $facture,
+                        "statut" => True
+                    ]) ;
+
+                    // if($facture->getNumFact() == "DF-002/23")
+                    //     dd($factureDetails) ;
+
+                    if(empty($factureDetails))
+                    {
+                        $facture->setTvaVal(0) ;
+                        $facture->setTotal(0) ;
+                        $facture->setStatut(False) ;
+                        $this->entityManager->flush() ;
+                    }
+                    else
+                    {
+                        $totalHTFacture = 0 ;
+                        $totalTvaFacture = 0 ;
+                        
+                        foreach($factureDetails as $factureDetail)
+                        {
+                            $remise = 0 ;
+                            $quantite = $factureDetail->getQuantite() ;
+                            $prixUnitaire = $factureDetail->getPrix() ;
+                            $totalLigne = ($quantite * $prixUnitaire) ;
+                            $totalHTLigne = ($quantite * $prixUnitaire) ;
+                            $totalTvaLigne = is_null($factureDetail->getTvaVal()) ? 0 : $factureDetail->getTvaVal() ;
+    
+                            if(!is_null($factureDetail->getRemiseType()))
+                            {
+                                if($factureDetail->getRemiseType()->getCalcul() == 1)
+                                {
+                                    $remise = $factureDetail->getRemiseVal() ;
+                                }
+                                else if($factureDetail->getRemiseType()->getCalcul() == 100)
+                                {
+                                    $remise = ($totalLigne * $factureDetail->getRemiseVal()) / 100  ;
+                                }
+                            }
+    
+                            $totalLigne -= $remise ;
+    
+                            $totalHTFacture += $totalLigne ;
+                            $totalTvaFacture += ($totalHTLigne * $totalTvaLigne) / 100 ;
+    
+    
+                        }
+                        
+                        $remiseFacture = 0 ;
+                        if(!is_null($facture->getRemiseType()))
+                        {
+                            if($facture->getRemiseType()->getCalcul() == 1)
+                            {
+                                $remiseFacture = $facture->getRemiseVal() ;
+                            }
+                            else if($facture->getRemiseType()->getCalcul() == 100)
+                            {
+                                $remiseFacture = ($totalLigne * $facture->getRemiseVal()) / 100  ;
+                            }
+                        }
+    
+                        $totalHTFacture -= $remiseFacture ;
+                        $facture->setTvaVal($totalTvaFacture) ;
+                        $facture->setTotal($totalHTFacture) ;
+                        $facture->setStatut(True) ;
+                        $this->entityManager->flush() ;
+                    }
+                }
+            }
+        }
+
+        $dataFilenames = [
+            "files/systeme/caisse/commande(agence)/".$this->nameAgence ,
+            "files/systeme/caisse/panierCommande(agence)/".$this->nameAgence,
+            "files/systeme/facture/facture(agence)/".$this->nameAgence,
+            "files/systeme/sav/annulation(agence)/".$this->nameAgence,
+        ] ;
+
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
+
     }
 }

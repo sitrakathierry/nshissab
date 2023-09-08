@@ -284,6 +284,8 @@ class FactureController extends AbstractController
     public function factureConsultation(): Response
     { 
 
+        $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
+
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
 
         if(!file_exists($filename))
