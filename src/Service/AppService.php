@@ -1239,6 +1239,23 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
+    public static function comparaisonCaissePanier($a, $b) {
+
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+
+        $result =  $dateB <=> $dateA;
+        
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        $numA = intval($a["numCommande"]) ;
+        $numB = intval($b["numCommande"]) ;
+
+        return $numA <=> $numB;;
+    }
+
     public function generateCaissePanierCommande($filename,$agence)
     {
         $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
@@ -1271,7 +1288,7 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         }
 
-        usort($elements, [self::class, 'comparaisonDates']);
+        usort($elements, [self::class, 'comparaisonCaissePanier']);
 
         file_put_contents($filename,json_encode($elements)) ;
     }
