@@ -1271,6 +1271,8 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         }
 
+        usort($elements, [self::class, 'comparaisonDates']);
+
         file_put_contents($filename,json_encode($elements)) ;
     }
 

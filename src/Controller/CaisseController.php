@@ -71,7 +71,7 @@ class CaisseController extends AbstractController
     #[Route('/caisse/activity/save', name: 'caisse_save_activites')]
     public function caisseSaveActivity(Request $request)
     {
-        
+         
 
         $cs_mtn_recu = $request->request->get('cs_mtn_recu') ; 
         $csenr_total_general = $request->request->get('csenr_total_general') ; 

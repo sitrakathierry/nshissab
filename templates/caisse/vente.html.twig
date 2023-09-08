@@ -143,7 +143,7 @@
                             {% if panierCommande.remiseType != "-" %}
                                 {% if panierCommande.remiseType == 1 %}
                                     {% set indice = "" %}
-                                    {% set remise = total - panierCommande.remiseVal %} 
+                                    {% set remise = panierCommande.remiseVal %} 
                                 {% else %}
                                     {% set indice =   "("~ panierCommande.remiseVal ~ "%)" %}
                                     {% set remise = (total * panierCommande.remiseVal) / 100 %} 

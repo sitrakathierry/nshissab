@@ -61,6 +61,31 @@ $(document).ready(function(){
 
     $("#caisse_search_prix").change(function(){
         var self = $(this)
+        var caisse_prix = self.val()
+        var caisse_produit = $("#caisse_search_produit").val()
+
+        var existant = false ;
+        $(".elem_caisse tr").each(function(){
+            var idPrix = $(this).find(".csenr_prix").val() ;
+            var idProd =  $(this).find(".csenr_produit").val() ;
+
+            if(caisse_produit == idProd && caisse_prix == idPrix)
+            {
+                existant = true ;
+                return ;
+            }
+        })
+
+        if(existant)
+        {
+            $.alert({
+                title: 'Produit existant',
+                content: "Vous ne pouvez pas ajouter ce produit avec ce prix car elle existe déjà ",
+                type:'orange',
+            })
+            return false ;
+        }
+
         $.confirm({
             title: "Quantité Produit",
             content:`
@@ -133,6 +158,32 @@ $(document).ready(function(){
                             return false ;
                         }
 
+                        if(venteDemi)
+                        {
+                            var autorise = true ;
+                            $(".elem_caisse tr").each(function(){
+                                var idProd =  $(this).find(".csenr_produit").val() ;
+                    
+                                if(caisse_produit == idProd)
+                                {
+                                    autorise = false ;
+                                    return ;
+                                }
+                            })
+
+                            if(!autorise)
+                            {
+                                $.alert({
+                                    title: "Vente Demi Existant",
+                                    content: "Désolé, vente demi non valide. Une vente demi sur ce produit existe déjà sur la liste",
+                                    type:'orange',
+                                })
+                                return false ;
+                            }
+
+                        }
+
+
                         $("#caisse_search_quantite").val(parseFloat(quantiteProduit)) ;
                         ajoutProduitCaisse(venteDemi)
                     }
@@ -177,43 +228,16 @@ $(document).ready(function(){
         var caisse_tva = $("#caisse_search_tva").val()
         var caisse_search_image = $("#caisse_search_image").val()
 
-        var result = appBase.verificationElement([
-            caisse_produit,
-            caisse_prix,
-            // caisse_quantite,
-        ],[
-            "Produit", 
-            "Prix",
-            // "Quantité",
-        ])
-
-        if(!result["allow"])
-        {
-            $.alert({
-                title: 'Message',
-                content: result["message"],
-                type: result["type"],
-            });
-
-            return result["allow"] ;
-        }
-
-        var produitText = $("#caisse_search_produit").find("option:selected").text();
-
         var existant = false ;
         $(".csenr_produit").each(function(){
             var idPrix = $(this).closest('tr').find(".csenr_prix").val() ;
             var idProd =  $(this).val() ;
-
-            caisse_prix
-            caisse_produit
 
             if(caisse_produit == idProd && caisse_prix == idPrix)
             {
                 existant = true ;
                 return
             }
-
         })
 
         if(existant)
@@ -226,6 +250,7 @@ $(document).ready(function(){
             return 
         }
         
+        var produitText = $("#caisse_search_produit").find("option:selected").text();
         var prixText = $("#caisse_search_prix").find("option:selected").text()
         var totalPartiel = parseFloat(prixText.split(" | ")[0]) * caisse_quantite ;
         // var valDemi = venteDemi ? ' | <span class="font-weight-bold text-info">Demi : '+(totalPartiel / 2)+' </span>' : ""
