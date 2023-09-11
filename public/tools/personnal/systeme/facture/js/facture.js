@@ -392,20 +392,14 @@ $(document).ready(function(){
                                     contentType:false,
                                     success : function(response){
                                         realinstance.close()
-                                        $.alert({
-                                            title: 'Message',
-                                            content: json.message,
-                                            type: json.type,
-                                            buttons: {
-                                                OK: function(){
-                                                    if(json.type == "green")
-                                                    {
-                                                        location.reload()
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
+                                        // Charger la page HTML externe
+                                        // var url = response; // Remplacez par l'URL de votre page HTML externe
+                                        // var win = window.open(url, '_blank');
+                                        // win.onload = function() {
+                                        //     win.print(); // Imprimer la page HTML chargée
+                                        //     // win.close(); // Fermer la fenêtre après l'impression
+                                        // };
+                                                            }
                                     ,
                                     error: function(resp){
                                         realinstance.close()

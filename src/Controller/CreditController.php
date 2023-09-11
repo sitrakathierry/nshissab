@@ -375,9 +375,11 @@ class CreditController extends AbstractController
     #[Route('/credit/acompte/consultation', name: 'crd_consultation_acompte')]
     public function crdAcompteConsultation(): Response
     {
-        $clients = $this->entityManager->getRepository(CltHistoClient::class)->findBy([
-            "agence" => $this->agence 
-        ]) ; 
+        $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCltClient($filename, $this->agence) ;
+            
+        $clients = json_decode(file_get_contents($filename)) ; 
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
         

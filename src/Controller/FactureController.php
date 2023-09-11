@@ -449,13 +449,11 @@ class FactureController extends AbstractController
             "facture" => $facture,
         ]) ;
 
-        // dd($contentIMpression) ;
+        $pdfGenService = new PdfGenService() ;
 
-        // $pdfGenService = new PdfGenService() ;
+        $pdfGenService->generatePdf($contentIMpression,"FACTURE.pdf") ;
 
-        // $pdfGenService->generatePdf($contentIMpression,"FACTURE.pdf") ;
-
-        return new JsonResponse() ;
+        return new Response('') ;
     }
 
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
