@@ -136,11 +136,11 @@ $(document).ready(function(){
         modele_forme = parseInt(modele_forme) ;
         element = '' ;
         for (let i = 0; i < modele_forme; i++) {
-            // var width = (100 / modele_forme ) - 10 ;
-            element += '<div class="config-editor" style="width:100%;height:auto;font-size:12px !important;line-height: 24px;"></div>' ;
+            var width = (100 / modele_forme);
+            element += '<div class="config-editor" style="width:'+width+'%;height:auto;font-size:14px !important;line-height: 24px;"></div>' ;
         }
         content = `
-            <h1 style="width:100%;display: flex; flex-direction:row;font-size:12px !important;" >
+            <h1 style="width:100%;display: flex; flex-direction:row;font-size:14px !important;" >
             `+element+`
             </h1>
         `
@@ -192,74 +192,109 @@ $(document).ready(function(){
             })
         }
     })
-    qz.websocket.connect() ;
+    // to canvas
+    // $('.apercu_modele"').click(function(e) {
+        
+    // });
+    // qz.websocket.connect() ;
     $(".apercu_modele").click(function(){
-        qz.printers.find().then((allPrinters) => {
-            var options = '<option>-</option>' ;
-            for (var i = 0; i < allPrinters.length; i++) {
-                options += '<option>' + allPrinters[i] + '</option>';
-            }
-            $.confirm({
-                title: 'Aperçu',
-                content:`
-                    <div class="w-100 text-left">
-                        <label for="stock_printers" class="font-weight-bold">Imprimante</label>  
-                        <select class="custom-select custom-select-sm" id="stock_printers">
-                            `+options+`
-                        </select>
-                    </div>
-                    `,
-                type:"blue",
-                theme:"modern",
-                buttons : {
-                    Annuler : function(){},
-                    btn2 : 
-                    {
-                        text: 'Valider',
-                        btnClass: 'btn-blue',
-                        keys: ['enter', 'shift'],
-                        action: function(){
-                            $(".Editor-editor .config-editor").each(function(){
-                                $(this).css("padding","10px 20px")
-                                $(this).css("min-height","100px")
-                            })
+        // qz.printers.find().then((allPrinters) => {
+        //     var options = '<option>-</option>' ;
+        //     for (var i = 0; i < allPrinters.length; i++) {
+        //         options += '<option>' + allPrinters[i] + '</option>';
+        //     }
+        //     $.confirm({
+        //         title: 'Aperçu',
+        //         content:`
+        //             <div class="w-100 text-left">
+        //                 <label for="stock_printers" class="font-weight-bold">Imprimante</label>  
+        //                 <select class="custom-select custom-select-sm" id="stock_printers">
+        //                     `+options+`
+        //                 </select>
+        //             </div>
+        //             `,
+        //         type:"blue",
+        //         theme:"modern",
+        //         buttons : {
+        //             Annuler : function(){},
+        //             btn2 : 
+        //             {
+        //                 text: 'Valider',
+        //                 btnClass: 'btn-blue',
+        //                 keys: ['enter', 'shift'],
+        //                 action: function(){
+        //                     $(".Editor-editor .config-editor").each(function(){
+        //                         $(this).css("padding","10px 20px")
+        //                         $(this).css("min-height","100px")
+        //                     })
 
-                            $(".Editor-editor .none-editor").each(function(){
-                                $(this).css("padding","10px 20px")
-                                $(this).css("min-height","100px")
-                            })
-                            var myprinter = $("#stock_printers").val()
-                            if(myprinter == "")
-                            {
-                                $.alert({
-                                    title: 'Message',
-                                    content: "Veuiller séléctionner une imprimante",
-                                    type: "orange",
-                                });
-                                return false ;
-                            }
-                            var config = qz.configs.create(myprinter); 
-                            var dataToPdf = `
-                                    <div style="width:100%">${$(".Editor-editor").html()}</div>
-                                `
+        //                     $(".Editor-editor .none-editor").each(function(){
+        //                         $(this).css("padding","10px 20px")
+        //                         $(this).css("min-height","100px")
+        //                     })
 
-                            var printData = [{
-                                type: 'pixel',
-                                format: 'html',
-                                flavor: 'plain',
-                                data: dataToPdf
-                            }];
+        //                     var myprinter = $("#stock_printers").val()
+        //                     if(myprinter == "")
+        //                     {
+        //                         $.alert({
+        //                             title: 'Message',
+        //                             content: "Veuiller séléctionner une imprimante",
+        //                             type: "orange",
+        //                         });
+        //                         return false ;
+        //                     }
+        //                     var config = qz.configs.create(myprinter); 
+        //                     var dataToPdf = `
+        //                             <div style="width:100%">${$(".Editor-editor").html()}</div>
+        //                         `
+
+        //                     var printData = [{
+        //                         type: 'pixel',
+        //                         format: 'html',
+        //                         flavor: 'plain',
+        //                         data: dataToPdf
+        //                     }];
                             
-                            qz.print(config, printData) ;
-                        }
-                    }
-                }
-            })
-        })
+        //                     qz.print(config, printData) ;
+
+        //                 }
+        //             }
+        //         }
+        //     })
+        // })
+        if($(".modele_bordure").hasClass("btn-danger"))
+        {
+            $(".modele_bordure").click()
+        }
+        var contentModele = $(".Editor-editor").get(0);
+        html2canvas(contentModele).then(function(canvas) {
+            var canvasWidth = canvas.width;
+            var canvasHeight = canvas.height;
+            // var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
+            let type = 'png'; // image type
+            // let w = $('#imgW').val(); // image width
+            // let h = $('#imgH').val(); // image height
+            // let f = $('#imgFileName').val(); // file name
+            // console.log(img) ;
+            Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
+        });
     })
     
     $("#formModele").submit(function(){
         var self = $(this)
+        if($(".modele_bordure").hasClass("btn-danger"))
+        {
+            $(".modele_bordure").click()
+        }
+        var contentModele = $(".Editor-editor").get(0);
+        html2canvas(contentModele).then(function(canvas) {
+            var canvasWidth = canvas.width;
+            var canvasHeight = canvas.height;
+            var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
+            // let type = 'png'; // image type
+            $(".pdf_apercu_modele").html(img)
+            // Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
+        });
         $('#modele_editor').val(modele_editor.getEditorText('#modele_editor')) 
         $.confirm({
             title: "Confirmation",
@@ -276,6 +311,8 @@ $(document).ready(function(){
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
                     action: function(){
+
+                        $(".pdf_contenu_modele").val($(".pdf_apercu_modele").html())
                         var realinstance = instance.loading()
                         var data = self.serialize()
                         $.ajax({

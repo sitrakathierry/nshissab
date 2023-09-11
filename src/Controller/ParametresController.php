@@ -438,6 +438,7 @@ class ParametresController extends AbstractController
         $modele_nom = $request->request->get("modele_nom") ;
         $modele_value = $request->request->get("modele_value") ;
         $modele_editor = $request->request->get("modele_editor") ;
+        $pdf_contenu_modele = $request->request->get("pdf_contenu_modele") ;
 
         $result = $this->appService->verificationElement([
             $modele_nom,
@@ -458,6 +459,7 @@ class ParametresController extends AbstractController
         $modelePdf->setNom($modele_nom) ;
         $modelePdf->setType($modele_value) ;
         $modelePdf->setContenu($modele_editor) ;
+        $modelePdf->setImage($pdf_contenu_modele) ;
         $modelePdf->setStatut(True) ;
         $modelePdf->setCreatedAt(new \DateTimeImmutable) ;
         $modelePdf->setUpdatedAt(new \DateTimeImmutable) ;

@@ -1,5 +1,148 @@
-{{contentEntete|raw}}
-<div style="padding: 20px ;">
-{{facture.numFact}}
-</div>
-{{contentBas|raw}}
+
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <style>
+        .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+        }
+
+        .table th,
+        .table td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+        }
+
+        .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+        }
+
+        .table tbody + tbody {
+        border-top: 2px solid #dee2e6;
+        }
+        .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        }
+
+        .table-responsive > .table-bordered {
+            border: 0;
+        }
+        .table {
+            border-collapse: collapse !important;
+        }
+        .table td,
+        .table th {
+            background-color: #fff !important;
+        }
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #dee2e6 !important;
+        }
+        .table-dark {
+            color: inherit;
+        }
+        .table-dark th,
+        .table-dark td,
+        .table-dark thead th,
+        .table-dark tbody + tbody {
+            border-color: #dee2e6;
+        }
+
+        .table .thead-dark th {
+            color: #fff;
+            background-color: #343a40;
+            border-color: #454d55;
+        }
+
+        .table .thead-dark th {
+            color: inherit;
+            border-color: #dee2e6;
+        }
+        .table-sm th,
+        .table-sm td {
+            padding: 0.3rem;
+        }
+
+        .table-bordered {
+            border: 1px solid #dee2e6;
+        }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #dee2e6;
+        }
+
+        .table-bordered thead th,
+        .table-bordered thead td {
+            border-bottom-width: 2px;
+        }
+        .modelePdf img
+        {
+            width: 100% !important;
+        }
+
+        .text-left
+        {
+            text-align: left !important;
+        }
+        .text-center
+        {
+            text-align: center !important;
+        }
+        .title_form
+        {
+            font-size: 1em;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <div class="modelePdf">
+    {{contentEntete|raw}}
+    </div>
+    <div style="padding: 40px 0">
+        <div class="text-center">
+            <h5 class="title_form text-black">Facture N° {{facture.numFact}}</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered" style="font-size: 12px !important;">
+                <thead>
+                    <tr>
+                        <th class="text-left">Désignation</th>
+                        <th class="text-left">Qte/Durée</th>
+                        <th class="text-left">Prix Unitaire</th>
+                        <th class="text-left">Montant TVA</th>
+                        <th class="text-left">Type Remise</th>
+                        <th class="text-left">Valeur Remise</th>
+                        <th class="text-left">Montant Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in details %}
+                        <tr>
+                            <td>{{detail.designation}}</td>
+                            <td>{{detail.quantite}}</td>
+                            <td>{{detail.prix}}</td>
+                            <td>{{"-"}}</td>
+                            <td>{{"-"}}</td>
+                            <td>{{"-"}}</td>
+                            <td>{{detail.quantite * detail.prix}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <div class="modelePdf">
+    {{contentBas|raw}}
+    </div>
+{% endblock %}
+

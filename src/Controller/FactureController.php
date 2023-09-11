@@ -436,17 +436,31 @@ class FactureController extends AbstractController
         $idFacture = $request->request->get("idFacture") ;
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
+        
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $contentEntete = $modeleEntete->getImage() ;
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $contentBas = $modeleBas->getImage() ;
+        }
 
-        $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
-        $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
-
-        $contentEntete = $modeleEntete->getContenu() ;
-        $contentBas = $modeleBas->getContenu() ;
+        $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture,
+            "statut" => True,
+        ]) ;
 
         $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
             "contentEntete" => $contentEntete,
             "contentBas" => $contentBas,
             "facture" => $facture,
+            "details" => $details,
         ]) ;
 
         $pdfGenService = new PdfGenService() ;
