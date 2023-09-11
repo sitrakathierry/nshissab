@@ -351,4 +351,77 @@ $(document).ready(function(){
     $(document).on("click",".fact_new_client",function(){
       getContentClient("NEW")
     })
+
+    $(document).on('click',".btn_imprimer_facture",function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Facture",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{
+                            text: 'Non',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Oui',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var realinstance = instance.loading()
+                                var formIData = new FormData() ;
+                                formIData.append('idModeleEntete',$("#modele_pdf_entete").val())
+                                formIData.append('idModeleBas',$("#modele_pdf_bas").val())
+                                formIData.append('idFacture',self.data("value"))
+                                $.ajax({
+                                    url: routes.fact_facture_detail_imprimer,
+                                    type:"post",
+                                    data:formIData,
+                                    dataType:"html",
+                                    processData:false,
+                                    contentType:false,
+                                    success : function(response){
+                                        realinstance.close()
+                                        $.alert({
+                                            title: 'Message',
+                                            content: json.message,
+                                            type: json.type,
+                                            buttons: {
+                                                OK: function(){
+                                                    if(json.type == "green")
+                                                    {
+                                                        location.reload()
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                    ,
+                                    error: function(resp){
+                                        realinstance.close()
+                                        // $.alert(JSON.stringify(resp)) ;
+                                    }
+                                })
+                            }
+                        }
+                    }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    })
 })

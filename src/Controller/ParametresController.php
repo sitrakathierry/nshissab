@@ -400,6 +400,37 @@ class ParametresController extends AbstractController
             "modelePdfs" => $modelePdfs,
         ]);
     }
+
+    
+    #[Route('/parametres/modele/pdf/get', name: 'param_modele_pdf_get')]
+    public function paramGetModelePdf()
+    {
+        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;    
+        if(!file_exists($filename))
+            $this->appService->generateModModelePdf($filename,$this->userObj) ;
+        
+        $modelePdfs = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("parametres/modele/getModelePdf.html.twig",[
+            "modelePdfs" => $modelePdfs,  
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/parametres/modele/pdf/details/{id}', name: 'param_modele_pdf_detail', defaults:["id" => null])]
+    public function paramDetailModelePdf($id)
+    {
+        $id = $this->appService->decoderChiffre($id) ;
+        $modelePdf = $this->entityManager->getRepository(ModModelePdf::class)->find($id) ;
+        
+        return $this->render('parametres/modele/detailModelePdf.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Détail Modèle Pdf",
+            "with_foot" => true,
+            "modelePdf" => $modelePdf,
+        ]) ;
+    }
     
     #[Route('/parametres/modele/pdf/save', name: 'param_modele_pdf_save')]
     public function paramSaveModelePdf(Request $request)

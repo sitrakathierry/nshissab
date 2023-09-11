@@ -90,6 +90,7 @@
                     {% endfor %}
                 </tbody>
                     {% if nature == "FACTURE" %}
+                        {% set totalTTC = facture.totalHt + facture.totalTva - facture.remise  %}
                         <tfoot>
                             <tr>
                                 <th colspan="8">Total HT</th>
@@ -105,7 +106,7 @@
                             </tr>
                             <tr>
                                 <th colspan="8">Total TTC</th>
-                                <th colspan="2" class="bg-primary text-white">{{facture.totalTtc}}</th>
+                                <th colspan="2" class="bg-primary text-white">{{totalTTC}}</th>
                             </tr>
                             {% if facture.devise %}
                                 <tr>
@@ -181,7 +182,7 @@
                     <button type="button" class="btn btn-sm ml-2 btn-danger text-white"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
                     <button type="submit" class="btn btn-sm ml-2 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
                 {% endif %}
-                <button type="button" class="btn btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                <button type="button" data-value="{{facture.id}}" class="btn btn_imprimer_facture btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
         {% endif %} 
         </form>

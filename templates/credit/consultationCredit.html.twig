@@ -39,7 +39,7 @@
                 <select name="fact_search_client" class="custom-select chosen_select custom-select-sm" id="fact_search_client">
                     <option value="">TOUS</option>
                     {% for client in clients %}
-                        <option value="{{client.id}}">{{client.client.nom|upper}}</option>
+                        <option value="{{client.id}}">{{client.nom|upper}}</option>
                     {% endfor %}
                 </select>
             </div>

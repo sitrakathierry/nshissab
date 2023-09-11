@@ -61,6 +61,9 @@ class CaisseCommande
     #[ORM\OneToMany(mappedBy: 'caisse', targetEntity: SavAnnulation::class)]
     private Collection $savAnnulations;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $synchro = null;
+
     public function __construct()
     {
         $this->caissePaniers = new ArrayCollection();
@@ -303,6 +306,18 @@ class CaisseCommande
                 $savAnnulation->setCaisse(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isSynchro(): ?bool
+    {
+        return $this->synchro;
+    }
+
+    public function setSynchro(?bool $synchro): self
+    {
+        $this->synchro = $synchro;
 
         return $this;
     }

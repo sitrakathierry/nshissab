@@ -31,11 +31,13 @@ use App\Entity\LctContrat;
 use App\Entity\LctPaiement;
 use App\Entity\LctRepartition;
 use App\Entity\LctStatutLoyer;
+use App\Entity\ModModelePdf;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\User;
 use App\Service\AppService;
 use App\Service\ExcelGenService;
+use App\Service\PdfGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -426,6 +428,36 @@ class FactureController extends AbstractController
         ]);
     }
 
+    #[Route('/facture/imprimer', name: 'fact_facture_detail_imprimer')]
+    public function factureImprimerFacture(Request $request)
+    {
+        $idModeleEntete = $request->request->get("idModeleEntete") ;
+        $idModeleBas = $request->request->get("idModeleBas") ;
+        $idFacture = $request->request->get("idFacture") ;
+
+        $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
+
+        $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+        $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+
+        $contentEntete = $modeleEntete->getContenu() ;
+        $contentBas = $modeleBas->getContenu() ;
+
+        $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "facture" => $facture,
+        ]) ;
+
+        // dd($contentIMpression) ;
+
+        // $pdfGenService = new PdfGenService() ;
+
+        // $pdfGenService->generatePdf($contentIMpression,"FACTURE.pdf") ;
+
+        return new JsonResponse() ;
+    }
+
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
     public function factureDetailsActivites($id,$nature)
     {
@@ -439,9 +471,9 @@ class FactureController extends AbstractController
             $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
         }
         
-
         $infoFacture = [] ;
 
+        $infoFacture["id"] = $facture->getId() ;
         $infoFacture["numFact"] = $facture->getNumFact() ;
         $infoFacture["modele"] = $facture->getModele()->getNom() ;
         $infoFacture["type"] = $facture->getType()->getNom() ;
@@ -515,7 +547,7 @@ class FactureController extends AbstractController
         foreach ($factureDetails as $factureDetail) {
             $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
             $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
-            $remise = $this->appService->getFactureRemise($factureDetail,$totalHt) ; 
+            $remise = $this->appService->getFactureRemise($factureDetail,$total) ; 
             $total = $total - $remise ;
             
             $element = [] ;

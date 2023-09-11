@@ -39,8 +39,8 @@
                             <td>{{modelePdf.nom|upper}}</td>
                             <td>{{modelePdf.type|upper}}</td>
                             <td class="text-center alogn-midlle">
-                                <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-sm ml-2 btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                                <a href="{{path("param_modele_pdf_detail",{"id" : modelePdf.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                <button data-value="{{modelePdf.id}}" class="btn btn-sm ml-2 btn_supprime_modele btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>
                     {% endfor %}

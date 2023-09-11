@@ -1325,13 +1325,14 @@ class AppService extends AbstractController
         [ "id" => "DESC" ]) ;
         
         $elements = [] ;
-
         foreach ($modelePdfs as $modelePdf) {
             $element = [] ;
             $element["id"] = $modelePdf->getId() ;
+            $element["encodedId"] = $this->encodeChiffre($modelePdf->getId()) ;
             $element["user"] = $modelePdf->getUser()->getId() ;
             $element["nom"] = $modelePdf->getNom() ;
             $element["type"] = $modelePdf->getType() == "ENTETE" ? "Entête de page" : "Bas de page" ;
+            $element["refType"] = $modelePdf->getType() ;
             $element["statut"] = $modelePdf->isStatut();
 
             array_push($elements,$element) ;
@@ -2821,7 +2822,7 @@ class AppService extends AbstractController
     {
         if(!is_null($facture->getRemiseType()))
         {
-            if($facture->getRemiseType()->getId() == 1)
+            if($facture->getRemiseType()->getCalcul() == 100)
             {
                 $remiseG = ($totalHt * $facture->getRemiseVal()) / 100 ; 
             }
@@ -3252,7 +3253,8 @@ class AppService extends AbstractController
             {
                 $commandes = $this->entityManager->getRepository(CaisseCommande::class)->findBy([
                     "agence" => $this->agence,
-                    "statut" => True
+                    "statut" => True,
+                    "synchro" => null
                 ]) ;
 
                 foreach($commandes as $commande)
@@ -3287,13 +3289,17 @@ class AppService extends AbstractController
                         $commande->setStatut(True) ;
                         $this->entityManager->flush() ;
                     }
+
+                    $commande->setSynchro(True) ;
+                    $this->entityManager->flush() ;
                 }
             }
             else if($param == "FACTURE") // SYNCRO AVEC ANNULATION FACTURE
             {
                 $factures = $this->entityManager->getRepository(Facture::class)->findBy([
                     "agence" => $this->agence,
-                    "statut" => True
+                    "statut" => True,
+                    "synchro" => null
                 ]) ;
 
                 foreach($factures as $facture)
@@ -3373,6 +3379,9 @@ class AppService extends AbstractController
                         $facture->setStatut(True) ;
                         $this->entityManager->flush() ;
                     }
+
+                    $facture->setSynchro(True) ;
+                    $this->entityManager->flush() ;
                 }
             }
         }

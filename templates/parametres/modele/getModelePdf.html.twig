@@ -1,0 +1,21 @@
+<div class="w-100 text-left">
+    <label for="modele_pdf_entete" class="mt-2 font-weight-bold">Entête de page</label>
+    <select name="modele_pdf_entete" class="custom-select chosen_select custom-select-sm" id="modele_pdf_entete">
+        <option value="">-</option>
+        {% for modelePdf in modelePdfs %}
+            {% if modelePdf.refType == "ENTETE" %}
+                <option value="{{modelePdf.id}}" >{{modelePdf.nom|upper}}</option>
+            {% endif %}
+        {% endfor %} 
+    </select>
+
+    <label for="modele_pdf_bas" class="mt-3 font-weight-bold">Bas de page</label>
+    <select name="modele_pdf_bas" class="custom-select chosen_select custom-select-sm" id="modele_pdf_bas">
+        <option value="">-</option>
+        {% for modelePdf in modelePdfs %}
+            {% if modelePdf.refType == "BAS" %}
+                <option value="{{modelePdf.id}}" >{{modelePdf.nom|upper}}</option>
+            {% endif %}
+        {% endfor %} 
+    </select>
+</div>

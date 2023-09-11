@@ -110,6 +110,8 @@ $(document).ready(function(){
         })
     })
 
+    modele_editor.setEditorText($('#modele_editor').val())
+
     $("#insert_modele_forme").click(function(){
         var content = ''
         var modele_forme = $("#modele_forme").val()
@@ -134,12 +136,13 @@ $(document).ready(function(){
         modele_forme = parseInt(modele_forme) ;
         element = '' ;
         for (let i = 0; i < modele_forme; i++) {
-            element += '<div class="config-editor" style="width:100%;height:auto"></div>' ;
+            // var width = (100 / modele_forme ) - 10 ;
+            element += '<div class="config-editor" style="width:100%;height:auto;font-size:12px !important;line-height: 24px;"></div>' ;
         }
         content = `
-            <div style="width:100%;display: flex; flex-direction:row" >
+            <h1 style="width:100%;display: flex; flex-direction:row;font-size:12px !important;" >
             `+element+`
-            </div>
+            </h1>
         `
         var contentEditor = modele_editor.getEditorText('#modele_editor') ;
         modele_editor.setEditorText(contentEditor+content)

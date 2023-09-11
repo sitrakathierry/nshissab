@@ -502,6 +502,9 @@ class SAVController extends AbstractController
                 $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
                 $numAnnulation = $firstAnnuation->getNumCommande()."/BIS-".$numAnnulation ;
             }
+
+            $caisse->setSynchro(null) ;
+            $this->entityManager->flush() ;
         }
         else
         {
@@ -536,6 +539,9 @@ class SAVController extends AbstractController
                 $numAnnulation = str_pad($numAnnulation, 3, "0", STR_PAD_LEFT);
                 $numAnnulation = $firstAnnuation->getNumFact()."/BIS-".$numAnnulation ;
             }
+
+            $facture->setSynchro(null) ;
+            $this->entityManager->flush() ;
         }
         
         $type = $this->entityManager->getRepository(SavType::class)->find($sav_type_annule) ;

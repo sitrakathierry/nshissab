@@ -91,6 +91,9 @@ class Facture
     #[ORM\OneToMany(mappedBy: 'factureParent', targetEntity: self::class)]
     private Collection $factures;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $synchro = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -510,6 +513,18 @@ class Facture
                 $facture->setFactureParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isSynchro(): ?bool
+    {
+        return $this->synchro;
+    }
+
+    public function setSynchro(?bool $synchro): self
+    {
+        $this->synchro = $synchro;
 
         return $this;
     }
