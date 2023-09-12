@@ -2822,13 +2822,14 @@ class AppService extends AbstractController
     {
         if(!is_null($facture->getRemiseType()))
         {
+            $remiseVal = is_null($facture->getRemiseVal()) ? 0 : floatval($facture->getRemiseVal()) ; 
             if($facture->getRemiseType()->getCalcul() == 100)
             {
-                $remiseG = ($totalHt * $facture->getRemiseVal()) / 100 ; 
+                $remiseG = ($totalHt * $remiseVal) / 100 ; 
             }
             else
             {
-                $remiseG = $facture->getRemiseVal() ;
+                $remiseG = $remiseVal ;
             }
         }
         else

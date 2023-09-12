@@ -32,30 +32,35 @@
                         <button type="button" class="btn btn-outline-primary text-uppercase edit_modele mx-1 w-100 btn-sm" data-value="BAS" data-class="btn-primary"><i class="fa fa-diamond"></i>&nbsp;Bas de page</button>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <label for="modele_forme" class=" font-weight-bold">Colonne</label>
-                    <input type="number" name="modele_forme" id="modele_forme" class="form-control" placeholder="ex: 1,2, ...">
-                    {# <select name="modele_forme" class="custom-select chosen_select custom-select-sm" id="modele_forme">
-                        <option value="" >-</option>
-                        <option value="1" >{{"Forme 1"|upper}}</option>
-                        <option value="2" >{{"Forme 2"|upper}}</option>
-                        <option value="3" >{{"Forme 3"|upper}}</option>
-                    </select> #}
-                </div>
-                <div class="col-md-2">
-                    <label class=" font-weight-bold">&nbsp;</label>
-                    <button type="button" class="btn-sm btn btn-warning btn-block" id="insert_modele_forme" ><i class="fa fa-plus-square"></i>&nbsp;Insérer</button>
-                </div>
             </div>
             <div name="pdf_apercu_modele" class="pdf_apercu_modele d-none"></div>
             <input type="hidden" name="pdf_contenu_modele" class="pdf_contenu_modele" >
-            <div class="w-100 d-flex flex-row align-items-center p-3 mt-5">
-                <label for="modele_editor" class="font-weight-bold text-uppercase caption_modele">-</label>
-                    <button type="button" class="btn btn-sm ml-auto px-3 btn-info modele_info_societe" data-value="SOCIETE" ><i class="fa fa-info-circle"></i>&nbsp;Information société</button>
-                    <button type="button" class="btn btn-sm ml-3 px-3 btn-info modele_info_societe" data-value="PERSONNEL" ><i class="fa fa-info-circle"></i>&nbsp;Coordonées personnel</button>
-                    <button type="button" class="btn btn-sm ml-3 px-3 btn-success btnInsertImage"><i class="fa fa-image"></i>&nbsp;Insérer une image</button>
-                    <button type="button" class="btn-sm ml-3 px-3 btn btn-danger modele_bordure"><i class="fa fa-square"></i>&nbsp;Aucune bordure</button>
-                    <input type="file" name="fileImage" id="imageInsert" class="d-none">
+            <div class="w-100 p-3 mt-5">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class=" font-weight-bold">&nbsp;</label>
+                        <label for="modele_editor" class="font-weight-bold text-uppercase d-block caption_modele">-</label>
+                    </div>
+                    <div class="col-md-3">
+                        <label class=" font-weight-bold">&nbsp;</label>
+                        <button type="button" class="btn btn-sm btn-success btn-block btnInsertImage"><i class="fa fa-image"></i>&nbsp;Insérer une image</button>
+                        <input type="file" name="fileImage" id="imageInsert" class="d-none">
+                    </div>
+                    <div class="col-md-2">
+                        <label class=" font-weight-bold">&nbsp;</label>
+                        <button type="button" class="btn-sm btn btn-danger modele_bordure btn-block"><i class="fa fa-square"></i>&nbsp;Sans bordure</button>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="modele_forme" class=" font-weight-bold">Colonne</label>
+                        <input type="number" name="modele_forme" id="modele_forme" class="form-control" placeholder="ex: 1,2, ...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class=" font-weight-bold">&nbsp;</label>
+                        <button type="button" class="btn-sm btn btn-warning btn-block" id="insert_modele_forme" ><i class="fa fa-plus-square"></i>&nbsp;Insérer</button>
+                    </div>
+                </div>
+                    {# <button type="button" class="btn btn-sm ml-auto px-3 btn-info modele_info_societe" data-value="SOCIETE" ><i class="fa fa-info-circle"></i>&nbsp;Information société</button> #}
+                    {# <button type="button" class="btn btn-sm ml-3 px-3 btn-info modele_info_societe" data-value="PERSONNEL" ><i class="fa fa-info-circle"></i>&nbsp;Coordonées personnel</button> #}
             </div>
             <input type="hidden" name="modele_value" id="modele_value">
             <input type="text" name="modele_editor" id="modele_editor" class="form-control" placeholder=". . .">

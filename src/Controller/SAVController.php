@@ -120,6 +120,13 @@ class SAVController extends AbstractController
             array_push($avoirs,$item) ;
         } 
 
+        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateFacture($filename, $this->agence) ;
+
+        $factures = json_decode(file_get_contents($filename)) ;
+
         return $this->render('sav/index.html.twig', [
             "filename" => "sav",
             "titlePage" => "Service Après Vente",
@@ -128,7 +135,8 @@ class SAVController extends AbstractController
             "specs" => $specs,
             "motifs" => $motifs,
             "annulations" => $annulations ,
-            "avoirs" => $avoirs
+            "avoirs" => $avoirs,
+            "factures" => $factures,
         ]);
     }
      

@@ -6,12 +6,12 @@
 .config-editor
 {
     border: 2px dashed lightgrey ;
-    padding: 10px 20px;
+    padding: 5px 5px;
     min-height: 100px;
 }
 
 .none-editor
 {
-    padding: 10px 20px;
+    padding: 5px 5px;
     min-height: 100px;
 }

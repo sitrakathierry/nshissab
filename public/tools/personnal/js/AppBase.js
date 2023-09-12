@@ -258,4 +258,24 @@ class AppBase
       var dateFinText = finJour +"/"+finMois+"/"+dateFin.getFullYear() ; 
       return (dureeEnJours+1)+"&##&"+dateFinText ;
     }
+
+    // generatePDF(content,filename) {
+    //   // const elementToPrint = document.getElementById('element-to-print');
+    //   const pdfOptions = {
+    //       margin: 10,
+    //       filename: filename+'.pdf',
+    //       image: { type: 'jpeg', quality: 0.98 },
+    //       html2canvas: { scale: 2 },
+    //       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    //   };
+
+    //   html2pdf()
+    //   .from(content)
+    //   .set(pdfOptions)
+    //   .outputPdf()
+    //   .then(pdf => {
+    //       // Télécharger le PDF généré
+    //       pdf.save();
+    //   });
+    // }
 }

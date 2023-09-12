@@ -28,6 +28,8 @@
 			<link rel="stylesheet" href="{{asset('tools/lightbox/dist/css/lightbox.css')}}">
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
+		{# <script src="{{asset('tools/personnal/js/html2pdf.bundle.min.js')}}"></script> #}
+		
 		<script src="{{asset('tools/numToLetter/NumberToLetter.js')}}"></script>
 		<script src="{{asset('tools/linecontrol/LineEditor.js')}}"></script>
 		<script src="{{asset('tools/personnal/js/CustomImage.js')}}"></script>
@@ -73,6 +75,7 @@
 			<script src="{{asset('tools/htmlToCanvas/html2canvas.min.js')}}"></script>
 			<script src="{{asset('tools/htmlToCanvas/canvas2image.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
+			<script src="{{asset('tools/personnal/js/jspdf.min.js')}}"></script>
 			<script>
 				const routes = {
 					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username|lower ~ '.json')}}",

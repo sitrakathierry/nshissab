@@ -50,6 +50,7 @@
                 </div>
             {% endif %}
         </div>
+        <div class="contentResponse d-none" ></div>
         <div class="table-responsive mt-4">
             <table class="table table-bordered table-sm">
                 <thead class="thead-light">
@@ -91,6 +92,7 @@
                 </tbody>
                     {% if nature == "FACTURE" %}
                         {% set totalTTC = facture.totalHt + facture.totalTva - facture.remise  %}
+                        {# {% set totalTTC = 0  %} #}
                         <tfoot>
                             <tr>
                                 <th colspan="8">Total HT</th>

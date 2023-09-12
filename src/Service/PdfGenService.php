@@ -2,13 +2,14 @@
 
 namespace App\Service;
 use Dompdf\Dompdf;
-
+use Dompdf\Options;
 use Mike42\Escpos\CapabilityProfile;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 
 use Symfony\Component\Process\Process;
 use phpseclib\Net\SNMP;
+use Symfony\Component\HttpFoundation\Response;
 
 class PdfGenService
 {
@@ -21,10 +22,29 @@ class PdfGenService
 
     public function generatePdf($content, $filename)
     {
-        $this->pdf->loadHtml($content);
-        $this->pdf->render();
-        // Output the generated PDF to Browser
-        $this->pdf->stream($filename, array('Attachment' => false));
+        // Créez une instance Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $dompdf = new Dompdf($options);
+
+        // Chargez le contenu HTML dans Dompdf
+        $dompdf->loadHtml($content);
+
+        // Générez le PDF
+        $dompdf->render();
+
+        // Renvoyez la réponse avec le PDF généré
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+            ]
+        );
+        // $this->pdf->loadHtml($content);
+        // $this->pdf->render();
+        // // Output the generated PDF to Browser
+        // $this->pdf->stream($filename, array('Attachment' => false));
     }
 
     public function printBarCode($printerName)

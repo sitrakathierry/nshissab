@@ -463,11 +463,11 @@ class FactureController extends AbstractController
             "details" => $details,
         ]) ;
 
-        $pdfGenService = new PdfGenService() ;
+        // $pdfGenService = new PdfGenService() ;
 
-        $pdfGenService->generatePdf($contentIMpression,"FACTURE.pdf") ;
+        // return $pdfGenService->generatePdf($contentIMpression,"FACTURE.pdf") ;
 
-        return new Response('') ;
+        return new Response($contentIMpression) ;
     }
 
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
@@ -530,7 +530,7 @@ class FactureController extends AbstractController
         else
             $infoFacture["client"] = $facture->getClient()->getSociete()->getNom() ;
         
-        $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ? "-" : $facture->getTvaVal();
+        $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ?  0 : $facture->getTvaVal();
         $infoFacture["totalTtc"] = $facture->getTotal() ;
 
         if($nature == "FACTURE")
@@ -560,6 +560,7 @@ class FactureController extends AbstractController
             $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
             $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
             $remise = $this->appService->getFactureRemise($factureDetail,$total) ; 
+            
             $total = $total - $remise ;
             
             $element = [] ;

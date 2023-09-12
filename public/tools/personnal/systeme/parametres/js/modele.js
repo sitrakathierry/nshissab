@@ -59,7 +59,7 @@ $(document).ready(function(){
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 170, function(resizedBase64) {
+            resizeBase64Image(reader.result, 200, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 range = selection.getRangeAt(0);
                 var imageContent = range.createContextualFragment(imageContent);
