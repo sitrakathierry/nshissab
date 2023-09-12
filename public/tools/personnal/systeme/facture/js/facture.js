@@ -393,42 +393,32 @@ $(document).ready(function(){
                                     contentType:false,
                                     success : function(response){
                                         realinstance.close()
-                                        const doc = new jsPDF({  
-                                            unit: 'px',  
-                                            format: 'a4'  
+                                        $(".contentResponse").html(response)
+
+                                        var contentPdf = $(".contentResponse").get(0);
+                                        html2canvas(contentPdf).then(function(canvas) {
+                                            var canvasWidth = canvas.width;
+                                            var canvasHeight = canvas.height;
+                                            var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
+                                            const doc = new jsPDF({  
+                                                unit: 'px',  
+                                                format: 'a4'  
+                                            });
+                                            
+                                            doc.addImage(img.src, 'PNG',10, 10);  
+                                            var pdfData = doc.output("datauristring");
+                                            // var lien = $("<a>")
+                                            //     .attr("href", pdfData)
+                                            //     .attr("target", "_blank")
+                                            //     .text("Ouvrir le PDF");
+
+                                            // lien.click()
+                                            doc.save('facture_'+self.data("value")+'.pdf');
+                                            $(".contentResponse").empty()
+                                            var newTab = window.open();
+                                            newTab.document.write('<iframe width="100%" height="100%" src="' + pdfData + '"></iframe>');
                                         });
-                                        doc.fromHTML(response,10,10)
-                                        doc.save('facture_'+self.data("value")+'.pdf');
-                                        // var contentPdf = $(".contentResponse").get(0);
-                                        // html2canvas(contentPdf).then(function(canvas) {
-                                        //     // var canvasWidth = canvas.width;
-                                        //     // var canvasHeight = canvas.height;
-                                        //     // var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
-                                        //     // var  
-                                        //     //  img = canvas.toDataURL("image/png"),  
-                                        //     //  doc = new jsPDF({  
-                                        //     //      unit: 'px',  
-                                        //     //      format: 'a4'  
-                                        //     //  });  
-                                        //     // doc.addImage(img, 'PNG', 20, 20);  
-                                        //     // doc.save('techsolutionstuff.pdf'); 
-                                        //     // let type = 'png'; // image type
-                                        //     // Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
-                                        // });
-                                        // $(".contentResponse").html(response)
-                                        // html2canvas($(".contentResponse"), {  
-                                        //     imageTimeout: 2000,  
-                                        //     removeContainer: true  
-                                        // }).then(function (canvas) {  
-                                        //     var  
-                                        //      img = canvas.toDataURL("image/png"),  
-                                        //      doc = new jsPDF({  
-                                        //          unit: 'px',  
-                                        //          format: 'a4'  
-                                        //      });  
-                                        //     doc.addImage(img, 'JPEG', 20, 20);  
-                                        //     doc.save('techsolutionstuff.pdf');   
-                                        // });
+
                                         
                                     },
                                     error: function(resp){

@@ -428,6 +428,14 @@ class FactureController extends AbstractController
         ]);
     }
 
+    #[Route('/facture/contenu/facture/modif', name: 'fact_content_facture_modif')]
+    public function factureContenuModifFacture(Request $request)
+    {
+        
+
+        return $this->render('facture/contenuModifFacture.html.twig',);
+    }
+
     #[Route('/facture/imprimer', name: 'fact_facture_detail_imprimer')]
     public function factureImprimerFacture(Request $request)
     {
@@ -441,14 +449,14 @@ class FactureController extends AbstractController
         if(!empty($idModeleEntete))
         {
             $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
-            $contentEntete = $modeleEntete->getImage() ;
+            $contentEntete = $modeleEntete->getContenu() ;
         }
         
         $contentBas = "" ;
         if(!empty($idModeleBas))
         {
             $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
-            $contentBas = $modeleBas->getImage() ;
+            $contentBas = $modeleBas->getContenu() ;
         }
 
         $details = $this->entityManager->getRepository(FactDetails::class)->findBy([

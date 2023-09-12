@@ -410,4 +410,39 @@ $(document).ready(function(){
         })
     })
 
+    // $("#sav_modif_facture").change(function(){
+    //     var realinstance = instance.loading()
+    //     $.ajax({
+    //         url: routes.fact_content_facture_modif,
+    //         type:'post',
+    //         cache: false,
+    //         data: ,
+    //         dataType: 'html',
+    //         processData: false,
+    //         contentType: false,
+    //         success: function(response){
+    //             realinstance.close()
+    //             $.alert({
+    //                 title: 'Message',
+    //                 content: json.message,
+    //                 type: json.type,
+    //                 buttons: {
+    //                     OK: function(){
+    //                         if(json.type == "green")
+    //                         {
+    //                             location.reload()
+    //                         }
+    //                     }
+    //                 }
+    //             });
+    //         },
+    //         error: function(resp){
+    //             realinstance.close()
+    //             $.alert(JSON.stringify(resp)) ;
+    //         }
+    //     })
+    // })
+
+    
+
 })

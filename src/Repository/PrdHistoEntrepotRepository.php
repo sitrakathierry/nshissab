@@ -69,6 +69,7 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
         $resultSet = $stmt->executeQuery([$idE,$idP]);
         return $resultSet->fetchAllAssociative();
     }
+
 //    /**
 //     * @return PrdHistoEntrepot[] Returns an array of PrdHistoEntrepot objects
 //     */

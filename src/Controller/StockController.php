@@ -2431,14 +2431,14 @@ class StockController extends AbstractController
                 $this->entityManager->persist($deduction) ;
                 $this->entityManager->flush() ;
 
-                $variationPrix->setStock($variationPrix->getStock() - intval($reduc_val_qte[$key])) ;
-                $this->entityManager->flush() ;
+                // $variationPrix->setStock($variationPrix->getStock() - intval($reduc_val_qte[$key])) ;
+                // $this->entityManager->flush() ;
 
-                $histoEntrepot->setStock($histoEntrepot->getStock() - intval($reduc_val_qte[$key])) ;
-                $this->entityManager->flush() ;
+                // $histoEntrepot->setStock($histoEntrepot->getStock() - intval($reduc_val_qte[$key])) ;
+                // $this->entityManager->flush() ;
 
-                $variationPrix->getProduit()->setStock($variationPrix->getProduit()->getStock() - intval($reduc_val_qte[$key])) ;
-                $this->entityManager->flush() ;
+                // $variationPrix->getProduit()->setStock($variationPrix->getProduit()->getStock() - intval($reduc_val_qte[$key])) ;
+                // $this->entityManager->flush() ;
             }
         }
 

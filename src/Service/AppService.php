@@ -47,6 +47,7 @@ use App\Entity\MenuUser;
 use App\Entity\ModModelePdf;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
+use App\Entity\PrdDeduction;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
@@ -3167,6 +3168,38 @@ class AppService extends AbstractController
             "statut" => True
         ]) ; 
 
+        $histoEntrepotActifs = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            "statut" => True
+        ]) ; 
+
+        foreach($histoEntrepotActifs as $histoEntrepotActif)
+        {
+            $deductionEntrepot = $this->entityManager->getRepository(PrdDeduction::class)->getSommeDeductionEntrepot([
+                "histoEntrepot" => $histoEntrepotActif->getId()
+            ]) ;
+
+            $totalHistoEntrepot = floatval($histoEntrepotActif->getStock()) ;
+
+            if($deductionEntrepot["sommeStock"] > $totalHistoEntrepot)
+            {
+                $histoEntrepotActif->setStock(0) ;
+                $this->entityManager->flush() ;
+            }
+            else
+            {
+                $histoEntrepotActif->setStock(floatval($histoEntrepotActif->getStock()) - floatval($deductionEntrepot["sommeStock"])) ;
+                $this->entityManager->flush() ;
+            }
+
+            $produitEntrepotActif = $histoEntrepotActif->getVariationPrix()->getProduit() ;
+
+            $histoEntrepotActif->getVariationPrix()->setStock($histoEntrepotActif->getVariationPrix()->getStock() - $deductionEntrepot["sommeStock"]) ;
+            $produitEntrepotActif->setStock($produitEntrepotActif->getStock() - $deductionEntrepot["sommeStock"]) ;
+            $this->entityManager->flush() ;
+
+
+        }
+
         foreach($produits as $produit)
         {
             $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
@@ -3199,9 +3232,9 @@ class AppService extends AbstractController
                 ],["stock" => "DESC"]) ; 
     
                 $repartitionDeduction = $stockRemoveVariation ;
+
                 foreach ($histoEntrepots as $histoEntrepot) {
                     $totalStockEntrepot = $histoEntrepot->getStock() ;
-    
                     if($repartitionDeduction > $totalStockEntrepot)
                     {
                         $histoEntrepot->setStock(0) ;

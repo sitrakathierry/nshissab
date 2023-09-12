@@ -39,6 +39,14 @@ class PrdDeductionRepository extends ServiceEntityRepository
         }
     }
 
+    public function getSommeDeductionEntrepot($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as sommeStock FROM `prd_deduction` WHERE `histo_entrepot_id` = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["histoEntrepot"]]);
+        return $resultSet->fetchAssociative();
+    }
 //    /**
 //     * @return PrdDeduction[] Returns an array of PrdDeduction objects
 //     */

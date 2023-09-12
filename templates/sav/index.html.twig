@@ -220,8 +220,8 @@
              <div class="tab-pane fade" id="pills-fact-update" role="tabpanel" aria-labelledby="pills-fact-update">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="nom" class="font-weight-bold text-uppercase">Sélectionner une facture</label>
-                        <select name="prod_categorie" class="custom-select chosen_select custom-select-sm" id="prod_categorie">
+                        <label for="sav_modif_facture" class="font-weight-bold text-uppercase">Sélectionner une facture</label>
+                        <select name="sav_modif_facture" class="custom-select chosen_select custom-select-sm" id="sav_modif_facture">
                             <option value="">-</option>
                             {% for facture in factures %}
                                 <option value="{{facture.id}}">{{facture.numFact}}</option>
