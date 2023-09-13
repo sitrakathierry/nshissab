@@ -1,6 +1,7 @@
 .Editor-editor
 {
-    min-height: 100px !important;
+    min-height: 150px !important;
+    line-height: 19px;
 }
 
 .config-editor
@@ -14,4 +15,29 @@
 {
     padding: 5px 5px;
     min-height: 100px;
+}
+
+.select_modele
+{
+    width: 250px !important;
+    height: auto;
+}
+
+.select_modele img
+{
+    transition: .3s;
+}
+
+.select_modele img:hover
+{
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%) !important;
+    transform: translateY(-10px);
+    cursor: pointer;
+}
+
+.modele_image
+{
+    width: 240px ;
+    height: auto ;
+    cursor: pointer;
 }

@@ -1,32 +1,32 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
     var appBase = new AppBase() ;
-    var selection = null 
-    $(document).on('mouseup',".Editor-editor", function() {
-        // Récupérer la sélection
+    // var selection = null 
+    // $(document).on('mouseup',".Editor-editor", function() {
+    //     // Récupérer la sélection
         
-        selection = window.getSelection();
-        // var collapsed = selection.isCollapsed
-        // // console.log(collapsed) ;
-        // if(!collapsed)
-        //     return ;
+    //     selection = window.getSelection();
+    //     // var collapsed = selection.isCollapsed
+    //     // // console.log(collapsed) ;
+    //     // if(!collapsed)
+    //     //     return ;
         
 
-    });
+    // });
 
-    $(document).on('keydown',".Editor-editor", function(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          // Empêcher le comportement par défaut de la touche "Entrée"
-          event.preventDefault();
+    // $(document).on('keydown',".Editor-editor", function(event) {
+    //     if (event.key === 'Enter' && !event.shiftKey) {
+    //       // Empêcher le comportement par défaut de la touche "Entrée"
+    //       event.preventDefault();
           
-          // Insérer une nouvelle ligne ou effectuer d'autres actions
-          var range = window.getSelection().getRangeAt(0);
-          var newline = document.createElement('br');
-          range.insertNode(newline);
-          range.setStartAfter(newline);
-          range.setEndAfter(newline);
-        }
-      });
+    //       // Insérer une nouvelle ligne ou effectuer d'autres actions
+    //       var range = window.getSelection().getRangeAt(0);
+    //       var newline = document.createElement('br');
+    //       range.insertNode(newline);
+    //       range.setStartAfter(newline);
+    //       range.setEndAfter(newline);
+    //     }
+    // });
 
     function resizeBase64Image(base64, newWidth, callback) {
         var img = new Image();
@@ -47,30 +47,34 @@ $(document).ready(function(){
     var modele_editor = new LineEditor("#modele_editor") ;
 
     $('#imageInsert').on('change', function() {
-        if(selection == null)
-        {
-            $.alert({
-                title: 'Message',
-                content: "Séléctionner d'abord l'éditeur",
-                type: "orange"
-            });
-            return false ;
-        }
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 150, function(resizedBase64) {
+            resizeBase64Image(reader.result, 240, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
-                range = selection.getRangeAt(0);
-                var imageContent = range.createContextualFragment(imageContent);
-                range.insertNode(imageContent);
-                // Réinitialiser la sélection
-                selection.removeAllRanges();
             });
         }
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);
     });
+
+    $(".modele_image").click(function(){
+        $("#modele_image_file").click()
+    })
+
+    $('#modele_image_file').on('change', function() {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+            // Afficher les données du fichier
+            resizeBase64Image(reader.result, 240, function(resizedBase64) {
+                var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
+                $(".modele_image").html(imageContent)
+            });
+        }
+        // Lire le contenu du fichier
+        reader.readAsDataURL(this.files[0]);
+    });
+
 
     $(".modele_info_societe").click(function(){
         var realinstance = instance.loading()
@@ -86,20 +90,21 @@ $(document).ready(function(){
             contentType: false,
             success: function(response){
                 realinstance.close()
-                if(selection == null)
-                {
-                    $.alert({
-                        title: 'Message',
-                        content: "Séléctionner d'abord l'éditeur",
-                        type: "orange"
-                    });
-                    return false ;
-                }
+
+                // if(selection == null)
+                // {
+                //     $.alert({
+                //         title: 'Message',
+                //         content: "Séléctionner d'abord l'éditeur",
+                //         type: "orange"
+                //     });
+                //     return false ;
+                // }
                 
-                range = selection.getRangeAt(0);
-                var valresponse = range.createContextualFragment(response);
-                range.insertNode(valresponse);
-                selection.removeAllRanges();
+                // range = selection.getRangeAt(0);
+                // var valresponse = range.createContextualFragment(response);
+                // range.insertNode(valresponse);
+                // selection.removeAllRanges();
                 // var contentEditor = modele_editor.getEditorText('#modele_editor') ;
                 // modele_editor.setEditorText(contentEditor+response)
             },
@@ -153,21 +158,25 @@ $(document).ready(function(){
         var btnClass = $(this).data("class")
         var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
         var inputValue = $(this).data("value")
-
-        var self = $(this)
         var labelModele = inputValue == "ENTETE" ? "Entête de page" : "Bas de Page" ;
 
-        $(".caption_modele").text(labelModele)
+        $(this).html('<i class="fa fa-check"></i>&nbsp;'+labelModele)
+        var self = $(this)
+
+        // $(".caption_modele").text(labelModele)
         $("#modele_value").val(inputValue)
 
         $(this).addClass(btnClass)
         $(this).removeClass(currentbtnClass)
+        
         $(".edit_modele").each(function(){
             if (!self.is($(this))) {
                 $(this).addClass(currentbtnClass) ; 
                 $(this).removeClass(btnClass);
+                $(this).html($(this).data("content"));
             }
         })
+
     }) ;
 
     $(".modele_bordure").click(function(){

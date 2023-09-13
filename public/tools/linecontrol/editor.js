@@ -378,11 +378,13 @@ You should have received a copy of the GNU General Public License along with thi
 							"Titre 6":"<h6>",
 							"Paragraphe":"<p>" };
 
-			var fontsizes = {	"Petite"	:"2",
-								"Normale":"3",
-								"Moyen":"4",
-								"Grande"	:"5",
-								"Très Grande"	:"6" };
+			var fontsizes = {	"11":"2",
+								"12":"3",
+								"13":"4",
+								"14":"5",
+								"15":"6",
+								"16":"7"
+							};
 
 			var colors = [	{ name: 'Black', hex: '#000000' },
 							{ name: 'MediumBlack', hex: '#444444' },
