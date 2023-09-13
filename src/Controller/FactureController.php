@@ -445,6 +445,41 @@ class FactureController extends AbstractController
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
         
+        $dataFacture = [
+            "numFact" => $facture->getNumFact() ,
+            "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
+            "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
+            "devise" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() 
+        ] ;
+
+        $client = $facture->getClient() ;
+
+        $dataClient = [
+            "nom" => "",   
+            "adresse" => "",   
+            "telephone" => "",   
+        ] ;
+
+        if(!is_null($client))
+        {
+            if(!is_null($client->getSociete()))
+            {
+                $dataClient = [
+                    "nom" => $client->getSociete()->getNom(),   
+                    "adresse" => $client->getSociete()->getAdresse(),   
+                    "telephone" => $client->getSociete()->getTelFixe(),   
+                ] ;
+            }
+            else
+            {
+                $dataClient = [
+                    "nom" => $client->getClient()->getNom(),   
+                    "adresse" => $client->getClient()->getAdresse(),   
+                    "telephone" => $client->getClient()->getTelephone(),   
+                ] ;
+            }
+        }
+
         $contentEntete = "" ;
         if(!empty($idModeleEntete))
         {
@@ -464,11 +499,54 @@ class FactureController extends AbstractController
             "statut" => True,
         ]) ;
 
+        $dataDetails = [] ;
+        $totalHt = 0 ;
+        $totalTva = 0 ;
+
+        foreach ($details as $detail) {
+            $tvaVal = is_null($detail->getTvaVal()) ? 0 : $detail->getTvaVal() ;
+            $tva = (($detail->getPrix() * $tvaVal) / 100) * $detail->getQuantite();
+            $total = $detail->getPrix() * $detail->getQuantite()  ;
+            $remise = $this->appService->getFactureRemise($detail,$total) ; 
+            
+            $total = $total - $remise ;
+            
+            $element = [] ;
+            $element["type"] = $detail->getActivite() ;
+            $element["designation"] = $detail->getDesignation() ;
+            $element["quantite"] = $detail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $detail->getPrix() ; 
+            $element["tva"] = $tva ;
+            $element["typeRemise"] = is_null($detail->getRemiseType()) ? "-" : $detail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $detail->getRemiseVal() ;
+            $element["statut"] = $detail->isStatut();
+            $element["total"] = $total ;
+            array_push($dataDetails,$element) ;
+
+            $totalHt += $total ;
+            $totalTva += $tva ;
+        } 
+
+        $dataFacture["totalHt"] = $totalHt ;
+        $dataFacture["totalTva"] = $totalTva ;
+        $dataFacture["remise"] = $this->appService->getFactureRemise($facture,$totalHt) ; 
+        $dataFacture["devise"] = !is_null($facture->getDevise()) ;
+        $dataFacture["date"] = $facture->getDate()->format("d/m/Y") ;
+        $dataFacture["lieu"] = $facture->getLieu() ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $dataFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,",","")." ".$facture->getDevise()->getSymbole();
+        }
+
         $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
             "contentEntete" => $contentEntete,
             "contentBas" => $contentBas,
-            "facture" => $facture,
-            "details" => $details,
+            "facture" => $dataFacture,
+            "client" => $dataClient,
+            "details" => $dataDetails,
         ]) ;
 
         // $pdfGenService = new PdfGenService() ;

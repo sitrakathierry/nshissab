@@ -353,6 +353,19 @@ $(document).ready(function(){
       getContentClient("NEW")
     })
 
+    function ameliorerQualiteImageBase64(base64, callback) {
+        var img = new Image();
+        img.src = base64;
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            callback(canvas.toDataURL('image/jpeg'),1);
+        };
+    }
+
     $(document).on('click',".btn_imprimer_facture",function(){
         var self = $(this)
         var realinstance = instance.loading()
@@ -404,19 +417,23 @@ $(document).ready(function(){
                                                 unit: 'px',  
                                                 format: 'a4'  
                                             });
+                                            ameliorerQualiteImageBase64(img.src, function(resizedBase64) {
+                                                doc.addImage(resizedBase64, 'PNG',15, 15);  
+                                                var pdfData = doc.output("datauristring");
+    
+                                                $(".contentResponse").empty()
+                                                var newTab = window.open();
+                                                newTab.document.write('<style>body{margin: 0; }</style><iframe width="100%" height="100%" style="border: none; margin: 0" src="' + pdfData + '"></iframe>');
+                                            });
                                             
-                                            doc.addImage(img.src, 'PNG',10, 10);  
-                                            var pdfData = doc.output("datauristring");
                                             // var lien = $("<a>")
                                             //     .attr("href", pdfData)
                                             //     .attr("target", "_blank")
                                             //     .text("Ouvrir le PDF");
 
                                             // lien.click()
-                                            doc.save('facture_'+self.data("value")+'.pdf');
-                                            $(".contentResponse").empty()
-                                            var newTab = window.open();
-                                            newTab.document.write('<iframe width="100%" height="100%" src="' + pdfData + '"></iframe>');
+                                            // doc.save('facture_'+self.data("value")+'.pdf');
+
                                         });
 
                                         

@@ -6,6 +6,9 @@ use App\Entity\AchBonCommande;
 use App\Entity\AchDetails;
 use App\Entity\AchHistoPaiement;
 use App\Entity\AchMarchandise;
+use App\Entity\AchStatut;
+use App\Entity\AchStatutBon;
+use App\Entity\AchType;
 use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
@@ -3301,10 +3304,6 @@ class AppService extends AbstractController
             }
         }
 
-
-
-
-
         $dataFilenames = [
             "files/systeme/stock/stock_general(agence)/".$this->nameAgence,
             "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
@@ -3323,7 +3322,6 @@ class AppService extends AbstractController
     public function synchronisationServiceApresVente($params = [])
     {
         
-
         foreach($params as $param)
         {
             // SYNCRO AVEC ANNULATION CAISSE
@@ -3475,6 +3473,106 @@ class AppService extends AbstractController
             if(file_exists($dataFilename))
                 unlink($dataFilename) ;
         }
+
+    }
+
+    public function synchronisationAchatBonDeCommande()
+    {
+        $statutBonEnCours = $this->entityManager->getRepository(AchStatutBon::class)->findOneBy([
+            "reference" => "ENCR",
+        ]) ;
+
+        $statutBonPayee = $this->entityManager->getRepository(AchStatutBon::class)->findOneBy([
+            "reference" => "PAYE",
+        ]) ;
+
+        $statutBonLivree = $this->entityManager->getRepository(AchStatutBon::class)->findOneBy([
+            "reference" => "LIVRE",
+        ]) ;
+
+        $typeCredit = $this->entityManager->getRepository(AchType::class)->findOneBy([
+            "reference" => "CREDIT",
+        ]) ;
+
+        $bonCommandeEnCours = $this->entityManager->getRepository(AchBonCommande::class)->findBy([
+            "agence" => $this->agence,
+            "statutBon" => $statutBonEnCours,
+            "type" => $typeCredit,
+            "statutGen" => True,
+        ]) ;
+
+        foreach($bonCommandeEnCours as $bonCommandeEnCour)
+        {
+            $totalCreditPayee = $this->entityManager->getRepository(AchHistoPaiement::class)->getTotalPaiement($bonCommandeEnCour->getId()) ;
+            
+            if($totalCreditPayee["credit"] >= $bonCommandeEnCour->getMontant())
+            {
+                $bonCommandeEnCour->setStatutBon($statutBonPayee) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
+        $statutNonLivree = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
+            "reference" => "NOTLVR"
+        ]) ;
+
+        $bonCommandePayees = $this->entityManager->getRepository(AchBonCommande::class)->findBy([
+            "agence" => $this->agence,
+            "statutBon" => $statutBonPayee,
+            // "type" => $typeCredit,
+            "statutGen" => True,
+        ]) ;
+
+        foreach($bonCommandePayees as $bonCommandePayee)
+        {
+            $detailAchats = $this->entityManager->getRepository(AchDetails::class)->findBy([
+                "bonCommande" => $bonCommandePayee,
+                "statut" => $statutNonLivree,
+                "statutGen" => True
+            ]) ;
+
+            if(empty($detailAchats))
+            {
+                $bonCommandePayee->setStatutBon($statutBonLivree) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
+        $statutLivree = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
+            "reference" => "LVR"
+        ]) ;
+
+        $bonCommandeLivrees = $this->entityManager->getRepository(AchBonCommande::class)->findBy([
+            "agence" => $this->agence,
+            "statutBon" => $statutBonLivree,
+            // "type" => $typeCredit,
+            "statutGen" => True,
+        ]) ;
+
+        foreach($bonCommandeLivrees as $bonCommandeLivree)
+        {
+            $detailAchatNonLivres = $this->entityManager->getRepository(AchDetails::class)->findBy([
+                "bonCommande" => $bonCommandeLivree,
+                "statut" => $statutNonLivree,
+                "statutGen" => True
+            ]) ;
+
+            foreach($detailAchatNonLivres as $detailAchatNonLivre)
+            {
+                $detailAchatNonLivre->setStatut($statutLivree) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
+        $dataFilenames = [
+            "files/systeme/achat/listBonCommande(agence)/".$this->nameAgence,
+        ] ;
+
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
+
 
     }
 }

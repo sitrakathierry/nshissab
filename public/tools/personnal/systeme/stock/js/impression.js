@@ -47,7 +47,6 @@ $(document).ready(function(){
     
     })
 
-
     var clientPrinters = null;
     var _this = this;
 
@@ -253,7 +252,5 @@ $(document).ready(function(){
         // telechargerBase64Image(barcodeImg) ;
         telechargerImage()
     })
-
-
 
 })

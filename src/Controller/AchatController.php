@@ -81,6 +81,8 @@ class AchatController extends AbstractController
     #[Route('/achat/bon/commande/liste', name: 'compta_achat_bon_commande_liste')]
     public function achatsListeBondeCommande()
     {
+        $this->appService->synchronisationAchatBonDeCommande() ;
+
         $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateAchListBonCommande($filename,$this->agence) ;
@@ -132,7 +134,6 @@ class AchatController extends AbstractController
     public function achatGetExistingMarchandise()
     {
         $filename = $this->filename."marchandise(agence)/".$this->nameAgence ;
-
         if(!file_exists($filename))
             $this->appService->generateAchMarchandise($filename,$this->agence) ;
 
@@ -453,6 +454,8 @@ class AchatController extends AbstractController
     #[Route('/achat/credit/operation', name: 'achat_credit_operation')]
     public function achatOperationCredit()
     {
+        $this->appService->synchronisationAchatBonDeCommande() ;
+        
         $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateAchListBonCommande($filename,$this->agence) ;
@@ -478,6 +481,8 @@ class AchatController extends AbstractController
     #[Route('/achat/details/{id}', name: 'achat_details', defaults:["id" => null])]
     public function achatDetails($id)
     {
+        $this->appService->synchronisationAchatBonDeCommande() ;
+
         $id = $this->appService->decoderChiffre($id) ;
 
         $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($id) ;

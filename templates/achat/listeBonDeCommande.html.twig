@@ -127,9 +127,10 @@
                                         {% if bonCommande.refType == "TOTAL" %}
                                             {% if bonCommande.refStatutBon == "ENCR" %}
                                                 <button data-value="{{bonCommande.id}}" class="btn mt-2 btn-outline-primary ach_check_paiement btn-sm font-smaller"><i class="fa fa-money-bill-wave"></i></button>
-                                            {% elseif bonCommande.refStatutBon == "PAYE" %}
-                                                <button data-value="{{bonCommande.id}}" class="btn mt-2 btn-outline-success ach_check_livraison btn-sm font-smaller"><i class="fa fa-check-double"></i></button>
                                             {% endif %}
+                                        {% endif %}
+                                        {% if bonCommande.refStatutBon == "PAYE" %}
+                                            <button data-value="{{bonCommande.id}}" class="btn mt-2 btn-outline-success ach_check_livraison btn-sm font-smaller"><i class="fa fa-check-double"></i></button>
                                         {% endif %}
                                     </div>
                                 </td>
