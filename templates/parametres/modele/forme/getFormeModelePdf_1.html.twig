@@ -1,14 +1,14 @@
 <style>
-    .forme_image_left
+    .forme_image img
     {
-        width: auto;
+        width: auto ;
+        height: 150px ;
+        object-fit: cover ;
     }
 
     .form_flex
     {
-        display: flex;
-        flex-direction : row;
-        justify-content: center ;
+        min-height: 160px !important;
     }
     .text-center
     {
@@ -16,27 +16,69 @@
     }
     .forme_contenu_editor
     {
-        width: 100% ;
+        width: auto ;
         line-height: 19px;
         padding: 10px ;
+        font-size: 0.95em !important ;
     }
+    
     .text-left
     {
         text-align: left !important ;
     }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        gap: 10px;
+        padding: 10px;
+        width: 710px;
+    }
+
+    .grid-container > div
+    {
+        width: 200px;
+    }
+
+    .form_flex > div
+    {
+        width: 200px;
+    }
+
+    .border
+    {
+        border: 1px solid lightgray ;
+    }
+
+    .bloc_1
+    {
+        position: absolute ;
+        top: 0 ; 
+        left: 0;
+    }
+
+    .bloc_2
+    {
+        position: absolute ;
+        top: 0 ; 
+        left: 160 ;
+    }
+
+    .bloc_3
+    {
+        position: absolute ;
+        top: 0 ; 
+        left: 380 ;
+    }
 </style>
 <div class="form_flex">
-    <div class="text-left">
-        <div class="forme_image">
-            {{imageContentLeft|raw}}
-        </div>
+    <div class="text-left bloc_1 forme_image">
+        {{imageContentLeft|raw}}
     </div>
-    <div class="forme_contenu_editor">
+    <div class="forme_contenu_editor bloc_2">
         {{textContentEditor|raw}}
     </div>
-    <div class="text-left">
-        <div class="forme_image">
-            {{imageContentRight|raw}}
-        </div>
+    <div class="text-left forme_image bloc_3">
+        {{imageContentRight|raw}}
     </div>
 </div>
