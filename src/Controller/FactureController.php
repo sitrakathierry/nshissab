@@ -552,7 +552,7 @@ class FactureController extends AbstractController
         if(!is_null($facture->getDevise()))
         {
             $dataFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
-            $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,",","")." ".$facture->getDevise()->getSymbole();
+            $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,","," ")." ".$facture->getDevise()->getSymbole();
         }
 
         $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
