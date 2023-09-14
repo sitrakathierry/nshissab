@@ -10073,6 +10073,9 @@ a.text-dark:hover, a.text-dark:focus {
 .table {
   border: 0.5px solid #000000;
 }
+.table-bordered > thead,
+.table-bordered > tbody,
+.table-bordered > tfoot,
 .table-bordered > thead > tr > th,
 .table-bordered > tbody > tr > th,
 .table-bordered > tfoot > tr > th,
@@ -10103,7 +10106,7 @@ a.text-dark:hover, a.text-dark:focus {
         </div>
         <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered">
-                <thead class="thead-light">
+                <thead class="thead-dark">
                     <tr>
                         <th class="text-left">Désignation</th>
                         <th class="text-right">Qte/Durée</th>
@@ -10148,7 +10151,7 @@ a.text-dark:hover, a.text-dark:focus {
                     {% if facture.devise %}
                         <tr>
                             <th colspan="6">Montant en {{facture.deviseCaption}}</th>
-                            <th class="bg-light text-right">{{facture.deviseValue|number_format(2, ',', ' ')}}</th>
+                            <th class="bg-light text-right">{{facture.deviseValue}}</th>
                         </tr>
                     {% endif %}
                 </tfoot>
@@ -10158,7 +10161,7 @@ a.text-dark:hover, a.text-dark:focus {
             </div>
         </div>
         <div class="w-100 text-right mt-3" style="font-size: 0.92em ">
-            <span>A {{facture.lieu}}, le {{facture.date}}</span>
+            <span>Fait à {{facture.lieu}}, le {{facture.date}}</span>
         </div>
         <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span>Le Client</span><span style="margin-left:430px !important;">Pour la société</span></h5>
     </div>
