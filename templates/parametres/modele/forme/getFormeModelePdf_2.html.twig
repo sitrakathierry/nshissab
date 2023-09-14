@@ -1,14 +1,12 @@
 <style>
-    .forme_image_left
+    .forme_image
     {
         width: auto;
     }
 
     .form_flex
     {
-        display: flex;
-        flex-direction : row;
-        justify-content: center ;
+        min-height: 170px !important;
     }
     .text-center
     {
@@ -24,14 +22,27 @@
     {
         text-align: left !important ;
     }
+    .bloc_1
+    {
+        position: absolute ;
+        top: 0 ; 
+        left: 0 ;
+    }
+
+    .bloc_2
+    {
+        position: absolute ;
+        top: 0 ; 
+        left: 190 ;
+    }
 </style>
 <div class="form_flex">
-    <div class="text-left">
+    <div class="text-left bloc_1">
         <div class="forme_image">
             {{imageContentLeft|raw}}
         </div>
     </div>
-    <div class="forme_contenu_editor">
+    <div class="forme_contenu_editor bloc_2">
         {{textContentEditor|raw}}
     </div>
     {# <div class="text-center">

@@ -78,7 +78,7 @@ $(document).ready(function(){
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 220, function(resizedBase64) {
+            resizeBase64Image(reader.result, 240, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_left").html(imageContent)
                 $("#data_modele_image_left").val(imageContent)
@@ -99,14 +99,16 @@ $(document).ready(function(){
     })
 
     $(document).on('change','#modele_image_file_right', function() {
+        var self = $(this)
         var reader = new FileReader();
         reader.onloadend = function() {
-            // Afficher les données du fichier
-            resizeBase64Image(reader.result, 220, function(resizedBase64) {
+            resizeBase64Image(reader.result, 240, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_right").html(imageContent)
                 $("#data_modele_image_right").val(imageContent)
             });
+            // $(".modele_image_right").html($(".apercuImageModele").html())
+            // $("#data_modele_image_right").val($(".apercuImageModele").html())
         }
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);

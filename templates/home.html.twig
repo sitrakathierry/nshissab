@@ -77,6 +77,8 @@
 			<script src="{{asset('tools/htmlToCanvas/canvas2image.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script src="{{asset('tools/personnal/js/jspdf.min.js')}}"></script>
+			<script type="application/javascript" src="{{asset('tools/resizeImage/jquery.resizeImg.js')}}"></script>
+			<script type="application/javascript" src="{{asset('tools/resizeImage/mobileBUGFix.mini.js')}}"></script>
 			<script>
 				const routes = {
 					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username|lower ~ '.json')}}",
@@ -331,6 +333,6 @@
 			
 			<script src="{{asset('tools/personnal/js/main.js')}}"></script>
 		{% endblock %}
-
+		
 	</body>
 </html>
