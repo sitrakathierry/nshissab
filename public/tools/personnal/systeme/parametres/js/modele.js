@@ -38,8 +38,8 @@ $(document).ready(function(){
 
             // console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
 
-            // if(img.width > 220 && img.height < ((img.width / 2) + 100))
-            //     imgWidth = 350 ;
+            if(img.width > 200 && img.height < ((img.width / 2) + 100))
+                imgWidth = 350 ;
             canvas.width = imgWidth;
             canvas.height = (img.height / img.width) * imgWidth;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -78,7 +78,7 @@ $(document).ready(function(){
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 240, function(resizedBase64) {
+            resizeBase64Image(reader.result, 200, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_left").html(imageContent)
                 $("#data_modele_image_left").val(imageContent)
@@ -102,7 +102,7 @@ $(document).ready(function(){
         var self = $(this)
         var reader = new FileReader();
         reader.onloadend = function() {
-            resizeBase64Image(reader.result, 240, function(resizedBase64) {
+            resizeBase64Image(reader.result, 200, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_right").html(imageContent)
                 $("#data_modele_image_right").val(imageContent)
