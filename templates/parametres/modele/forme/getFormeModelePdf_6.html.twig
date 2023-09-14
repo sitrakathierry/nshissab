@@ -30,7 +30,7 @@
     {
         position: absolute ;
         top: 0 ; 
-        left: 0;
+        left: 0 ;
     }
 
     .bloc_2
@@ -44,6 +44,9 @@
     <div class="text-left bloc_1">
         <div class="forme_image">
             {{imageContentLeft|raw}}
+            <div class="forme_contenu_editor">
+                {{textContentEditor|raw}}
+            </div>
         </div>
     </div>
     <div class="text-left bloc_2">
@@ -51,7 +54,4 @@
             {{imageContentRight|raw}}
         </div>
     </div>
-</div>
-<div class="forme_contenu_editor">
-    {{textContentEditor|raw}}
 </div>
