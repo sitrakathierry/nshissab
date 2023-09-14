@@ -10070,6 +10070,17 @@ a.text-dark:hover, a.text-dark:focus {
     flex-direction : row;
     justify-content: center ;
 }
+.table {
+  border: 0.5px solid #000000;
+}
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > th,
+.table-bordered > tfoot > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > td {
+   border: 0.5px solid #000000;
+}
     </style>
 {% endblock %}
 
@@ -10078,11 +10089,11 @@ a.text-dark:hover, a.text-dark:focus {
     <div class="modelePdf">
         {{contentEntete|raw}}
     </div>
-    <div class="py-2 mt-2">
+    <div class="py-2 mt-5">
         <div class="text-center">
             <h5 class="title_form_entete text-black text-uppercase">Facture {{facture.type}} N° {{facture.numFact}}</h5>
         </div>
-        <div class="mt-3" style="width: 380px; margin-left: 65%">
+        <div class="mt-4" style="width: 380px; margin-left: 65%">
             <ul class="list-unstyled" style="line-height: 20px ; font-size: 0.92em ">
                 <li><b>DOIT</b></li>
                 <li><span class="font-weight-bold">Client</span>&nbsp;:&nbsp;<span>{{client.nom}}</span></li>
@@ -10090,7 +10101,7 @@ a.text-dark:hover, a.text-dark:focus {
                 <li><span class="font-weight-bold">Tel</span>&nbsp;:&nbsp;<span>{{client.telephone}}</span></li>
             </ul>
         </div>
-        <div class="table-responsive mt-3">
+        <div class="table-responsive mt-4">
             <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                     <tr>
@@ -10108,11 +10119,11 @@ a.text-dark:hover, a.text-dark:focus {
                         <tr>
                             <td>{{detail.designation}}</td>
                             <td class="text-right">{{detail.quantite}}</td>
-                            <td class="text-right">{{detail.prix}}</td>
-                            <td class="text-right">{{detail.tva}}</td>
+                            <td class="text-right">{{detail.prix|number_format(0, ',', ' ')}}</td>
+                            <td class="text-right">{{detail.tva|number_format(0, ',', ' ')}}</td>
                             <td class="text-right">{{detail.typeRemise}}</td>
-                            <td class="text-right">{{detail.valRemise}}</td>
-                            <td class="text-right">{{detail.total}}</td>
+                            <td class="text-right">{{detail.valRemise|number_format(0, ',', ' ')}}</td>
+                            <td class="text-right">{{detail.total|number_format(0, ',', ' ')}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -10120,24 +10131,24 @@ a.text-dark:hover, a.text-dark:focus {
                 <tfoot>
                     <tr>
                         <th colspan="6">Total HT</th>
-                        <th class="bg-light text-right">{{facture.totalHt}}</th>
+                        <th class="bg-light text-right">{{facture.totalHt|number_format(0, ',', ' ')}}</th>
                     </tr>
                     <tr>
                         <th colspan="6">Remise</th>
-                        <th class="bg-light text-right">{{facture.remise}}</th>
+                        <th class="bg-light text-right">{{facture.remise|number_format(0, ',', ' ')}}</th>
                     </tr>
                     <tr>
                         <th colspan="6">Total TVA</th>
-                        <th class="bg-light text-right">{{facture.totalTva}}</th> 
+                        <th class="bg-light text-right">{{facture.totalTva|number_format(0, ',', ' ')}}</th> 
                     </tr>
                     <tr>
                         <th colspan="6">Total TTC</th>
-                        <th class="bg-primary text-white text-right">{{totalTTC}}</th>
+                        <th class="bg-primary text-white text-right">{{totalTTC|number_format(2, ',', ' ')}}</th>
                     </tr>
                     {% if facture.devise %}
                         <tr>
                             <th colspan="6">Montant en {{facture.deviseCaption}}</th>
-                            <th class="bg-light text-right">{{facture.deviseValue}}</th>
+                            <th class="bg-light text-right">{{facture.deviseValue|number_format(2, ',', ' ')}}</th>
                         </tr>
                     {% endif %}
                 </tfoot>
