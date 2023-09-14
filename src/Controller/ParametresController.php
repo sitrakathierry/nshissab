@@ -449,14 +449,17 @@ class ParametresController extends AbstractController
         // $pdf_contenu_modele = $request->request->get("pdf_contenu_modele") ;
         $data_modele_image_left = $request->request->get("data_modele_image_left") ;
         $data_modele_image_right = $request->request->get("data_modele_image_right") ;
+        $forme_modele_pdf = $request->request->get("forme_modele_pdf") ;
 
         $result = $this->appService->verificationElement([
             $modele_nom,
             $modele_value,
-            $modele_editor
+            $forme_modele_pdf,
+            $modele_editor,
         ],[
             "Nom Modele",
             "Type Modèle",
+            "Forme Modèle",
             "Contenu Modèle",
         ]) ;
 
@@ -469,6 +472,7 @@ class ParametresController extends AbstractController
         $modelePdf->setNom($modele_nom) ;
         $modelePdf->setType($modele_value) ;
         $modelePdf->setContenu($modele_editor) ;
+        $modelePdf->setFormeModele("ModelePdf_".$forme_modele_pdf) ;
         $modelePdf->setImageLeft(empty($data_modele_image_left) ? null : $data_modele_image_left) ;
         $modelePdf->setImageRight(empty($data_modele_image_right) ? null : $data_modele_image_right) ;
         $modelePdf->setStatut(True) ;

@@ -1,0 +1,46 @@
+<style>
+    .forme_image_left
+    {
+        width: auto;
+    }
+
+    .form_flex
+    {
+        display: flex;
+        flex-direction : column;
+        align-items: center ;
+    }
+    .text-center
+    {
+        text-align: center !important ;
+    }
+    .text-left
+    {
+        text-align: left !important ;
+    }
+    .forme_contenu_editor
+    {
+        width: 100% ;
+        line-height: 19px;
+        padding: 10px ;
+    }
+    .ml-auto
+    {
+        margin-left: auto !important;
+    }
+</style>
+<div class="form_flex">
+    <div class="text-left">
+        <div class="forme_image">
+            {{imageContentLeft|raw}}
+        </div>
+    </div>
+    <div class="text-left ml-auto">
+        <div class="forme_image">
+            {{imageContentRight|raw}}
+        </div>
+    </div>
+</div>
+<div class="forme_contenu_editor">
+    {{textContentEditor}}
+</div>

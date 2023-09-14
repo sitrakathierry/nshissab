@@ -41,6 +41,9 @@ class ModModelePdf
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $imageRight = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $formeModele = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -150,6 +153,18 @@ class ModModelePdf
     public function setImageRight(?string $imageRight): self
     {
         $this->imageRight = $imageRight;
+
+        return $this;
+    }
+
+    public function getFormeModele(): ?string
+    {
+        return $this->formeModele;
+    }
+
+    public function setFormeModele(?string $formeModele): self
+    {
+        $this->formeModele = $formeModele;
 
         return $this;
     }

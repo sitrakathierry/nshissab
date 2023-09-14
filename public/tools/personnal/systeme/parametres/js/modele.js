@@ -36,10 +36,10 @@ $(document).ready(function(){
             var ctx = canvas.getContext('2d');
             var imgWidth = newWidth ;
 
-            console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
+            // console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
 
-            if(img.width > 220 && img.height < ((img.width / 2) + 100))
-                imgWidth = 350 ;
+            // if(img.width > 220 && img.height < ((img.width / 2) + 100))
+            //     imgWidth = 350 ;
             canvas.width = imgWidth;
             canvas.height = (img.height / img.width) * imgWidth;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -78,7 +78,7 @@ $(document).ready(function(){
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 200, function(resizedBase64) {
+            resizeBase64Image(reader.result, 220, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_left").html(imageContent)
                 $("#data_modele_image_left").val(imageContent)
@@ -102,7 +102,7 @@ $(document).ready(function(){
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 200, function(resizedBase64) {
+            resizeBase64Image(reader.result, 220, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_right").html(imageContent)
                 $("#data_modele_image_right").val(imageContent)
@@ -238,6 +238,7 @@ $(document).ready(function(){
             contentType: false,
             success: function(response){
                 realinstance.close()
+                $("#forme_modele_pdf").val(self.data("indice"))
                 $("#contentEditModele").html(response) ;
             },
             error: function(resp){
@@ -269,76 +270,8 @@ $(document).ready(function(){
             })
         }
     })
-    // to canvas
-    // $('.apercu_modele"').click(function(e) {
-        
-    // });
-    // qz.websocket.connect() ;
+
     $(".apercu_modele").click(function(){
-        // qz.printers.find().then((allPrinters) => {
-        //     var options = '<option>-</option>' ;
-        //     for (var i = 0; i < allPrinters.length; i++) {
-        //         options += '<option>' + allPrinters[i] + '</option>';
-        //     }
-        //     $.confirm({
-        //         title: 'Aperçu',
-        //         content:`
-        //             <div class="w-100 text-left">
-        //                 <label for="stock_printers" class="font-weight-bold">Imprimante</label>  
-        //                 <select class="custom-select custom-select-sm" id="stock_printers">
-        //                     `+options+`
-        //                 </select>
-        //             </div>
-        //             `,
-        //         type:"blue",
-        //         theme:"modern",
-        //         buttons : {
-        //             Annuler : function(){},
-        //             btn2 : 
-        //             {
-        //                 text: 'Valider',
-        //                 btnClass: 'btn-blue',
-        //                 keys: ['enter', 'shift'],
-        //                 action: function(){
-        //                     $(".Editor-editor .config-editor").each(function(){
-        //                         $(this).css("padding","10px 20px")
-        //                         $(this).css("min-height","100px")
-        //                     })
-
-        //                     $(".Editor-editor .none-editor").each(function(){
-        //                         $(this).css("padding","10px 20px")
-        //                         $(this).css("min-height","100px")
-        //                     })
-
-        //                     var myprinter = $("#stock_printers").val()
-        //                     if(myprinter == "")
-        //                     {
-        //                         $.alert({
-        //                             title: 'Message',
-        //                             content: "Veuiller séléctionner une imprimante",
-        //                             type: "orange",
-        //                         });
-        //                         return false ;
-        //                     }
-        //                     var config = qz.configs.create(myprinter); 
-        //                     var dataToPdf = `
-        //                             <div style="width:100%">${$(".Editor-editor").html()}</div>
-        //                         `
-
-        //                     var printData = [{
-        //                         type: 'pixel',
-        //                         format: 'html',
-        //                         flavor: 'plain',
-        //                         data: dataToPdf
-        //                     }];
-                            
-        //                     qz.print(config, printData) ;
-
-        //                 }
-        //             }
-        //         }
-        //     })
-        // })
         if($(".modele_bordure").hasClass("btn-danger"))
         {
             $(".modele_bordure").click()
@@ -347,32 +280,13 @@ $(document).ready(function(){
         html2canvas(contentModele).then(function(canvas) {
             var canvasWidth = canvas.width;
             var canvasHeight = canvas.height;
-            // var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
             let type = 'png'; // image type
-            // let w = $('#imgW').val(); // image width
-            // let h = $('#imgH').val(); // image height
-            // let f = $('#imgFileName').val(); // file name
-            // console.log(img) ;
             Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
         });
     })
     
     $("#formModele").submit(function(){
         var self = $(this)
-        // if($(".modele_bordure").hasClass("btn-danger"))
-        // {
-        //     $(".modele_bordure").click()
-        // }
-        // var contentModele = $(".Editor-editor").get(0);
-        // html2canvas(contentModele).then(function(canvas) {
-        //     var canvasWidth = canvas.width;
-        //     var canvasHeight = canvas.height;
-        //     var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
-        //     // let type = 'png'; // image type
-        //     $(".pdf_apercu_modele").html(img)
-        //     // Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
-        // });
-        // $('#modele_editor').val(modele_editor.getEditorText('#modele_editor')) 
         console.log($(".Editor-editor").html())
         $.confirm({
             title: "Confirmation",
@@ -389,9 +303,7 @@ $(document).ready(function(){
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
                     action: function(){
-                        // $(".pdf_contenu_modele").val($(".pdf_apercu_modele").html())
                         var realinstance = instance.loading()
-                        // var data = self.serialize()
                         $.ajax({
                             url: routes.param_modele_pdf_save,
                             type:'post',
@@ -401,6 +313,7 @@ $(document).ready(function(){
                                 modele_value: $("#modele_value").val(),
                                 data_modele_image_left: $("#data_modele_image_left").val(),
                                 data_modele_image_right: $("#data_modele_image_right").val(),
+                                forme_modele_pdf: $("#forme_modele_pdf").val(),
                                 modele_editor: $(".Editor-editor").html(),
                             },
                             dataType: 'json',

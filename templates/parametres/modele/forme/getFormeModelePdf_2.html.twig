@@ -1,0 +1,42 @@
+<style>
+    .forme_image_left
+    {
+        width: auto;
+    }
+
+    .form_flex
+    {
+        display: flex;
+        flex-direction : row;
+        justify-content: center ;
+    }
+    .text-center
+    {
+        text-align: center !important ;
+    }
+    .forme_contenu_editor
+    {
+        width: 100% ;
+        line-height: 19px;
+        padding: 10px ;
+    }
+    .text-left
+    {
+        text-align: left !important ;
+    }
+</style>
+<div class="form_flex">
+    <div class="text-left">
+        <div class="forme_image">
+            {{imageContentLeft|raw}}
+        </div>
+    </div>
+    <div class="forme_contenu_editor">
+        {{textContentEditor|raw}}
+    </div>
+    {# <div class="text-center">
+        <div class="forme_image">
+            {{imageContentRight}}
+        </div>
+    </div> #}
+</div>
