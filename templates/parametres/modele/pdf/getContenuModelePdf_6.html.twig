@@ -1,0 +1,22 @@
+<div class="w-100 d-flex flex-row justify-content-center">
+    <div class="parentImgLeft text-center">
+        <div class="modele_image_left">
+            <img src="{{asset('data/images/default.jpg')}}" class="img img-fluid" alt="">
+        </div>
+        <input type="file" name="fileImageLeft" id="modele_image_file_left" class="d-none">
+        <button type="button" class="btn btn-sm btn-success importImageLeft px-3 mt-2"><i class="fa fa-image"></i>&nbsp;Ajouter une Image</button>
+    </div>
+    <div class="parentImgRight ml-auto text-center">
+        <div class="modele_image_right">
+            <img src="{{asset('data/images/default.jpg')}}" class="img img-fluid" alt="">
+        </div>
+        <input type="file" name="fileImageRight" id="modele_image_file_right" class="d-none">
+        <button type="button" class="btn btn-sm btn-success importImageRight px-3 mt-2"><i class="fa fa-image"></i>&nbsp;Ajouter une Image</button>
+    </div>
+</div>
+<div class="w-75 mt-3">
+    <input type="text" name="modele_editor" id="modele_editor" class="form-control" placeholder=". . .">
+</div>
+<script>
+    var modele_editor = new LineEditor("#modele_editor") ;
+</script>

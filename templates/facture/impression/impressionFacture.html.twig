@@ -1,5 +1,17 @@
 
-<div style="width: 740px !important">
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/stylesheets/login/style.css')}}">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/javascript/login/main.js')}}"></script>
+{% endblock %}
+{% block body %}
+<div style="width: 100% !important">
     <div class="modelePdf">
         {{contentEntete|raw}}
     </div>
@@ -90,4 +102,5 @@
         {{contentBas|raw}}
     </div>
 </div>
+{% endblock %}
 

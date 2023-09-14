@@ -20,7 +20,7 @@ class PdfGenService
         $this->pdf = new Dompdf();
     }
 
-    public function generatePdf($content, $filename)
+    public function generatePdf($content)
     {
         // Créez une instance Dompdf
         $options = new Options();
@@ -33,18 +33,25 @@ class PdfGenService
         // Générez le PDF
         $dompdf->render();
 
-        // Renvoyez la réponse avec le PDF généré
-        return new Response(
-            $dompdf->output(),
-            Response::HTTP_OK,
-            [
-                'Content-Type' => 'application/pdf',
-            ]
-        );
+        // // // Renvoyez la réponse avec le PDF généré
+        // return new Response(
+        //     $dompdf->output(),
+        //     Response::HTTP_OK,
+        //     [
+        //         'Content-Type' => 'application/pdf',
+        //     ]
+        // );
         // $this->pdf->loadHtml($content);
         // $this->pdf->render();
-        // // Output the generated PDF to Browser
+        // Output the generated PDF to Browser
         // $this->pdf->stream($filename, array('Attachment' => false));
+        // $dompdf->stream($filename, array('Attachment' => false));
+
+        // Enregistrez le PDF généré dans un fichier temporaire
+        $pdfFilePath = 'files/tempPdf/generated_pdf.pdf';
+        file_put_contents($pdfFilePath, $dompdf->output());
+
+        return $pdfFilePath ;
     }
 
     public function printBarCode($printerName)

@@ -383,6 +383,15 @@ class ParametresController extends AbstractController
         return new Response($response) ;
     }
 
+    #[Route('/parametres/modele/contenu/get', name: 'params_contenu_modele_pdf_get')]
+    public function paramsGetContenuModelePdf(Request $request)
+    {
+        $indice = $request->request->get("indice") ;
+        $response = $this->renderView('parametres/modele/pdf/getContenuModelePdf_'.$indice.'.html.twig');
+
+        return new Response($response) ;
+    }
+
     #[Route('/parametres/modele/pdf/consultation', name: 'param_modele_pdf_consultation')]
     public function paramConsultationModelePdf()
     {
@@ -437,7 +446,9 @@ class ParametresController extends AbstractController
         $modele_nom = $request->request->get("modele_nom") ;
         $modele_value = $request->request->get("modele_value") ;
         $modele_editor = $request->request->get("modele_editor") ;
-        $pdf_contenu_modele = $request->request->get("pdf_contenu_modele") ;
+        // $pdf_contenu_modele = $request->request->get("pdf_contenu_modele") ;
+        $data_modele_image_left = $request->request->get("data_modele_image_left") ;
+        $data_modele_image_right = $request->request->get("data_modele_image_right") ;
 
         $result = $this->appService->verificationElement([
             $modele_nom,
@@ -458,7 +469,8 @@ class ParametresController extends AbstractController
         $modelePdf->setNom($modele_nom) ;
         $modelePdf->setType($modele_value) ;
         $modelePdf->setContenu($modele_editor) ;
-        $modelePdf->setImage($pdf_contenu_modele) ;
+        $modelePdf->setImageLeft(empty($data_modele_image_left) ? null : $data_modele_image_left) ;
+        $modelePdf->setImageRight(empty($data_modele_image_right) ? null : $data_modele_image_right) ;
         $modelePdf->setStatut(True) ;
         $modelePdf->setCreatedAt(new \DateTimeImmutable) ;
         $modelePdf->setUpdatedAt(new \DateTimeImmutable) ;

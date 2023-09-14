@@ -34,8 +34,14 @@ $(document).ready(function(){
         img.onload = function() {
             var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
-            canvas.width = newWidth;
-            canvas.height = (img.height / img.width) * newWidth;
+            var imgWidth = newWidth ;
+
+            console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
+
+            if(img.width > 220 && img.height < ((img.width / 2) + 100))
+                imgWidth = 350 ;
+            canvas.width = imgWidth;
+            canvas.height = (img.height / img.width) * imgWidth;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             callback(canvas.toDataURL('image/jpeg'));
         };
@@ -58,23 +64,53 @@ $(document).ready(function(){
         reader.readAsDataURL(this.files[0]);
     });
 
-    $(".modele_image").click(function(){
-        $("#modele_image_file").click()
+    $(document).on("click",".importImageLeft",function(){
+        if($(this).hasClass("btn-success"))
+        {
+            $(this).removeClass("btn-success")
+            $(this).addClass("btn-primary")
+            $(this).html('<i class="fa fa-square" ></i>&nbsp;Changer Image')
+        }
+        $("#modele_image_file_left").click()
     })
 
-    $('#modele_image_file').on('change', function() {
+    $(document).on('change','#modele_image_file_left', function() {
         var reader = new FileReader();
         reader.onloadend = function() {
             // Afficher les données du fichier
-            resizeBase64Image(reader.result, 240, function(resizedBase64) {
+            resizeBase64Image(reader.result, 200, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
-                $(".modele_image").html(imageContent)
+                $(".modele_image_left").html(imageContent)
+                $("#data_modele_image_left").val(imageContent)
             });
         }
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);
     });
 
+    $(document).on("click",".importImageRight",function(){
+        if($(this).hasClass("btn-success"))
+        {
+            $(this).removeClass("btn-success")
+            $(this).addClass("btn-primary")
+            $(this).html('<i class="fa fa-square" ></i>&nbsp;Changer Image')
+        }
+        $("#modele_image_file_right").click()
+    })
+
+    $(document).on('change','#modele_image_file_right', function() {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+            // Afficher les données du fichier
+            resizeBase64Image(reader.result, 200, function(resizedBase64) {
+                var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
+                $(".modele_image_right").html(imageContent)
+                $("#data_modele_image_right").val(imageContent)
+            });
+        }
+        // Lire le contenu du fichier
+        reader.readAsDataURL(this.files[0]);
+    });
 
     $(".modele_info_societe").click(function(){
         var realinstance = instance.loading()
@@ -178,6 +214,38 @@ $(document).ready(function(){
         })
 
     }) ;
+
+    $(".imageModele").click(function(){
+        $(this).html('<i class="fa fa-check-circle"></i>')
+        var self = $(this)
+
+        $(".imageModele").each(function(){
+            if (!self.is($(this))) {
+                $(this).empty() ; 
+            }
+        })
+
+        var realinstance = instance.loading()
+        var formData = new FormData() ;
+        formData.append("indice",$(this).data("indice"))
+        $.ajax({
+            url: routes.params_contenu_modele_pdf_get ,
+            type:'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#contentEditModele").html(response) ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    })
 
     $(".modele_bordure").click(function(){
         if($(this).hasClass("btn-danger"))
@@ -291,20 +359,21 @@ $(document).ready(function(){
     
     $("#formModele").submit(function(){
         var self = $(this)
-        if($(".modele_bordure").hasClass("btn-danger"))
-        {
-            $(".modele_bordure").click()
-        }
-        var contentModele = $(".Editor-editor").get(0);
-        html2canvas(contentModele).then(function(canvas) {
-            var canvasWidth = canvas.width;
-            var canvasHeight = canvas.height;
-            var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
-            // let type = 'png'; // image type
-            $(".pdf_apercu_modele").html(img)
-            // Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
-        });
-        $('#modele_editor').val(modele_editor.getEditorText('#modele_editor')) 
+        // if($(".modele_bordure").hasClass("btn-danger"))
+        // {
+        //     $(".modele_bordure").click()
+        // }
+        // var contentModele = $(".Editor-editor").get(0);
+        // html2canvas(contentModele).then(function(canvas) {
+        //     var canvasWidth = canvas.width;
+        //     var canvasHeight = canvas.height;
+        //     var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
+        //     // let type = 'png'; // image type
+        //     $(".pdf_apercu_modele").html(img)
+        //     // Canvas2Image.saveAsImage(canvas, canvasWidth, canvasHeight, type, "apercuModele");
+        // });
+        // $('#modele_editor').val(modele_editor.getEditorText('#modele_editor')) 
+        console.log($(".Editor-editor").html())
         $.confirm({
             title: "Confirmation",
             content:"Êtes-vous sûre ?",
@@ -320,15 +389,20 @@ $(document).ready(function(){
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
                     action: function(){
-
-                        $(".pdf_contenu_modele").val($(".pdf_apercu_modele").html())
+                        // $(".pdf_contenu_modele").val($(".pdf_apercu_modele").html())
                         var realinstance = instance.loading()
-                        var data = self.serialize()
+                        // var data = self.serialize()
                         $.ajax({
                             url: routes.param_modele_pdf_save,
                             type:'post',
                             cache: false,
-                            data:data,
+                            data:{
+                                modele_nom: $("#modele_nom").val(),
+                                modele_value: $("#modele_value").val(),
+                                data_modele_image_left: $("#data_modele_image_left").val(),
+                                data_modele_image_right: $("#data_modele_image_right").val(),
+                                modele_editor: $(".Editor-editor").html(),
+                            },
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()

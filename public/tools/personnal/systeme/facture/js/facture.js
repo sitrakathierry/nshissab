@@ -366,6 +366,10 @@ $(document).ready(function(){
         };
     }
 
+    // Get the current URL's hostname
+    var hostname = window.location.protocol + "//" + window.location.host;
+    // var hostname = window.location.hostname;
+
     $(document).on('click',".btn_imprimer_facture",function(){
         var self = $(this)
         var realinstance = instance.loading()
@@ -392,57 +396,63 @@ $(document).ready(function(){
                             btnClass: 'btn-blue',
                             keys: ['enter', 'shift'],
                             action: function(){
-                                var realinstance = instance.loading()
-                                var formIData = new FormData() ;
-                                formIData.append('idModeleEntete',$("#modele_pdf_entete").val())
-                                formIData.append('idModeleBas',$("#modele_pdf_bas").val())
-                                formIData.append('idFacture',self.data("value"))
-                                $.ajax({
-                                    url: routes.fact_facture_detail_imprimer,
-                                    type:"post",
-                                    data:formIData,
-                                    dataType:"html",
-                                    processData:false,
-                                    contentType:false,
-                                    success : function(response){
-                                        realinstance.close()
-                                        $(".contentResponse").html(response)
+                                // var realinstance = instance.loading()
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var idFacture = self.data("value") ;
+                                var url = routes.fact_facture_detail_imprimer + '/' + idFacture + '/' + idModeleEntete + '/' + idModeleBas;
+                                window.open(url, '_blank');
+                                // location.href = routes.fact_facture_detail_imprimer+'/'+idFacture+'/'+idModeleEntete+'/'+idModeleBas
+                                // var formIData = new FormData() ;
+                                // formIData.append('idModeleEntete',$("#modele_pdf_entete").val())
+                                // formIData.append('idModeleBas',$("#modele_pdf_bas").val())
+                                // formIData.append('idFacture',self.data("value"))
+                                // $.ajax({
+                                //     url: routes.fact_facture_detail_imprimer,
+                                //     type:"get",
+                                //     data:formIData,
+                                //     dataType:"html",
+                                //     processData:+false,
+                                //     contentType:false,
+                                //     success : function(response){
+                                //         realinstance.close()
+                                //         // $(".contentResponse").html(response)
 
-                                        var contentPdf = $(".contentResponse").get(0);
-                                        html2canvas(contentPdf).then(function(canvas) {
-                                            var canvasWidth = canvas.width;
-                                            var canvasHeight = canvas.height;
-                                            var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
-                                            const doc = new jsPDF({  
-                                                unit: 'px',  
-                                                format: 'a4'  
-                                            });
-                                            ameliorerQualiteImageBase64(img.src, function(resizedBase64) {
-                                                doc.addImage(resizedBase64, 'PNG',15, 15);  
-                                                var pdfData = doc.output("datauristring");
+                                //         // var contentPdf = $(".contentResponse").get(0);
+                                //         // html2canvas(contentPdf).then(function(canvas) {
+                                //         //     var canvasWidth = canvas.width;
+                                //         //     var canvasHeight = canvas.height;
+                                //         //     var img = Canvas2Image.convertToImage(canvas, canvasWidth, canvasHeight);
+                                //         //     const doc = new jsPDF({  
+                                //         //         unit: 'px',  
+                                //         //         format: 'a4'  
+                                //         //     });
+                                //         //     ameliorerQualiteImageBase64(img.src, function(resizedBase64) {
+                                //         //         doc.addImage(resizedBase64, 'PNG',15, 15);  
+                                //         //         var pdfData = doc.output("datauristring");
     
-                                                $(".contentResponse").empty()
-                                                var newTab = window.open();
-                                                newTab.document.write('<style>body{margin: 0; }</style><iframe width="100%" height="100%" style="border: none; margin: 0" src="' + pdfData + '"></iframe>');
-                                            });
+                                //         //         $(".contentResponse").empty()
+                                //         //         var newTab = window.open();
+                                //         //         newTab.document.write('<style>body{margin: 0; }</style><iframe width="100%" height="100%" style="border: none; margin: 0" src="' + pdfData + '"></iframe>');
+                                //         //     });
                                             
-                                            // var lien = $("<a>")
-                                            //     .attr("href", pdfData)
-                                            //     .attr("target", "_blank")
-                                            //     .text("Ouvrir le PDF");
+                                //         //     // var lien = $("<a>")
+                                //         //     //     .attr("href", pdfData)
+                                //         //     //     .attr("target", "_blank")
+                                //         //     //     .text("Ouvrir le PDF");
 
-                                            // lien.click()
-                                            // doc.save('facture_'+self.data("value")+'.pdf');
+                                //         //     // lien.click()
+                                //         //     // doc.save('facture_'+self.data("value")+'.pdf');
 
-                                        });
+                                //         // });
 
                                         
-                                    },
-                                    error: function(resp){
-                                        realinstance.close()
-                                        $.alert(JSON.stringify(resp)) ;
-                                    }
-                                })
+                                //     },
+                                //     error: function(resp){
+                                //         realinstance.close()
+                                //         $.alert(JSON.stringify(resp)) ;
+                                //     }
+                                // })
                             }
                         }
                     }

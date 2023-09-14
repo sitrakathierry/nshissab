@@ -36,7 +36,10 @@ class ModModelePdf
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $image = null;
+    private ?string $imageLeft = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $imageRight = null;
 
     public function getId(): ?int
     {
@@ -127,14 +130,26 @@ class ModModelePdf
         return $this;
     }
 
-    public function getImage(): ?string
+    public function getImageLeft(): ?string
     {
-        return $this->image;
+        return $this->imageLeft;
     }
 
-    public function setImage(?string $image): self
+    public function setImageLeft(?string $imageLeft): self
     {
-        $this->image = $image;
+        $this->imageLeft = $imageLeft;
+
+        return $this;
+    }
+
+    public function getImageRight(): ?string
+    {
+        return $this->imageRight;
+    }
+
+    public function setImageRight(?string $imageRight): self
+    {
+        $this->imageRight = $imageRight;
 
         return $this;
     }

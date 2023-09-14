@@ -40,6 +40,35 @@ class AdminController extends AbstractController
         return $this->render('admin/index.html.twig');
     }
 
+    #[Route('pdf/display', name: 'display_pdf')]
+    public function displayPdf(): Response
+    {
+        // Décodez le chemin du fichier PDF
+        $pdfFilePath = 'files/tempPdf/generated_pdf.pdf';
+
+        // // Vérifiez si le fichier PDF existe
+        // if (!file_exists($pdfFilePath)) {
+        //     throw $this->createNotFoundException('Le fichier PDF n\'existe pas.');
+        // }
+
+        // // Créez une réponse HTTP pour afficher le PDF
+        // $response = new Response();
+        // $response->headers->set('Content-Type', 'application/pdf');
+        // $response->headers->set('Content-Disposition', 'inline; filename="document.pdf"; target="_blank"'); // Pour afficher le PDF dans le navigateur
+
+        // // Lisez le contenu du fichier PDF et définissez-le comme contenu de la réponse
+        // $response->setContent(file_get_contents($pdfFilePath));
+
+        // return $response;
+        // $filePdfPath = file_get_contents($pdfFilePath) ;
+
+        // unlink($pdfFilePath) ;
+
+        return $this->render('pdf/displayPdf.html.twig',["pdfFilePath" => $pdfFilePath]);
+    }
+
+    
+
     public function regenerateUserMenu($is_user = null)
     {
         if(!is_null($is_user))

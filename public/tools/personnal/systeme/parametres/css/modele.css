@@ -23,21 +23,32 @@
     height: auto;
 }
 
-.select_modele img
+.select_modele .imageModele
 {
+    height: 110px;
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: cover;
     transition: .3s;
 }
 
-.select_modele img:hover
+.select_modele .imageModele:hover
 {
     box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%) !important;
     transform: translateY(-10px);
     cursor: pointer;
 }
 
-.modele_image
+.modele_image_left,.parentImgLeft,.modele_image_right,.parentImgRight
 {
-    width: 240px ;
+    width: 200px ;
     height: auto ;
-    cursor: pointer;
 }
+
+/* .modele_image_left img,
+.modele_image_right img
+{
+    min-width: 200px ;
+    width: 200px;
+     max-width: 200px ;
+} */

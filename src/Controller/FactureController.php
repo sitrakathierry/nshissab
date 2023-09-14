@@ -436,12 +436,12 @@ class FactureController extends AbstractController
         return $this->render('facture/contenuModifFacture.html.twig',);
     }
 
-    #[Route('/facture/imprimer', name: 'fact_facture_detail_imprimer')]
-    public function factureImprimerFacture(Request $request)
+    #[Route('/facture/imprimer/{idFacture}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_detail_imprimer', defaults: ["idModeleEntete" => null,"idFacture" => null,"idModeleBas" => null])]
+    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$idFacture)
     {
-        $idModeleEntete = $request->request->get("idModeleEntete") ;
-        $idModeleBas = $request->request->get("idModeleBas") ;
-        $idFacture = $request->request->get("idFacture") ;
+        // $idModeleEntete = $request->request->get("idModeleEntete") ;
+        // $idModeleBas = $request->request->get("idModeleBas") ;
+        // $idFacture = $request->request->get("idFacture") ;
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
         
@@ -481,14 +481,15 @@ class FactureController extends AbstractController
         }
 
         $contentEntete = "" ;
-        if(!empty($idModeleEntete))
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
         {
             $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
-            $contentEntete = $modeleEntete->getContenu() ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
         }
         
         $contentBas = "" ;
-        if(!empty($idModeleBas))
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
         {
             $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
             $contentBas = $modeleBas->getContenu() ;
@@ -549,11 +550,12 @@ class FactureController extends AbstractController
             "details" => $dataDetails,
         ]) ;
 
-        // $pdfGenService = new PdfGenService() ;
+        $pdfGenService = new PdfGenService() ;
 
-        // return $pdfGenService->generatePdf($contentIMpression,"FACTURE.pdf") ;
-
-        return new Response($contentIMpression) ;
+        $pdfGenService->generatePdf($contentIMpression) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
     }
 
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
