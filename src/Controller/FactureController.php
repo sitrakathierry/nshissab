@@ -70,7 +70,7 @@ class FactureController extends AbstractController
         $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
         $this->filename = "files/systeme/facture/" ;
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
-        $this->nameUser = strtolower($this->user["username"]) ;
+        $this->nameUser = strtolower($this->session->get("user")["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
             "username" => $this->user["username"] 
         ]) ;

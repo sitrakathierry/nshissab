@@ -32,7 +32,7 @@ class AdminController extends AbstractController
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
         $this->appService->checkUrl() ;
-        $this->nameUser = strtolower($this->user["username"]) ;
+        $this->nameUser = strtolower($this->session->get("user")["username"]) ;
     }
 
     #[Route('/admin', name: 'app_admin')]
