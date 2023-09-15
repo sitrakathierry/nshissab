@@ -21,7 +21,7 @@ class PdfGenService extends AbstractController
         $this->pdf = new Dompdf();
     }
 
-    public function generatePdf($content)
+    public function generatePdf($content,$nameUser)
     {
         // Créez une instance Dompdf
         $options = new Options();
@@ -51,7 +51,7 @@ class PdfGenService extends AbstractController
         // $dompdf->stream($filename, array('Attachment' => false));
 
         // Enregistrez le PDF généré dans un fichier temporaire
-        $pdfFilePath = 'files/tempPdf/generated_pdf.pdf';
+        $pdfFilePath = 'files/tempPdf/'.$nameUser.'_pdf.pdf';
         file_put_contents($pdfFilePath, $dompdf->output());
 
         return $pdfFilePath ;

@@ -25,12 +25,14 @@ class AdminController extends AbstractController
     private $entityManager;
     private $session ;
     private $appService ;
+    private $nameUser ;
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
         $this->appService->checkUrl() ;
+        $this->nameUser = strtolower($this->user["username"]) ;
     }
 
     #[Route('/admin', name: 'app_admin')]
@@ -44,7 +46,7 @@ class AdminController extends AbstractController
     public function displayPdf(): Response
     {
         // Décodez le chemin du fichier PDF
-        $pdfFilePath = 'files/tempPdf/generated_pdf.pdf';
+        $pdfFilePath = 'files/tempPdf/'.$this->nameUser.'_pdf.pdf';
 
         // // Vérifiez si le fichier PDF existe
         // if (!file_exists($pdfFilePath)) {

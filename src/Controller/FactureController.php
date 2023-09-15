@@ -565,7 +565,7 @@ class FactureController extends AbstractController
 
         $pdfGenService = new PdfGenService() ;
 
-        $pdfGenService->generatePdf($contentIMpression) ;
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
         
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
