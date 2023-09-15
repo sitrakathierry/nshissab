@@ -141,17 +141,7 @@ $(document).ready(function(){
 
             var imgWidth = newWidth ;
             var imgHeight = newHeight ;
-            // // console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
-            // if(newHeight == null)
-            // {
-            //     imgHeight = (img.height / img.width) * imgWidth ;
-            // }
-            // else if(newWidth == null)
-            // {
-            //     imgWidth = (img.width / img.height) * imgHeight ;
-            // }
-            // if(img.width > 200 && img.height < ((img.width / 2) + 100))
-            //     imgWidth = 350 ;
+     
             canvas.width = imgWidth ;
             canvas.height = imgHeight ;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -167,13 +157,25 @@ $(document).ready(function(){
         const action = actions[i];
         $(document).on(action,".mod_val_largeur",function(){
             var elemOrigine = $(this).data("origine") ;
+            var elemParent = $(elemOrigine).parent() ;
             var elemValue = $(this).data("value") ;
             var elemTarget = $(this).data("target") ;
             var valSelf = $(this).val()
             var elemHeight = $(this).closest(".mod_content_dimension").find(".mod_val_hauteur")
+            
+            var widthImage = parseFloat(valSelf) ;
+            if(widthImage > 500)
+                widthImage = 500 ;
 
-            resizeDynamicBase64Image($(elemOrigine).val(), parseFloat(valSelf),elemHeight.val(), function(resizedBase64) {
+            resizeDynamicBase64Image($(elemOrigine).val(), widthImage,elemHeight.val(), function(resizedBase64) {
+                var contentWidth = widthImage
+                if(contentWidth < 220)
+                    contentWidth = 220 ;
+
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
+
+                $(elemTarget).css("width",contentWidth+"px")
+                $(elemParent).css("width",contentWidth+"px")
                 $(elemTarget).html(imageContent)
                 $(elemValue).val(imageContent)
             });
@@ -181,13 +183,25 @@ $(document).ready(function(){
     
         $(document).on(action,".mod_val_hauteur",function(){
             var elemOrigine = $(this).data("origine") ;
+            var elemParent = $(elemOrigine).parent() ;
             var elemValue = $(this).data("value") ;
             var elemTarget = $(this).data("target") ;
             var valSelf = $(this).val()
             var elemWidth = $(this).closest(".mod_content_dimension").find(".mod_val_largeur")
 
-            resizeDynamicBase64Image($(elemOrigine).val(),elemWidth.val(),parseFloat(valSelf), function(resizedBase64) {
+            var widthImage = elemWidth.val() ;
+            if(widthImage > 500)
+                widthImage = 500 ;
+                
+            
+            resizeDynamicBase64Image($(elemOrigine).val(),widthImage,parseFloat(valSelf), function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
+                var contentWidth = widthImage
+                if(contentWidth < 220)
+                    contentWidth = 220 ;
+
+                $(elemTarget).css("width",contentWidth+"px")
+                $(elemParent).css("width",contentWidth+"px")
                 $(elemTarget).html(imageContent)
                 $(elemValue).val(imageContent)
             });

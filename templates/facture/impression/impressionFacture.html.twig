@@ -49,7 +49,7 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+article, aside, figcaption, figure, header, hgroup, main, nav, section {
   display: block;
 }
 
@@ -10079,12 +10079,19 @@ a.text-dark:hover, a.text-dark:focus {
 .table-bordered > tfoot > tr > td {
    border: 0.5px solid #000000;
 }
+footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 760px !important;
+   transform: translateX(-30px)  translateY(135px) ;
+}
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
         {{contentEntete|raw}}
     </div>
-    <div class="py-2 mt-5">
+    <div class="pt-2 mt-5 mb-5 pb-5">
         <div class="text-center">
             <h5 class="title_form_entete text-black text-uppercase">Facture {{facture.type}} N° {{facture.numFact}}</h5>
         </div>
@@ -10155,13 +10162,11 @@ a.text-dark:hover, a.text-dark:focus {
         <div class="w-100 text-right mt-3" style="font-size: 0.92em ">
             <span>Fait à {{facture.lieu}}, le {{facture.date}}</span>
         </div>
-        <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span>Le Client</span><span style="margin-left:430px !important;">Pour la société</span></h5>
+        <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span>Le Client</span><span style="margin-left:390px !important;">Pour la société</span></h5>
     </div>
-    {% if contentBas is not empty %}
-      <div class="modelePdf mt-5 pt-3">
-          {{contentBas|raw}}
-      </div>
-    {% endif %}
 </div>
+<footer>
+  {{contentBas|raw}}
+</footer>
 
 

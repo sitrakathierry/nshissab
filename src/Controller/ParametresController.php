@@ -501,10 +501,15 @@ class ParametresController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
-        return new JsonResponse([
-            "type" => "green",    
-            "message" => "Modification effectué",    
-        ]) ;
+        if(isset($mod_id_modele))
+        {
+            $result = [
+                "type" => "green",    
+                "message" => "Modification effectué",    
+            ] ;
+        }
+
+        return new JsonResponse($result) ;
     }
 
     #[Route('/parametres/declaration/service', name: 'param_declaration_service')]

@@ -6,13 +6,14 @@ use Dompdf\Options;
 use Mike42\Escpos\CapabilityProfile;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use Symfony\Component\Process\Process;
 use phpseclib\Net\SNMP;
 use Symfony\Component\HttpFoundation\Response;
 
-class PdfGenService
-{
+class PdfGenService extends AbstractController
+{ 
     private $pdf;
 
     public function __construct()
@@ -25,12 +26,14 @@ class PdfGenService
         // Créez une instance Dompdf
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        
         $dompdf = new Dompdf($options);
 
         // Chargez le contenu HTML dans Dompdf
         $dompdf->loadHtml($content);
+        $dompdf->setPaper('A4', 'portrait');
 
-        // Générez le PDF
         $dompdf->render();
 
         // // // Renvoyez la réponse avec le PDF généré
