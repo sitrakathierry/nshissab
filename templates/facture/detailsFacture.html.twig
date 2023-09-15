@@ -10,6 +10,11 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/agenda.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/produit.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/prestBatiment.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/prestService.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/facture/js/prestLocation.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -50,6 +55,9 @@
                 </div>
             {% endif %}
         </div>
+        {% if nature == "FACTURE" and facture.refType != "DF" %}
+            {{templateEditFacture|raw}}
+        {% endif %}
         <div class="table-responsive mt-4">
             <table class="table table-bordered table-sm">
                 <thead class="thead-light">
@@ -64,9 +72,12 @@
                         <th>Valeur Remise</th>
                         <th>Montant Total</th>
                         <th>Statut</th>
+                        {% if nature == "FACTURE" and facture.refType != "DF" %}
+                            <th></th>
+                        {% endif %}
                     </tr>
                 </thead>
-                <tbody> 
+                <tbody class="elem_facture_produit"> 
                     
                     {% for factureDetail in factureDetails %}
                         {% set background = "" %}
@@ -76,46 +87,124 @@
                            {% set annulee = "Annulé" %}
                         {% endif %}
                         <tr class="{{background}}">
-                            <td>{{ factureDetail.type|upper }}</td>
-                            <td>{{ factureDetail.designation }}</td>
-                            <td>{{ factureDetail.quantite }}</td>
-                            <td>{{ factureDetail.format }}</td>
-                            <td>{{ factureDetail.prix }}</td>
-                            <td>{{ factureDetail.tva }}</td>
-                            <td>{{ factureDetail.typeRemise }}</td>
-                            <td>{{ factureDetail.valRemise }}</td>
-                            <td>{{ factureDetail.total }}</td>
-                            <th>{{ annulee }}</th>
+                            <td class="align-middle">{{ factureDetail.type|upper }}</td>
+                            <td class="align-middle">{{ factureDetail.designation }}</td>
+                            <td class="align-middle">{{ factureDetail.quantite }}</td>
+                            <td class="align-middle">{{ factureDetail.format }}</td>
+                            <td class="align-middle">{{ factureDetail.prix }}</td>
+                            <td class="align-middle">{{ factureDetail.tva }}</td>
+                            <td class="align-middle">{{ factureDetail.typeRemise }}</td>
+                            <td class="align-middle">{{ factureDetail.valRemise }}</td>
+                            <td class="align-middle">{{ factureDetail.total }}</td>
+                            <th class="align-middle">{{ annulee }}</th>
+                            {% if nature == "FACTURE" and facture.refType != "DF" %}
+                                <th>
+                                    <input type="hidden" value="-" name="fact_enr_prod_type[]" class="fact_enr_prod_type"> 
+                                    <input type="hidden" value="{{ factureDetail.designation }}" name="fact_enr_prod_designation[]" class="fact_enr_prod_designation"> 
+                                    <input type="hidden" value="{{factureDetail.quantite}}" name="fact_enr_prod_quantite[]" class="fact_enr_prod_quantite"> 
+                                    <input type="hidden" value="{{factureDetail.prix}}" name="fact_enr_prod_prix[]" class="fact_enr_prod_prix"> 
+                                    <input type="hidden" value="-" name="fact_enr_text_prix[]" class="fact_enr_text_prix"> 
+                                    <input type="hidden" value="{{factureDetail.tva}}" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val">
+                                    <input type="hidden" value="-" name="fact_enr_prod_remise_type[]" class="fact_enr_prod_remise_type"> 
+                                    <input type="hidden" value="-" name="fact_enr_prod_remise[]" class="fact_enr_prod_remise"> 
+                                    <input type="hidden" value="{{factureDetail.total}}" class="fact_enr_total_ligne"> 
+                                    <div class="d-flex flex-column justify-content-center align-items-center">
+                                        <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger mt-2 font-smaller"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </th>
+                            {% endif %}
+                            
                         </tr>
                     {% endfor %}
                 </tbody>
                     {% if nature == "FACTURE" %}
                         {% set totalTTC = facture.totalHt + facture.totalTva - facture.remise  %}
-                        {# {% set totalTTC = 0  %} #}
-                        <tfoot>
-                            <tr>
-                                <th colspan="8">Total HT</th>
-                                <th colspan="2" class="bg-light">{{facture.totalHt}}</th>
-                            </tr>
-                            <tr>
-                                <th colspan="8">Remise</th>
-                                <th colspan="2" class="bg-light">{{facture.remise}}</th>
-                            </tr>
-                            <tr>
-                                <th colspan="8">Total TVA</th>
-                                <th colspan="2" class="bg-light">{{facture.totalTva}}</th> 
-                            </tr>
-                            <tr>
-                                <th colspan="8">Total TTC</th>
-                                <th colspan="2" class="bg-primary text-white">{{totalTTC}}</th>
-                            </tr>
-                            {% if facture.devise %}
+                        {% if facture.refType == "DF" %}
+                            {% set valColspan = 2 %}
+                            <tfoot>
                                 <tr>
-                                    <th colspan="8">Montant en {{facture.deviseCaption}}</th>
-                                    <th colspan="2" class="bg-light">{{facture.deviseValue}}</th>
+                                    <th colspan="8">Total HT</th>
+                                    <th colspan="{{valColspan}}" class="bg-light">{{facture.totalHt}}</th>
                                 </tr>
-                            {% endif %}
-                        </tfoot>
+                                <tr>
+                                    <th colspan="8">Remise</th>
+                                    <th colspan="{{valColspan}}" class="bg-light">{{facture.remise}}</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="8">Total TVA</th>
+                                    <th colspan="{{valColspan}}" class="bg-light">{{facture.totalTva}}</th> 
+                                </tr>
+                                <tr>
+                                    <th colspan="8">Total TTC</th>
+                                    <th colspan="{{valColspan}}" class="bg-primary text-white">{{totalTTC}}</th>
+                                </tr>
+                                {% if facture.devise %}
+                                    <tr>
+                                        <th colspan="8">Montant en {{facture.deviseCaption}}</th>
+                                        <th colspan="{{valColspan}}" class="bg-light">{{facture.deviseValue}}</th>
+                                    </tr>
+                                {% endif %}
+                            </tfoot>
+                        {% else %}
+                            <tfoot>
+                                <tr>
+                                    <th colspan="8">Total HT</th>
+                                    <th class="bg-light"><span id="fact_total_fixe">{{facture.totalHt}}</span></th>
+                                    <td colspan="2" class="bg-light"></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="8">Remise</th>
+                                    <td>
+                                        <div class="container-fluid" style="width:325px ;">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <select class="custom-select custom-select-sm chosen_select" name="fact_type_remise_prod_general" id="fact_type_remise_prod_general" >
+                                                        <option value="" data-calcul="">-</option> 
+                                                        {% for typeRemise in typeRemises %}
+                                                            <option value="{{typeRemise.id}}" data-calcul="{{typeRemise.calcul}}" >{{typeRemise.notation}}</option> 
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <input type="number" step="any" class="form-control" name="fact_remise_prod_general" id="fact_remise_prod_general" value="{{facture.remise}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="8">Montant après déduction</th>
+                                    <th class="bg-light"><span id="fact_total_apres_deduction"></span></th>
+                                    <td colspan="2" class="bg-light"></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="8">Total TVA</th>
+                                    <th class="align-middle bg-light">
+                                        <span id="fact_total_tva">{{facture.totalTva}}</span>
+                                        <input type="hidden" class="fact_enr_total_tva" name="fact_enr_total_tva" value="{{facture.totalTva}}">   
+                                    </th>
+                                    <td colspan="2" class="bg-light"></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="8" class="fact_caption_total_general">Total TTC</th>
+                                    <th class="bg-primary text-white">
+                                    <span id="fact_total_general">{{totalTTC}}</span>&nbsp;{{agcDevise.symbole}}
+                                    <input type="hidden" class="fact_enr_total_general" name="fact_enr_total_general" value="{{totalTTC}}">
+                                    </th>
+                                    <td colspan="2" class="bg-primary"></td>
+                                </tr>
+                                {# <tr class="fact_disp_devise d-none">
+                                    <th colspan="7">Montant en <span id="fact_lettre_devise">(lettre)</span></th>
+                                    <th class="bg-light">
+                                        <span id="fact_montant_devise"></span>
+                                        <input type="hidden" class="fact_enr_val_devise" name="fact_enr_val_devise">
+                                    </th>
+                                    <td class="bg-light"></td>
+                                </tr> #}
+                            </tfoot>
+                        {% endif %}
                     {% else %}
                         <tfoot>
                             <tr>

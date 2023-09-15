@@ -947,16 +947,53 @@ class StockController extends AbstractController
         $preference->setUpdatedAt(new \DateTimeImmutable) ;
 
         $this->entityManager->flush() ;
-
+        
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
-
+        
         if(file_exists($filename))
             unlink($filename) ;
 
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
+        $preferences = json_decode(file_get_contents($filename)) ;
+
+
         return new JsonResponse([
             "message" => "Suppression effectuée",
-            "type" => "green"
+            "type" => "green",
+            "idPref" => $id,
+            "preferences" => $preferences,
         ]) ;
+    }
+
+    
+    #[Route('/stock/preferences/produit/deplace', name: 'stock_deplace_produit_preference')]
+    public function stockDeplaceProduitPrefs(Request $request)
+    {
+        $idNewPref = $request->request->get('idNewPref') ;
+        $idOldPref = $request->request->get('idOldPref') ;
+
+        $oldPreference = $this->entityManager->getRepository(PrdPreferences::class)->find($idOldPref) ;
+        $newPreference = $this->entityManager->getRepository(PrdPreferences::class)->find($idNewPref) ;
+
+        $produits = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True,
+            "preference" => $oldPreference
+        ]) ; 
+
+        foreach($produits as $produit)
+        {
+            $produit->setPreference($newPreference) ; 
+            $this->entityManager->flush() ;
+        }
+
+        return new JsonResponse([
+            "message" => "Déplacement effectuée",
+            "type" => "green",
+        ]) ;
+
     }
     
     #[Route('/stock/inventaire', name: 'stock_inventaire')]

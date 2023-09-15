@@ -670,7 +670,7 @@ class FactureController extends AbstractController
             $element["quantite"] = $factureDetail->getQuantite() ;
             $element["format"] = "-" ;
             $element["prix"] = $factureDetail->getPrix() ;
-            $element["tva"] = ($tva == 0) ? "-" : $tva ;
+            $element["tva"] = ($tva == 0) ? 0 : $tva ;
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
             $element["statut"] = $factureDetail->isStatut();
@@ -725,13 +725,45 @@ class FactureController extends AbstractController
             $infoFacture["lettre"] = $this->appService->NumberToLetter($total) ;
         }
 
+        $templateEditFacture = "" ;
+
+        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
+
+        $typeRemises = $this->entityManager->getRepository(FactRemiseType::class)->findAll() ; 
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        if(!is_null($facture->getModele()->getReference()))
+        {
+            if($facture->getModele()->getReference() == "PROD")
+            {
+        
+                $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
+                if(!file_exists($filename))
+                    $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+                
+                $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+                $templateEditFacture = $this->renderView("facture/editFacture/templateProduit.html.twig",[
+                    "stockGenerales" => $stockGenerales,
+                    "typeRemises" => $typeRemises,
+                ]) ;
+            }
+        }
+
         return $this->render('facture/detailsFacture.html.twig', [
             "filename" => "facture",
             "titlePage" => "Détails Facture",
             "with_foot" => true,
             "facture" => $infoFacture,
             "factureDetails" => $elements,
-            "nature" => $nature
+            "nature" => $nature,
+            "templateEditFacture" => $templateEditFacture,
+            "typeRemises" => $typeRemises,
+            "devises" => $devises,
+            "agcDevise" => $agcDevise,
         ]) ;
     }
 

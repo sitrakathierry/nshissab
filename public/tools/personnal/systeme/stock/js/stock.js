@@ -500,16 +500,80 @@ $(document).ready(function(){
                             dataType:'json',
                             success: function(resp){
                                 realinstance.close()
-                                $.alert({
-                                    title: 'Message',
-                                    content: resp.message,
-                                    type: resp.type,
-                                    buttons : {
-                                        OK: function(){
-                                            location.reload()
+                                var options = ''
+                                for (let i = 0; i < resp.preferences.length; i++) {
+                                    const element = resp.preferences[i];
+                                    options += '<option value="'+element.id+'" >'+(element.nom).toUpperCase()+'</option>'
+                                }
+                                var self = $(this)
+                                $.confirm({
+                                    title: "Déplacement Produit",
+                                    content:`
+                                    <style>
+                                    .jconfirm.jconfirm-modern .jconfirm-box div.jconfirm-content > div{
+                                        height: 400px ;
+                                    }
+                                    </style>
+                                        <div class="text-left">
+                                            <label for="nom" class="mt-2 font-weight-bold">Sélectionner une preference pour déplacer les produits</label>
+                                            <select name="prod_deplace_categorie" class="custom-select chosen_select custom-select-sm" id="prod_deplace_categorie">
+                                                `+options+`
+                                            </select>
+                                        </div>
+                                        <script>
+                                            $(".chosen_select").chosen({
+                                                    no_results_text: "Aucun resultat trouvé : "
+                                                });
+                                        </script>
+                                    `,
+                                    type:"orange",
+                                    theme:"modern",
+                                    buttons:{
+                                        btn1:{
+                                            text: 'Non',
+                                            action: function(){}
+                                        },
+                                        btn2:{
+                                            text: 'Oui',
+                                            btnClass: 'btn-orange',
+                                            keys: ['enter', 'shift'],
+                                            action: function(){
+                                                var realinstance = instance.loading()
+                                                $.ajax({
+                                                    url: routes.stock_deplace_produit_preference,
+                                                    type:'post',
+                                                    cache: false,
+                                                    data:{
+                                                        idNewPref:$("#prod_deplace_categorie").val(),
+                                                        idOldPref:resp.idPref,
+                                                    },
+                                                    dataType: 'json',
+                                                    success: function(json){
+                                                        realinstance.close()
+                                                        $.alert({
+                                                            title: 'Message',
+                                                            content: json.message,
+                                                            type: json.type,
+                                                            buttons: {
+                                                                OK: function(){
+                                                                    if(json.type == "green")
+                                                                    {
+                                                                        location.reload()
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    },
+                                                    error: function(resp){
+                                                        realinstance.close()
+                                                        $.alert(JSON.stringify(resp)) ;
+                                                    }
+                                                })
+                                            }
                                         }
                                     }
-                                });
+                                })
+                                return false ;
                             }   
                         })
                     }

@@ -133,7 +133,6 @@ $(document).ready(function(){
 
     
     $(document).on("click",".ajout_fact_element",function(){
-
         var fact_mod_prod_designation = $("#fact_mod_prod_designation").val()
         var fact_mod_prod_prix = $("#fact_mod_prod_prix").val()
         var fact_mod_prod_qte = $("#fact_mod_prod_qte").val()
@@ -268,6 +267,13 @@ $(document).ready(function(){
                 return false;
             }
         }
+        var addElement = "" ;
+        var colspanElement = "" ;
+        if($("#fact_signal_modif").val() == "MODIF_PRODUIT")
+        {
+            addElement = '<td>-</td>' ;
+            colspanElement = '"colspan="2"' ;
+        }
 
         var item = `
             <tr>
@@ -283,6 +289,7 @@ $(document).ready(function(){
                     `+fact_mod_prod_qte+`
                     <input type="hidden" value="`+fact_mod_prod_qte+`" name="fact_enr_prod_quantite[]" class="fact_enr_prod_quantite"> 
                 </td>
+                `+addElement+`
                 <td>
                     `+fact_text_prix+`
                     <input type="hidden" value="`+fact_mod_prod_prix+`" name="fact_enr_prod_prix[]" class="fact_enr_prod_prix"> 
@@ -300,11 +307,11 @@ $(document).ready(function(){
                     `+fact_mod_prod_remise+`
                     <input type="hidden" value="`+fact_mod_prod_remise+`" name="fact_enr_prod_remise[]" class="fact_enr_prod_remise"> 
                 </td>
-                <td>
+                <td `+colspanElement+`>
                     `+fact_total_partiel+`
                     <input type="hidden" value="`+fact_total_partiel+`" class="fact_enr_total_ligne"> 
                 </td>
-                <td class="text-center"><button type="button" class="btn fact_supprimer_ligne btn-outline-danger btn-sm font-smaller"><i class="fa fa-times"></i></button></td>
+                <td `+colspanElement+` class="text-center"><button type="button" class="btn fact_supprimer_ligne btn-outline-danger btn-sm font-smaller"><i class="fa fa-times"></i></button></td>
             </tr>
         `
 
@@ -339,11 +346,11 @@ $(document).ready(function(){
         var selectedTypeRemise = $("#fact_type_remise_prod_general").find("option:selected")
         var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : parseFloat($("#fact_remise_prod_general").val())
         
-        $(".elem_facture_produit tr").each(function(index, item){
-            var quantiteLigne = $(item).find(".fact_enr_prod_quantite").val() ;
-            var prixLigne = $(item).find(".fact_enr_text_prix").val() ;
-            var tvaLigne = $(item).find(".fact_enr_prod_tva_val").val() ; 
-            var totalLigne = $(item).find(".fact_enr_total_ligne").val() ;
+        $(".elem_facture_produit tr").each(function(){
+            var quantiteLigne = $(this).find(".fact_enr_prod_quantite").val() ;
+            var prixLigne = $(this).find(".fact_enr_text_prix").val() ;
+            var tvaLigne = $(this).find(".fact_enr_prod_tva_val").val() ; 
+            var totalLigne = $(this).find(".fact_enr_total_ligne").val() ;
 
             totalHT += parseFloat(totalLigne) ;
             totalTva += (((parseFloat(tvaLigne) * parseFloat(prixLigne)) / 100) * parseFloat(quantiteLigne)) ;
