@@ -38,8 +38,8 @@ $(document).ready(function(){
 
             // console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
 
-            if(img.width > 200 && img.height < ((img.width / 2) + 100))
-                imgWidth = 350 ;
+            // if(img.width > 200 && img.height < ((img.width / 2) + 100))
+            //     imgWidth = 350 ;
             canvas.width = imgWidth;
             canvas.height = (img.height / img.width) * imgWidth;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -50,7 +50,6 @@ $(document).ready(function(){
     $(".btnInsertImage").click(function(){
         $("#imageInsert").click()
     })
-    var modele_editor = new LineEditor("#modele_editor") ;
 
     $('#imageInsert').on('change', function() {
         var reader = new FileReader();
@@ -75,13 +74,23 @@ $(document).ready(function(){
     })
 
     $(document).on('change','#modele_image_file_left', function() {
+        var self = $(this)
         var reader = new FileReader();
         reader.onloadend = function() {
+            $("#mod_image_origine_left").val(reader.result)
             // Afficher les données du fichier
             resizeBase64Image(reader.result, 200, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_left").html(imageContent)
                 $("#data_modele_image_left").val(imageContent)
+                var parentLeft = self.closest(".parentImgLeft")
+                parentLeft.find(".mod_content_dimension").show()
+                var img = new Image();
+                img.src = resizedBase64;
+                img.onload = function() {
+                    parentLeft.find(".mod_val_largeur").val(img.width)
+                    parentLeft.find(".mod_val_hauteur").val(img.height)
+                };
             });
         }
         // Lire le contenu du fichier
@@ -102,10 +111,19 @@ $(document).ready(function(){
         var self = $(this)
         var reader = new FileReader();
         reader.onloadend = function() {
+            $("#mod_image_origine_right").val(reader.result)
             resizeBase64Image(reader.result, 200, function(resizedBase64) {
                 var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
                 $(".modele_image_right").html(imageContent)
                 $("#data_modele_image_right").val(imageContent)
+                var parentRight = self.closest(".parentImgRight")
+                parentRight.find(".mod_content_dimension").show()
+                var img = new Image();
+                img.src = resizedBase64;
+                img.onload = function() {
+                    parentRight.find(".mod_val_largeur").val(img.width)
+                    parentRight.find(".mod_val_hauteur").val(img.height)
+                };
             });
             // $(".modele_image_right").html($(".apercuImageModele").html())
             // $("#data_modele_image_right").val($(".apercuImageModele").html())
@@ -113,6 +131,69 @@ $(document).ready(function(){
         // Lire le contenu du fichier
         reader.readAsDataURL(this.files[0]);
     });
+
+    function resizeDynamicBase64Image(base64, newWidth,newHeight, callback) {
+        var img = new Image();
+        img.src = base64;
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+
+            var imgWidth = newWidth ;
+            var imgHeight = newHeight ;
+            // // console.log("width : "+img.width+", height : "+img.height+", mesure : "+((img.width / 2) + 100) )
+            // if(newHeight == null)
+            // {
+            //     imgHeight = (img.height / img.width) * imgWidth ;
+            // }
+            // else if(newWidth == null)
+            // {
+            //     imgWidth = (img.width / img.height) * imgHeight ;
+            // }
+            // if(img.width > 200 && img.height < ((img.width / 2) + 100))
+            //     imgWidth = 350 ;
+            canvas.width = imgWidth ;
+            canvas.height = imgHeight ;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            callback(canvas.toDataURL('image/jpeg'));
+        };
+    }
+
+    var actions = [
+        "change",
+        "keyup"
+    ]
+    for (let i = 0; i < actions.length; i++) {
+        const action = actions[i];
+        $(document).on(action,".mod_val_largeur",function(){
+            var elemOrigine = $(this).data("origine") ;
+            var elemValue = $(this).data("value") ;
+            var elemTarget = $(this).data("target") ;
+            var valSelf = $(this).val()
+            var elemHeight = $(this).closest(".mod_content_dimension").find(".mod_val_hauteur")
+
+            resizeDynamicBase64Image($(elemOrigine).val(), parseFloat(valSelf),elemHeight.val(), function(resizedBase64) {
+                var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
+                $(elemTarget).html(imageContent)
+                $(elemValue).val(imageContent)
+            });
+        })
+    
+        $(document).on(action,".mod_val_hauteur",function(){
+            var elemOrigine = $(this).data("origine") ;
+            var elemValue = $(this).data("value") ;
+            var elemTarget = $(this).data("target") ;
+            var valSelf = $(this).val()
+            var elemWidth = $(this).closest(".mod_content_dimension").find(".mod_val_largeur")
+
+            resizeDynamicBase64Image($(elemOrigine).val(),elemWidth.val(),parseFloat(valSelf), function(resizedBase64) {
+                var imageContent = '<img src="'+resizedBase64+'" alt="Image modèle" class="img" >' ;
+                $(elemTarget).html(imageContent)
+                $(elemValue).val(imageContent)
+            });
+        })
+    }
+    
 
     $(".modele_info_societe").click(function(){
         var realinstance = instance.loading()
@@ -128,23 +209,6 @@ $(document).ready(function(){
             contentType: false,
             success: function(response){
                 realinstance.close()
-
-                // if(selection == null)
-                // {
-                //     $.alert({
-                //         title: 'Message',
-                //         content: "Séléctionner d'abord l'éditeur",
-                //         type: "orange"
-                //     });
-                //     return false ;
-                // }
-                
-                // range = selection.getRangeAt(0);
-                // var valresponse = range.createContextualFragment(response);
-                // range.insertNode(valresponse);
-                // selection.removeAllRanges();
-                // var contentEditor = modele_editor.getEditorText('#modele_editor') ;
-                // modele_editor.setEditorText(contentEditor+response)
             },
             error: function(resp){
                 realinstance.close()
@@ -152,8 +216,6 @@ $(document).ready(function(){
             }
         })
     })
-
-    modele_editor.setEditorText($('#modele_editor').val())
 
     $("#insert_modele_forme").click(function(){
         var content = ''
@@ -201,7 +263,6 @@ $(document).ready(function(){
         $(this).html('<i class="fa fa-check"></i>&nbsp;'+labelModele)
         var self = $(this)
 
-        // $(".caption_modele").text(labelModele)
         $("#modele_value").val(inputValue)
 
         $(this).addClass(btnClass)

@@ -12,6 +12,9 @@
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/modele.js')}}" ></script>
+    <script>
+            var modele_editor = new LineEditor("#modele_editor") ;
+    </script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">

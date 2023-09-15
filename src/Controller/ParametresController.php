@@ -432,17 +432,23 @@ class ParametresController extends AbstractController
         $id = $this->appService->decoderChiffre($id) ;
         $modelePdf = $this->entityManager->getRepository(ModModelePdf::class)->find($id) ;
         
+        $templateModele = $this->renderView('parametres/modele/editPdf/getContenu'.$modelePdf->getFormeModele().'.html.twig',[
+            "modelePdf" => $modelePdf
+        ]) ;
+
         return $this->render('parametres/modele/detailModelePdf.html.twig', [
             "filename" => "parametres",
             "titlePage" => "Détail Modèle Pdf",
             "with_foot" => true,
-            "modelePdf" => $modelePdf,
+            "modelePdf" => $modelePdf, 
+            "templateModele" => $templateModele
         ]) ;
     }
     
     #[Route('/parametres/modele/pdf/save', name: 'param_modele_pdf_save')]
     public function paramSaveModelePdf(Request $request)
     {
+        $mod_id_modele = $request->request->get("mod_id_modele") ;
         $modele_nom = $request->request->get("modele_nom") ;
         $modele_value = $request->request->get("modele_value") ;
         $modele_editor = $request->request->get("modele_editor") ;
@@ -466,18 +472,27 @@ class ParametresController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
-        $modelePdf = new ModModelePdf() ;
+        if(isset($mod_id_modele))
+        {
+            $modelePdf = $this->entityManager->getRepository(ModModelePdf::class)->find($mod_id_modele) ;
+            $formeModele = $forme_modele_pdf ;
+        }
+        else
+        {
+            $modelePdf = new ModModelePdf() ;
+            $modelePdf->setUpdatedAt(new \DateTimeImmutable) ;
+            $modelePdf->setUser($this->userObj) ;
+            $formeModele = "ModelePdf_".$forme_modele_pdf ;
+        }
         
-        $modelePdf->setUser($this->userObj) ;
         $modelePdf->setNom($modele_nom) ;
         $modelePdf->setType($modele_value) ;
         $modelePdf->setContenu($modele_editor) ;
-        $modelePdf->setFormeModele("ModelePdf_".$forme_modele_pdf) ;
+        $modelePdf->setFormeModele($formeModele) ;
         $modelePdf->setImageLeft(empty($data_modele_image_left) ? null : $data_modele_image_left) ;
         $modelePdf->setImageRight(empty($data_modele_image_right) ? null : $data_modele_image_right) ;
         $modelePdf->setStatut(True) ;
         $modelePdf->setCreatedAt(new \DateTimeImmutable) ;
-        $modelePdf->setUpdatedAt(new \DateTimeImmutable) ;
         
         $this->entityManager->persist($modelePdf) ;
         $this->entityManager->flush() ;
@@ -486,7 +501,10 @@ class ParametresController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
-        return new JsonResponse($result) ;
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Modification effectué",    
+        ]) ;
     }
 
     #[Route('/parametres/declaration/service', name: 'param_declaration_service')]

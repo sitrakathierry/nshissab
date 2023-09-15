@@ -1,12 +1,13 @@
 <div class="d-flex flex-row justify-content-center">
     <div class="parentImgLeft text-center">
         <div class="modele_image_left">
-            <img src="{{asset('data/images/default.jpg')}}" class="img img-fluid" alt="">
+            {{modelePdf.imageLeft|raw}}
+            {# <img src="{{asset('data/images/default.jpg')}}" class="img img-fluid" alt=""> #}
         </div>
         <input type="file" name="fileImageLeft" id="modele_image_file_left" class="d-none">
         <button type="button" class="btn btn-sm btn-success importImageLeft btn-block mt-2"><i class="fa fa-image"></i>&nbsp;Ajouter une Image</button>
         <input type="hidden" id="mod_image_origine_left" name="mod_image_origine_left">
-        <div class="d-flex flex-row mt-2 mod_content_dimension" style="display: none !important;">
+        <div class="d-flex flex-row mt-2 mod_content_dimension" >
             <div class="w-100 pr-1">
                 <label for="mod_val_largeur" class="font-weight-bold mb-0">Largeur</label>
                 <input type="number" name="mod_val_largeur" data-target=".modele_image_left" data-value="#data_modele_image_left" id="mod_val_largeur" data-origine="#mod_image_origine_left" class="form-control form-control-sm mod_val_largeur" placeholder=". . ." >
@@ -18,9 +19,6 @@
         </div>
     </div>
     <div class="w-100 px-4">
-        <input type="text" name="modele_editor" id="modele_editor" class="form-control" placeholder=". . .">
+        <input type="text" name="modele_editor" id="modele_editor" class="form-control" value="{{modelePdf.contenu}}">
     </div>
 </div>
-<script>
-    var modele_editor = new LineEditor("#modele_editor") ;
-</script>
