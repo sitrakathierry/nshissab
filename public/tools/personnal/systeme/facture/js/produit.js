@@ -278,7 +278,7 @@ $(document).ready(function(){
         var item = `
             <tr>
                 <td>
-                    `+fact_text_type+`
+                    `+fact_text_type.toUpperCase()+`
                     <input type="hidden" value="`+fact_mod_prod_type+`" name="fact_enr_prod_type[]" class="fact_enr_prod_type">  
                 </td>
                 <td>
@@ -307,11 +307,12 @@ $(document).ready(function(){
                     `+fact_mod_prod_remise+`
                     <input type="hidden" value="`+fact_mod_prod_remise+`" name="fact_enr_prod_remise[]" class="fact_enr_prod_remise"> 
                 </td>
-                <td `+colspanElement+`>
+                <td>
                     `+fact_total_partiel+`
                     <input type="hidden" value="`+fact_total_partiel+`" class="fact_enr_total_ligne"> 
                 </td>
-                <td `+colspanElement+` class="text-center"><button type="button" class="btn fact_supprimer_ligne btn-outline-danger btn-sm font-smaller"><i class="fa fa-times"></i></button></td>
+                `+addElement+`
+                <td class="text-center"><button type="button" class="btn fact_supprimer_ligne btn-outline-danger btn-sm font-smaller"><i class="fa fa-times"></i></button></td>
             </tr>
         `
 

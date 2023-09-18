@@ -728,17 +728,19 @@ class StockController extends AbstractController
     #[Route('/stock/categorie/creation/{id}', name: 'stock_cat_creation', defaults:['id' => null])]
     public function stockCatCreation($id): Response
     {
-        
         $categorie = [] ;
         if(!is_null($id))
         { 
             $user = $this->session->get("user") ;
+            
             $agence = $this->entityManager->getRepository(Agence::class)->find($user["agence"]) ; 
 
             $filename = "files/systeme/stock/categorie(agence)/".strtolower($agence->getNom())."-".$agence->getId().".json" ;
             if(!file_exists($filename))
                 $this->appService->generateStockCategorie($filename, $agence) ;
+
             $categories = json_decode(file_get_contents($filename)) ;
+
             foreach ($categories as $cat) {
                 if($cat->id == $id)
                 {
@@ -776,6 +778,13 @@ class StockController extends AbstractController
         $reponse = [] ;
         if(empty($id))
         {
+            $categories = $this->entityManager->getRepository(PrdCategories::class)->findBy([
+                "agence" => $this->agence,
+                "statut" => True,
+                "nom" => strtoupper($nom)
+            ]) ;
+
+
             $categorie = new PrdCategories() ;
             $reponse["message"] = "Catégorie ajoutée" ;
             $reponse["type"] = "green" ;
@@ -949,7 +958,7 @@ class StockController extends AbstractController
         $this->entityManager->flush() ;
         
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
-        
+
         if(file_exists($filename))
             unlink($filename) ;
 

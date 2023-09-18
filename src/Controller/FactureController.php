@@ -589,6 +589,7 @@ class FactureController extends AbstractController
         $infoFacture["id"] = $facture->getId() ;
         $infoFacture["numFact"] = $facture->getNumFact() ;
         $infoFacture["modele"] = $facture->getModele()->getNom() ;
+        $infoFacture["refModele"] = $facture->getModele()->getReference() ;
         $infoFacture["type"] = $facture->getType()->getNom() ;
         $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
         $infoFacture["lieu"] = $facture->getLieu() ;
@@ -665,6 +666,7 @@ class FactureController extends AbstractController
             $total = $total - $remise ;
             
             $element = [] ;
+            $element["id"] = $factureDetail->getId() ;
             $element["type"] = $factureDetail->getActivite() ;
             $element["designation"] = $factureDetail->getDesignation() ;
             $element["quantite"] = $factureDetail->getQuantite() ;
@@ -748,6 +750,20 @@ class FactureController extends AbstractController
 
                 $templateEditFacture = $this->renderView("facture/editFacture/templateProduit.html.twig",[
                     "stockGenerales" => $stockGenerales,
+                    "typeRemises" => $typeRemises,
+                ]) ;
+            }
+            else if($facture->getModele()->getReference() == "PSTD")
+            {
+                $filename = "files/systeme/prestations/service(agence)/".$this->nameAgence ;
+
+                if(!file_exists($filename))
+                    $this->appService->generatePrestationService($filename, $this->agence) ;
+
+                $services = json_decode(file_get_contents($filename)) ;
+
+                $templateEditFacture = $this->renderView("facture/editFacture/templatePrestationStandard.html.twig",[
+                    "services" => $services,
                     "typeRemises" => $typeRemises,
                 ]) ;
             }
@@ -930,7 +946,7 @@ class FactureController extends AbstractController
 
             if(file_exists($filename))
                 unlink($filename) ;
-
+ 
         }
         else
         {
@@ -1217,6 +1233,7 @@ class FactureController extends AbstractController
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename);
+
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
         
@@ -1239,6 +1256,121 @@ class FactureController extends AbstractController
         
         
         return new JsonResponse($result) ;
+    }
+
+    #[Route('/facture/activite/rajoute/element', name: 'fact_rajoute_element_activites')]
+    public function factRajouteElementActivities(Request $request)
+    {
+        $fact_id_facture = $request->request->get("fact_id_facture") ;
+        $fact_detail_modele = $request->request->get("fact_detail_modele") ;
+
+        $facture = $this->entityManager->getRepository(Facture::class)->find($fact_id_facture) ;
+
+        if($fact_detail_modele == "PROD" || $fact_detail_modele == "PSTD") // Produit ou Prestation Standard
+        {
+            $fact_enr_prod_type = (array)$request->request->get('fact_enr_prod_type') ;
+            $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
+            $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
+            $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
+            $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
+            $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
+            $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
+            $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
+
+            foreach ($fact_enr_prod_type as $key => $value) {
+
+                if($value == "-")
+                    continue ;
+
+                $factDetail = new FactDetails() ;
+                $typeRemiseUnit = !empty($fact_enr_prod_remise_type[$key]) ? $this->entityManager->getRepository(FactRemiseType::class)->find($fact_enr_prod_remise_type[$key]) : null ;
+                $remiseVal = 0 ;
+    
+                if(!is_null($typeRemiseUnit))
+                {
+                    $remiseVal = !empty($fact_enr_prod_remise[$key]) ? $fact_enr_prod_remise[$key] : null ; 
+                }
+                else
+                    $remiseVal = null ;
+    
+                if($fact_enr_prod_type[$key] != "autre")
+                {
+                    $factDetail->setActivite($fact_enr_prod_type[$key]) ;
+                    $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
+                }
+                
+                $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
+    
+                $factDetail->setFacture($facture) ; 
+                $factDetail->setRemiseType($typeRemiseUnit) ;
+                $factDetail->setRemiseVal($remiseVal) ;
+                $factDetail->setDesignation($fact_enr_prod_designation[$key]) ;
+                $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
+                $factDetail->setPrix($fact_enr_text_prix[$key]) ;
+                $factDetail->setTvaVal($dtlsTvaVal) ;
+                $factDetail->setStatut(True) ;
+
+                $this->entityManager->persist($factDetail) ;
+                $this->entityManager->flush() ; 
+            }
+        } 
+
+        $facture->setSynchro(null) ;
+        $this->entityManager->flush() ; 
+
+        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename);
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Mise à jour effectué",
+        ]) ;
+    }
+
+    #[Route('/facture/activite/supprime', name: 'fact_activites_supprime')]
+    public function factSupprimeActivities(Request $request)
+    {
+        $idFacture = $request->request->get("idFacture") ;
+
+        $factureDetail = $this->entityManager->getRepository(FactDetails::class)->find($idFacture) ;
+        
+        $factureDetail->setStatut(False) ;
+        $factureDetail->getFacture()->setSynchro(null) ;
+        $this->entityManager->flush() ; 
+
+        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename);
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression élément effectué",
+        ]) ;
+    }
+
+    #[Route('/facture/activite/principal/supprime', name: 'stock_delete_facture_activity')]
+    public function factSupprimePricipalActivitie(Request $request)
+    {
+        $idFacture = $request->request->get("idFacture") ;
+
+        $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
+        
+        $facture->setStatut(False) ;
+        $facture->setSynchro(null) ;
+        $this->entityManager->flush() ; 
+
+        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename);
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué",
+        ]) ;
     }
 
     #[Route('/facture/prestation/location/list/get', name: 'fact_list_prest_location_get')]

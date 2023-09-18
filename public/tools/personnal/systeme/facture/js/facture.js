@@ -63,7 +63,117 @@ $(document).ready(function(){
         })
 
     })
-        
+    
+    $(".fact_btn_miseajour").click(function(){
+        $("#formModifFacture").submit() ;
+    })
+
+    $("#formModifFacture").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Etes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.fact_rajoute_element_activites,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            $(".chosen_select").val("")
+                                            $(".chosen_select").trigger("chosen:updated");
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+    
+    $(document).on("click",".fact_dtls_btn_suppr",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.fact_activites_supprime,
+                            type:'post',
+                            cache: false,
+                            data:{idFacture:self.data("value")},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
     $("#fact_client").change(function(){
             var selectedText = $(this).find("option:selected").text();
             $(".fact_table_client").text(selectedText)
@@ -366,10 +476,6 @@ $(document).ready(function(){
         };
     }
 
-    // Get the current URL's hostname
-    var hostname = window.location.protocol + "//" + window.location.host;
-    // var hostname = window.location.hostname;
-
     $(document).on('click',".btn_imprimer_facture",function(){
         var self = $(this)
         var realinstance = instance.loading()
@@ -461,6 +567,58 @@ $(document).ready(function(){
             error: function(resp){
                 realinstance.close()
                 $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    })
+
+    $(".fact_btn_facture_supprime").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.stock_delete_facture_activity,
+                            type:'post',
+                            cache: false,
+                            data:{idFacture:self.data("value")},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.href = routes.ftr_consultation
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
             }
         })
         return false ;

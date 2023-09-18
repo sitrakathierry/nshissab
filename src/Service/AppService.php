@@ -508,10 +508,13 @@ class AppService extends AbstractController
             "agence" => $agence,
             "statut" => True 
         ]) ;
-        
+
         $elements = [] ;
         
         foreach ($categories as $cat) {
+            $cat->setNom(strtoupper($cat->getNom())) ;
+            $this->entityManager->flush() ;
+
             $element = [] ;
             $element["id"] = $cat->getId() ;
             $element["nom"] = $cat->getNom() ;
