@@ -10092,6 +10092,12 @@ footer {
 th .text-right, td .text-right{
     white-space: nowrap !important;
 }
+
+.expand_width
+{
+  width: 100px !important ;
+}
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
@@ -10119,7 +10125,7 @@ th .text-right, td .text-right{
                         <th class="text-right">Montant TVA</th>
                         <th class="text-right">Type Remise</th>
                         <th class="text-right">Valeur Remise</th>
-                        <th class="text-right">Montant Total</th>
+                        <th class="text-right expand_width">Montant Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -10131,7 +10137,7 @@ th .text-right, td .text-right{
                             <td class="text-right">{{detail.tva|number_format(0, ',', ' ')}}</td>
                             <td class="text-right">{{detail.typeRemise}}</td>
                             <td class="text-right">{{detail.valRemise|number_format(0, ',', ' ')}}</td>
-                            <td class="text-right">{{detail.total|number_format(0, ',', ' ')}}</td>
+                            <td class="text-right expand_width" >{{detail.total|number_format(0, ',', ' ')}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -10139,24 +10145,24 @@ th .text-right, td .text-right{
                 <tfoot>
                     <tr>
                         <th colspan="6">Total HT</th>
-                        <th class="bg-light text-right">{{facture.totalHt|number_format(0, ',', ' ')}}</th>
+                        <th class="bg-light text-right expand_width">{{facture.totalHt|number_format(0, ',', ' ')}}</th>
                     </tr>
                     <tr>
                         <th colspan="6">Remise</th>
-                        <th class="bg-light text-right">{{facture.remise|number_format(0, ',', ' ')}}</th>
+                        <th class="bg-light text-right expand_width">{{facture.remise|number_format(0, ',', ' ')}}</th>
                     </tr>
                     <tr>
                         <th colspan="6">Total TVA</th>
-                        <th class="bg-light text-right">{{facture.totalTva|number_format(0, ',', ' ')}}</th> 
+                        <th class="bg-light text-right expand_width">{{facture.totalTva|number_format(0, ',', ' ')}}</th> 
                     </tr>
                     <tr>
                         <th colspan="6">Total TTC</th>
-                        <th class="bg-primary text-white text-right">{{totalTTC|number_format(2, ',', ' ')}}</th>
+                        <th class="bg-primary text-white expand_width text-right">{{totalTTC|number_format(2, ',', ' ')}}</th>
                     </tr>
                     {% if facture.devise %}
                         <tr>
                             <th colspan="6">Montant en {{facture.deviseCaption}}</th>
-                            <th class="bg-light text-right">{{facture.deviseValue}}</th>
+                            <th class="bg-light text-right expand_width">{{facture.deviseValue}}</th>
                         </tr>
                     {% endif %}
                 </tfoot>
