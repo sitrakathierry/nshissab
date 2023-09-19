@@ -272,7 +272,7 @@ $(document).ready(function(){
         if($("#fact_signal_modif").val() == "MODIF_PRODUIT")
         {
             addElement = '<td>-</td>' ;
-            colspanElement = '"colspan="2"' ;
+            colspanElement = 'colspan="2"' ;
         }
 
         var item = `

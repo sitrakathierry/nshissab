@@ -571,6 +571,25 @@ class FactureController extends AbstractController
         return $this->redirectToRoute('display_pdf');
     }
 
+    public static function comparaisonFactureDetail($a, $b) {
+        // Comparaison par entrepot
+        $result = strcmp($a['idEnonce'], $b['idEnonce']);
+        
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        // // Comparaison par categorie
+        // $result = strcmp($a['categorie'], $b['categorie']);
+        
+        // if ($result !== 0) {
+        //     return $result;
+        // }
+        
+        // Comparaison par nomType
+        return strcmp($a['idCategorie'], $b['idCategorie']);
+    }
+
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
     public function factureDetailsActivites($id,$nature)
     {
@@ -661,6 +680,11 @@ class FactureController extends AbstractController
         foreach ($factureDetails as $factureDetail) {
             $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
             $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+            $infoSupDetail = $this->entityManager->getRepository(FactSupDetailsPbat::class)->findOneBy([
+                "detail" => $factureDetail
+            ]) ;
+
             $remise = $this->appService->getFactureRemise($factureDetail,$total) ; 
             
             $total = $total - $remise ;
@@ -677,6 +701,12 @@ class FactureController extends AbstractController
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
             $element["statut"] = $factureDetail->isStatut();
             $element["total"] = $total ;
+            $element["idEnonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getId() ;
+            $element["enonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getNom() ;
+            $element["idCategorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getId() ;
+            $element["categorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getNom() ;
+            $element["infoSup"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getInfoSup()) ? "" : $infoSupDetail->getInfoSup()) ;
+            
             array_push($elements,$element) ;
 
             if($factureDetail->isStatut() && $nature == "FACTURE")
@@ -765,6 +795,49 @@ class FactureController extends AbstractController
                 $templateEditFacture = $this->renderView("facture/editFacture/templatePrestationStandard.html.twig",[
                     "services" => $services,
                     "typeRemises" => $typeRemises,
+                ]) ;
+            }
+
+            if($facture->getModele()->getReference() == "PBAT")
+            {
+
+                $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
+                if(!file_exists($filename))
+                    $this->appService->generateEnonceePrestBatiment($filename, $this->agence) ;
+                
+                $enoncees = json_decode(file_get_contents($filename)) ;
+
+                $filename = "files/systeme/prestations/batiment/element(agence)/".$this->nameAgence ;
+                if(!file_exists($filename))
+                    $this->appService->generatePrestBatiment($filename, $this->agence) ;
+                
+                $ensembleElements = json_decode(file_get_contents($filename)) ;
+
+                $newTabFactureDetls = [] ;
+
+                foreach($elements as $element)
+                {
+                    $key1 = $element["idEnonce"]."#|#".$element["enonce"] ;
+                    $key2 = $element["idCategorie"]."#|#".$element["categorie"] ;
+
+                    $newTabFactureDetls[$key1][$key2][] = $element ;
+                }
+
+                // dd($newTabFactureDetls) ;
+                // usort($elements, [self::class, 'comparaisonFactureDetail']);
+
+                return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
+                    "filename" => "facture",
+                    "titlePage" => "Détails Facture Batiment",
+                    "with_foot" => true,
+                    "facture" => $infoFacture,
+                    "elements" => $ensembleElements,
+                    "nature" => $nature,
+                    "typeRemises" => $typeRemises,
+                    "devises" => $devises, 
+                    "agcDevise" => $agcDevise,
+                    "enoncees" => $enoncees,
+                    "detailFactures" => $newTabFactureDetls,
                 ]) ;
             }
         }
@@ -1436,7 +1509,6 @@ class FactureController extends AbstractController
         $annee = $request->request->get('annee') ;
         $mois = $request->request->get('mois') ;
 
-        
         $search = [
             "idT" => $idT,
             "idM" => $idM,

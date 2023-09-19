@@ -115,8 +115,8 @@ $(document).ready(function(){
                 <input type="hidden" name="fact_enr_btp_prix[]" value="`+prixMontant[0]+`">
                 </td>
                 <td>
-                `+qte+`
-                <input type="hidden" name="fact_enr_btp_quantite[]" value="`+prixMontant[0]+`">
+                    `+qte+`
+                    <input type="hidden" name="fact_enr_btp_quantite[]" value="`+qte+`">
                 </td>
                 <td>
                     `+totalTvaLigne+`(`+tva+`%)
