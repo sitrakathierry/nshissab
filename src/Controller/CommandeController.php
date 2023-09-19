@@ -9,8 +9,10 @@ use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
+use App\Entity\ModModelePdf;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -325,6 +327,151 @@ class CommandeController extends AbstractController
             "message" => "Bon de commande validé avec succès"
         ]) ;
     }
+
+    #[Route('/commande/boncommande/imprimer/{idBonCommande}/{idModeleEntete}/{idModeleBas}', name: 'cmd_commande_detail_imprimer', 
+    defaults: [
+        "idBonCommande" => null,
+        "idModeleEntete" => null,
+        "idModeleBas" => null]
+    )]
+    public function commandeImprimerBonCommande($idBonCommande,$idModeleEntete,$idModeleBas)
+    {
+        // $idModeleEntete = $request->request->get("idModeleEntete") ;
+        // $idModeleBas = $request->request->get("idModeleBas") ;
+        // $idFacture = $request->request->get("idFacture") ;
+        $bonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->find($idBonCommande) ;
+        
+        $facture = $bonCommande->getFacture() ;
+
+        // $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
+        
+        $dataFacture = [
+            "numBonCommande" => $bonCommande->getNumBonCmd() ,
+            "numFact" => $facture->getNumFact() ,
+            "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
+            "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
+            "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() 
+        ] ;
+
+        $client = $facture->getClient() ;
+
+        $dataClient = [
+            "nom" => "",   
+            "adresse" => "",   
+            "telephone" => "",   
+        ] ;
+
+        if(!is_null($client))
+        {
+            if(!is_null($client->getSociete()))
+            {
+                $dataClient = [
+                    "nom" => $client->getSociete()->getNom(),   
+                    "adresse" => $client->getSociete()->getAdresse(),   
+                    "telephone" => $client->getSociete()->getTelFixe(),   
+                ] ;
+            }
+            else
+            {
+                $dataClient = [
+                    "nom" => $client->getClient()->getNom(),   
+                    "adresse" => $client->getClient()->getAdresse(),   
+                    "telephone" => $client->getClient()->getTelephone(),   
+                ] ;
+            }
+        }
+
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentBas = $modeleBas->getContenu() ;
+        }
+
+        $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture,
+            "statut" => True,
+        ]) ;
+
+        $dataDetails = [] ;
+        $totalHt = 0 ;
+        $totalTva = 0 ;
+
+        foreach ($details as $detail) {
+            $tvaVal = is_null($detail->getTvaVal()) ? 0 : $detail->getTvaVal() ;
+            $tva = (($detail->getPrix() * $tvaVal) / 100) * $detail->getQuantite();
+            $total = $detail->getPrix() * $detail->getQuantite()  ;
+            $remise = $this->appService->getFactureRemise($detail,$total) ; 
+            
+            $total = $total - $remise ;
+            
+            $element = [] ;
+            $element["type"] = $detail->getActivite() ;
+            $element["designation"] = $detail->getDesignation() ;
+            $element["quantite"] = $detail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $detail->getPrix() ; 
+            $element["tva"] = $tva ;
+            $element["typeRemise"] = is_null($detail->getRemiseType()) ? "-" : $detail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $detail->getRemiseVal() ;
+            $element["statut"] = $detail->isStatut();
+            $element["total"] = $total ;
+            array_push($dataDetails,$element) ;
+
+            $totalHt += $total ;
+            $totalTva += $tva ;
+        } 
+
+        $dataFacture["totalHt"] = $totalHt ;
+        $dataFacture["totalTva"] = $totalTva ;
+        $dataFacture["remise"] = $this->appService->getFactureRemise($facture,$totalHt) ; 
+        $dataFacture["devise"] = !is_null($facture->getDevise()) ;
+        $dataFacture["date"] = $facture->getDate()->format("d/m/Y") ;
+        $dataFacture["lieu"] = $facture->getLieu() ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $dataFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,","," ")." ".$facture->getDevise()->getSymbole();
+        }
+
+        $contentIMpression = $this->renderView("commande/impressionBonCommande.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "facture" => $dataFacture,
+            "client" => $dataClient,
+            "details" => $dataDetails,
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
+    }
+    
 
     #[Route('/commande/boncommande/details/{id}', name: 'cmd_details_bon_commande', defaults: ["id" => null])]
     public function commandeDetailsBonCommande($id)

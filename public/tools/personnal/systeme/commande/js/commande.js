@@ -97,4 +97,48 @@ $(document).ready(function(){
         })  
     })
 
+    $(".btn_imprimer_bon_commande").click(function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Facture",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{
+                            text: 'Non',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Oui',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var idBonCommande = self.data("value") ;
+                                var url = routes.cmd_commande_detail_imprimer + '/' + idBonCommande + '/' + idModeleEntete + '/' + idModeleBas;
+                                window.open(url, '_blank');
+                            }
+                        }
+                    }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    })
+
 })
