@@ -127,6 +127,12 @@ class SAVController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
+        $search = [
+            "numFact" => "DF"
+        ] ;
+            
+        $factures = $this->appService->searchData($factures,$search) ;
+
         return $this->render('sav/index.html.twig', [
             "filename" => "sav",
             "titlePage" => "Service Après Vente",

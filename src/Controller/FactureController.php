@@ -431,9 +431,190 @@ class FactureController extends AbstractController
     #[Route('/facture/contenu/facture/modif', name: 'fact_content_facture_modif')]
     public function factureContenuModifFacture(Request $request)
     {
-        
+        $idFacture = $request->request->get("idFacture") ;
+        $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
 
-        return $this->render('facture/contenuModifFacture.html.twig',);
+        $infoFacture = [] ;
+
+        $infoFacture["id"] = $facture->getId() ;
+        $infoFacture["numFact"] = $facture->getNumFact() ;
+        $infoFacture["modele"] = $facture->getModele()->getNom() ;
+        $infoFacture["refModele"] = $facture->getModele()->getReference() ;
+        $infoFacture["type"] = $facture->getType()->getNom() ;
+        $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
+        $infoFacture["lieu"] = $facture->getLieu() ;
+        $infoFacture["refType"] = $facture->getType()->getReference() ;
+
+        $infoFacture["devise"] = !is_null($facture->getDevise()) ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $infoFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $infoFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,",","")." ".$facture->getDevise()->getSymbole();
+        }
+
+        $histoPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+            "facture" => $facture
+        ]) ;
+        
+        $infoFacture["paiement"] = is_null($histoPaiement->getPaiement()) ? "-" : $histoPaiement->getPaiement()->getNom();
+        
+        if(!is_null($histoPaiement->getPaiement()))
+        {
+            $infoFacture["infoSup"] = !is_null($histoPaiement->getPaiement()->getNumCaption())  ;
+
+            if(!is_null($histoPaiement->getPaiement()->getNumCaption()))
+            {
+                $infoFacture["numeroCaption"] = $histoPaiement->getPaiement()->getNumCaption() ;
+                $infoFacture["numerovalue"] = $histoPaiement->getNumero() ;
+                $infoFacture["libelleCaption"] =  $histoPaiement->getPaiement()->getLibelleCaption() ;
+                $infoFacture["libelleValue"] = $histoPaiement->getLibelle() ;
+            }
+        }
+        else
+        {
+            $infoFacture["infoSup"] = false ;
+        }
+
+        if($facture->getClient()->getType()->getId() == 2)
+            $infoFacture["client"] = $facture->getClient()->getClient()->getNom() ;
+        else
+            $infoFacture["client"] = $facture->getClient()->getSociete()->getNom() ;
+        
+        $infoFacture["totalTva"] = ($facture->getTvaVal() == 0) ?  0 : $facture->getTvaVal();
+        $infoFacture["totalTtc"] = $facture->getTotal() ;
+
+        $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture,
+            "statut" => True,
+        ],["statut" => "DESC"]) ;
+        
+        $totalHt = 0 ;
+        $totalTva = 0 ; 
+        $elements = [] ;
+
+        foreach ($factureDetails as $factureDetail) {
+            $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+            $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+
+            $infoSupDetail = $this->entityManager->getRepository(FactSupDetailsPbat::class)->findOneBy([
+                "detail" => $factureDetail
+            ]) ;
+
+            $remise = $this->appService->getFactureRemise($factureDetail,$total) ; 
+            
+            $total = $total - $remise ;
+            
+            $element = [] ;
+            $element["id"] = $factureDetail->getId() ;
+            $element["type"] = $factureDetail->getActivite() ;
+            $element["designation"] = $factureDetail->getDesignation() ;
+            $element["quantite"] = $factureDetail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $factureDetail->getPrix() ;
+            $element["tva"] = ($tva == 0) ? 0 : $tva ;
+            $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $factureDetail->getRemiseVal() ;
+            $element["statut"] = $factureDetail->isStatut();
+            $element["total"] = $total ;
+            $element["idEnonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getId() ;
+            $element["enonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getNom() ;
+            $element["idCategorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getId() ;
+            $element["categorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getNom() ;
+            $element["infoSup"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getInfoSup()) ? "" : $infoSupDetail->getInfoSup()) ;
+            
+            array_push($elements,$element) ;
+
+            $totalHt += $total ;
+        } 
+
+        $infoFacture["totalHt"] = $totalHt ;
+
+        $remiseG = $this->appService->getFactureRemise($facture,$totalHt) ; 
+
+        $infoFacture["remise"] = $remiseG ;
+        $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
+        
+        $templateEditFacture = "" ;
+
+        $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ; 
+
+        $typeRemises = $this->entityManager->getRepository(FactRemiseType::class)->findAll() ; 
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        if(!is_null($facture->getModele()->getReference()))
+        {
+            if($facture->getModele()->getReference() == "PROD")
+            {
+        
+                $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
+                if(!file_exists($filename))
+                    $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+                
+                $stockGenerales = json_decode(file_get_contents($filename)) ;
+
+                $templateEditFacture = $this->renderView("sav/editFacture/templateProduit.html.twig",[
+                    "stockGenerales" => $stockGenerales,
+                    "typeRemises" => $typeRemises,
+                    "facture" => $infoFacture,
+                    "factureDetails" => $elements,
+                    "devises" => $devises,
+                    "agcDevise" => $agcDevise,
+                ]) ;
+            }
+            else if($facture->getModele()->getReference() == "PSTD")
+            {
+                $filename = "files/systeme/prestations/service(agence)/".$this->nameAgence ;
+
+                if(!file_exists($filename))
+                    $this->appService->generatePrestationService($filename, $this->agence) ;
+
+                $services = json_decode(file_get_contents($filename)) ;
+
+                $templateEditFacture = $this->renderView("sav/editFacture/templatePrestationStandard.html.twig",[
+                    "services" => $services,
+                    "typeRemises" => $typeRemises,
+                ]) ;
+            }
+
+            if($facture->getModele()->getReference() == "PBAT")
+            {
+                $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
+                if(!file_exists($filename))
+                    $this->appService->generateEnonceePrestBatiment($filename, $this->agence) ;
+                
+                $enoncees = json_decode(file_get_contents($filename)) ;
+
+                $filename = "files/systeme/prestations/batiment/element(agence)/".$this->nameAgence ;
+                if(!file_exists($filename))
+                    $this->appService->generatePrestBatiment($filename, $this->agence) ;
+                
+                $ensembleElements = json_decode(file_get_contents($filename)) ;
+
+                $newTabFactureDetls = [] ;
+
+                foreach($elements as $element)
+                {
+                    if(!$element["statut"])
+                        continue;
+
+                    $key1 = $element["idEnonce"]."#|#".$element["enonce"] ;
+                    $key2 = $element["idCategorie"]."#|#".$element["categorie"] ;
+
+                    $newTabFactureDetls[$key1][$key2][] = $element ;
+                }
+
+                $templateEditFacture = $this->renderView("facture/editFacture/templatePrestationBatiment.html.twig",[
+                    "" => $services,
+                    "typeRemises" => $typeRemises,
+                ]) ;
+            }
+        }
+
+        return new Response($templateEditFacture) ;
     }
 
     #[Route('/facture/imprimer/{idFacture}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_detail_imprimer', defaults: ["idModeleEntete" => null,"idFacture" => null,"idModeleBas" => null])]
@@ -639,7 +820,6 @@ class FactureController extends AbstractController
                 $infoFacture["libelleCaption"] =  $histoPaiement->getPaiement()->getLibelleCaption() ;
                 $infoFacture["libelleValue"] = $histoPaiement->getLibelle() ;
             }
-
         }
         else
         {
@@ -817,14 +997,14 @@ class FactureController extends AbstractController
 
                 foreach($elements as $element)
                 {
+                    if(!$element["statut"])
+                        continue;
+
                     $key1 = $element["idEnonce"]."#|#".$element["enonce"] ;
                     $key2 = $element["idCategorie"]."#|#".$element["categorie"] ;
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
                 }
-
-                // dd($newTabFactureDetls) ;
-                // usort($elements, [self::class, 'comparaisonFactureDetail']);
 
                 return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
                     "filename" => "facture",
@@ -1387,6 +1567,52 @@ class FactureController extends AbstractController
                 $this->entityManager->flush() ; 
             }
         } 
+        else if($fact_detail_modele == "PBAT" )
+        {
+            $fact_enr_btp_enonce_id = (array)$request->request->get('fact_enr_btp_enonce_id') ;
+            $fact_enr_btp_categorie_id = $request->request->get('fact_enr_btp_categorie_id') ;
+            $fact_enr_btp_element_id = $request->request->get('fact_enr_btp_element_id') ;
+            $fact_enr_btp_designation = $request->request->get('fact_enr_btp_designation') ;
+            $fact_enr_btp_prix = $request->request->get('fact_enr_btp_prix') ;
+            $fact_enr_btp_quantite = $request->request->get('fact_enr_btp_quantite') ;
+            $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
+            $fact_enr_btp_info_sup = $request->request->get('fact_enr_btp_info_sup') ;
+            
+            foreach ($fact_enr_btp_enonce_id as $key => $value) {
+
+                if($fact_enr_btp_enonce_id[$key] == "-")
+                    continue ;
+
+                $dtlsTvaVal = empty($fact_enr_btp_tva[$key]) ? null : $fact_enr_btp_tva[$key] ;
+
+                $factDetail = new FactDetails() ;
+
+                $factDetail->setActivite("BtpElement") ;
+                $factDetail->setEntite($fact_enr_btp_element_id[$key]) ;
+                $factDetail->setFacture($facture) ; 
+                $factDetail->setDesignation($fact_enr_btp_designation[$key]) ;
+                $factDetail->setQuantite($fact_enr_btp_quantite[$key]) ;
+                $factDetail->setPrix($fact_enr_btp_prix[$key]) ;
+                $factDetail->setTvaVal($dtlsTvaVal) ;
+                $factDetail->setStatut(True) ;
+
+                $this->entityManager->persist($factDetail) ;
+                $this->entityManager->flush() ; 
+
+                $enoncee = $this->entityManager->getRepository(BtpEnoncee::class)->find($fact_enr_btp_enonce_id[$key]) ;
+                $categorie = $this->entityManager->getRepository(BtpCategorie::class)->find($fact_enr_btp_categorie_id[$key]) ;
+
+                $factSupDetailsPbat = new FactSupDetailsPbat() ;
+
+                $factSupDetailsPbat->setEnonce($enoncee) ;
+                $factSupDetailsPbat->setCategorie($categorie) ;
+                $factSupDetailsPbat->setDetail($factDetail) ; 
+                $factSupDetailsPbat->setInfoSup($fact_enr_btp_info_sup[$key]) ;
+
+                $this->entityManager->persist($factSupDetailsPbat) ;
+                $this->entityManager->flush() ; 
+            }
+        }
 
         $facture->setSynchro(null) ;
         $this->entityManager->flush() ; 

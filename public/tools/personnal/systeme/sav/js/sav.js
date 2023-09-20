@@ -410,39 +410,94 @@ $(document).ready(function(){
         })
     })
 
-    // $("#sav_modif_facture").change(function(){
-    //     var realinstance = instance.loading()
-    //     $.ajax({
-    //         url: routes.fact_content_facture_modif,
-    //         type:'post',
-    //         cache: false,
-    //         data: ,
-    //         dataType: 'html',
-    //         processData: false,
-    //         contentType: false,
-    //         success: function(response){
-    //             realinstance.close()
-    //             $.alert({
-    //                 title: 'Message',
-    //                 content: json.message,
-    //                 type: json.type,
-    //                 buttons: {
-    //                     OK: function(){
-    //                         if(json.type == "green")
-    //                         {
-    //                             location.reload()
-    //                         }
-    //                     }
-    //                 }
-    //             });
-    //         },
-    //         error: function(resp){
-    //             realinstance.close()
-    //             $.alert(JSON.stringify(resp)) ;
-    //         }
-    //     })
-    // })
+    $("#sav_modif_facture").change(function(){
+        var self = $(this) ;
+        var realinstance = instance.loading()
+        var formData = new FormData() 
+        formData.append("idFacture",self.val())
+        $.ajax({
+            url: routes.fact_content_facture_modif,
+            type: 'post',
+            cache: false,
+            data: formData,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $("#contentSavModifFacture").html(response) ; 
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    })
 
-    
+    $(".sav_btn_modif_facture").click(function(){
+        $("#formSavModifFacture").submit()
+    })
+
+    $(document).on("click",".sav_ligne_modif_facture",function(){
+        $.alert({
+            title: '-',
+            content: "... ",
+            type: "purple"
+        });
+    })
+
+    $(document).on("submit","#formSavModifFacture",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Etes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.fact_rajoute_element_activites,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            $(".chosen_select").val("")
+                                            $(".chosen_select").trigger("chosen:updated");
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
 
 })

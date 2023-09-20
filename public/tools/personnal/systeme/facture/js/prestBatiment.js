@@ -171,8 +171,8 @@ $(document).ready(function(){
                     <tr>
                         <td>`+enonceeText+`</td>
                         <td>
-                        <span id="totalEnonceText`+enonceId+`">`+total+`</span>
-                        <input type="hidden" id="totalEnonce`+enonceId+`" value="`+total+`">
+                            <span id="totalEnonceText`+enonceId+`">`+total+`</span>
+                            <input type="hidden" id="totalEnonce`+enonceId+`" value="`+total+`">
                         </td>
                     </tr>
                 `)
@@ -288,5 +288,63 @@ $(document).ready(function(){
         }
         $(this).prop("disabled", true);
         $(this).closest('tr').remove() ;
+    })
+
+    $(".fact_btn_miseajour_batiment").click(function(){
+        $("#formModifFactureBatiment").submit()
+    })
+
+    $("#formModifFactureBatiment").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Etes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.fact_rajoute_element_activites,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            $(".chosen_select").val("")
+                                            $(".chosen_select").trigger("chosen:updated");
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+        return false ;
     })
 })
