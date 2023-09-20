@@ -439,11 +439,83 @@ $(document).ready(function(){
     })
 
     $(document).on("click",".sav_ligne_modif_facture",function(){
-        $.alert({
-            title: '-',
-            content: "... ",
-            type: "purple"
-        });
+        var fact_detail_modele = $("#fact_detail_modele").val()
+        var designation = ""
+        if(fact_detail_modele == "PROD" || fact_detail_modele == "PSTD")
+        {
+            designation =  $(this).closest("tr").find(".fact_enr_prod_designation").val()
+        }
+        else if(fact_detail_modele == "PBAT")
+        {
+            designation =  $(this).closest("tr").find("#fact_enr_btp_designation").val()
+        }
+        var fact_enr_ligne_spec_quantite = $(this).closest("tr").find("#fact_enr_ligne_spec_quantite").val()
+        var fact_percent_tva_ligne = $(this).closest("tr").find("#fact_percent_tva_ligne").val()
+        
+        var self = $(this)
+        $.confirm({
+            title: "Modification Facture",
+            content:`
+            <div class="w-100">
+                <label for="sav_elem_design" class="mt-2 font-weight-bold">Désignation</label>
+                <input type="text" name="sav_elem_design" value="`+designation+`" readonly id="sav_elem_design" class="form-control text-primary font-weight-bold">
+            
+                <label for="sav_elem_quantite" class="mt-2 font-weight-bold">Quantité</label>
+                <input type="number" step="any" value="`+fact_enr_ligne_spec_quantite+`"  name="sav_elem_quantite" id="sav_elem_quantite" class="form-control">
+            
+                <label for="sav_elem_tva" class="mt-2 font-weight-bold">TVA</label>
+                <input type="number" step="any" value="`+fact_percent_tva_ligne+`"  name="sav_elem_tva" id="sav_elem_tva" class="form-control">
+            </div>
+            `,
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Valider',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.fact_valid_modif_facture,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                idFacture:self.data("value"),
+                                sav_elem_quantite:$("#sav_elem_quantite").val(),
+                                sav_elem_tva:$("#sav_elem_tva").val()
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    // buttons: {
+                                    //     OK: function(){
+                                    //         if(json.type == "green")
+                                    //         {
+                                    //             location.reload()
+                                    //         }
+                                    //     }
+                                    // }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
     })
 
     $(document).on("submit","#formSavModifFacture",function(){
@@ -499,5 +571,7 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+
 
 })

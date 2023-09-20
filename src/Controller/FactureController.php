@@ -513,6 +513,7 @@ class FactureController extends AbstractController
             $element["format"] = "-" ;
             $element["prix"] = $factureDetail->getPrix() ;
             $element["tva"] = ($tva == 0) ? 0 : $tva ;
+            $element["percentTva"] = $factureDetail->getTvaVal() ;
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
             $element["statut"] = $factureDetail->isStatut();
@@ -577,6 +578,10 @@ class FactureController extends AbstractController
                 $templateEditFacture = $this->renderView("sav/editFacture/templatePrestationStandard.html.twig",[
                     "services" => $services,
                     "typeRemises" => $typeRemises,
+                    "facture" => $infoFacture,
+                    "factureDetails" => $elements,
+                    "devises" => $devises,
+                    "agcDevise" => $agcDevise,
                 ]) ;
             }
 
@@ -607,14 +612,40 @@ class FactureController extends AbstractController
                     $newTabFactureDetls[$key1][$key2][] = $element ;
                 }
 
-                $templateEditFacture = $this->renderView("facture/editFacture/templatePrestationBatiment.html.twig",[
-                    "" => $services,
-                    "typeRemises" => $typeRemises,
+                $templateEditFacture = $this->renderView("sav/editFacture/templatePrestationBatiment.html.twig",[
+                    "enoncees" => $enoncees,
+                    "elements" => $ensembleElements,
+                    "facture" => $infoFacture,
+                    "devises" => $devises, 
+                    "agcDevise" => $agcDevise,
+                    "detailFactures" => $newTabFactureDetls
                 ]) ;
             }
         }
 
         return new Response($templateEditFacture) ;
+    }
+
+    
+    #[Route('/facture/element/modif/valid', name: 'fact_valid_modif_facture')]
+    public function factureValidModifModifFacture(Request $request)
+    {
+        $idFacture = $request->request->get("idFacture") ;
+        $sav_elem_quantite = $request->request->get("sav_elem_quantite") ;
+        $sav_elem_tva = $request->request->get("sav_elem_tva") ;
+
+        $factureDetail = $this->entityManager->getRepository(FactDetails::class)->find($idFacture) ;
+
+        $factureDetail->setQuantite($sav_elem_quantite) ;
+        $factureDetail->setTvaVal(empty($sav_elem_tva) ? 0 : $sav_elem_tva ) ;
+        $factureDetail->getFacture()->setSynchro(null) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué, cliquer sur enregistrer une fois toutes les modifications terminé",
+            ]) ;
+
     }
 
     #[Route('/facture/imprimer/{idFacture}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_detail_imprimer', defaults: ["idModeleEntete" => null,"idFacture" => null,"idModeleBas" => null])]
