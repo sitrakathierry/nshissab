@@ -661,7 +661,8 @@ class FactureController extends AbstractController
             "numFact" => $facture->getNumFact() ,
             "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
             "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
-            "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() 
+            "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
+            // "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() 
         ] ;
 
         $client = $facture->getClient() ;
@@ -748,6 +749,17 @@ class FactureController extends AbstractController
             $element["valRemise"] = $detail->getRemiseVal() ;
             $element["statut"] = $detail->isStatut();
             $element["total"] = $total ;
+
+            $infoSupDetail = $this->entityManager->getRepository(FactSupDetailsPbat::class)->findOneBy([
+                "detail" => $detail
+            ]) ;
+
+            $element["idEnonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getId() ;
+            $element["enonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getNom() ;
+            $element["idCategorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getId() ;
+            $element["categorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getNom() ;
+            $element["infoSup"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getInfoSup()) ? "" : $infoSupDetail->getInfoSup()) ;
+            
             array_push($dataDetails,$element) ;
 
             $totalHt += $total ;
@@ -767,13 +779,56 @@ class FactureController extends AbstractController
             $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,","," ")." ".$facture->getDevise()->getSymbole();
         }
 
-        $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
-            "contentEntete" => $contentEntete,
-            "contentBas" => $contentBas,
-            "facture" => $dataFacture,
-            "client" => $dataClient,
-            "details" => $dataDetails,
-        ]) ;
+        // $devises = $this->entityManager->getRepository(Devise::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "statut" => True
+        // ]) ; 
+
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+
+        if($facture->getModele()->getReference() == "PBAT")
+        {
+
+            // $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
+            // if(!file_exists($filename))
+            //     $this->appService->generateEnonceePrestBatiment($filename, $this->agence) ;
+            
+            // $enoncees = json_decode(file_get_contents($filename)) ;
+
+            $newTabFactureDetls = [] ;
+
+            foreach($dataDetails as $dataDetail)
+            {
+                if(!$dataDetail["statut"])
+                    continue;
+
+                $key1 = $dataDetail["idEnonce"]."#|#".$dataDetail["enonce"] ;
+                $key2 = $dataDetail["idCategorie"]."#|#".$dataDetail["categorie"] ;
+
+                $newTabFactureDetls[$key1][$key2][] = $dataDetail ;
+            }
+
+            $contentIMpression = $this->renderView('facture/impression/impressionFactureBatiment.html.twig', [
+                "agcDevise" => $agcDevise,
+                "detailFactures" => $newTabFactureDetls,
+                "contentEntete" => $contentEntete,
+                "contentBas" => $contentBas,
+                "facture" => $dataFacture,
+                "client" => $dataClient,
+            ]) ;
+        }
+        else if ($facture->getModele()->getReference() == "PROD" || $facture->getModele()->getReference() == "PSTD")
+        {
+            $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
+                "contentEntete" => $contentEntete,
+                "contentBas" => $contentBas,
+                "facture" => $dataFacture,
+                "client" => $dataClient,
+                "details" => $dataDetails,
+            ]) ;
+        }
+
 
         $pdfGenService = new PdfGenService() ;
 
@@ -1045,7 +1100,7 @@ class FactureController extends AbstractController
                     "elements" => $ensembleElements,
                     "nature" => $nature,
                     "typeRemises" => $typeRemises,
-                    "devises" => $devises, 
+                    "devises" => $devises,
                     "agcDevise" => $agcDevise,
                     "enoncees" => $enoncees,
                     "detailFactures" => $newTabFactureDetls,
