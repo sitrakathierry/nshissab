@@ -255,7 +255,7 @@ class AdminController extends AbstractController
             "agences" => $agences,
             "menus" => $menu_array,
             "countArray" => $countArray,
-            "databaseName" => $databaseName
+            "databaseName" => $databaseName 
         ]);
     }
 
@@ -287,6 +287,7 @@ class AdminController extends AbstractController
                         array_push($toremove,$menus[$i]) ;
                     }
                 }
+                
                 $menus = array_diff($menus, $toremove);
                 $addMenus = [] ;
 
@@ -505,7 +506,6 @@ class AdminController extends AbstractController
     public function menuCorbeille()
     {
         
-
         $menus = $this->entityManager->getRepository(Menu::class)->findBy(["statut" => False]) ;
 
         return $this->render('admin/menu/corbeille.html.twig',[

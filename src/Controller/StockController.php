@@ -504,6 +504,8 @@ class StockController extends AbstractController
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
     {       
+        ini_set('memory_limit', '512M');
+
         $this->appService->synchronisationGeneral() ;
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;

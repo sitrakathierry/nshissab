@@ -786,10 +786,8 @@ class FactureController extends AbstractController
 
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
 
-
         if($facture->getModele()->getReference() == "PBAT")
         {
-
             // $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
             // if(!file_exists($filename))
             //     $this->appService->generateEnonceePrestBatiment($filename, $this->agence) ;

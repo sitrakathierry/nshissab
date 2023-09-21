@@ -362,6 +362,10 @@ $(document).ready(function(){
     })
 
     $(".enregistre_attr_menu").click(function(){
+        var redirectionRoute = routes.admin_save_attribution
+        if($(".oneSociety.active").hasClass("isAgent"))
+            redirectionRoute = routes.param_save_attribution_menu_agent
+
         $.confirm({
             title: 'Confirmation',
             content:"Voulez-vous vraiment enregistrer ?",
@@ -376,7 +380,7 @@ $(document).ready(function(){
                     })
                     var instance = loading()
                     $.ajax({
-                        url: routes.admin_save_attribution,
+                        url: redirectionRoute,
                         type: 'post',
                         data:{agence:idS,menus:menus},
                         dataType:'json',

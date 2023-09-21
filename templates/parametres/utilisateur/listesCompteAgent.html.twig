@@ -1,0 +1,57 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <div class="py-3 barre_dashed mt-4">
+            <div class="table-responsive">
+                <table class="table-bordered table table-sm">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Reponsabilité</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in agents %}
+                            {% if agent.roles[0] == "AGENT" %}
+                                <tr>
+                                    <td>{{agent.username|upper}}</td>
+                                    <td>{{agent.poste|upper}}</td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button>
+                                        <button class="btn btn-outline-danger btn-sm font-smaller ml-2"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

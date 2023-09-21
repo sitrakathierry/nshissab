@@ -53,6 +53,7 @@ class MenuUserRepository extends ServiceEntityRepository
             $menuParent = "m.menu_parent_id = ? " ;
 
         $roleUser = $this->session->get("user")["role"] ;
+
         if($roleUser == "ADMIN")
         {
             $req = " AND m.is_admin = 1 " ;
@@ -61,6 +62,7 @@ class MenuUserRepository extends ServiceEntityRepository
         {
             $req = " AND m.is_admin IS NULL " ;
         }
+
         $sql = "SELECT
                 m.menu_parent_id as parent, 
                 m.id,
@@ -75,7 +77,7 @@ class MenuUserRepository extends ServiceEntityRepository
                 AND ma.statut = 1 AND mu.statut = 1
                 $req
                 ORDER BY m.rang ASC; 
-            ";
+                ";
         $stmt = $conn->prepare($sql);
         if(is_null($parent))
             $resultSet = $stmt->executeQuery([$user]);

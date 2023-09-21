@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\AgcDevise;
 use App\Entity\Agence;
 use App\Entity\Devise;
+use App\Entity\MenuAgence;
+use App\Entity\MenuUser;
 use App\Entity\ModModelePdf;
 use App\Entity\ParamTvaType;
 use App\Entity\Produit;
@@ -525,5 +527,270 @@ class ParametresController extends AbstractController
             "with_foot" => true,
             "services" => $services,
         ]);
+    }
+
+    #[Route('/parametres/utilisateur/agent/creation', name: 'param_utilisateur_creation_agent')]
+    public function paramUtilisateurCreationAgent()
+    {
+        $password = $this->appService->generatePassword() ;
+        return $this->render('parametres/utilisateur/creationCompteAgent.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Création Agent",
+            "with_foot" => true,
+            'password' => $password,
+        ]);
+    }
+
+    #[Route('/parametres/utilisateur/agent/save', name: 'param_utilisateur_save_agent')]
+    public function paramUtilisateurSaveAgent(Request $request)
+    {
+        $username = $request->request->get('username') ;
+        $password = $request->request->get('password') ;
+        $email = $request->request->get('email') ;
+        $poste = $request->request->get('poste') ;
+
+        $data = [$username ,$password ,$email ,$poste] ;
+        $dataMessage = ["nom d'utilisateur" ,"mot de passe" ,"email" ,"responsabilite"] ;
+        
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+        $allow = $result["allow"] ;
+        $type = $result["type"] ;
+        $message = $result["message"] ;
+
+        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy(["username" => strtoupper($username)]) ;
+
+        if(!is_null($chk_uname))
+        {
+            $allow = False ;
+            $type="orange" ;
+            $message = "Votre nom d'utilisateur existe déjà, veuillez entrer un autre" ;
+        }
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $chk_email = $this->entityManager->getRepository(User::class)->findOneBy(["email" => $email]) ;
+            if(!is_null($chk_email))
+            {
+                $allow = False ;
+                $type="orange" ;
+                $message = "Votre adresse email existe déjà, veuillez entrer un autre" ;
+            }
+        } else {
+            $allow = False ;
+            $type="red" ;
+            $message = "Votre adresse email est invalide" ;
+        }
+        
+        if(strlen($password) < 8)
+        {
+            $allow = False ;
+            $type="orange" ;
+            $message = "Votre mot de passe doit contenir au moins 8 caractère" ;
+        }
+
+        if(!$allow)
+            return new JsonResponse(["message"=>$message, "type"=>$type]) ;
+
+        $user = new User() ;
+        
+        $encodedPass = $this->appService->hashPassword($user,$password) ;
+
+        $user->setUsername(strtoupper($username)) ;
+        $user->setEmail($email);
+        $user->setPassword($encodedPass) ;
+        $user->setPoste($poste) ;
+        $user->setAgence($this->agence) ;
+        $user->setStatut(True) ; 
+        $user->setRoles(["AGENT"]) ;
+        $user->setCreatedAt(new \DateTimeImmutable) ;
+        $user->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        $filename = 'files/json/menu/'.strtolower($username).'.json' ;
+
+        $dataUser = [] ;
+        if(!file_exists($filename))
+            file_put_contents($filename,json_encode($dataUser)) ;
+
+        return new JsonResponse(["message"=>$message, "type"=>$type]) ;
+    }
+
+    #[Route('/parametres/utilisateur/agent/liste', name: 'param_utilisateur_listes_agent')]
+    public function paramUtilisateurListesAgent()
+    {
+        $agents = $this->entityManager->getRepository(User::class)->findBy([
+            "agence" => $this->agence
+        ]) ;
+
+        return $this->render('parametres/utilisateur/listesCompteAgent.html.twig', [
+            "filename" => "parametres",
+            "titlePage" => "Liste des agents",
+            "with_foot" => false,
+            "agents" => $agents,
+        ]);
+    }
+
+    public function regenerateUserMenu($is_user = null)
+    {
+        if(!is_null($is_user))
+            $user = $is_user ;
+        else
+            $user = $this->session->get("user")  ; 
+
+        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        if(!file_exists($filename))
+        {
+            $userClass = $this->entityManager
+                            ->getRepository(User::class)
+                            ->findOneBy(array("email" => $user['email'])) ;
+            
+            $menus = [] ;
+            
+            $menuUsers = $this->appService->requestMenu($userClass->getRoles()[0],$userClass,null) ;
+
+            if(!empty($menuUsers))
+            {
+                $id = 0;
+                $this->appService->getMenu($menuUsers,$id,$menus,$user) ;
+            } 
+            
+            $json = json_encode($menus) ;
+            file_put_contents($filename, $json); 
+        }
+    }
+
+    #[Route('/parametres/utilisateur/agent/attribution', name: 'param_utilisateur_attribution_menu_agent')]
+    public function paramAttributionMenuAgent()
+    {
+        $filename = "files/json/menu/".$this->nameUser.".json" ;
+        if(!file_exists($filename))
+            $this->regenerateUserMenu(null) ;
+
+        $menu_array = json_decode(file_get_contents($filename)) ;
+
+        $agents = $this->entityManager->getRepository(User::class)->findBy([
+            "agence" => $this->agence
+        ]) ;
+
+        return $this->render('parametres/utilisateur/gestionMenuAgent.html.twig',[
+            "filename" => "parametres",
+            "titlePage" => "Attribution menu agent",
+            "with_foot" => true,
+            "agents" => $agents,
+            "menus" => $menu_array,
+        ]);
+
+        // return $this->render('parametres/utilisateur/gestionMenuAgent.html.twig', [
+        //     "filename" => "parametres",
+        //     "titlePage" => "Attribution menu agent",
+        //     "with_foot" => true,
+        // ]);
+    }
+
+    #[Route('/parametres/user/agent/attribution/save', name: 'param_save_attribution_menu_agent')]
+    public function paramSaveAttributionMenuAgent(Request $request)
+    {
+        $agent = $request->request->get('agence') ;
+        try
+        {
+            $menus = (array)$request->request->get('menus') ;
+            $compareMenu = [] ;
+            foreach ($menus as $unMenu) {
+                array_push($compareMenu,$unMenu) ;
+            }
+
+            $userAgent = $this->entityManager->getRepository(User::class)->find($agent) ;
+
+            if(!is_null($menus))
+            {
+                $toremove = [];
+                for ($i=0; $i < count($menus); $i++) { 
+                    $menu = $this->entityManager->getRepository(Menu::class)->find($menus[$i]) ;
+                    $oneMenuAgence = $this->entityManager->getRepository(MenuAgence::class)->findOneBy([
+                        "menu" => $menu,
+                        "agence" => $this->agence
+                    ]) ;
+                    $chkMenuUser = $this->entityManager->getRepository(MenuUser::class)->findOneBy([
+                        "menuAgence" => $oneMenuAgence,
+                        "user" => $this->agence
+                    ]) ;
+
+
+                    if(!is_null($chkMenuAg))
+                    {
+                        array_push($toremove,$menus[$i]) ;
+                    }
+                }
+                
+                $menus = array_diff($menus, $toremove);
+                $addMenus = [] ;
+
+                foreach ($menus as $menu) {
+                    array_push($addMenus,$menu) ; 
+                }
+
+                for ($i=0; $i < count($addMenus); $i++) { 
+                    $menu = $this->entityManager->getRepository(Menu::class)->find($menus[$i]) ;
+                    $chkMenuAg = $this->entityManager->getRepository(MenuAgence::class)->findOneBy([
+                        "menu" => $menu,
+                        "agence" => $this->agence
+                    ]) ;
+                    $menuAgence = new MenuAgence() ;
+                    $menuAgence->setAgence($this->agence) ;
+                    $menu = $this->entityManager->getRepository(Menu::class)->find($addMenus[$i]) ;
+                    $menuAgence->setMenu($menu) ;
+                    $menuAgence->setStatut(True) ;
+                    $menuAgence->setCreatedAt(new \DateTimeImmutable) ;
+                    $menuAgence->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                    $this->entityManager->persist($menuAgence);
+                    $this->entityManager->flush();
+                }
+
+                $menuAgAll = $this->entityManager->getRepository(MenuAgence::class)->findBy([
+                    "agence" => $this->agence
+                ]) ;
+
+                // dd($menuAgAll) ;
+                foreach ($menuAgAll as $mAgence) {
+                    if(!in_array($mAgence->getMenu()->getId(),$compareMenu))
+                    {
+                        $this->entityManager->remove($mAgence);
+                        $this->entityManager->flush();
+                    }
+                }
+
+                $user = $this->entityManager->getRepository(User::class)->findManager($agence->getId()) ;
+
+                $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+                if(file_exists($filename))
+                    unlink($filename) ;
+                $this->regenerateUserMenu($user) ;
+                $type = 'green' ;
+                $message = "Information enregistré avec succès" ;
+            }
+            else
+            {
+                $type = 'orange' ;
+                $message = "Veuiller sélectionner un menu" ;
+            }
+            
+        }
+        catch(\Exception $e)
+        {
+            if(empty($agence))
+            {
+                $type = 'orange' ;
+                $message = "Veuillez sélectionner une agence" ;
+            }
+            else
+            {
+                $type = 'red' ;
+                $message = $e->getMessage() ;
+            }
+            
+        }
     }
 }

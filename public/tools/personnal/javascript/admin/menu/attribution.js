@@ -44,7 +44,7 @@ $(document).ready(function(){
 
     $(".oneSociety").click(function(){
         if($(this).hasClass("active"))
-        {
+        { 
           $(".menu_item").each(function(){
               $(this).find(".menuCheck").removeClass("fa text-info")
               $(this).find(".menuCheck").addClass("far")
