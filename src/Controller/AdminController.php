@@ -28,6 +28,7 @@ class AdminController extends AbstractController
     private $nameUser ;
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
+
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;

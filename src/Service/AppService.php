@@ -138,6 +138,8 @@ class AppService extends AbstractController
 
     public function checkUrl()
     {
+        ini_set('memory_limit', '512M');
+
         $allowUrl = true ;
         $user = $this->session->get("user") ;
         if(!isset($user))
