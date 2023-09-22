@@ -281,7 +281,6 @@ class FactureController extends AbstractController
         return $dateB <=> $dateA;
     }
 
-
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
     { 
@@ -372,6 +371,120 @@ class FactureController extends AbstractController
             "clients" => $clients,
             "critereDates" => $critereDates
         ]); 
+    }
+
+    #[Route('/facture/basculer/definitive', name: 'fact_basculer_vers_definitive')]
+    public function factureBasculerVersDefinitive(Request $request)
+    {
+        $idFacture = $request->request->get("idFacture") ;
+
+        $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
+
+        $numFact = explode("-",$facture->getNumFact()) ;
+        array_shift($numFact);
+        $numFact = implode("-",$numFact) ;
+        $newNumFact = "DF-".$numFact ;
+
+        $type = $this->entityManager->getRepository(FactType::class)->findOneBy([
+            "reference" => "DF"    
+        ]) ; 
+        
+        // $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $fact_date);
+        
+        $newFacture = new Facture() ;
+
+        $newFacture->setFactureParent($facture) ;
+        $newFacture->setAgence($this->agence) ;
+        $newFacture->setUser($this->userObj) ;
+        $newFacture->setClient($facture->getClient()) ;
+        $newFacture->setType($type);
+        $newFacture->setModele($facture->getModele()) ;
+        $newFacture->setRemiseType($facture->getRemiseType()) ;
+        $newFacture->setRemiseVal($facture->getRemiseVal()) ;
+        $newFacture->setNumFact($newNumFact) ;
+        $newFacture->setDescription($facture->getDescription()) ;
+        $newFacture->setTvaVal($facture->getTvaVal()) ;
+        $newFacture->setLieu($facture->getLieu()) ;
+        $newFacture->setDate($facture->getDate()) ;
+        $newFacture->setTotal($facture->getTotal()) ;
+        $newFacture->setDevise($facture->getDevise()) ;
+        $newFacture->setStatut(True) ;
+        $newFacture->setCreatedAt(new \DateTimeImmutable) ;
+        $newFacture->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($newFacture) ;
+        $this->entityManager->flush() ;
+
+        $histoOldPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+            "facture" => $facture  
+        ]) ; 
+        
+        $paiement = $this->entityManager->getRepository(FactPaiement::class)->findOneBy([
+            "reference" => "ES"  
+        ]) ; 
+
+        $histoPaiement = new FactHistoPaiement() ;
+        $histoPaiement->setLibelle($histoOldPaiement->getLibelle()) ;
+        $histoPaiement->setNumero($histoOldPaiement->getNumero()) ;
+        $histoPaiement->setPaiement($paiement) ;
+        $histoPaiement->setFacture($newFacture) ;
+        $histoPaiement->setStatutPaiement("Payee") ;
+        
+        $this->entityManager->persist($histoPaiement) ;
+        $this->entityManager->flush() ;
+
+        $detailFactures = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture   
+        ]) ; 
+
+        foreach ($detailFactures as $detailFacture) {
+
+            $factDetail = new FactDetails() ;
+
+            $factDetail->setActivite($detailFacture->getActivite()) ;
+            $factDetail->setEntite($detailFacture->getEntite()) ;
+            $factDetail->setFacture($newFacture) ; 
+            $factDetail->setRemiseType($detailFacture->getRemiseType()) ;
+            $factDetail->setRemiseVal($detailFacture->getRemiseVal()) ;
+            $factDetail->setDesignation($detailFacture->getDesignation()) ;
+            $factDetail->setQuantite($detailFacture->getQuantite()) ;
+            $factDetail->setPrix($detailFacture->getPrix()) ;
+            $factDetail->setTvaVal($detailFacture->getTvaVal()) ;
+            $factDetail->setStatut(True) ;
+
+            $this->entityManager->persist($factDetail) ;
+            $this->entityManager->flush() ; 
+
+            $modeleRef = $facture->getModele()->getReference() ;
+
+            if($modeleRef == "PBAT")
+            {
+                $supplDetail = $this->entityManager->getRepository(FactSupDetailsPbat::class)->findOneBy([
+                    "detail" => $detailFacture   
+                ]) ; 
+
+                $factSupDetailsPbat = new FactSupDetailsPbat() ;
+    
+                $factSupDetailsPbat->setEnonce($supplDetail->getEnonce()) ;
+                $factSupDetailsPbat->setCategorie($supplDetail->getCategorie()) ;
+                $factSupDetailsPbat->setDetail($supplDetail->getDetail()) ; 
+                $factSupDetailsPbat->setInfoSup($supplDetail->getInfoSup()) ;
+    
+                $this->entityManager->persist($factSupDetailsPbat) ;
+                $this->entityManager->flush() ; 
+            }
+        }
+
+        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename);
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Création facture definitive effectué",    
+            "idNewFacture" => $newFacture->getId(),    
+        ]) ;
+        
     }
 
     #[Route('/facture/retenu/consultation', name: 'ftr_retenu_consultation')]
@@ -854,7 +967,7 @@ class FactureController extends AbstractController
         // Comparaison par nomType
         return strcmp($a['idCategorie'], $b['idCategorie']);
     }
-
+ 
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
     public function factureDetailsActivites($id,$nature)
     {
@@ -1031,6 +1144,36 @@ class FactureController extends AbstractController
         $typeRemises = $this->entityManager->getRepository(FactRemiseType::class)->findAll() ; 
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
 
+        $factureParent = "" ;
+        $factureGenere = "" ;
+        $factureCreer = true ;
+        if($nature == "FACTURE" )
+        {
+            $factureCreer = true ;
+            if($facture->getType()->getReference() == "DF")
+            {
+                if(!is_null($facture->getFactureParent()))
+                {
+                    $factureCreer = false ;
+                    $factureParent = $facture->getFactureParent()->getId() ;
+                    $factureGenere = $facture->getId() ;
+                }
+            }
+            else if($facture->getType()->getReference() == "PR")
+            {
+                $isFactureParent = $this->entityManager->getRepository(Facture::class)->findOneBy([
+                    "factureParent" => $facture
+                ]) ;
+
+                if(!is_null($isFactureParent))
+                {
+                    $factureCreer = false ;
+                    $factureParent = $facture->getId() ;
+                    $factureGenere = $isFactureParent->getId() ;
+                }
+            }
+        }
+
         if(!is_null($facture->getModele()->getReference()))
         {
             if($facture->getModele()->getReference() == "PROD")
@@ -1102,6 +1245,9 @@ class FactureController extends AbstractController
                     "agcDevise" => $agcDevise,
                     "enoncees" => $enoncees,
                     "detailFactures" => $newTabFactureDetls,
+                    "factureParent" => $factureParent,
+                    "factureGenere" => $factureGenere,
+                    "factureCreer" => $factureCreer
                 ]) ;
             }
         }
@@ -1117,6 +1263,9 @@ class FactureController extends AbstractController
             "typeRemises" => $typeRemises,
             "devises" => $devises,
             "agcDevise" => $agcDevise,
+            "factureParent" => $factureParent,
+            "factureGenere" => $factureGenere,
+            "factureCreer" => $factureCreer
         ]) ;
     }
 
@@ -1325,7 +1474,6 @@ class FactureController extends AbstractController
         $this->entityManager->flush() ;
 
         $histoPaiement = new FactHistoPaiement() ;
-
         /*
             Statut : 
                 - Payee
@@ -1401,8 +1549,6 @@ class FactureController extends AbstractController
 
                 $this->entityManager->persist($factDetail) ;
                 $this->entityManager->flush() ; 
-
-
             }
         } 
         else if($modeleRef == "PBAT")

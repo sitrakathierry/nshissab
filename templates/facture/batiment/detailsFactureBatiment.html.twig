@@ -19,7 +19,14 @@
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{facture.numFact}}</span></h4>
+        <h4 class="text-uppercase d-flex flex-row align-items-center entete_page text-black">
+        <span>
+            {{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{facture.numFact}}</span>
+        </span>
+        {% if nature == "FACTURE" and facture.refType != "DF" %}
+            <button class="btn ml-auto font-weight-bold text-uppercase btn-outline-success btn-sm"><i class="fa fa-plus-square"></i>&nbsp;Créer facture définitive</button>
+        {% endif %}
+        </h4>
     </div>
     <div class="container-fluid px-3">
         <div class="row">

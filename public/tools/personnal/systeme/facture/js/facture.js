@@ -623,4 +623,76 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $(".fact_btn_basculer_definitif").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.fact_basculer_vers_definitive,
+                            type:'post',
+                            cache: false,
+                            data:{idFacture:self.data("value")},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.confirm({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload() 
+                                            }
+                                        },
+                                        btn2:{
+                                            text: 'Consulter',
+                                            btnClass: 'btn-green',
+                                            keys: ['enter', 'shift'],
+                                            action: function(){
+                                                if(json.type == "green")
+                                                {
+                                                    var url = routes.ftr_details_activite + '/' + json.idNewFacture;
+                                                    window.open(url, '_blank');
+                                                }
+                                                else
+                                                {
+                                                    $.alert({
+                                                        title: 'Message',
+                                                        content: "Veuller corriger l'erreur",
+                                                        type: "orange",
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
 })
