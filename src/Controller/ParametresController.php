@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\AgcDevise;
 use App\Entity\Agence;
 use App\Entity\Devise;
+use App\Entity\Menu;
 use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
 use App\Entity\ModModelePdf;
@@ -544,6 +545,23 @@ class ParametresController extends AbstractController
     #[Route('/parametres/utilisateur/agent/save', name: 'param_utilisateur_save_agent')]
     public function paramUtilisateurSaveAgent(Request $request)
     {
+        $userAgences = $this->entityManager->getRepository(User::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True,    
+        ]) ;
+
+        $limiteCompte = $this->agence->getCapacite() ;
+        $totalCompteActif = count($userAgences) ;
+
+        if($totalCompteActif >= $limiteCompte)
+        {
+            return new JsonResponse([
+                "message"=> '<div class="text-center">Désole, la capacité maximum est atteint.<br>Vous ne pouvez plus créer de compte. <br>Veuiller vous renseigner auprès du responsable pour plus d\'information . Merci.</div>', 
+                "type"=> "red"
+            ]) ;
+        }
+        
+
         $username = $request->request->get('username') ;
         $password = $request->request->get('password') ;
         $email = $request->request->get('email') ;
@@ -712,13 +730,14 @@ class ParametresController extends AbstractController
                         "menu" => $menu,
                         "agence" => $this->agence
                     ]) ;
+
                     $chkMenuUser = $this->entityManager->getRepository(MenuUser::class)->findOneBy([
                         "menuAgence" => $oneMenuAgence,
-                        "user" => $this->agence
+                        "user" => $userAgent
                     ]) ;
 
 
-                    if(!is_null($chkMenuAg))
+                    if(!is_null($chkMenuUser))
                     {
                         array_push($toremove,$menus[$i]) ;
                     }
@@ -737,37 +756,44 @@ class ParametresController extends AbstractController
                         "menu" => $menu,
                         "agence" => $this->agence
                     ]) ;
-                    $menuAgence = new MenuAgence() ;
-                    $menuAgence->setAgence($this->agence) ;
-                    $menu = $this->entityManager->getRepository(Menu::class)->find($addMenus[$i]) ;
-                    $menuAgence->setMenu($menu) ;
-                    $menuAgence->setStatut(True) ;
-                    $menuAgence->setCreatedAt(new \DateTimeImmutable) ;
-                    $menuAgence->setUpdatedAt(new \DateTimeImmutable) ;
+
+                    $menuUser = new MenuUser() ;
+                    $menuUser->setMenuAgence($chkMenuAg) ;
+                    $menuUser->setUser($userAgent) ;
+                    $menuUser->setStatut(True) ;
+                    $menuUser->setCreatedAt(new \DateTimeImmutable) ;
+                    $menuUser->setUpdatedAt(new \DateTimeImmutable) ;
     
-                    $this->entityManager->persist($menuAgence);
+                    $this->entityManager->persist($menuUser);
                     $this->entityManager->flush();
                 }
 
-                $menuAgAll = $this->entityManager->getRepository(MenuAgence::class)->findBy([
-                    "agence" => $this->agence
+                $menuUserAll = $this->entityManager->getRepository(MenuUser::class)->findBy([
+                    "user" => $userAgent
                 ]) ;
 
                 // dd($menuAgAll) ;
-                foreach ($menuAgAll as $mAgence) {
-                    if(!in_array($mAgence->getMenu()->getId(),$compareMenu))
+                foreach ($menuUserAll as $mUser) {
+                    $menuId = $mUser->getMenuAgence()->getMenu()->getId() ;
+                    if(!in_array($menuId,$compareMenu))
                     {
-                        $this->entityManager->remove($mAgence);
+                        $this->entityManager->remove($mUser);
                         $this->entityManager->flush();
                     }
                 }
 
-                $user = $this->entityManager->getRepository(User::class)->findManager($agence->getId()) ;
+                $dataUser = [
+                    "id" => $userAgent->getId(),
+                    "username" => $userAgent->getUsername(),
+                    "email" => $userAgent->getEmail(),
+                ] ;
 
-                $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+                $filename = "files/json/menu/".strtolower($userAgent->getUsername()).".json" ;
+
                 if(file_exists($filename))
                     unlink($filename) ;
-                $this->regenerateUserMenu($user) ;
+
+                $this->regenerateUserMenu($dataUser) ;
                 $type = 'green' ;
                 $message = "Information enregistré avec succès" ;
             }
@@ -780,7 +806,7 @@ class ParametresController extends AbstractController
         }
         catch(\Exception $e)
         {
-            if(empty($agence))
+            if(empty($this->agence))
             {
                 $type = 'orange' ;
                 $message = "Veuillez sélectionner une agence" ;
@@ -792,5 +818,34 @@ class ParametresController extends AbstractController
             }
             
         }
+
+        return new JsonResponse(["type" => $type, "message" => $message]) ;
+    }
+
+    #[Route('/parametres/user/agent/menu/get', name: 'param_user_get_menu_Agent')]
+    public function paramGetMenuAgent(Request $request)
+    {
+        $idUserAgent = $request->request->get("idAgence") ;
+
+        $user = $this->entityManager->getRepository(User::class)->find($idUserAgent) ;
+
+        $dataUser = [
+            "id" => $user->getId(),
+            "username" => $user->getUsername(),
+            "email" => $user->getEmail(),
+        ] ;
+
+        $filename = "files/json/menu/".strtolower($user->getUsername()).".json" ;
+        if(!file_exists($filename))
+            $this->regenerateUserMenu($dataUser) ;
+        
+        $menuManager = json_decode(file_get_contents($filename)) ;
+
+        $response = [
+            "manager" => strtolower($user->getUsername()),
+            "menuManager" => $menuManager
+        ] ;
+        
+        return new JsonResponse($response) ;
     }
 }

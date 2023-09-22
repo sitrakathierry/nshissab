@@ -45,6 +45,9 @@ $(document).ready(function(){
     $(".oneSociety").click(function(){
         if($(this).hasClass("active"))
         { 
+          var attributionRoute = routes.manager_agence
+          if($(this).hasClass("isAgent"))
+            attributionRoute = routes.param_user_get_menu_Agent
           $(".menu_item").each(function(){
               $(this).find(".menuCheck").removeClass("fa text-info")
               $(this).find(".menuCheck").addClass("far")
@@ -55,7 +58,7 @@ $(document).ready(function(){
           })
             var instance = loading()
             $.ajax({
-                url: routes.manager_agence,
+                url: attributionRoute,
                 type:'post',
                 data:{idAgence:$(this).attr("value")}, 
                 dataType:'json',
@@ -68,7 +71,6 @@ $(document).ready(function(){
                         title:"Message",
                         type:"orange",
                         content:"Veuiller ajouter des menus"
-                        
                       })
                     
                 }

@@ -1,0 +1,1 @@
+[{"parent":null,"id":23,"route":"app_home","nom":"FACTURE","icone":"fa-archive","rang":3,"submenu":[{"parent":23,"id":24,"route":"ftr_creation","nom":"CREATION","icone":"fa-plus-circle","rang":1},{"parent":23,"id":25,"route":"ftr_consultation","nom":"CONSULTATION","icone":"fa-layer-group","rang":2}]}]

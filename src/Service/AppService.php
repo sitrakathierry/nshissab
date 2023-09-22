@@ -187,7 +187,13 @@ class AppService extends AbstractController
 
     public function requestMenu($role,User $user,$parent)
     {
-        if($role == "MANAGER")
+        if($role == "AGENT")
+        {
+            $infoMenu = $this->entityManager
+                        ->getRepository(MenuUser::class)
+                        ->allMenuUserAgent($parent, $user->getAgence()->getId(),$user->getId()) ;
+        }
+        else if($role == "MANAGER")
         {
             $infoMenu = $this->entityManager
                         ->getRepository(MenuUser::class)
