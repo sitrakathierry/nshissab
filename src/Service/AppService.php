@@ -2912,25 +2912,26 @@ class AppService extends AbstractController
 
     public function checkAllDateAgenda()
     {
-        
-
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
             "agence" => $this->agence
         ]) ;
         
-        $this->validCompareDate($agendas) ;
+        if(!is_null($agendas))
+            $this->validCompareDate($agendas) ;
 
         $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
             "agence" => $this->agence
         ]) ;
 
-        $this->validCompareDate($echeances) ;
+        if(!is_null($echeances))
+            $this->validCompareDate($echeances) ;
 
         $agendaAcomptes = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
             "agence" => $this->agence
         ]) ;
         
-        $this->validCompareDate($agendaAcomptes) ;
+        if(!is_null($agendaAcomptes))
+            $this->validCompareDate($agendaAcomptes) ;
     }
 
     public function validCompareDate($object)

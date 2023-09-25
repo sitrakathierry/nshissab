@@ -63,7 +63,6 @@ Au moment de mettre les données réels, effacer la table :
 
 CmdBonCommande, CaisseCommande, CaissePanier, ...
 
-
 var self = $(this)
         $.confirm({
             title: "Suppression",

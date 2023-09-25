@@ -27,12 +27,12 @@
             {% if factureCreer == true %}
                 <button data-value="{{facture.id}}" class="btn ml-auto font-weight-bold text-uppercase btn-outline-success btn-sm fact_btn_basculer_definitif"><i class="fa fa-plus-square"></i>&nbsp;Créer facture définitive</button>
             {% else %}
-                <a href="{{path('ftr_details_activite',{'id':factureGenere})}}" class="btn ml-auto font-weight-bold text-uppercase btn-outline-info btn-sm"><i class="fa fa-layer-group"></i>&nbsp;Consulter facture définitive</a>
+                <a href="{{path('ftr_details_activite',{'id':factureGenere})}}" target="_blank" class="btn ml-auto font-weight-bold text-uppercase btn-outline-info btn-sm"><i class="fa fa-layer-group"></i>&nbsp;Consulter facture définitive</a>
             {% endif %}
         {% endif %}
         {% if nature == "FACTURE" and facture.refType == "DF" %}
             {% if factureParent is not empty %}
-                <a href="{{path('ftr_details_activite',{'id':factureParent})}}" class="btn ml-auto font-weight-bold text-uppercase btn-outline-info btn-sm"><i class="fa fa-layer-group"></i>&nbsp;Consulter facture source</a>
+                <a href="{{path('ftr_details_activite',{'id':factureParent})}}" target="_blank" class="btn ml-auto font-weight-bold text-uppercase btn-outline-info btn-sm"><i class="fa fa-layer-group"></i>&nbsp;Consulter facture source</a>
             {% endif %}
         {% endif %}
         </h4>

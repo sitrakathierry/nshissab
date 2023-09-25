@@ -625,6 +625,7 @@ $(document).ready(function(){
     })
 
     $(".fact_btn_basculer_definitif").click(function(){
+        // console.log(routes.ftr_details_activite)
         var self = $(this)
         $.confirm({
             title: "Confirmation",
@@ -670,7 +671,8 @@ $(document).ready(function(){
                                                 {
                                                     var url = routes.ftr_details_activite + '/' + json.idNewFacture;
                                                     window.open(url, '_blank');
-                                                }
+                                                    location.reload()
+                                                } 
                                                 else
                                                 {
                                                     $.alert({

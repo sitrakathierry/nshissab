@@ -1050,7 +1050,6 @@ class FactureController extends AbstractController
             }
         }
         
-        
         $totalHt = 0 ;
         $totalTva = 0 ; 
         $elements = [] ;
