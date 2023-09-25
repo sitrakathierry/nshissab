@@ -3199,6 +3199,7 @@ class AppService extends AbstractController
         $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
             "type" => $typeFacture,
             "agence" => $this->agence,
+            "ticketCaisse" => null,
             "statut" => True
         ]) ; 
 

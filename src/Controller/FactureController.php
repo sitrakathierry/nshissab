@@ -1078,6 +1078,7 @@ class FactureController extends AbstractController
         $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
         $infoFacture["lieu"] = $facture->getLieu() ;
         $infoFacture["refType"] = $facture->getType()->getReference() ;
+        $infoFacture["ticketCaisse"] = is_null($facture->getTicketCaisse()) ? false : $facture->getTicketCaisse()->getNumCommande() ;
 
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 
