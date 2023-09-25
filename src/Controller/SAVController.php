@@ -413,8 +413,10 @@ class SAVController extends AbstractController
         foreach ($caissePaniers as $caissePanier) {
             $item = [] ;
             
+            $filtreNomProduit = is_null($caissePanier->getVariationPrix()->getProduit()->getType()) ? "NA" : $caissePanier->getVariationPrix()->getProduit()->getType()->getNom() ;
+
             $item["id"] = $caissePanier->getId();
-            $item["designation"] = $caissePanier->getVariationPrix()->getProduit()->getNom() ;
+            $item["designation"] = $filtreNomProduit." | ".$caissePanier->getVariationPrix()->getProduit()->getNom() ;
             $item["quantite"] = $caissePanier->getQuantite() ;
             $item["prix"] = $caissePanier->getPrix() ;
             $item["tva"] = (($caissePanier->getPrix() * $caissePanier->getTva()) / 100 ) * $caissePanier->getQuantite() ;
