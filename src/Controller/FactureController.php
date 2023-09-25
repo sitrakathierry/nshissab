@@ -10,6 +10,8 @@ use App\Entity\BtpCategorie;
 use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\BtpPrix;
+use App\Entity\CaisseCommande;
+use App\Entity\CaissePanier;
 use App\Entity\Client;
 use App\Entity\CltHistoClient;
 use App\Entity\CltSociete;
@@ -95,13 +97,96 @@ class FactureController extends AbstractController
 
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
-            "titlePage" => "Création Facture",
+            "titlePage" => "Création Facture", 
             "with_foot" => true,
             "modeles" => $modeles,
             "types" => $types,
             "paiements" => $paiements,
             "clients" => $clients,
         ]); 
+    }
+
+    #[Route('/facture/ticket/caisse/get', name: 'fact_get_ticket_de_caisse')]
+    public function factureGetTicketCaisse()
+    {
+        $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
+        if(!file_exists($filename))
+            $this->appService->generateCaisseCommande($filename, $this->agence) ;
+
+        $commandes = json_decode(file_get_contents($filename)) ;
+
+        $response = $this->renderView("facture/caisse/getContentCaisse.html.twig",[
+            "commandes" => $commandes
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/facture/ticket/caisse/display', name: 'fact_ticket_caisse_display')]
+    public function factTicketCaisseDisplay(Request $request)
+    {
+        $idCs = $request->request->get("idCs") ;
+
+        if(empty($idCs))
+            return new Response("") ;
+
+        $caisseCommande = $this->entityManager->getRepository(CaisseCommande::class)->find($idCs) ;
+
+        $remise = 0 ;
+
+        if(!is_null($caisseCommande->getRemiseType()))
+        {
+            if($caisseCommande->getRemiseType()->getCalcul() == 1)
+            {
+                $remise = $caisseCommande->getRemiseValeur() ;
+            }
+            else
+            {
+                $remise = ($caisseCommande->getRemiseValeur() * $caisseCommande->getMontantPayee()) / 100 ;
+            }
+        }
+
+        $totalTtc = $caisseCommande->getTva() + $caisseCommande->getMontantPayee() - $remise ;
+
+        $caisse = [
+            "numCommande" => $caisseCommande->getNumCommande() ,
+            "totalHt" => $caisseCommande->getMontantPayee() ,
+            "remise" => $remise,
+            "totalTva" => $caisseCommande->getTva() ,
+            "totalTtc" => $totalTtc ,
+            "lettre" => $this->appService->NumberToLetter($totalTtc) ,
+        ] ;
+
+        $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+            "commande" => $caisseCommande,
+            "statut" => True
+        ]) ;  
+
+        $elements = [] ;
+
+        foreach ($caissePaniers as $caissePanier) {
+            $item = [] ;
+            
+            $item["id"] = $caissePanier->getId();
+            $item["designation"] = $caissePanier->getVariationPrix()->getProduit()->getNom() ;
+            $item["quantite"] = $caissePanier->getQuantite() ;
+            $item["prix"] = $caissePanier->getPrix() ;
+            $item["tva"] = (($caissePanier->getPrix() * $caissePanier->getTva()) / 100 ) * $caissePanier->getQuantite() ;
+            $item["total"] = $caissePanier->getQuantite() * $caissePanier->getPrix() ;
+            $item["statut"] = $caissePanier->isStatut() ;
+
+            array_push($elements,$item) ;
+        }
+
+        $caissePaniers = $elements ;
+
+        $response = $this->renderView('facture/caisse/factureTicketCaisseDetails.html.twig',[
+            "caisse" => $caisse,
+            "caissePaniers" => $caissePaniers
+        ]) ;
+
+        return new Response($response) ;
+
     }
 
     #[Route('/facture/client/get', name: 'ftr_client_information_get')]
@@ -1280,7 +1365,8 @@ class FactureController extends AbstractController
         $fact_date = $request->request->get('fact_date') ; 
         $fact_num = $request->request->get('fact_num') ;
         $fact_libelle = $request->request->get('fact_libelle') ;
-
+        $fact_ticket_caisse = $request->request->get("fact_ticket_caisse") ;
+        
         $fact_enr_total_general = $request->request->get('fact_enr_total_general') ;
 
         $data = [
@@ -1332,6 +1418,9 @@ class FactureController extends AbstractController
         if($modele->getReference() == "PROD" || $modele->getReference() == "PSTD")
         {
             $fact_enr_prod_type = (array)$request->request->get('fact_enr_prod_type') ;
+            if(isset($fact_ticket_caisse) && !empty($fact_ticket_caisse))
+                $fact_enr_prod_type = ["donnée statique pour éliminer une condition si c'est bon de caisse"] ;
+
             if(empty($fact_enr_prod_type))
             {
                 $result["type"] = "orange" ;
@@ -1349,7 +1438,6 @@ class FactureController extends AbstractController
             }
         }
 
-    
         $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
 
         if(!is_null($fact_libelle) && ($paiement->getReference() == "CR" || $paiement->getReference() == "AC"))
@@ -1446,7 +1534,30 @@ class FactureController extends AbstractController
         $fact_enr_val_devise = $request->request->get('fact_enr_val_devise') ; 
         $fact_enr_val_devise = empty($fact_enr_val_devise) ? null : $this->entityManager->getRepository(Devise::class)->find($fact_enr_val_devise) ;
 
+        
         $facture = new Facture() ;
+        
+        
+        if(isset($fact_ticket_caisse) && !empty($fact_ticket_caisse))
+        {
+            $caisseCommande = $this->entityManager->getRepository(CaisseCommande::class)->find($fact_ticket_caisse) ;
+            $fact_type_remise_prod_general = $caisseCommande->getRemiseType() ; 
+            if(!is_null($caisseCommande->getRemiseType()))
+            {
+                $factRemiseTypeCaisse = $this->entityManager->getRepository(FactRemiseType::class)->findOneBy([
+                    "calcul" => $caisseCommande->getRemiseType()->getCalcul() 
+                ]) ;
+
+                $fact_type_remise_prod_general = $factRemiseTypeCaisse ;
+            }
+
+            $fact_remise_prod_general = $caisseCommande->getRemiseValeur() ; 
+            $fact_enr_total_tva = $caisseCommande->getTva() ; 
+            $remiseCaisse = $this->appService->getCaisseRemise($caisseCommande,$caisseCommande->getMontantPayee()) ;
+            $fact_enr_total_general = $caisseCommande->getTva() + $caisseCommande->getMontantPayee() - $remiseCaisse ;
+
+            $facture->setTicketCaisse($caisseCommande) ;
+        }
 
         $facture->setAgence($this->agence) ;
         $facture->setUser($this->userObj) ;
@@ -1509,46 +1620,76 @@ class FactureController extends AbstractController
         $modeleRef = $modele->getReference() ;
         if($modeleRef == "PROD" || $modeleRef == "PSTD") // Produit ou Prestation Standard
         {
-            $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
-            $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
-            $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
-            $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
-            $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
-            $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
-            $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
+            if(isset($fact_ticket_caisse) && !empty($fact_ticket_caisse))
+            {
+                $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+                    "commande" => $caisseCommande,
+                    "statut" => True
+                ]) ;  
+        
+                foreach ($caissePaniers as $caissePanier) {
 
-            foreach ($fact_enr_prod_type as $key => $value) {
-                $factDetail = new FactDetails() ;
-                $typeRemiseUnit = !empty($fact_enr_prod_remise_type[$key]) ? $this->entityManager->getRepository(FactRemiseType::class)->find($fact_enr_prod_remise_type[$key]) : null ;
-                $remiseVal = 0 ;
+                    $factDetail = new FactDetails() ;
+        
+                    $factDetail->setFacture($facture) ; 
+                    $factDetail->setRemiseType(null) ;
+                    $factDetail->setRemiseVal(null) ;
+                    $factDetail->setActivite("Produit") ;
+                    $factDetail->setEntite($caissePanier->getVariationPrix()->getId()) ;
+                    $factDetail->setDesignation($caissePanier->getVariationPrix()->getProduit()->getNom()) ;
+                    $factDetail->setQuantite($caissePanier->getQuantite()) ;
+                    $factDetail->setPrix($caissePanier->getPrix()) ;
+                    $factDetail->setTvaVal($caissePanier->getTva()) ;
+                    $factDetail->setStatut(True) ;
     
-                if(!is_null($typeRemiseUnit))
-                {
-                    $remiseVal = !empty($fact_enr_prod_remise[$key]) ? $fact_enr_prod_remise[$key] : null ; 
+                    $this->entityManager->persist($factDetail) ;
+                    $this->entityManager->flush() ; 
                 }
-                else
-                    $remiseVal = null ;
-    
-                if($fact_enr_prod_type[$key] != "autre")
-                {
-                    $factDetail->setActivite($fact_enr_prod_type[$key]) ;
-                    $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
-                }
-                
-                $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
-    
-                $factDetail->setFacture($facture) ; 
-                $factDetail->setRemiseType($typeRemiseUnit) ;
-                $factDetail->setRemiseVal($remiseVal) ;
-                $factDetail->setDesignation($fact_enr_prod_designation[$key]) ;
-                $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
-                $factDetail->setPrix($fact_enr_text_prix[$key]) ;
-                $factDetail->setTvaVal($dtlsTvaVal) ;
-                $factDetail->setStatut(True) ;
-
-                $this->entityManager->persist($factDetail) ;
-                $this->entityManager->flush() ; 
             }
+            else
+            {
+                $fact_enr_prod_designation = $request->request->get('fact_enr_prod_designation') ;
+                $fact_enr_prod_quantite = $request->request->get('fact_enr_prod_quantite') ;
+                $fact_enr_prod_prix = $request->request->get('fact_enr_prod_prix') ;
+                $fact_enr_text_prix = $request->request->get('fact_enr_text_prix') ;
+                $fact_enr_prod_remise_type = $request->request->get('fact_enr_prod_remise_type') ;
+                $fact_enr_prod_remise = $request->request->get('fact_enr_prod_remise') ;
+                $fact_enr_prod_tva_val = $request->request->get('fact_enr_prod_tva_val') ;
+    
+                foreach ($fact_enr_prod_type as $key => $value) {
+                    $factDetail = new FactDetails() ;
+                    $typeRemiseUnit = !empty($fact_enr_prod_remise_type[$key]) ? $this->entityManager->getRepository(FactRemiseType::class)->find($fact_enr_prod_remise_type[$key]) : null ;
+                    $remiseVal = 0 ;
+        
+                    if(!is_null($typeRemiseUnit))
+                    {
+                        $remiseVal = !empty($fact_enr_prod_remise[$key]) ? $fact_enr_prod_remise[$key] : null ; 
+                    }
+                    else
+                        $remiseVal = null ;
+        
+                    if($fact_enr_prod_type[$key] != "autre")
+                    {
+                        $factDetail->setActivite($fact_enr_prod_type[$key]) ;
+                        $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
+                    }
+                    
+                    $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
+        
+                    $factDetail->setFacture($facture) ; 
+                    $factDetail->setRemiseType($typeRemiseUnit) ;
+                    $factDetail->setRemiseVal($remiseVal) ;
+                    $factDetail->setDesignation($fact_enr_prod_designation[$key]) ;
+                    $factDetail->setQuantite($fact_enr_prod_quantite[$key]) ;
+                    $factDetail->setPrix($fact_enr_text_prix[$key]) ;
+                    $factDetail->setTvaVal($dtlsTvaVal) ;
+                    $factDetail->setStatut(True) ;
+    
+                    $this->entityManager->persist($factDetail) ;
+                    $this->entityManager->flush() ; 
+                }
+            }
+
         } 
         else if($modeleRef == "PBAT")
         {
@@ -1561,7 +1702,6 @@ class FactureController extends AbstractController
             $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
             $fact_enr_btp_info_sup = $request->request->get('fact_enr_btp_info_sup') ;
             
-
             foreach ($fact_enr_btp_enonce_id as $key => $value) {
                 $dtlsTvaVal = empty($fact_enr_btp_tva[$key]) ? null : $fact_enr_btp_tva[$key] ;
 

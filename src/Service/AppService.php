@@ -2854,6 +2854,27 @@ class AppService extends AbstractController
         return $remiseG ;
     }
 
+    public function getCaisseRemise($caisse,$totalHt)
+    {
+        if(!is_null($caisse->getRemiseType()))
+        {
+            $remiseVal = is_null($caisse->getRemiseValeur()) ? 0 : floatval($caisse->getRemiseValeur()) ; 
+            if($caisse->getRemiseType()->getCalcul() == 100)
+            {
+                $remiseG = ($totalHt * $remiseVal) / 100 ; 
+            }
+            else
+            {
+                $remiseG = $remiseVal ;
+            }
+        }
+        else
+        {
+            $remiseG = 0 ;
+        }
+        return $remiseG ;
+    }
+
     public function formatAnnulationToFacture($annulations)
     {
         $elements = [] ;

@@ -226,6 +226,57 @@ $(document).ready(function(){
         })
 
         $(".agd_acompte").hide()
+
+        var modeleFacture = $(".fact_btn_modele.btn-warning").data("indice")
+
+        if(reference == "DF" && modeleFacture == "PROD")
+        {
+            var realinstance = instance.loading()
+            $.ajax({
+                url: routes.fact_get_ticket_de_caisse,
+                type:'post',
+                cache: false,
+                dataType: 'html',
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    realinstance.close()
+                    $("#contentTicketDeCaisse").html(response)
+                },
+                error: function(resp){
+                    realinstance.close()
+                    $.alert(JSON.stringify(resp)) ;
+                }
+            })
+        }
+        else
+        {
+            $("#contentTicketDeCaisse").empty()
+        }
+    })
+
+    $(document).on('change',"#fact_ticket_caisse",function(){
+        var self = $(this)
+        var data = new FormData() ;
+        data.append("idCs",self.val())
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.fact_ticket_caisse_display,
+            type:'post',
+            cache: false,
+            data: data,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(resp){
+                realinstance.close()
+                $("#detailFacture").html(resp) ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
     })
 
     $(".fact_btn_paiement").click(function(){
