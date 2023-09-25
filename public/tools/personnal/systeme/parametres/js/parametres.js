@@ -137,4 +137,75 @@ $(document).ready(function(){
         })
     })
     
+    
+
+    function updateUserAgent(titre,type,idUser)
+    {
+        var self = $(this)
+        $.confirm({
+            title: titre,
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.param_utils_attribution_agent_update,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                idUser:idUser,
+                                type:type,
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }
+
+    $(document).on("click",".param_btn_disable_agent",function(){
+        updateUserAgent("Désactivation","DESACTIVE",$(this).data("value"))
+    })
+
+    $(document).on("click",".param_btn_delete_agent",function(){
+        updateUserAgent("Suppression","EFFACER",$(this).data("value"))
+    })
+
+    $(document).on("click",".param_btn_enable_agent",function(){
+        updateUserAgent("Activation","ACTIVER",$(this).data("value"))
+    })
+
+    
 })

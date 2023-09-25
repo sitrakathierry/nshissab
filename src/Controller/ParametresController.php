@@ -639,7 +639,8 @@ class ParametresController extends AbstractController
     public function paramUtilisateurListesAgent()
     {
         $agents = $this->entityManager->getRepository(User::class)->findBy([
-            "agence" => $this->agence
+            "agence" => $this->agence,
+            "statut" => True,    
         ]) ;
 
         return $this->render('parametres/utilisateur/listesCompteAgent.html.twig', [
@@ -847,5 +848,49 @@ class ParametresController extends AbstractController
         ] ;
         
         return new JsonResponse($response) ;
+    }
+
+    #[Route('/parametres/utilisateur/agent/disable', name: 'param_utils_attribution_agent_update')]
+    public function paramDisableCompteAgent(Request $request)
+    {
+        $type = $request->request->get("type") ; 
+        $idUser = $request->request->get("idUser") ; 
+
+        $user = $this->entityManager->getRepository(User::class)->find($idUser) ;
+        
+        if($type == "DESACTIVE")
+        {
+            $user->setDisabled(True) ;
+            $message = "Désactivation effectué" ;
+        }
+        else if($type == "ACTIVER")
+        {
+            $user->setDisabled(null) ;
+            $message = "Activation effectué" ;
+        }
+        else if($type == "EFFACER")
+        {
+            $user->setStatut(False) ;
+            $message = "Suppresion effectué" ;
+        }
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => $message,    
+        ]) ;
+    }
+
+    #[Route('/parametres/utilisateur/agent/details/{idUser}', name: 'param_utilisateur_details_agent',defaults:["idUser" => null])]
+    public function paramDetailsUserAgent($idUser)
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($idUser) ;
+
+        return $this->render('parametres/utilisateur/detailsUserAgent.html.twig',[
+            "filename" => "parametres",
+            "titlePage" => "Details agent",
+            "with_foot" => true,
+            "agent" => $user,
+        ]);
     }
 }

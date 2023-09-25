@@ -91,6 +91,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ModModelePdf::class)]
     private Collection $modModelePdfs;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $disabled = null;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
@@ -555,6 +558,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $modModelePdf->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isDisabled(): ?bool
+    {
+        return $this->disabled;
+    }
+
+    public function setDisabled(?bool $disabled): self
+    {
+        $this->disabled = $disabled;
 
         return $this;
     }

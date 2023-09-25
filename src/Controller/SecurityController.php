@@ -67,6 +67,16 @@ class SecurityController extends AbstractController
                 $type = "warning" ;
                 $allow = False ;
             }
+            if(!is_null($user))
+            {
+                if($user->isDisabled())
+                {
+                    return $this->redirectToRoute('app_login',[
+                        "error" => "Utilisateur désactivé",
+                        "type" => "orange"
+                    ]);
+                }
+            }
         }
         catch(Exception $e)
         {

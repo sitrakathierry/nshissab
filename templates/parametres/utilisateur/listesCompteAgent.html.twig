@@ -24,6 +24,7 @@
                         <tr>
                             <th>Nom</th>
                             <th>Reponsabilité</th>
+                            <th>Statut</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -33,9 +34,16 @@
                                 <tr>
                                     <td>{{agent.username|upper}}</td>
                                     <td>{{agent.poste|upper}}</td>
+                                    <td>{{agent.disabled is null ? '<span class="text-success font-weight-bold text-uppercase">Actif</span>' : '<span class="text-danger font-weight-bold text-uppercase">Désactivé</span>' }}</td>
                                     <td class="text-center align-middle">
-                                        <button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button>
-                                        <button class="btn btn-outline-danger btn-sm font-smaller ml-2"><i class="fa fa-trash"></i></button>
+                                        <a href="{{path('param_utilisateur_details_agent',{'idUser':agent.id})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                        {% if agent.disabled is null  %}
+                                            <button data-value="{{agent.id}}" class="btn btn-outline-purple param_btn_disable_agent btn-sm font-smaller ml-2"><i class="fa fa-ban "></i></button>
+                                        {% else %}
+                                            <button data-value="{{agent.id}}" class="btn btn-outline-success param_btn_enable_agent btn-sm font-smaller ml-2"><i class="fa fa-check "></i></button>
+                                        {% endif %}
+                                            
+                                        <button data-value="{{agent.id}}" class="btn btn-outline-danger param_btn_delete_agent btn-sm font-smaller ml-2"><i class="fa fa-trash"></i></button>
                                     </td>
                                 </tr>
                             {% endif %}
