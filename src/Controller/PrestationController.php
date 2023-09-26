@@ -22,12 +22,14 @@ use App\Entity\LctRepartition;
 use App\Entity\LctStatut;
 use App\Entity\LctStatutLoyer;
 use App\Entity\LctTypeLocation;
+use App\Entity\ModModelePdf;
 use App\Entity\Service;
 use App\Entity\SrvDuree;
 use App\Entity\SrvFormat;
 use App\Entity\SrvTarif;
 use App\Entity\User; 
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use App\Service\PrestationService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -1291,36 +1293,6 @@ class PrestationController extends AbstractController
     public function prestDetailContratLocation($id)
     {
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
-        
-        // $cycleRef = $contrat->getCycle()->getReference() ;
-        // $periodeRef = $contrat->getPeriode()->getReference() ;
-        // // $forfaitRef = $contrat->getForfait()->getReference() ;
-
-        // $frequence = is_null($contrat->getFrequenceRenouv()) ? 2 : $contrat->getFrequenceRenouv() + 1 ;
-        // $duree = $contrat->getDuree() ; 
-
-        // $nbJour = 0 ;
-        // $dateDebut = $contrat->getDateDebut()->format("d/m/Y") ; 
-
-        // if($cycleRef == "CJOUR")
-        // {
-        //     $nbJour = $duree ;
-        // }
-        // else if($cycleRef == "CMOIS")
-        // {
-        //     if($periodeRef == "M")
-        //     {
-        //         $nbJour = 30 * $duree ;
-        //     }
-        //     else if($periodeRef == "A") 
-        //     {
-        //         $nbJour =  365 * $duree ;
-        //     }
-        // }
-
-        // $dateFin = $this->appService->calculerDateApresNjours($dateDebut,$nbJour) ;
-
-        // dd($dateFin) ;
 
         $bailleur = [
             "nom" => $contrat->getBailleur()->getNom(),
@@ -1573,6 +1545,97 @@ class PrestationController extends AbstractController
 
         return new JsonResponse($result) ;
     }
+
+    #[Route('/prestation/location/quittance/imprimer/{idContrat}/{details}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_imprimer_quittance', defaults: [
+        "idContrat" => null, 
+        "details" => null, 
+        "idModeleEntete" => null, 
+        "idModeleBas" => null ])]
+    public function prestLocationImprimerQuittanceLoyer($idContrat,$details, $idModeleEntete, $idModeleBas)
+    {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($idContrat) ;
+
+        $dataContrat = [
+            "numeroContrat" => $contrat->getNumContrat(),
+            "date" => $contrat->getDateContrat()->format("d/m/Y"),
+            "lieu" => $contrat->getLieuContrat(),
+        ] ;
+
+        $filename = $this->filename."location/releveloyer(agence)/relevePL_".$idContrat."_".$this->nameAgence  ;
+        if(!file_exists($filename))
+            $this->appService->generateLctRelevePaiementLoyer($filename,$idContrat) ;
+
+        $relevePaiements = json_decode(file_get_contents($filename)) ;
+
+        $dataDetails = [] ;
+        $headerDetails = explode(",",$details) ;
+
+        $totalPayee = 0 ;
+        foreach ($headerDetails as $headerDetail) {
+            $search = [
+                "id" => $headerDetail
+            ] ;
+
+            $uniteReleve = $this->appService->searchData($relevePaiements,$search) ;
+            $uniteReleve = $this->appService->objectToArray($uniteReleve) ;
+
+            $totalPayee += $uniteReleve[0]["montant"] ;
+            array_push($dataDetails,$uniteReleve[0]) ;
+        }
+
+        $dataContrat["lettre"] = $this->appService->NumberToLetter($totalPayee) ;
+
+        $locataire = $contrat->getLocataire() ;
+
+        $dataLocataire = [
+            "nom" => $locataire->getNom(),
+            "adresse" => $locataire->getAdresse(), 
+            "telephone" => $locataire->getTelephone(), 
+        ] ;
+
+        $contentImpression = $this->renderView("prestations/location/impression/impressionFactureLoyer.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "contrat" => $dataContrat,
+            "locataire" => $dataLocataire,
+            "details" => $dataDetails,
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentImpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
+
+    }
+    
 
     #[Route('/prestation/location/loyer/liste', name: 'prest_location_liste_loyer')]
     public function prestListeLoyerLocation()

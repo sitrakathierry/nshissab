@@ -1582,4 +1582,77 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $(document).on('click',".lct_select_impression", function(){
+        if($(this).hasClass("btn-outline-info"))
+        {
+            $(this).removeClass("btn-outline-info") ;
+            $(this).addClass("btn-info") ;
+            $(this).html('<span class="text-uppercase font-weight-bold">Ok</span>')
+        }
+        else
+        {
+            $(this).removeClass("btn-info") ;
+            $(this).addClass("btn-outline-info") ;
+            $(this).html('<i class="fa fa-check"></i>') ;
+        }
+    })
+
+    $(document).on('click',".lct_btn_imprimer_quittance",function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Facture",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Imprimer',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var dataLoyer = [] ;
+                                $(".lct_select_impression.btn-info").each(function(){
+                                    dataLoyer.push($(this).data("value")) ;
+                                })
+                                if (dataLoyer.length === 0)
+                                {
+                                    $.alert({
+                                        title: 'Message',
+                                        content: "Aucun élément seléctionné",
+                                        type: "orange"
+                                    });
+                                    return false ;
+                                }
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var idContrat = self.data("value") ;
+                                var url = routes.prest_location_imprimer_quittance + '/' + idContrat + '/' + dataLoyer + '/' + idModeleEntete + '/' + idModeleBas;
+                                window.open(url, '_blank');
+                            }
+                        }
+                    }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    })
+
 })

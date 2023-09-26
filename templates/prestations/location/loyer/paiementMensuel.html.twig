@@ -10,7 +10,7 @@
                 <th>Montant payé</th>
                 <th>Commission</th>
                 <th class="text-center">Versement</th>
-                {# <th>Statut</th> #}
+                <th class="text-center">Séléction</th>
             </tr>
         </thead>
         <tbody>
@@ -35,7 +35,7 @@
                     <th class="text-center align-middle">
                         {{relevePaiement.versement|raw}} 
                     </th>
-                    {# <th>{{ repartition.statut | upper }}</th> #}
+                    <th class="text-center align-middle">{{relevePaiement.selection|raw}}</th>
                 </tr>
                 {% set totalPayee = totalPayee + valMontant %}
                 {% set totalCommission = totalCommission + relevePaiement.commissionVal %}
@@ -47,15 +47,15 @@
     <tfoot>
         <tr>
             <th colspan="6" class="text-uppercase">Total Commission</th>
-            <th style="width: 21%;" class="text-white bg-success" >{{ totalCommission }}</th>
+            <th style="width: 21%;" colspan="8" class="text-white bg-success" >{{ totalCommission }}</th>
         </tr>
         <tr>
             <th colspan="6" class="text-uppercase">Montant Total</th>
-            <th style="width: 21%;" class="text-white bg-primary" >{{ totalPayee }}</th>
+            <th style="width: 21%;" colspan="8" class="text-white bg-primary" >{{ totalPayee }}</th>
         </tr>
         <tr>
             <th colspan="6" class="text-uppercase">Total General Payée</th>
-            <th style="width: 21%;" class="text-white bg-purple" >{{ totalRelevePayee }}</th>
+            <th style="width: 21%;" colspan="8" class="text-white bg-purple" >{{ totalRelevePayee }}</th>
         </tr>
     </tfoot>
 </table>

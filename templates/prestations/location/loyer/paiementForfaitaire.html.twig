@@ -7,7 +7,7 @@
                 <th>Montant payé</th>
                 <th>Commission</th>
                 <th class="text-center">Versement</th>
-                {# <th>Statut</th> #}
+                <th class="text-center">Séléction</th>
             </tr>
         </thead>
         <tbody>
@@ -22,7 +22,7 @@
                     <th class="text-center align-middle">
                         {{relevePaiement.versement|raw}}
                     </th>
-                    {# <th>{{ repartition.statut | upper }}</th> #}
+                    <th class="text-center align-middle">{{relevePaiement.selection|raw}}</th>
                 </tr>
                 {% set totalPayee = totalPayee + relevePaiement.montant %}
                 {% set totalCommission = totalCommission + relevePaiement.commissionVal %}

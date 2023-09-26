@@ -545,11 +545,11 @@ $(document).ready(function(){
                     theme:"modern",
                     buttons:{
                         btn1:{
-                            text: 'Non',
+                            text: 'Annuler',
                             action: function(){}
                         },
                         btn2:{
-                            text: 'Oui',
+                            text: 'Imprimer',
                             btnClass: 'btn-blue',
                             keys: ['enter', 'shift'],
                             action: function(){
