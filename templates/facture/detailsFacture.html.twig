@@ -75,6 +75,10 @@
                 </div>
             {% endif %}
         </div>
+        <div class="w-100 px-2">
+            <label for="nom" class="mt-2 font-weight-bold text-uppercase">Description</label>
+            <textarea name="facture_editor" class="form-control facture_editor" id="" cols="10" rows="5">{{facture.description}}</textarea>
+        </div>
         {% if nature == "FACTURE" and facture.refType != "DF" %}
             {{templateEditFacture|raw}}
         {% endif %}

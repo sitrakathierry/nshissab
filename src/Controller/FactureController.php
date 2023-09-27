@@ -848,8 +848,8 @@ class FactureController extends AbstractController
 
     }
 
-    #[Route('/facture/imprimer/{idFacture}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_detail_imprimer', defaults: ["idModeleEntete" => null,"idFacture" => null,"idModeleBas" => null])]
-    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$idFacture)
+    #[Route('/facture/imprimer/{idFacture}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_detail_imprimer', defaults: ["idModeleEntete" => null,"idFacture" => null, "description" => null, "idModeleBas" => null])]
+    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$description,$idFacture)
     {
         // $idModeleEntete = $request->request->get("idModeleEntete") ;
         // $idModeleBas = $request->request->get("idModeleBas") ;
@@ -862,7 +862,7 @@ class FactureController extends AbstractController
             "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
             "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
             "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
-            // "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() 
+            "description" => $facture->getDescription()
         ] ;
 
         $client = $facture->getClient() ;
@@ -1044,6 +1044,21 @@ class FactureController extends AbstractController
         return $this->redirectToRoute('display_pdf');
     }
 
+    #[Route('/facture/element/description/upadte', name: 'fact_element_description_update')]
+    public function factSUpdateDescriptionElement(Request $request)
+    {
+        $idFacture = $request->request->get("idFacture") ;
+        $facture_editor = $request->request->get("facture_editor") ;
+
+        $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
+
+        $facture->setDescription($facture_editor) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([""]) ;
+    }
+
+
     public static function comparaisonFactureDetail($a, $b) {
         // Comparaison par entrepot
         $result = strcmp($a['idEnonce'], $b['idEnonce']);
@@ -1087,6 +1102,7 @@ class FactureController extends AbstractController
         $infoFacture["lieu"] = $facture->getLieu() ;
         $infoFacture["refType"] = $facture->getType()->getReference() ;
         $infoFacture["ticketCaisse"] = is_null($facture->getTicketCaisse()) ? false : $facture->getTicketCaisse()->getNumCommande() ;
+        $infoFacture["description"] = $facture->getDescription() ;
 
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 
@@ -1273,7 +1289,6 @@ class FactureController extends AbstractController
         {
             if($facture->getModele()->getReference() == "PROD")
             {
-        
                 $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
                 if(!file_exists($filename))
                     $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
