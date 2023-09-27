@@ -1,0 +1,6 @@
+.displayPass i:hover
+{
+    cursor: pointer;
+    color: darkorange;
+    transition: .5s;
+}

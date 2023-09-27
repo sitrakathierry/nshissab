@@ -9,7 +9,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/utilisateur.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -31,24 +31,11 @@
                 <input type="text" oninput="this.value = this.value.toUpperCase();" name="poste" id="poste" readonly class="form-control bg-white text-info font-weight-bold" value="{{agent.poste|upper}}">
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-4">
-                <label for="poste" class="mt-3 font-weight-bold">Mot de passe</label>
-                <input type="password" name="poste" id="poste" class="form-control bg-white text-info font-weight-bold" value="{{agent.poste|upper}}">
-            </div>
-            <div class="col-md-4">
-                <label for="poste" class="mt-3 font-weight-bold">Confirmer mot de passe</label>
-                <div class="d-flex flex-row align-items-center">
-                <input type="password" name="poste" id="poste" class="form-control bg-white text-info font-weight-bold" value="{{agent.poste|upper}}">
-                <span class="pl-2 pt-1 h5 text-danger">
-                    <i class="fa fa-info-circle"></i>
-                </span>
-                </div>
-            </div>
+        <div id="contentMotDePasse">
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-edit"></i>&nbsp;Modifier mot de passe</button>
+                <button type="button" data-value="{{agent.id}}" class="btn btn-sm btn_update_password ml-3 btn-perso-one"><i class="fa fa-edit"></i>&nbsp;Modifier mot de passe</button>
             </div>
         {% endif %} 
     </div>

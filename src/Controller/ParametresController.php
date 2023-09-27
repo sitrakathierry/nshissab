@@ -898,4 +898,41 @@ class ParametresController extends AbstractController
             "agent" => $user,
         ]);
     }
+
+    
+    #[Route('/parametres/user/contentPass/get', name: 'param_user_content_password_get')]
+    public function paramGetUserContentPass()
+    {
+        $response = $this->renderView("parametres/utilisateur/getContentMotDePasse.html.twig") ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/parametres/user/password/update', name: 'param_user_update_password')]
+    public function paramUpdateUserPassword(Request $request)
+    {
+        $idUser = $request->request->get("idUser") ;
+        $newPass = $request->request->get("newPass") ;
+        
+        if(strlen($newPass) < 8)
+        {
+            return new JsonResponse([
+                "type" => "orange",    
+                "message" => "Votre mot de passe doit contenir au moins 8 caractère",    
+            ]) ;
+        }
+        
+        $user = $this->entityManager->getRepository(User::class)->find($idUser) ;
+
+        $encodedPass = $this->appService->hashPassword($user,$newPass) ;
+        $user->setPassword($encodedPass) ;
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Mise à jour effectué",    
+        ]) ;
+    }
+
+    
 }
