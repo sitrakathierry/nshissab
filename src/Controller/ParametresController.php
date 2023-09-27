@@ -855,6 +855,26 @@ class ParametresController extends AbstractController
         return new JsonResponse($response) ;
     }
 
+    #[Route('/parametres/modele/element/delete', name: 'param_modele_delete_element')]
+    public function paramModeleDeleteElement(Request $request)
+    {
+        $idModele = $request->request->get("idModele") ;
+
+        $modelePdf = $this->entityManager->getRepository(ModModelePdf::class)->find($idModele) ;
+
+        $modelePdf->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ; 
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Suppression effectué",    
+        ]) ;
+    }
+
     #[Route('/parametres/utilisateur/agent/disable', name: 'param_utils_attribution_agent_update')]
     public function paramDisableCompteAgent(Request $request)
     {
