@@ -39,6 +39,14 @@ class BtpElementRepository extends ServiceEntityRepository
         }
     }
 
+    public function getInformationElement($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT be.nom as designation,bm.notation as mesure FROM `fact_details` fd JOIN btp_element be ON be.id = fd.entite JOIN btp_mesure bm ON bm.id = be.mesure_id WHERE fd.id = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["idFactDetail"]]);
+        return $resultSet->fetchAssociative();
+    }
 //    /**
 //     * @return BtpElement[] Returns an array of BtpElement objects
 //     */

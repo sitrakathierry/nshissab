@@ -128,6 +128,7 @@ class AgendaController extends AbstractController
         $agd_nom = $request->request->get("agd_nom") ;
         $agd_objet = $request->request->get("agd_objet") ;
         $agd_refobjet = $request->request->get("agd_refobjet") ;
+        $agd_pers_interne = $request->request->get("agd_pers_interne") ;
 
         $data = [
             $agd_type,
@@ -192,6 +193,7 @@ class AgendaController extends AbstractController
 
         $agenda->setAgence($this->agence) ;
         $agenda->setClientNom($agd_client) ;
+        $agenda->setPersInterne($agd_pers_interne) ;
         $agenda->setDate(\DateTime::createFromFormat('j/m/Y',$agd_date)) ;
         $agenda->setHeure($agd_heure) ;
         $agenda->setLieu($agd_lieu) ; 

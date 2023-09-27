@@ -586,7 +586,12 @@ class ParametresController extends AbstractController
         }
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $chk_email = $this->entityManager->getRepository(User::class)->findOneBy(["email" => $email]) ;
+            $chk_email = $this->entityManager->getRepository(User::class)->findOneBy([
+                "email" => $email,
+                "agence" => $this->agence,
+                "statut" => True
+            ]) ;
+            
             if(!is_null($chk_email))
             {
                 $allow = False ;

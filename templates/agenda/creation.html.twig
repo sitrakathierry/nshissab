@@ -58,6 +58,10 @@
                     <label for="agd_client" class="font-weight-bold text-uppercase agdDesignation">{{nomType}}</label>
                     <input type="text" {{readonly}} value="{{nom}}" name="agd_client" oninput="this.value = this.value.toUpperCase();" id="agd_client" class="form-control" placeholder=". . .">
                 </div>
+                <div class="col-md-3">
+                    <label for="agd_objet" class="font-weight-bold text-uppercase">Personne Interne</label>
+                    <input type="text" name="agd_pers_interne" id="agd_pers_interne" oninput="this.value = this.value.toUpperCase();" class="form-control" placeholder=". . .">
+                </div>
                 <div class="col-md-2">
                     <label for="agd_date" class="font-weight-bold text-uppercase">Date</label>
                     <input type="text" value="{{date}}" name="agd_date" id="agd_date" class="form-control" placeholder=". . .">
@@ -67,7 +71,7 @@
                     <input type="time" {{readonly}} value="{{heure}}" name="agd_heure" id="agd_heure" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
-                    <label for="agd_lieu" class="font-weight-bold text-uppercase">Lieu</label>
+                    <label for="agd_lieu" class="font-weight-bold text-uppercase mt-2">Lieu</label>
                     <input type="text" {{readonly}} value="{{lieu}}" name="agd_lieu" id="agd_lieu" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-md-3">

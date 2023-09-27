@@ -1642,6 +1642,7 @@ $(document).ready(function(){
                                 var idContrat = self.data("value") ;
                                 var url = routes.prest_location_imprimer_quittance + '/' + idContrat + '/' + dataLoyer + '/' + idModeleEntete + '/' + idModeleBas;
                                 window.open(url, '_blank');
+                                location.reload()
                             }
                         }
                     }

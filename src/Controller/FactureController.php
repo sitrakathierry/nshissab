@@ -939,6 +939,7 @@ class FactureController extends AbstractController
             $total = $total - $remise ;
             
             $element = [] ;
+            $element["id"] = $detail->getId() ;
             $element["type"] = $detail->getActivite() ;
             $element["designation"] = $detail->getDesignation() ;
             $element["quantite"] = $detail->getQuantite() ;
@@ -1003,6 +1004,13 @@ class FactureController extends AbstractController
 
                 $key1 = $dataDetail["idEnonce"]."#|#".$dataDetail["enonce"] ;
                 $key2 = $dataDetail["idCategorie"]."#|#".$dataDetail["categorie"] ;
+                
+                $detailBatiment = $this->entityManager->getRepository(BtpElement::class)->getInformationElement([
+                    "idFactDetail" => $dataDetail["id"]
+                ]) ;
+
+                $dataDetail["designation"] = $detailBatiment["designation"] ;
+                $dataDetail["mesure"] = $detailBatiment["mesure"] ;
 
                 $newTabFactureDetls[$key1][$key2][] = $dataDetail ;
             }
@@ -1316,6 +1324,13 @@ class FactureController extends AbstractController
 
                     $key1 = $element["idEnonce"]."#|#".$element["enonce"] ;
                     $key2 = $element["idCategorie"]."#|#".$element["categorie"] ;
+
+                    $detailBatiment = $this->entityManager->getRepository(BtpElement::class)->getInformationElement([
+                        "idFactDetail" => $element["id"]
+                    ]) ;
+    
+                    $element["designation"] = $detailBatiment["designation"] ;
+                    $element["mesure"] = $detailBatiment["mesure"] ;
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
                 }

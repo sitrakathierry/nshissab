@@ -55,6 +55,9 @@ class Agenda
     #[ORM\OneToMany(mappedBy: 'agenda', targetEntity: AgdHistorique::class)]
     private Collection $agdHistoriques;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $persInterne = null;
+
     public function __construct()
     {
         $this->agdCommentaires = new ArrayCollection();
@@ -254,6 +257,18 @@ class Agenda
                 $agdHistorique->setAgenda(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPersInterne(): ?string
+    {
+        return $this->persInterne;
+    }
+
+    public function setPersInterne(?string $persInterne): self
+    {
+        $this->persInterne = $persInterne;
 
         return $this;
     }
