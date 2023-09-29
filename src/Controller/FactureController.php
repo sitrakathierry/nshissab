@@ -34,6 +34,7 @@ use App\Entity\LctPaiement;
 use App\Entity\LctRepartition;
 use App\Entity\LctStatutLoyer;
 use App\Entity\ModModelePdf;
+use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\User;
@@ -1718,7 +1719,7 @@ class FactureController extends AbstractController
                     }
                     
                     $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
-        
+                    
                     $factDetail->setFacture($facture) ; 
                     $factDetail->setRemiseType($typeRemiseUnit) ;
                     $factDetail->setRemiseVal($remiseVal) ;
