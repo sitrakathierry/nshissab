@@ -54,7 +54,7 @@ class CaisseController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
         
-        // $this->appService->synchronisationGeneral() ;
+        $this->appService->synchronisationGeneral() ;
 
         $margeTypes = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
 
@@ -151,6 +151,9 @@ class CaisseController extends AbstractController
             $filename = "files/systeme/stock/variationProduit(agence)/vartPrd_".$variationPrix->getProduit()->getId()."_".$this->nameAgence ;
             if(file_exists($filename))
                 unlink($filename) ;
+            
+            $variationPrix->getProduit()->setToUpdate(True) ;
+            $this->entityManager->flush() ;
         } 
 
         $dataFilenames = [

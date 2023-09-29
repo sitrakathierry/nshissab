@@ -65,6 +65,9 @@ class Produit
     #[ORM\ManyToOne(inversedBy: 'produits')]
     private ?PrdType $type = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $toUpdate = null;
+
     public function __construct()
     {
         $this->prdVariationPrixes = new ArrayCollection();
@@ -281,6 +284,18 @@ class Produit
     public function setType(?PrdType $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function isToUpdate(): ?bool
+    {
+        return $this->toUpdate;
+    }
+
+    public function setToUpdate(?bool $toUpdate): self
+    {
+        $this->toUpdate = $toUpdate;
 
         return $this;
     }

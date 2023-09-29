@@ -244,6 +244,7 @@ class StockController extends AbstractController
         $produit->setUnite($unite_produit) ;
         $produit->setStock(null) ;
         $produit->setStatut(True) ;
+        $produit->setToUpdate(True) ;
         $produit->setCreatedAt(new \DateTimeImmutable) ;
         $produit->setUpdatedAt(new \DateTimeImmutable) ;
 
@@ -503,8 +504,8 @@ class StockController extends AbstractController
 
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
-    {       
-        // $this->appService->synchronisationGeneral() ;
+    {   
+        $this->appService->synchronisationGeneral() ;
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -515,7 +516,7 @@ class StockController extends AbstractController
         $filename = $this->filename."stockType(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generatePrdStockType($filename,$this->agence) ;
-            
+        
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
@@ -1948,6 +1949,10 @@ class StockController extends AbstractController
             ] ;
 
             $this->stockSaveVariationProduit(null, $dataToInsert) ;
+            
+            $produit->setToUpdate(True) ;
+            $this->entityManager->flush() ;
+
             $key++ ;
         }while($key < $lenSave) ;
 
@@ -2278,6 +2283,9 @@ class StockController extends AbstractController
             $this->entityManager->persist($variationPrix) ;
             $this->entityManager->flush() ;
         }
+
+        $produit->setToUpdate(True) ;
+        $this->entityManager->flush() ;
 
         $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($prod_variation_entrepot) ; 
 
@@ -2720,6 +2728,18 @@ class StockController extends AbstractController
 
         $produit->setStatut(False) ;
         $this->entityManager->flush() ;
+
+        $produitActifs = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
+            "toUpdate" => True,
+            "statut" => True
+        ]) ;
+
+        foreach($produitActifs as $produitActif)
+        {
+            $produitActif->setToUpdate(True) ;
+            $this->entityManager->flush() ;
+        }
 
         $this->appService->synchronisationGeneral() ;
 

@@ -371,6 +371,7 @@ class FactureController extends AbstractController
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
     { 
+        
 
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
 
@@ -1677,6 +1678,9 @@ class FactureController extends AbstractController
     
                     $this->entityManager->persist($factDetail) ;
                     $this->entityManager->flush() ; 
+
+                    $caissePanier->getVariationPrix()->getProduit()->setToUpdate(True) ;
+                    $this->entityManager->flush() ;
                 }
             }
             else
@@ -1705,6 +1709,12 @@ class FactureController extends AbstractController
                     {
                         $factDetail->setActivite($fact_enr_prod_type[$key]) ;
                         $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
+                        if($fact_enr_prod_type[$key] == "Produit")
+                        {
+                            $detailEntite = $this->entityManager->getRepository(PrdVariationPrix::class)->find($fact_enr_prod_prix[$key]) ;
+                            $detailEntite->getProduit()->setToUpdate(True) ;
+                            $this->entityManager->flush() ;
+                        }
                     }
                     
                     $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;

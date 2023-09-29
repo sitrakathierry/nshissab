@@ -3130,36 +3130,37 @@ class AppService extends AbstractController
 
     public function synchronisationGeneral()
     {
-        $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
-            "agence" => $this->agence,
-            "statut" => False
-        ]) ; 
+        // $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "statut" => False
+        // ]) ; 
 
-        foreach($produitFalses as $produitFalse)
-        {
-            $variationPrixTrues = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-                "produit" => $produitFalse,
-            ]) ; 
+        // foreach($produitFalses as $produitFalse)
+        // {
+        //     $variationPrixTrues = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+        //         "produit" => $produitFalse,
+        //     ]) ; 
 
-            foreach ($variationPrixTrues as $variationPrixTrue) {
-                $variationPrixTrue->setStatut(False) ;
-                $this->entityManager->flush() ;
+        //     foreach ($variationPrixTrues as $variationPrixTrue) {
+        //         $variationPrixTrue->setStatut(False) ;
+        //         $this->entityManager->flush() ;
 
-                $histoEntrepotTrues = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                    "variationPrix" => $variationPrixTrue,
-                ]) ; 
+        //         $histoEntrepotTrues = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+        //             "variationPrix" => $variationPrixTrue,
+        //         ]) ; 
 
-                foreach ($histoEntrepotTrues as $histoEntrepotTrue) {
-                    $histoEntrepotTrue->setStatut(False) ;
-                    $this->entityManager->flush() ;
-                }
-            }
-        }
+        //         foreach ($histoEntrepotTrues as $histoEntrepotTrue) {
+        //             $histoEntrepotTrue->setStatut(False) ;
+        //             $this->entityManager->flush() ;
+        //         }
+        //     }
+        // }
 
         $produits = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,
+            "toUpdate" => True,
             "statut" => True
-        ]) ; 
+        ]) ;
 
         foreach($produits as $produit)
         {
@@ -3167,6 +3168,7 @@ class AppService extends AbstractController
                 "produit" => $produit,
                 "statut" => True
             ]) ; 
+
             $stockAddProduit = 0 ;
             foreach ($variationPrixs as $variationPrix) {
                 $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
@@ -3197,8 +3199,12 @@ class AppService extends AbstractController
             }
 
             $produit->setStock($stockAddProduit) ;
+            $produit->setToUpdate(null) ;
             $this->entityManager->flush() ;
         }
+
+        if(empty($produits))
+            return ;
 
         $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
             "reference" => "DF"
