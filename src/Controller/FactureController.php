@@ -859,18 +859,25 @@ class FactureController extends AbstractController
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
         
+        $histoPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+            "facture" => $facture
+        ]) ;
+
+        $paiement = $histoPaiement->getPaiement() ;
+
         $dataFacture = [
             "numFact" => $facture->getNumFact() ,
             "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
             "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
             "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
-            "description" => $facture->getDescription()
+            "description" => $facture->getDescription(),
+            "addsNum" => ($paiement->getReference() == "AC" || $paiement->getReference() == "CR") && $histoPaiement->getStatutPaiement() == "En_cours" ? "-".strtoupper($paiement->getNom()) : "" ,
         ] ;
 
         $client = $facture->getClient() ;
 
         $dataClient = [
-            "nom" => "",   
+            "nom" => "",
             "adresse" => "",   
             "telephone" => "",   
         ] ;

@@ -1,6 +1,7 @@
 $(document).ready(function(){
   $("#crd_paiement_date").datepicker()
   $("#agd_acp_date").datepicker()
+  var facture_editor = new LineEditor(".facture_editor") ;
   
   var instance = new Loading(files.loading)
   
@@ -364,4 +365,66 @@ $(document).ready(function(){
     })
     return false;
   })
+
+  $(document).on('click',".btn_imprimer_facture",function(){
+    var self = $(this)
+    var realinstance = instance.loading()
+    $.ajax({
+        url: routes.param_modele_pdf_get,
+        type:"post",
+        dataType:"html",
+        processData:false,
+        contentType:false,
+        success : function(response){
+            realinstance.close()
+            $.confirm({
+                title: "Impression Facture",
+                content:response,
+                type:"blue",
+                theme:"modern",
+                buttons:{
+                    btn1:{
+                        text: 'Annuler',
+                        action: function(){}
+                    },
+                    btn2:{
+                        text: 'Imprimer',
+                        btnClass: 'btn-blue',
+                        keys: ['enter', 'shift'],
+                        action: function(){
+                            var idModeleEntete = $("#modele_pdf_entete").val() ;
+                            var idModeleBas = $("#modele_pdf_bas").val() ;
+                            var realinstance = instance.loading()
+                            $.ajax({
+                                url: routes.fact_element_description_update,
+                                type:'post',
+                                cache: false,
+                                data:{
+                                    idFacture:self.data("value"),
+                                    facture_editor:facture_editor.getEditorText()
+                                },
+                                dataType: 'json',
+                                success: function(response){
+                                    realinstance.close()
+                                    var idFacture = self.data("value") ;
+                                    var url = routes.fact_facture_detail_imprimer + '/' + idFacture + '/' + idModeleEntete + '/' + idModeleBas;
+                                    window.open(url, '_blank');
+                                },
+                                error: function(resp){
+                                    realinstance.close()
+                                    $.alert(JSON.stringify(resp)) ;
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+        },
+        error: function(resp){
+            realinstance.close()
+            $.alert(JSON.stringify(resp)) ;
+        }
+    })
+    return false ;
+  })  
 })

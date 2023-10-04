@@ -79,7 +79,8 @@ class AdminController extends AbstractController
         else
             $user = $this->session->get("user")  ; 
 
-        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        $filename = "files/json/menu/".strtolower($user['username'])."_".$user['agence'].".json" ;
+
         if(!file_exists($filename))
         {
             $userClass = $this->entityManager
@@ -324,7 +325,7 @@ class AdminController extends AbstractController
 
                 $user = $this->entityManager->getRepository(User::class)->findManager($agence->getId()) ;
 
-                $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+                $filename = "files/json/menu/".strtolower($user['username'])."_".$user['agence'].".json" ;
                 if(file_exists($filename))
                     unlink($filename) ;
                 $this->regenerateUserMenu($user) ;
@@ -435,7 +436,7 @@ class AdminController extends AbstractController
             
             if($username == "SHISSAB")
             {
-                $path = "files/json/menu/".strtolower($username).".json" ;
+                $path = "files/json/menu/".strtolower($username)."_".$this->session->get("user")['agence'].".json" ;
                 unlink($path) ;
                 $this->regenerateUserMenu() ;
             }
@@ -494,7 +495,7 @@ class AdminController extends AbstractController
             
             if($username == "SHISSAB")
             {
-                $path = "files/json/menu/".strtolower($username).".json" ;
+                $path = "files/json/menu/".strtolower($username)."_".$this->session->get("user")["agence"].".json" ;
                 unlink($path) ;
                 $this->regenerateUserMenu() ;
             }
@@ -532,7 +533,7 @@ class AdminController extends AbstractController
     public function refreshAll()
     {
         $user = $this->session->get("user")  ; 
-        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        $filename = "files/json/menu/".strtolower($user['username'])."_".$user['agence'].".json" ;
         if(file_exists($filename))
             unlink($filename) ;
         $this->regenerateUserMenu() ;
@@ -569,7 +570,7 @@ class AdminController extends AbstractController
 
         $user = $this->entityManager->getRepository(User::class)->findManager($idAgence) ;
 
-        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        $filename = "files/json/menu/".strtolower($user['username'])."_".$user['agence'].".json" ;
         if(!file_exists($filename))
             $this->regenerateUserMenu($user) ;
         

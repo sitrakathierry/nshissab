@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class ParametresController extends AbstractController
 {
@@ -543,7 +544,7 @@ class ParametresController extends AbstractController
     }
 
     #[Route('/parametres/utilisateur/agent/save', name: 'param_utilisateur_save_agent')]
-    public function paramUtilisateurSaveAgent(Request $request)
+    public function paramUtilisateurSaveAgent(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
         $userAgences = $this->entityManager->getRepository(User::class)->findBy([
             "agence" => $this->agence,
@@ -576,7 +577,10 @@ class ParametresController extends AbstractController
         $type = $result["type"] ;
         $message = $result["message"] ;
 
-        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy(["username" => strtoupper($username)]) ;
+        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy([
+            "username" => strtoupper($username),
+            "agence" => $this->agence
+        ]) ;
 
         if(!is_null($chk_uname))
         {
@@ -603,12 +607,30 @@ class ParametresController extends AbstractController
             $type="red" ;
             $message = "Votre adresse email est invalide" ;
         }
-        
+
         if(strlen($password) < 8)
         {
             $allow = False ;
             $type="orange" ;
             $message = "Votre mot de passe doit contenir au moins 8 caractère" ;
+        }
+
+        $userJumSystem = $this->entityManager->getRepository(User::class)->findBy([
+            "username" => strtoupper($username)
+        ]) ;
+
+        foreach ($userJumSystem as $userJumeau) {
+            $isPasswordValid = $passwordEncoder->isPasswordValid($userJumeau,$password);
+            if ($isPasswordValid) {
+                $newPass = "admin#".date("dmYHis") ;
+                $userJumeau->setPassword($this->appService->hashPassword($userJumeau,$newPass)) ;
+                $this->entityManager->flush() ;
+
+                return new JsonResponse([
+                    "message" => "Entrer un nouveau mot de passe", 
+                    "type" => "red"
+                ]) ;
+            }
         }
 
         if(!$allow)
@@ -631,7 +653,7 @@ class ParametresController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $filename = 'files/json/menu/'.strtolower($username).'.json' ;
+        $filename = 'files/json/menu/'.strtolower($username).'_'.$this->agence->getId().'.json' ;
 
         $dataUser = [] ;
         if(!file_exists($filename))
@@ -663,7 +685,7 @@ class ParametresController extends AbstractController
         else
             $user = $this->session->get("user")  ; 
 
-        $filename = "files/json/menu/".strtolower($user['username']).".json" ;
+        $filename = "files/json/menu/".strtolower($user['username'])."_".$user['agence'].".json" ;
         if(!file_exists($filename))
         {
             $userClass = $this->entityManager
@@ -688,7 +710,7 @@ class ParametresController extends AbstractController
     #[Route('/parametres/utilisateur/agent/attribution', name: 'param_utilisateur_attribution_menu_agent')]
     public function paramAttributionMenuAgent()
     {
-        $filename = "files/json/menu/".$this->nameUser.".json" ;
+        $filename = "files/json/menu/".$this->nameUser."_".$this->agence->getId().".json" ;
         if(!file_exists($filename))
             $this->regenerateUserMenu(null) ;
 
@@ -729,9 +751,12 @@ class ParametresController extends AbstractController
 
             if(!is_null($menus))
             {
+                // dd($menus) ;
+
                 $toremove = [];
                 for ($i=0; $i < count($menus); $i++) { 
                     $menu = $this->entityManager->getRepository(Menu::class)->find($menus[$i]) ;
+                    
                     $oneMenuAgence = $this->entityManager->getRepository(MenuAgence::class)->findOneBy([
                         "menu" => $menu,
                         "agence" => $this->agence
@@ -750,6 +775,9 @@ class ParametresController extends AbstractController
                 }
                 
                 $menus = array_diff($menus, $toremove);
+                
+                $menus = array_values($menus) ;
+
                 $addMenus = [] ;
 
                 foreach ($menus as $menu) {
@@ -792,9 +820,10 @@ class ParametresController extends AbstractController
                     "id" => $userAgent->getId(),
                     "username" => $userAgent->getUsername(),
                     "email" => $userAgent->getEmail(),
+                    "agence" => $userAgent->getAgence()->getId(),
                 ] ;
 
-                $filename = "files/json/menu/".strtolower($userAgent->getUsername()).".json" ;
+                $filename = "files/json/menu/".strtolower($userAgent->getUsername())."_".$userAgent->getAgence()->getId().".json" ;
 
                 if(file_exists($filename))
                     unlink($filename) ;
@@ -839,9 +868,10 @@ class ParametresController extends AbstractController
             "id" => $user->getId(),
             "username" => $user->getUsername(),
             "email" => $user->getEmail(),
+            "agence" => $user->getAgence()->getId(),
         ] ;
 
-        $filename = "files/json/menu/".strtolower($user->getUsername()).".json" ;
+        $filename = "files/json/menu/".strtolower($user->getUsername())."_".$user->getAgence()->getId().".json" ;
         if(!file_exists($filename))
             $this->regenerateUserMenu($dataUser) ;
         
@@ -929,7 +959,7 @@ class ParametresController extends AbstractController
     }
 
     #[Route('/parametres/user/password/update', name: 'param_user_update_password')]
-    public function paramUpdateUserPassword(Request $request)
+    public function paramUpdateUserPassword(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
         $idUser = $request->request->get("idUser") ;
         $newPass = $request->request->get("newPass") ;
@@ -941,8 +971,32 @@ class ParametresController extends AbstractController
                 "message" => "Votre mot de passe doit contenir au moins 8 caractère",    
             ]) ;
         }
-        
+
         $user = $this->entityManager->getRepository(User::class)->find($idUser) ;
+        
+        $userJumSystem = $this->entityManager->getRepository(User::class)->findBy([
+            "username" => strtoupper($user->getUsername())
+        ]) ;
+
+        if(count($userJumSystem) > 1)
+        {
+            foreach ($userJumSystem as $userJumeau) {
+                if($userJumeau->getId() == $idUser)
+                    continue;
+
+                $isPasswordValid = $passwordEncoder->isPasswordValid($userJumeau,$newPass);
+                if ($isPasswordValid) {
+                    $newPassExist = "admin#".date("dmYHis") ;
+                    $userJumeau->setPassword($this->appService->hashPassword($userJumeau,$newPassExist)) ;
+                    $this->entityManager->flush() ;
+                    
+                    return new JsonResponse([
+                        "message" => "Entrer un nouveau mot de passe", 
+                        "type" => "red"
+                    ]) ;
+                }
+            }
+        }
 
         $encodedPass = $this->appService->hashPassword($user,$newPass) ;
         $user->setPassword($encodedPass) ;

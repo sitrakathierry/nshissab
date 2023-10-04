@@ -115,6 +115,7 @@ class CreditController extends AbstractController
         $infoFacture["type"] = $facture->getType()->getNom() ;
         $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
         $infoFacture["lieu"] = $facture->getLieu() ;
+        $infoFacture["description"] = $facture->getDescription() ;
 
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 

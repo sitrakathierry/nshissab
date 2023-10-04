@@ -10101,6 +10101,17 @@ th .text-right, td .text-right{
   width: 100px !important ;
 }
 
+footer {
+  font-size: 10px; /* Taille de police de base */
+}
+
+@supports (font-size: clamp(1px, 1vw, 0.5em)) {
+  footer {
+    font-size: clamp(10px, 1vw, 0.5em); /* Ajuste la taille de police en fonction de la largeur de la fenêtre, mais ne dépasse pas 0.9em */
+  }
+}
+
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
@@ -10108,7 +10119,7 @@ th .text-right, td .text-right{
     </div>
     <div class="pt-2 mt-5">
         <div class="text-center">
-            <h5 class="title_form_entete text-black text-uppercase">Facture {{facture.type}} N° {{facture.numFact}}</h5>
+            <h5 class="title_form_entete text-black text-uppercase">Facture {{facture.type}} N° {{facture.numFact}} {{facture.addsNum}}</h5>
         </div>
         <div class="mt-4 text-wrap" style="width: 380px; margin-left: 57%">
             <ul class="list-unstyled" style="line-height: 20px ; font-size: 0.92em ">

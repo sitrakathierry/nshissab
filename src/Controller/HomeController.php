@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Agence;
 use App\Entity\CaissePanier;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdVariationPrix;
@@ -39,8 +40,12 @@ class HomeController extends AbstractController
     public function index(): Response
     {
         $username = $this->session->get("user")["username"] ;
-        // $user = $this->entityManager->getRepository(User::class)->findOneBy(["username" => "SHISSAB"]) ;
-        // dd($this->appService->hashPassword($user, "Kadoul@1711")) ;
+        // $agence = $this->entityManager->getRepository(Agence::class)->find($this->session->get("user")["agence"]) ; 
+        // $user = $this->entityManager->getRepository(User::class)->findOneBy([
+        //     "username" => "TEST",
+        //     "agence" => $agence
+        //     ]) ;
+        // dd($this->appService->hashPassword($user, "Admin@18")) ;
         return $this->render('home/index.html.twig', [
            "username" => $username 
         ]);

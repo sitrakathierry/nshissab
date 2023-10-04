@@ -867,7 +867,7 @@ class StockController extends AbstractController
         }
         $categories = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
 
         if(!file_exists($filename))
             $this->appService->generateStockPreferences($filename,$this->userObj) ;
@@ -2486,7 +2486,7 @@ class StockController extends AbstractController
                 $this->entityManager->flush() ;
                 
                 $produitDeduit = $histoEntrepot->getVariationProduit()->getProduit() ;
-                
+
                 $produitDeduit->setToUpdate(True) ;
                 $this->entityManager->flush() ;
 

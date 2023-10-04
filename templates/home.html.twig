@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
@@ -81,7 +80,7 @@
 			<script type="application/javascript" src="{{asset('tools/resizeImage/mobileBUGFix.mini.js')}}"></script>
 			<script>
 				const routes = {
-					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username|lower ~ '.json')}}",
+					jsonPath : "{{asset('files/json/menu/' ~ app.session.get('user').username|lower ~ '_' ~ app.session.get('user').agence ~ '.json')}}",
 					getRandomPass : "{{path('getRandomPass')}}",
 					disp_edit_menu: "{{path('disp_edit_menu')}}",
 					restore_menu_corbeille:"{{path('restore_menu_corbeille')}}",

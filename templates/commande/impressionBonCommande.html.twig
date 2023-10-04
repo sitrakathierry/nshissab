@@ -10098,6 +10098,17 @@ th .text-right, td .text-right{
   width: 100px !important ;
 }
 
+footer {
+  font-size: 10px; /* Taille de police de base */
+}
+
+@supports (font-size: clamp(1px, 1vw, 0.5em)) {
+  footer {
+    font-size: clamp(10px, 1vw, 0.5em); /* Ajuste la taille de police en fonction de la largeur de la fenêtre, mais ne dépasse pas 0.9em */
+  }
+}
+
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
