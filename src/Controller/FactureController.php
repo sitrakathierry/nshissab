@@ -859,11 +859,11 @@ class FactureController extends AbstractController
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
         
-        $histoPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
+        $crdFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([
             "facture" => $facture
         ]) ;
 
-        $paiement = $histoPaiement->getPaiement() ;
+        $paiement = $crdFinance->getPaiement() ;
 
         $dataFacture = [
             "numFact" => $facture->getNumFact() ,
@@ -871,7 +871,7 @@ class FactureController extends AbstractController
             "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
             "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
             "description" => $facture->getDescription(),
-            "addsNum" => ($paiement->getReference() == "AC" || $paiement->getReference() == "CR") && $histoPaiement->getStatutPaiement() == "En_cours" ? "-".strtoupper($paiement->getNom()) : "" ,
+            "addsNum" => ($paiement->getReference() == "AC" || $paiement->getReference() == "CR") && $crdFinance->getStatut()->getReference() == "ECR" ? "- ".strtoupper($paiement->getNom()) : "" ,
         ] ;
 
         $client = $facture->getClient() ;
