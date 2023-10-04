@@ -2481,8 +2481,13 @@ class StockController extends AbstractController
                 $deduction->setType($reduc_val_type[$key]) ;
                 $deduction->setCreatedAt(new \DateTimeImmutable) ;
                 $deduction->setUpdatedAt(new \DateTimeImmutable) ;
-
+                
                 $this->entityManager->persist($deduction) ;
+                $this->entityManager->flush() ;
+                
+                $produitDeduit = $histoEntrepot->getVariationProduit()->getProduit() ;
+                
+                $produitDeduit->setToUpdate(True) ;
                 $this->entityManager->flush() ;
 
                 // $variationPrix->setStock($variationPrix->getStock() - intval($reduc_val_qte[$key])) ;

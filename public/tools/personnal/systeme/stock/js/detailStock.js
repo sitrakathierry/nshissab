@@ -232,7 +232,7 @@ $(document).ready(function(){
             url: routes.stock_get_details_variation_prix,
             type:"post",
             data:formData,
-            dataType:"html",
+            dataType:"html", 
             processData: false,
             contentType: false,
             success : function(response){
