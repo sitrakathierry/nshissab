@@ -1,5 +1,6 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
+    var appBase = new AppBase() ;
 
     $("#devise_symbole_change").keyup(function(){
         $("#devise_montant_change").val("1 "+$(this).val())
@@ -49,7 +50,7 @@ $(document).ready(function(){
                     text: 'Oui, je suis sûre',
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
-                    action: function(){
+                    action: function(){ 
                         var realinstance = instance.loading()
                         $.ajax({
                             url: routes.param_agence_update,
@@ -79,6 +80,94 @@ $(document).ready(function(){
                 }
             }
         })
+    })
+
+    $(document).on("click", "#devise_modif_base", function(){
+        if(!$(this).hasClass("btn-info"))
+        {
+            $("#devise_symbole_base").removeAttr("disabled")
+            $("#devise_lettre_base").removeAttr("disabled") 
+            $(this).removeClass("btn-perso-one")
+            $(this).addClass("btn-info")
+            $(this).html('<i class="fa fa-check"></i>&nbsp;Mettre à jour')
+        }
+        else
+        {
+            if(devise_symbole_base == "")
+            {
+                $.alert({
+                    title: 'Symbole vide',
+                    content: "Veuillez remplir le champ symbole",
+                    type:'orange',
+                })
+                return false;
+            }
+            else if(devise_lettre_base == "")
+            {
+    
+                $.alert({
+                    title: 'Lettre vide',
+                    content: "Veuillez remplir le champ lettre",
+                    type:'orange',
+                })
+                return false;
+            }
+            
+            var self = $(this)
+            $.confirm({
+                title: "Modification",
+                content:"Êtes-vous sûre ?",
+                type:"orange",
+                theme:"modern",
+                buttons:{
+                    btn1:{
+                        text: 'Non',
+                        action: function(){}
+                    },
+                    btn2:{
+                        text: 'Oui',
+                        btnClass: 'btn-orange',
+                        keys: ['enter', 'shift'],
+                        action: function(){
+                            var realinstance = instance.loading()
+                            $.ajax({
+                                url: routes.param_agence_update,
+                                type:'post',
+                                cache: false,
+                                data:{
+                                    devise_symbole_base:$("#devise_symbole_base").val(),
+                                    devise_lettre_base:$("#devise_lettre_base").val(),
+                                    devise_modif:"OK"
+                                },
+                                dataType: 'json',
+                                success: function(json){
+                                    realinstance.close()
+                                    $.alert({
+                                        title: 'Message',
+                                        content: json.message,
+                                        type: json.type,
+                                        buttons: {
+                                            OK: function(){
+                                                if(json.type == "green")
+                                                {
+                                                    location.reload()
+                                                }
+                                            }
+                                        }
+                                    });
+                                },
+                                error: function(resp){
+                                    realinstance.close()
+                                    $.alert(JSON.stringify(resp)) ;
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+            return false ;
+        }
+        
     })
 
     $("#formDevise").submit(function(event){

@@ -85,12 +85,14 @@ class ParametresController extends AbstractController
     {
         $devise_symbole_base = $request->request->get('devise_symbole_base') ; 
         $devise_lettre_base = $request->request->get('devise_lettre_base') ; 
+        $devise_modif = $request->request->get('devise_modif') ; 
 
         $agcDevise = $this->entityManager->getRepository(AgcDevise::class)->findOneBy([
-            "symbole" => $devise_symbole_base 
+            "symbole" => strtoupper($devise_symbole_base ),
+            "lettre" => $devise_lettre_base,
         ]) ;
 
-        if(is_null($agcDevise))
+        if(is_null($agcDevise)) 
         {
             $agcDevise = new AgcDevise() ;
             $agcDevise->setSymbole($devise_symbole_base) ;
@@ -104,8 +106,22 @@ class ParametresController extends AbstractController
         }
         else
         {
-            $this->agence->setDevise($agcDevise) ;
-            $this->entityManager->flush() ;
+            if(isset($devise_modif))
+            {
+                $agcDevise->setSymbole($devise_symbole_base) ;
+                $agcDevise->setLettre($devise_lettre_base) ;
+    
+                $this->entityManager->persist($agcDevise) ;
+                $this->entityManager->flush() ;
+    
+                $this->agence->setDevise($agcDevise) ;
+                $this->entityManager->flush() ;
+            }
+            else
+            {
+                $this->agence->setDevise($agcDevise) ;
+                $this->entityManager->flush() ;
+            }
         }
 
         return new JsonResponse([

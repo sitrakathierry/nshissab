@@ -1,6 +1,8 @@
 $(document).ready(function(){  
     var facture_editor = new LineEditor(".facture_editor") ;
     var instance = new Loading(files.loading)
+    $("#cmd_date").datepicker()
+
     var appBase = new AppBase() ;
     $("#fact_date").datepicker() ;
     $("#agd_ech_date").datepicker() ;
@@ -716,4 +718,5 @@ $(document).ready(function(){
         })
         return false ;
     })
+    
 })

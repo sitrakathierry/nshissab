@@ -152,9 +152,21 @@ class SecurityController extends AbstractController
             $route = "app_home" ;
         }
 
+        $deviseLettre = "" ;
+        $deviseSymbole = "" ;
+
+        if(!is_null($userObject->getAgence()->getDevise()))
+        {
+            $devise = $userObject->getAgence()->getDevise() ;
+            $deviseLettre = $devise->getLettre() ;
+            $deviseSymbole = $devise->getSymbole() ;
+        }
+
         $data = [
             "username" => strtoupper($username),
             "email" => $userObject->getEmail(),
+            "deviseLettre" => $deviseLettre,
+            "deviseSymbole" => $deviseSymbole,
             "agence" => $userObject->getAgence()->getId(),
             "role" =>$role,
             "csrf_token" => $csrfToken

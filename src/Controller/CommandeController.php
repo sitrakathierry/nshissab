@@ -356,6 +356,7 @@ class CommandeController extends AbstractController
         $client = $facture->getClient() ;
 
         $dataClient = [
+            "statut" => "",   
             "nom" => "",   
             "adresse" => "",   
             "telephone" => "",   
@@ -366,6 +367,7 @@ class CommandeController extends AbstractController
             if(!is_null($client->getSociete()))
             {
                 $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
                     "nom" => $client->getSociete()->getNom(),   
                     "adresse" => $client->getSociete()->getAdresse(),   
                     "telephone" => $client->getSociete()->getTelFixe(),   
@@ -374,6 +376,7 @@ class CommandeController extends AbstractController
             else
             {
                 $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
                     "nom" => $client->getClient()->getNom(),   
                     "adresse" => $client->getClient()->getAdresse(),   
                     "telephone" => $client->getClient()->getTelephone(),   

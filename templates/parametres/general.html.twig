@@ -22,24 +22,32 @@
         {% set lettre = "" %}
         {% set disabled = "" %}
         {% set display = "" %}
+        {% set modification = "style=display:none;" %}
         {% if deviseAgence is not null %}
             {% set symbole = deviseAgence.symbole %}
             {% set lettre = deviseAgence.lettre %}
             {% set disabled = "disabled" %}
             {% set display = "style=display:none;" %}
+            {% set modification = "" %}
         {% endif %}
-        <div class="row">
-            <div class="col-md-3">
-                <label for="devise_symbole_base" class="font-weight-bold">Symbole</label>
-                <input type="text" oninput="this.value = this.value.toUpperCase();" {{disabled}} name="devise_symbole_base" id="devise_symbole_base" value="{{symbole}}" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="devise_lettre_base" class="font-weight-bold">Lettre</label>
-                <input type="text" {{disabled}} name="devise_lettre_base" id="devise_lettre_base" value="{{lettre}}" class="form-control" placeholder=". . .">
-            </div>
-            <div class="col-md-2">
-                <label for="nom" class="font-weight-bold">&nbsp;</label>
-                <button class="btn btn-block btn-sm btn-perso-one px-3" id="devise_create_base" {{display}}><i class="fa fa-cloud-upload"></i>&nbsp;Créer</button>
+        <div class="w-100" id="contentDevise">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="devise_symbole_base" class="font-weight-bold">Symbole</label>
+                    <input type="text" oninput="this.value = this.value.toUpperCase();" {{disabled}} name="devise_symbole_base" id="devise_symbole_base" value="{{symbole}}" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-3">
+                    <label for="devise_lettre_base" class="font-weight-bold">Lettre</label>
+                    <input type="text" {{disabled}} name="devise_lettre_base" id="devise_lettre_base" value="{{lettre}}" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-md-2" {{modification}}>
+                    <label for="nom" class="font-weight-bold">&nbsp;</label>
+                    <button class="btn btn-block btn-sm btn-perso-one px-3" id="devise_modif_base"><i class="fa fa-edit"></i>&nbsp;Modifier</button>
+                </div>
+                <div class="col-md-2" {{display}}>
+                    <label for="nom" class="font-weight-bold">&nbsp;</label>
+                    <button class="btn btn-block btn-sm btn-perso-one px-3" id="devise_create_base"><i class="fa fa-cloud-upload"></i>&nbsp;Créer</button>
+                </div>
             </div>
         </div>
         <div class="w-100 barre_dashed mt-3"></div>
