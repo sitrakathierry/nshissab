@@ -863,7 +863,17 @@ class FactureController extends AbstractController
             "facture" => $facture
         ]) ;
 
-        $paiement = $crdFinance->getPaiement() ;
+        $addsNum = "" ;
+        if(!is_null($crdFinance))
+        {
+            $paiement = $crdFinance->getPaiement() ;
+
+            if(($paiement->getReference() == "AC" || $paiement->getReference() == "CR") && $crdFinance->getStatut()->getReference() == "ECR")
+            {
+                $addsNum = "- ".strtoupper($paiement->getNom()) ;
+            }
+        }
+        
 
         $dataFacture = [
             "numFact" => $facture->getNumFact() ,
@@ -871,7 +881,7 @@ class FactureController extends AbstractController
             "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
             "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
             "description" => $facture->getDescription(),
-            "addsNum" => ($paiement->getReference() == "AC" || $paiement->getReference() == "CR") && $crdFinance->getStatut()->getReference() == "ECR" ? "- ".strtoupper($paiement->getNom()) : "" ,
+            "addsNum" => $addsNum ,
         ] ;
 
         $client = $facture->getClient() ;
@@ -1058,10 +1068,14 @@ class FactureController extends AbstractController
     {
         $idFacture = $request->request->get("idFacture") ;
         $facture_editor = $request->request->get("facture_editor") ;
+        $cmd_lieu = $request->request->get("cmd_lieu") ;
+        $cmd_date = $request->request->get("cmd_date") ;
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
 
         $facture->setDescription($facture_editor) ;
+        $facture->setLieu($cmd_lieu) ;
+        $facture->setDate(\DateTime::createFromFormat("d/m/Y",$cmd_date)) ;
         $this->entityManager->flush() ;
 
         return new JsonResponse([""]) ;

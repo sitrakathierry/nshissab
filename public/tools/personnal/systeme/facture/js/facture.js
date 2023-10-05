@@ -562,7 +562,9 @@ $(document).ready(function(){
                                     cache: false,
                                     data:{
                                         idFacture:self.data("value"),
-                                        facture_editor:facture_editor.getEditorText()
+                                        facture_editor:facture_editor.getEditorText(),
+                                        cmd_lieu:$("#cmd_lieu").val(),
+                                        cmd_date:$("#cmd_date").val()
                                     },
                                     dataType: 'json',
                                     success: function(response){
