@@ -517,9 +517,12 @@ $(document).ready(function(){
         })
         return false ;
     })
+    
+    var facture_editor = new LineEditor(".facture_editor") ;
 
     $(document).on("submit","#formSavModifFacture",function(){
         var self = $(this)
+        $(".facture_editor").val(facture_editor.getEditorText('.facture_editor'))
         $.confirm({
             title: "Confirmation",
             content:"Etes-vous sûre ?",

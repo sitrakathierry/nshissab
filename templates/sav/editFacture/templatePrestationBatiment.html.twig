@@ -20,6 +20,10 @@
         <h5 class="font-medium" >Client : <span class="text-primary">{{facture.client|upper}}</span></h5>
     </div>
 </div>
+<div class="w-100 px-2">
+    <label for="nom" class="mt-2 font-weight-bold text-uppercase">Description</label>
+    <textarea name="facture_editor" class="form-control facture_editor" id="" cols="10" rows="5">{{facture.description}}</textarea>
+</div>
 <div class="barre_dashed p-3 mt-3">
     <div class="container-fluid">
         <h5 class="title_form text-black text-uppercase">Rajouter Prestation Batiment</h5>
@@ -263,6 +267,9 @@
 </form>
 <script>
     $(".chosen_select").chosen({
-            no_results_text: "Aucun resultat trouvé : "
-        });
+        no_results_text: "Aucun resultat trouvé : "
+    });
+    var facture_editor = new LineEditor(".facture_editor") ;
+    facture_editor.setEditorText($(".facture_editor").val())
+    $("#cmd_date").datepicker()
 </script>

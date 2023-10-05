@@ -1369,7 +1369,10 @@ class AppService extends AbstractController
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $agence,
             "statut" => True
-        ]) ; 
+        ],[
+            "id" => "DESC"
+            ]
+        ) ; 
 
         $elements = [] ;
 
@@ -1719,7 +1722,10 @@ class AppService extends AbstractController
         $services = $this->entityManager->getRepository(Service::class)->findBy([
             "statut" => True,
             "agence" => $agence
-        ]) ;
+        ],
+        [
+            "nom" => "ASC"
+            ]) ;
 
         $elements = [] ;
 

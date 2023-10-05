@@ -466,6 +466,7 @@ class FactureController extends AbstractController
     public function factureBasculerVersDefinitive(Request $request)
     {
         $idFacture = $request->request->get("idFacture") ;
+        $fact_type_paiement = $request->request->get("fact_type_paiement") ;
 
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
 
@@ -508,9 +509,7 @@ class FactureController extends AbstractController
             "facture" => $facture  
         ]) ; 
         
-        $paiement = $this->entityManager->getRepository(FactPaiement::class)->findOneBy([
-            "reference" => "ES"  
-        ]) ; 
+        $paiement = $this->entityManager->getRepository(FactPaiement::class)->find($fact_type_paiement) ; 
 
         $histoPaiement = new FactHistoPaiement() ;
         $histoPaiement->setLibelle($histoOldPaiement->getLibelle()) ;
@@ -564,9 +563,48 @@ class FactureController extends AbstractController
             }
         }
 
+        // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
+        if(!is_null($paiement))
+        {
+            if($paiement->getReference() == "CR" || $paiement->getReference() == "AC")
+            {
+                $lastRecordFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([], ['id' => 'DESC']);
+                $numFinance = !is_null($lastRecordFinance) ? ($lastRecordFinance->getId()+1) : 1 ;
+                $numFinance = str_pad($numFinance, 5, "0", STR_PAD_LEFT);
+                $refFncStatut = "ECR" ; 
+                
+                $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
+                    "reference" => $refFncStatut
+                ]) ;
+
+                $finance = new CrdFinance() ;
+
+                $finance->setAgence($this->agence) ;
+                $finance->setFacture($facture) ;
+                $finance->setPaiement($paiement) ;
+                $finance->setNumFnc($numFinance) ;
+                $finance->setStatut($crdStatut) ; 
+                $finance->setCreatedAt(new \DateTimeImmutable) ; 
+                $finance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+                $this->entityManager->persist($finance) ;
+                $this->entityManager->flush() ; 
+            }
+        }
+        
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename);
+
+        if(!is_null($paiement))
+        {
+            if($paiement->getReference() == "CR")
+            {
+                $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+                if(file_exists($filename))
+                    unlink($filename);
+            }
+        }
 
         return new JsonResponse([
             "type" => "green",    
@@ -646,6 +684,7 @@ class FactureController extends AbstractController
         $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
         $infoFacture["lieu"] = $facture->getLieu() ;
         $infoFacture["refType"] = $facture->getType()->getReference() ;
+        $infoFacture["description"] = $facture->getDescription() ;
 
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 
@@ -1310,6 +1349,8 @@ class FactureController extends AbstractController
             }
         }
 
+        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
+
         if(!is_null($facture->getModele()->getReference()))
         {
             if($facture->getModele()->getReference() == "PROD")
@@ -1375,6 +1416,8 @@ class FactureController extends AbstractController
                     $newTabFactureDetls[$key1][$key2][] = $element ;
                 }
 
+
+                
                 return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
                     "filename" => "facture",
                     "titlePage" => "Détails Facture Batiment",
@@ -1389,7 +1432,8 @@ class FactureController extends AbstractController
                     "detailFactures" => $newTabFactureDetls,
                     "factureParent" => $factureParent,
                     "factureGenere" => $factureGenere,
-                    "factureCreer" => $factureCreer
+                    "factureCreer" => $factureCreer,
+                    "paiements" => $paiements
                 ]) ;
             }
         }
@@ -1407,7 +1451,8 @@ class FactureController extends AbstractController
             "agcDevise" => $agcDevise,
             "factureParent" => $factureParent,
             "factureGenere" => $factureGenere,
-            "factureCreer" => $factureCreer
+            "factureCreer" => $factureCreer,
+            "paiements" => $paiements
         ]) ;
     }
 
@@ -1952,8 +1997,16 @@ class FactureController extends AbstractController
     {
         $fact_id_facture = $request->request->get("fact_id_facture") ;
         $fact_detail_modele = $request->request->get("fact_detail_modele") ;
-
+        $facture_editor = $request->request->get("facture_editor") ;
+        $cmd_lieu = $request->request->get("cmd_lieu") ;
+        $cmd_date = $request->request->get("cmd_date") ;
+        
         $facture = $this->entityManager->getRepository(Facture::class)->find($fact_id_facture) ;
+
+        $facture->setDescription($facture_editor) ; 
+        $facture->setLieu($cmd_lieu) ; 
+        $facture->setDate(\DateTime::createFromFormat("d/m/Y",$cmd_date)) ; 
+        $this->entityManager->flush() ; 
 
         if($fact_detail_modele == "PROD" || $fact_detail_modele == "PSTD") // Produit ou Prestation Standard
         {

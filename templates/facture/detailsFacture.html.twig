@@ -36,8 +36,19 @@
             {% endif %}
         {% endif %}
         </h4>
+        <div id="contentTypePaiement" style="display:none;">
+            <label for="cmd_facture" class="font-weight-bold">Facture</label>
+            <select name="fact_type_paiement" class="custom-select custom-select-sm" id="fact_type_paiement">
+                {% for paiement in paiements %}
+                    {% if paiement.reference != "AC" %}
+                        <option value="{{paiement.id}}" {{ paiement.reference == "ES" ? "selected" : "" }}>{{paiement.nom|upper}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
     </div>
     <div class="container-fluid px-3">
+        <form id="formModifFacture">
         <div class="row">
             {% if nature == "FACTURE" %}
                 <div class="col-md-3 mt-3">
@@ -82,7 +93,7 @@
         {% if nature == "FACTURE" and facture.refType != "DF" %}
             {{templateEditFacture|raw}}
         {% endif %}
-        <form id="formModifFacture">
+        
             <div class="table-responsive mt-4">
                     <input type="hidden" name="fact_detail_modele" id="fact_detail_modele" value="{{facture.refModele}}">
                     <input type="hidden" id="fact_id_facture" name="fact_id_facture" value="{{facture.id}}"> 
@@ -273,7 +284,7 @@
                     Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> Francs Comorien
                 </div>
             </div>
-        </form>
+        
         <div class="row">
             <div class="col-md-7"></div>
             <div class="col-md-5"> 
@@ -307,6 +318,7 @@
                 <button type="button" data-value="{{facture.id}}" class="btn btn_imprimer_facture btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
         {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}

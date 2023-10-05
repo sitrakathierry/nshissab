@@ -72,6 +72,7 @@ $(document).ready(function(){
 
     $("#formModifFacture").submit(function(){
         var self = $(this)
+        $(".facture_editor").val(facture_editor.getEditorText('.facture_editor'))
         $.confirm({
             title: "Confirmation",
             content:"Etes-vous sûre ?",
@@ -663,53 +664,77 @@ $(document).ready(function(){
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
                     action: function(){
-                        var realinstance = instance.loading()
-                        $.ajax({
-                            url: routes.fact_basculer_vers_definitive,
-                            type:'post',
-                            cache: false,
-                            data:{idFacture:self.data("value")},
-                            dataType: 'json',
-                            success: function(json){
-                                realinstance.close()
-                                $.confirm({
-                                    title: 'Message',
-                                    content: json.message,
-                                    type: json.type,
-                                    buttons: {
-                                        OK: function(){
-                                            if(json.type == "green")
-                                            {
-                                                location.reload() 
-                                            }
-                                        },
-                                        btn2:{
-                                            text: 'Consulter',
-                                            btnClass: 'btn-green',
-                                            keys: ['enter', 'shift'],
-                                            action: function(){
-                                                if(json.type == "green")
-                                                {
-                                                    var url = routes.ftr_details_activite + '/' + json.idNewFacture;
-                                                    window.open(url, '_blank');
-                                                    location.reload()
-                                                } 
-                                                else
-                                                {
-                                                    $.alert({
-                                                        title: 'Message',
-                                                        content: "Veuller corriger l'erreur",
-                                                        type: "orange",
-                                                    });
-                                                }
-                                            }
-                                        }
+                        $.confirm({
+                            title: "Spécifier Type Paiement",
+                            content:$("#contentTypePaiement").html(),
+                            type:"orange",
+                            theme:"modern",
+                            buttons:{
+                                btn1:{
+                                    text: 'Annuler',
+                                    action: function(){
+                                        location.reload()
                                     }
-                                });
-                            },
-                            error: function(resp){
-                                realinstance.close()
-                                $.alert(JSON.stringify(resp)) ;
+                                },
+                                btn2:{
+                                    text: 'Valider',
+                                    btnClass: 'btn-orange',
+                                    keys: ['enter', 'shift'],
+                                    action: function(){
+                                        var realinstance = instance.loading()
+                                        $.ajax({
+                                            url: routes.fact_basculer_vers_definitive,
+                                            type:'post',
+                                            cache: false,
+                                            data:{
+                                                idFacture:self.data("value"),
+                                                fact_type_paiement:$("#fact_type_paiement").val()
+                                            },
+                                            dataType: 'json',
+                                            success: function(json){
+                                                realinstance.close()
+                                                $.confirm({
+                                                    title: 'Message',
+                                                    content: json.message,
+                                                    type: json.type,
+                                                    buttons: {
+                                                        OK: function(){
+                                                            if(json.type == "green")
+                                                            {
+                                                                location.reload() 
+                                                            }
+                                                        },
+                                                        btn2:{
+                                                            text: 'Consulter',
+                                                            btnClass: 'btn-green',
+                                                            keys: ['enter', 'shift'],
+                                                            action: function(){
+                                                                if(json.type == "green")
+                                                                {
+                                                                    var url = routes.ftr_details_activite + '/' + json.idNewFacture;
+                                                                    window.open(url, '_blank');
+                                                                    location.reload()
+                                                                } 
+                                                                else
+                                                                {
+                                                                    $.alert({
+                                                                        title: 'Message',
+                                                                        content: "Veuller corriger l'erreur",
+                                                                        type: "orange",
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            },
+                                            error: function(resp){
+                                                realinstance.close()
+                                                $.alert(JSON.stringify(resp)) ;
+                                            }
+                                        })
+                                    }
+                                }
                             }
                         })
                     }
