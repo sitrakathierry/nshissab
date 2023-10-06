@@ -281,7 +281,7 @@
                             {% endif %}
                     </table>
                 <div class="w-100">
-                    Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> Francs Comorien
+                    Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> {{app.session.get("user")["deviseLettre"]}}
                 </div>
             </div>
         

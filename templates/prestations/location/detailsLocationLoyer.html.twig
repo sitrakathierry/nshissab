@@ -67,7 +67,7 @@
                 </tfoot>
             </table>
             <div class="w-100">
-                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{ paiement.lettre | upper}}</span>
+                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{ paiement.lettre | upper}}</span> {{app.session.get("user")["deviseLettre"]}}
             </div>
         </div>
         <div class="row mt-3">

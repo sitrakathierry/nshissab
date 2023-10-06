@@ -79,7 +79,7 @@ class PrestationController extends AbstractController
             "with_foot" => true,
         ]);
     }
-
+ 
     #[Route('/prestation/service/consultation', name: 'prest_consultation_prestation')]
     public function prestConsultationPrestation(): Response
     {
@@ -97,6 +97,36 @@ class PrestationController extends AbstractController
             "services" => $services
         ]);
     } 
+
+    #[Route('/prestation/service/item/search', name: 'prest_service_item_search')]
+    public function prestServiceSearchItem(Request $request)
+    {
+        $filename = $this->filename."service(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generatePrestationService($filename,$this->agence) ;
+
+        $services = json_decode(file_get_contents($filename)) ;
+
+        $nom = $request->request->get("nom") ;
+
+        $search = [
+            "nom" => $nom,
+        ] ;
+
+        $services = $this->appService->searchData($services,$search) ;
+
+        $response = $this->renderView("prestations/searchPrestationStandard.html.twig",[
+            "services" => $services
+        ]) ;
+        // if(empty($services))
+        // {
+        //     return new Response('<tr><td colspan="3"><div class="alert alert-warning">Aucun élément trouvé</div></td></tr>') ;
+        // }
+
+        return new Response($response) ;
+    }
+    
 
     #[Route('/prestation/service/delete', name: 'param_service_element_delete')]
     public function prestDeleteServicePrestation(Request $request)

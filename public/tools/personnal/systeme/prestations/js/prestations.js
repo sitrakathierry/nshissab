@@ -547,4 +547,46 @@ $(document).ready(function(){
       })
       return false ;
     }) ;
+
+    var elemforSearch = [
+      {
+          name: "nom",
+          action:"keyup",
+          selector : "#prest_std_nom"
+      },
+      {
+          name: "nom",
+          action:"change",
+          selector : "#prest_std_nom"
+      }
+  ]
+
+  function searchService()
+  {
+      var instance = new Loading(files.search) ;
+      $(".elem_service").html(instance.search(3)) ;
+      var formData = new FormData() ;
+      for (let j = 0; j < elemforSearch.length; j++) {
+          const search = elemforSearch[j];
+          formData.append(search.name,$(search.selector).val());
+      }
+      $.ajax({
+          url: routes.prest_service_item_search ,
+          type: 'post',
+          cache: false,
+          data:formData,
+          dataType: 'html',
+          processData: false, 
+          contentType: false, 
+          success: function(response){
+              $(".elem_service").html(response) ;
+          }
+      })
+  }
+
+  elemforSearch.forEach(elem => {
+      $(document).on(elem.action,elem.selector,function(){
+          searchService()
+      })
+  })
 })

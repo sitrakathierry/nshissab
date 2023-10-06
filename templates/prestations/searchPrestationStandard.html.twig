@@ -1,0 +1,10 @@
+{% for service in services %}
+    <tr>
+        <td>{{service.nom|upper}}</td>
+        <td>{{service.description|raw}}</td>
+        <td class="align-middle text-center">
+            <a href="{{path('prest_details_service',{'id':service.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+            <button data-value="{{service.id}}" class="btn btn-outline-danger pres_service_supprimer btn-sm font-smaller ml-2"><i class="fa fa-trash"></i></button>
+        </td>
+    </tr>
+{% endfor %}
