@@ -913,7 +913,6 @@ class FactureController extends AbstractController
             }
         }
         
-
         $dataFacture = [
             "numFact" => $facture->getNumFact() ,
             "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
@@ -1121,7 +1120,6 @@ class FactureController extends AbstractController
 
         return new JsonResponse([""]) ;
     }
-
 
     public static function comparaisonFactureDetail($a, $b) {
         // Comparaison par entrepot

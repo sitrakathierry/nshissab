@@ -140,7 +140,7 @@ class CaisseController extends AbstractController
             $panier->setCommande($commande) ;
             $panier->setHistoEntrepot(null) ;
             $panier->setVariationPrix($variationPrix) ;
-            $panier->setPrix(intval(explode(" | ",$csenr_prixText[$key])[0])) ;
+            $panier->setPrix(floatval(explode(" | ",$csenr_prixText[$key])[0])) ;
             $panier->setQuantite($csenr_quantite[$key]) ;
             $panier->setTva($csenr_tva[$key]) ;
             $panier->setStatut(True) ;

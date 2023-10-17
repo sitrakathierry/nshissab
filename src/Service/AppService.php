@@ -165,6 +165,7 @@ class AppService extends AbstractController
                 "manager_agence",
                 "app_admin"
             ] ;
+
             if($user["role"] != "ADMIN")
             {
                 for ($i=0; $i < count($blockedRoute); $i++) { 
@@ -387,7 +388,6 @@ class AppService extends AbstractController
 
     public function generateUserMenu(&$menus,$filename)
     {
-
         if(!file_exists($filename))
         {
             $menuUsers = $this->entityManager

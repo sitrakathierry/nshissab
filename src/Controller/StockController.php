@@ -263,7 +263,7 @@ class StockController extends AbstractController
 
             if(!is_null($variationPrix))
             {
-                $variationPrix->setStock($variationPrix->getStock() + intval($crt_stock[$key])) ;
+                $variationPrix->setStock($variationPrix->getStock() + floatval($crt_stock[$key])) ;
                 $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
                 $this->entityManager->flush() ;
             }
@@ -2264,7 +2264,7 @@ class StockController extends AbstractController
         
         if(!is_null($variationPrix))
         {
-            $variationPrix->setStock($variationPrix->getStock() + intval($prod_variation_stock)) ;
+            $variationPrix->setStock($variationPrix->getStock() + floatval($prod_variation_stock)) ;
             $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
             $this->entityManager->flush() ;
 
@@ -2274,7 +2274,7 @@ class StockController extends AbstractController
             $variationPrix->setProduit($produit) ;
             $variationPrix->setPrixVente($prod_variation_prix_vente) ;
             $variationPrix->setIndice(empty($prod_variation_indice) ? null : $prod_variation_indice) ;
-            $variationPrix->setStock(intval($prod_variation_stock)) ;
+            $variationPrix->setStock(floatval($prod_variation_stock)) ;
             $variationPrix->setStockAlert(5) ;
             $variationPrix->setStatut(True) ;
             $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
@@ -2297,7 +2297,7 @@ class StockController extends AbstractController
 
         if(!is_null($histoEntrepot))
         {
-            $histoEntrepot->setStock($histoEntrepot->getStock() + intval($prod_variation_stock)) ;
+            $histoEntrepot->setStock($histoEntrepot->getStock() + floatval($prod_variation_stock)) ;
             $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
             $this->entityManager->flush() ;
         }
@@ -2308,7 +2308,7 @@ class StockController extends AbstractController
             $histoEntrepot->setEntrepot($entrepot) ;
             $histoEntrepot->setVariationPrix($variationPrix) ;
             $histoEntrepot->setIndice(empty($prod_variation_indice) ? null : $prod_variation_indice ) ;
-            $histoEntrepot->setStock(intval($prod_variation_stock)) ;
+            $histoEntrepot->setStock(floatval($prod_variation_stock)) ;
             $histoEntrepot->setStatut(True) ;
             $histoEntrepot->setAgence($this->agence) ;
             $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
@@ -2327,7 +2327,7 @@ class StockController extends AbstractController
         $approvisionnement->setHistoEntrepot($histoEntrepot) ;
         $approvisionnement->setVariationPrix($variationPrix) ;
         $approvisionnement->setMargeType($margeType) ;
-        $approvisionnement->setQuantite(intval($prod_variation_stock)) ;
+        $approvisionnement->setQuantite(floatval($prod_variation_stock)) ;
         $approvisionnement->setPrixAchat($dataToInsert["prixAchat"]) ;
         $approvisionnement->setCharge($dataToInsert["charge"]) ;
         $approvisionnement->setMargeValeur($dataToInsert["margeValeur"]) ;
@@ -2356,7 +2356,7 @@ class StockController extends AbstractController
             $this->entityManager->flush() ;
         } 
 
-        $stockProduit = $produit->getStock() + intval($prod_variation_stock) ;
+        $stockProduit = $produit->getStock() + floatval($prod_variation_stock) ;
 
         $produit->setStock($stockProduit) ;
         $produit->setUpdatedAt(new \DateTimeImmutable) ;
@@ -2490,13 +2490,13 @@ class StockController extends AbstractController
                 $produitDeduit->setToUpdate(True) ;
                 $this->entityManager->flush() ;
 
-                // $variationPrix->setStock($variationPrix->getStock() - intval($reduc_val_qte[$key])) ;
+                // $variationPrix->setStock($variationPrix->getStock() - floatval($reduc_val_qte[$key])) ;
                 // $this->entityManager->flush() ;
 
-                // $histoEntrepot->setStock($histoEntrepot->getStock() - intval($reduc_val_qte[$key])) ;
+                // $histoEntrepot->setStock($histoEntrepot->getStock() - floatval($reduc_val_qte[$key])) ;
                 // $this->entityManager->flush() ;
 
-                // $variationPrix->getProduit()->setStock($variationPrix->getProduit()->getStock() - intval($reduc_val_qte[$key])) ;
+                // $variationPrix->getProduit()->setStock($variationPrix->getProduit()->getStock() - floatval($reduc_val_qte[$key])) ;
                 // $this->entityManager->flush() ;
             }
         }

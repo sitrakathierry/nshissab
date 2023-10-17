@@ -328,7 +328,7 @@ $(document).ready(function(){
                         dataType:"json",
                         success : function(json){
                             realinstance.close()
-                            $.alert({
+                            $.alert({ 
                                 title: 'Message',
                                 content: json.message,
                                 type: json.type,

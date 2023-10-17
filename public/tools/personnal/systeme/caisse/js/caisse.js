@@ -89,7 +89,7 @@ $(document).ready(function(){
         $.confirm({
             title: "Quantité Produit",
             content:`
-            <div class="w-100 text-left container">
+            <div class="w-100 text-left container ">
                 <label for="caisse_ajout_produit" class="mt-2 font-weight-bold">Produit</label>
                 <input type="text" readonly name="caisse_ajout_produit" id="caisse_ajout_produit" class="form-control bg-white text-primary font-weight-bold" value="`+$("#caisse_search_produit").find('option:selected').text()+`">
 
@@ -155,6 +155,16 @@ $(document).ready(function(){
                                 title: 'Message',
                                 content: "Quantité non valide",
                                 type: "orange"
+                            });
+                            return false ;
+                        }
+
+                        if(parseFloat(quantiteProduit) < 0)
+                        {
+                            $.alert({
+                                title: 'Message',
+                                content: "Valeur négatif non autorisé",
+                                type: "red"
                             });
                             return false ;
                         }
