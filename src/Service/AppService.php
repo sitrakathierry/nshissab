@@ -2306,6 +2306,7 @@ class AppService extends AbstractController
             $item = [] ;
 
             $item["id"] = $histoClient->getId() ;
+            $item["encodedId"] = $this->encodeChiffre($histoClient->getId()) ;
             $item["agence"] = $histoClient->getAgence()->getId() ;
             $item["numClient"] = str_pad($histoClient->getId(), 4, "0", STR_PAD_LEFT) ;
             $item["nom"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getNom() : $histoClient->getClient()->getNom();

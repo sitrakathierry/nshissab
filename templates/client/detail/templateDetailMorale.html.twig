@@ -1,0 +1,60 @@
+<h5 class="title_form mt-3 text-black text-uppercase">Information société</h5>
+<div class="row">
+    <div class="col-md-6">
+        <label for="clt_soc_nom" class="font-weight-bold">Nom société</label>
+        <input type="text" name="clt_soc_nom" id="clt_soc_nom" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.nom }}">
+    </div>
+    <div class="col-md-6">
+        <label for="clt_soc_nom_gerant" class="font-weight-bold">Nom et prénom du gérant</label>
+        <input type="text" name="clt_soc_nom_gerant" id="clt_soc_nom_gerant" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.nom_gerant }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_nom_adresse" class="font-weight-bold mt-3">Adresse</label>
+        <input type="text" name="clt_soc_nom_adresse" id="clt_soc_nom_adresse" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.adresse }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_telephone" class="font-weight-bold mt-3">Téléphone fixe</label>
+        <input type="text" name="clt_soc_telephone" id="clt_soc_telephone" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.tel_fixe }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_fax" class="font-weight-bold mt-3">Fax</label>
+        <input type="text" name="clt_soc_fax" id="clt_soc_fax" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.fax }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_email" class="font-weight-bold mt-3">Email</label>
+        <input type="text" name="clt_soc_email" id="clt_soc_email" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.email }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_domaine" class="font-weight-bold mt-3">Domaine d'intervention</label>
+        <input type="text" name="clt_soc_domaine" id="clt_soc_domaine" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.domaine }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_num_registre" class="font-weight-bold mt-3">N° de registre</label>
+        <input type="text" name="clt_soc_num_registre" id="clt_soc_num_registre" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.num_registre }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_soc_type_societe" class="font-weight-bold mt-3">Type de société</label>
+        <select name="clt_soc_type_societe" class="custom-select chosen_select custom-select-sm" id="clt_soc_type_societe">
+            <option value="">-</option>
+            {% for typeSociete in typeSocietes %}
+                <option value="{{typeSociete.id}}" {{ dataClient.type_societe == typeSociete.id ? "selected" : "" }} >{{typeSociete.description}}&nbsp;({{typeSociete.designation|upper}})</option>
+            {% endfor %}
+        </select>
+        {# <input type="text" name="clt_soc_type_societe" id="clt_soc_type_societe" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.type_societe }}"> #}
+    </div>
+</div>
+<h5 class="title_form mt-3 text-black text-uppercase">Personne à contacter</h5>
+<div class="row">
+    <div class="col-md-4">
+        <label for="clt_lien_nom" class="font-weight-bold">Nom et prénom</label>
+        <input type="text" name="clt_lien_nom" id="clt_lien_nom" class="form-control bg-white  font-weight-bold"  value="{{ dataUrgence.nom }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_email" class="font-weight-bold">Email</label>
+        <input type="text" name="clt_lien_email" id="clt_lien_email" data-role="tagsinput" class="form-control clt_lien_email" value="{{ dataUrgence.email }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_telephone" class="font-weight-bold">Téléphone</label>
+        <input type="text" name="clt_lien_telephone" data-role="tagsinput" id="clt_lien_telephone" class="form-control clt_lien_telephone" value="{{ dataUrgence.telephone }}">
+    </div>
+</div>

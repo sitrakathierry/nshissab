@@ -1,0 +1,84 @@
+<h5 class="title_form mt-3 text-black text-uppercase">Information Client</h5>
+<div class="row">
+    <div class="col-md-5">
+        <label for="clt_client_nom" class="font-weight-bold">Nom et prénom</label>
+        <input type="text" name="clt_client_nom" id="clt_client_nom" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.nom }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_nin" class="font-weight-bold">NIN</label>
+        <input type="text" name="clt_client_nin" id="clt_client_nin" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.nin }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_client_adresse" class="font-weight-bold">Adresse</label>
+        <input type="text" name="clt_client_adresse" id="clt_client_adresse" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.adresse }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_quartier" class="font-weight-bold mt-3">Quartier</label>
+        <input type="text" name="clt_client_quartier" id="clt_client_quartier" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.quartier }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_telephone" class="font-weight-bold mt-3">Téléphone</label>
+        <input type="text" name="clt_client_telephone" id="clt_client_telephone" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.telephone }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_email" class="font-weight-bold mt-3">Email</label>
+        <input type="text" name="clt_client_email" id="clt_client_email" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.email }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_sexe" class="font-weight-bold mt-3">Sexe</label>
+        <select name="clt_client_sexe" class="custom-select chosen_select custom-select-sm" id="clt_client_sexe">
+            <option value="">-</option>
+            <option value="H" {{ dataClient.sexe == "H" ? "selected" : "" }}>HOMME</option>
+            <option value="F" {{ dataClient.sexe == "F" ? "selected" : "" }}>FEMME</option>
+        </select>
+        {# <input type="text" name="clt_client_sexe" id="clt_client_sexe" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.sexe }}"> #}
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_situation" class="font-weight-bold mt-3">Situation Matrimonial</label>
+        <select name="clt_client_situation" class="custom-select chosen_select custom-select-sm" id="clt_client_situation">
+            <option value="">-</option>
+            <option value="MARIE" {{dataClient.situation == "MARIE" ? "selected" : "" }}>{{"Marié(e)"|upper}}</option>
+            <option value="CELIB" {{dataClient.situation == "CELIB" ? "selected" : "" }}>{{"Célibataire"|upper}}</option>
+        </select>
+        {# <input type="text" name="clt_client_situation" id="clt_client_situation" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.situation }}"> #}
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_date_naiss" class="font-weight-bold mt-3">Date de naissance</label>
+        <input type="text" name="clt_client_date_naiss" id="clt_client_date_naiss" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.date_naissance }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_lieu_naiss" class="font-weight-bold mt-3">Lieu de naissance</label>
+        <input type="text" name="clt_client_lieu_naiss" id="clt_client_lieu_naiss" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.lieu_naissance }}">
+    </div>
+    <div class="col-md-3">
+        <label for="clt_client_profession" class="font-weight-bold mt-3">Profession</label>
+        <input type="text" name="clt_client_profession" id="clt_client_profession" class="form-control bg-white  font-weight-bold"  value="{{ dataClient.profession }}">
+    </div>
+</div>
+<h5 class="title_form mt-3 text-black text-uppercase">Personne à contacter</h5>
+<div class="row">
+    <div class="col-md-4">
+        <label for="clt_lien_nom" class="font-weight-bold">Nom et prénom</label>
+        <input type="text" name="clt_lien_nom" id="clt_lien_nom" class="form-control bg-white  font-weight-bold"  value="{{ dataUrgence.nom }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_telephone" class="font-weight-bold">Téléphone</label>
+        <input type="text" name="clt_lien_telephone" data-role="tagsinput" id="clt_lien_telephone" class="form-control clt_lien_telephone bg-white  font-weight-bold"  value="{{ dataUrgence.telephone }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_email" class="font-weight-bold">Email</label>
+        <input type="text" name="clt_lien_email" id="clt_lien_email" data-role="tagsinput" class="form-control bg-white  font-weight-bold"  value="{{ dataUrgence.email }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_adresse" class="font-weight-bold mt-3">Adresse</label>
+        <input type="text" name="clt_lien_adresse" id="clt_lien_adresse" class="form-control bg-white  font-weight-bold"  value="{{ dataUrgence.adresse }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_parente" class="font-weight-bold mt-3">Lien de parenté</label>
+        <input type="text" name="clt_lien_parente" id="clt_lien_parente" class="form-control bg-white  font-weight-bold"  value="{{ dataUrgence.lien_parente }}">
+    </div>
+    <div class="col-md-4">
+        <label for="clt_lien_obs" class="font-weight-bold mt-3">Observation</label>
+        <input type="text" name="clt_lien_obs" id="clt_lien_obs" class="form-control bg-white  font-weight-bold"  value="{{ dataUrgence.observation }}">
+    </div>
+</div>

@@ -1,4 +1,4 @@
-<div class="col-md-4">
+<div class="col-md-2">
     <label for="clt_type" class="font-weight-bold text-uppercase">Statut Client</label>
     <select name="clt_type" class="custom-select chosen_select custom-select-sm" id="clt_type">
         <option value="">-</option>
@@ -7,9 +7,17 @@
         {% endfor %}
     </select>
 </div>
-<div class="col-md-6">
+<div class="col-md-3">
     <label for="fact_client" class="font-weight-bold text-uppercase">Nom Client/Société</label>
     <input type="fact_client" name="fact_client" id="fact_client" class="form-control" placeholder=". . .">
+</div>
+<div class="col-md-3">
+    <label for="fact_clt_adresse" class="font-weight-bold">Adresse</label>
+    <input type="text" name="fact_clt_adresse" id="fact_clt_adresse" class="form-control" placeholder=". . .">
+</div>
+<div class="col-md-2">
+    <label for="fact_clt_telephone" class="font-weight-bold">Téléphone</label>
+    <input type="text" name="fact_clt_telephone" id="fact_clt_telephone" class="form-control" placeholder=". . .">
 </div>
 <div class="col-md-2">
     <label for="" class="font-weight-bold text-uppercase">&nbsp;</label>
@@ -18,6 +26,6 @@
 </div>
 <script>
     $(".chosen_select").chosen({
-            no_results_text: "Aucun resultat trouvé : "
-        });
+        no_results_text: "Aucun resultat trouvé : "
+    });
 </script>

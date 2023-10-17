@@ -1566,6 +1566,8 @@ class FactureController extends AbstractController
         if($fact_nouveau_client == "OUI")
         {
             $clt_type = $request->request->get("clt_type") ;
+            $fact_clt_adresse = $request->request->get("fact_clt_adresse") ;
+            $fact_clt_telephone = $request->request->get("fact_clt_telephone") ;
 
             $result = $this->appService->verificationElement([
                 $clt_type
@@ -1584,6 +1586,8 @@ class FactureController extends AbstractController
 
                 $societe->setAgence($this->agence) ;
                 $societe->setNom($fact_client) ;
+                $societe->setAdresse($fact_clt_adresse) ;
+                $societe->setTelFixe($fact_clt_telephone) ;
 
                 $this->entityManager->persist($societe) ;
                 $this->entityManager->flush() ;
@@ -1595,8 +1599,9 @@ class FactureController extends AbstractController
 
                 $clientP->setAgence($this->agence) ;
                 $clientP->setNom($fact_client) ;
+                $clientP->setAdresse($fact_clt_adresse) ;
+                $clientP->setTelephone($fact_clt_telephone) ;
                 
-
                 $this->entityManager->persist($clientP) ;
                 $this->entityManager->flush() ;
                 $societe = null ;

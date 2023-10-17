@@ -4,12 +4,12 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+    <link rel="stylesheet" href="{{asset('systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -46,8 +46,8 @@
                             <td>{{client.adresse|upper}}</td>
                             <td>{{client.telephone}}</td>
                             <td class="text-center align-middle" >
-                                <button class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-sm ml-2 btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                                <a href="{{path('clt_client_information_detail',{'id':client.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                <button data-value="{{client.id}}" class="btn btn-sm ml-2 btn_supprimer_client btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>
                     {% endfor %}

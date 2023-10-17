@@ -1,6 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
-
+    $("#clt_client_date_naiss").datepicker()
+    
     $("#formClient").submit(function(){
         var self = $(this)
         $.confirm({
@@ -78,4 +79,53 @@ $(document).ready(function(){
         })
     })
     
+    $(".btn_supprimer_client").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Etes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.clt_client_information_supprime,
+                        type:"post",
+                        data:{idClient:self.data("value")},
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+    })
 })

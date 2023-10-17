@@ -494,7 +494,7 @@ $(document).ready(function(){
       $.ajax({
           url: routes.ftr_client_information_get,
           type:'post',
-          cache: false,
+          cache: false, 
           data:formData,
           dataType: 'html',
           processData: false,

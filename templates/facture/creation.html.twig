@@ -59,9 +59,9 @@
                     <input type="hidden" class="fact_paiement" id="fact_paiement" name="fact_paiement" >
                 </div>
                 <div class="row mx-1 mt-3 fact_info_supp">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="row" id="contentClient">
-                                <div class="col-md-9">
+                                <div class="col-md-4">
                                     <label for="fact_client" class="font-weight-bold text-uppercase">Client*</label>
                                     <select name="fact_client" class="custom-select chosen_select fact_client custom-select-sm" id="fact_client">
                                         <option value="">-</option>
@@ -70,19 +70,19 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <label for="" class="font-weight-bold text-uppercase">&nbsp;</label>
                                     <button type="button" class="btn btn-sm btn-primary btn-block fact_new_client"><i class="fa fa-plus-square"></i></button>
                                     <input type="hidden" name="fact_nouveau_client" id="fact_nouveau_client" value="NON">
                                 </div>
-                        </div>
+                        </div> 
                     </div>
                     <div class="col-md-3 contentMontant">
-                        <label for="fact_libelle" class="font-weight-bold fact_libelle_caption text-uppercase">-</label>
+                        <label for="fact_libelle" class=" mt-3 font-weight-bold fact_libelle_caption text-uppercase">-</label>
                         <input type="text" class="form-control" oninput="this.value = this.value.toUpperCase();" placeholder=". . ." id="fact_libelle" name="fact_libelle">
                     </div>
                     <div class="col-md-3">
-                        <label for="fact_num" class="font-weight-bold fact_num_caption text-uppercase">-</label>
+                        <label for="fact_num" class=" mt-3 font-weight-bold fact_num_caption text-uppercase">-</label>
                         <input type="text" class="form-control fact_num" oninput="this.value = this.value.toUpperCase();" placeholder=". . ." id="fact_num" name="fact_num">
                     </div>
                 </div>

@@ -1,0 +1,44 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 py-3">
+        <form id="formClient">
+        <div class="row">
+            <div class="col-md-5">
+                <label for="clt_societe" class="font-weight-bold text-uppercase">Société</label>
+                <input type="text" name="clt_societe" id="clt_societe" value="{{nomAgence}}" readonly class="form-control bg-white text-primary font-weight-bold">
+            </div>
+            <div class="col-md-4">
+                <label for="clt_facult_type" class="font-weight-bold text-uppercase">Statut</label>
+                <input type="text" name="clt_facult_type" id="clt_facult_type" value="{{dataGeneral.statut|upper}}" readonly class="form-control bg-white text-primary font-weight-bold">
+                <input type="hidden" id="clt_type" name="clt_type" value="{{dataGeneral.idType}}">
+                <input type="hidden" id="clt_identity" name="clt_identity" value="{{dataGeneral.identity}}">
+            </div>
+        </div>
+        <div id="contentClient">
+            {{ response | raw }}
+        </div>
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-edit"></i>&nbsp;Modifier</button>
+            </div>
+        {% endif %} 
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -121,6 +121,8 @@ class ClientController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
+        $clt_identity = $request->request->get("clt_identity") ;
+
         $type = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
 
         if($type->getReference() == "MORAL")
@@ -153,8 +155,15 @@ class ClientController extends AbstractController
                 return new JsonResponse($result) ;
 
             $typeSociete = $this->entityManager->getRepository(CltTypeSociete::class)->find($clt_soc_type_societe) ;
-
-            $societe = new CltSociete() ;
+            
+            if(!isset($clt_identity))
+            {
+                $societe = new CltSociete() ;
+            }
+            else
+            {
+                $societe = $this->entityManager->getRepository(CltSociete::class)->find($clt_identity) ;
+            }
 
             $societe->setAgence($this->agence) ;
             $societe->setTypeSociete($typeSociete) ;
@@ -172,7 +181,18 @@ class ClientController extends AbstractController
 
             if(!empty($clt_lien_nom))
             {
-                $urgence = new CltUrgence() ;
+                if(isset($clt_identity))
+                {
+                    $histoClient = $this->entityManager->getRepository(CltHistoClient::class)->findOneBy([
+                        "societe" => $societe
+                    ]) ;
+
+                    $urgence = is_null($histoClient->getUrgence()) ? new CltUrgence() : $histoClient->getUrgence();
+                }
+                else
+                {
+                    $urgence = new CltUrgence() ;
+                }
     
                 $urgence->setNom($clt_lien_nom) ;
                 $urgence->setTelephone($clt_lien_telephone) ;
@@ -226,7 +246,14 @@ class ClientController extends AbstractController
             if(!$result["allow"])
                 return new JsonResponse($result) ;
 
-            $client = new Client() ;
+            if(!isset($clt_identity))
+            {
+                $client = new Client() ;
+            }
+            else
+            {
+                $client = $this->entityManager->getRepository(Client::class)->find($clt_identity) ;
+            }
 
             $client->setAgence($this->agence) ;
             $client->setNom($clt_client_nom) ;
@@ -248,7 +275,18 @@ class ClientController extends AbstractController
 
             if(!empty($clt_lien_nom))
             {
-                $urgence = new CltUrgence() ;
+                if(isset($clt_identity))
+                {
+                    $histoClient = $this->entityManager->getRepository(CltHistoClient::class)->findOneBy([
+                        "client" => $client
+                    ]) ;
+                    
+                    $urgence = is_null($histoClient->getUrgence()) ? new CltUrgence() : $histoClient->getUrgence();
+                }
+                else
+                {
+                    $urgence = new CltUrgence() ;
+                }
     
                 $urgence->setNom($clt_lien_nom) ;
                 $urgence->setTelephone($clt_lien_telephone) ;
@@ -268,19 +306,22 @@ class ClientController extends AbstractController
             $societe = NULL ;
         }
 
-        $histoClient = new CltHistoClient() ;
-
-        $histoClient->setAgence($this->agence) ;
-        $histoClient->setClient($client) ;
-        $histoClient->setSociete($societe) ;
-        $histoClient->setType($type) ;
-        $histoClient->setUrgence($urgence) ;
-        $histoClient->setStatut(True) ;
-        $histoClient->setCreatedAt(new \DateTimeImmutable) ;
-        $histoClient->setUpdatedAt(new \DateTimeImmutable) ;
-
-        $this->entityManager->persist($histoClient) ;
-        $this->entityManager->flush() ;
+        if(!isset($clt_identity))
+        {
+            $histoClient = new CltHistoClient() ;
+    
+            $histoClient->setAgence($this->agence) ;
+            $histoClient->setClient($client) ;
+            $histoClient->setSociete($societe) ;
+            $histoClient->setType($type) ;
+            $histoClient->setUrgence($urgence) ;
+            $histoClient->setStatut(True) ;
+            $histoClient->setCreatedAt(new \DateTimeImmutable) ;
+            $histoClient->setUpdatedAt(new \DateTimeImmutable) ;
+    
+            $this->entityManager->persist($histoClient) ;
+            $this->entityManager->flush() ;
+        }
 
         $filename = $this->filename."client(agence)/".$this->nameAgence ;
 
@@ -289,5 +330,107 @@ class ClientController extends AbstractController
 
         return new JsonResponse($result) ;
     }
+    
+    #[Route('/client/informations/detail/{id}', name: 'clt_client_information_detail')]
+    public function clientDetailsInformation($id)
+    {
+        $id = $this->appService->decoderChiffre($id) ; 
+
+        $histoClient = $this->entityManager->getRepository(CltHistoClient::class)->find($id) ;
+
+        $urgence = $histoClient->getUrgence() ;
+
+        $dataUrgence = [
+            "nom" => is_null($urgence) ? "" : $urgence->getNom(),
+            "telephone" => is_null($urgence) ? "" : $urgence->getTelephone(),
+            "adresse" => is_null($urgence) ? "" : $urgence->getAdresse(),
+            "email" => is_null($urgence) ? "" : $urgence->getEmail(),
+            "lien_parente" => is_null($urgence) ? "" : $urgence->getLienParente(),
+            "observation" => is_null($urgence) ? "" : $urgence->getObservation(),
+        ] ;
+
+        $dataGeneral = [
+            "statut" => $histoClient->getType()->getNom(),
+            "idType" => $histoClient->getType()->getId(),
+            "identity" => is_null($histoClient->getSociete()) ? $histoClient->getClient()->getId() : $histoClient->getSociete()->getId(),
+        ] ;
+
+        if($histoClient->getType()->getReference() == "PHYSIQUE")
+        {
+            $client = $histoClient->getClient() ;
+
+            $dataClient = [
+                "nom" => $client->getNom(),
+                "nin" => $client->getNin(),
+                "adresse" => $client->getAdresse(),
+                "quartier" => $client->getQuartier(),
+                "telephone" => $client->getTelephone(),
+                "sexe" => $client->getSexe() ,
+                "email" => $client->getEmail(),
+                "situation" => $client->getSituation(),
+                "lieu_travail" => $client->getLieuTravail(),
+                "date_naissance" => is_null($client->getDateNaissance()) ? "" : $client->getDateNaissance()->format("d/m/Y"),
+                "lieu_naissance" => $client->getLieuNaissance(),
+                "profession" => $client->getPrefession(),
+            ] ;
+
+            $response = $this->renderView("client/detail/templateDetailPhysique.html.twig",[
+                "dataClient" => $dataClient,
+                "dataUrgence" => $dataUrgence,
+            ]) ;
+        }
+        else
+        {
+            $societe = $histoClient->getSociete() ;
+
+            $dataClient = [
+                "nom" => $societe->getNom(),
+                "nom_gerant" => $societe->getNomGerant(),
+                "adresse" => $societe->getAdresse(),
+                "tel_fixe" => $societe->getTelFixe(),
+                "fax" => $societe->getFax(),
+                "email" => $societe->getEmail(),
+                "domaine" => $societe->getDomaine(),
+                "num_registre" => $societe->getNumRegistre(),
+                "type_societe" => is_null($societe->getTypeSociete()) ? "" : $societe->getTypeSociete()->getId(),
+            ] ;
+
+            $response = $this->renderView("client/detail/templateDetailMorale.html.twig",[
+                "dataClient" => $dataClient,
+                "dataUrgence" => $dataUrgence,
+            ]) ;
+        }
+
+        return $this->render('client/detailClient.html.twig', [
+            "filename" => "client",
+            "titlePage" => "Detail Client",
+            "with_foot" => true,
+            "dataGeneral" => $dataGeneral,
+            "response" => $response,
+            "nomAgence" => $this->nomAgence ,
+        ]);
+    }
+
+    #[Route('/client/informations/supprime', name: 'clt_client_information_supprime')]
+    public function clientSupprimeInformation(Request $request)
+    {
+        $idClient = $request->request->get("idClient") ;
+
+        $histoClient = $this->entityManager->getRepository(CltHistoClient::class)->find($idClient) ;
+
+        $histoClient->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."client(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectuée",
+        ]) ;
+    }
+
     
 }
