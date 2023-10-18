@@ -1114,8 +1114,13 @@ class FactureController extends AbstractController
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
 
         $facture->setDescription($facture_editor) ;
-        $facture->setLieu($cmd_lieu) ;
-        $facture->setDate(\DateTime::createFromFormat("d/m/Y",$cmd_date)) ;
+        
+        if(isset($cmd_lieu) && !empty($cmd_lieu))
+            $facture->setLieu($cmd_lieu) ;
+
+        if(isset($cmd_date) && !empty($cmd_date))
+            $facture->setDate(\DateTime::createFromFormat("d/m/Y",$cmd_date)) ;
+
         $this->entityManager->flush() ;
 
         return new JsonResponse([""]) ;
