@@ -513,4 +513,25 @@ class AgendaController extends AbstractController
         
         return new JsonResponse($result) ;
     }
+
+    #[Route('/agenda/echeance/delete', name: 'agenda_delete_echeance')]
+    public function agdDeleteEcheance(Request $request)
+    {
+        $idEcheance = $request->request->get('idEcheance') ;
+        $echeance = $this->entityManager->getRepository(AgdEcheance::class)->find($idEcheance) ;
+
+        $this->entityManager->remove($echeance) ;
+        $this->entityManager->flush() ;
+
+        $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+        {
+            unlink($filename) ;
+        }
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectuée",
+        ]) ;
+    }
 }
