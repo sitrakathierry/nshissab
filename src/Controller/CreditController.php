@@ -14,8 +14,10 @@ use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
+use App\Entity\ModModelePdf;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -107,7 +109,8 @@ class CreditController extends AbstractController
 
         $infoFacture["numFnc"] = $finance->getNumFnc() ;
 
-        $infoFacture["id"] = $id ;
+        $infoFacture["id"] = $facture->getId() ;
+        $infoFacture["idFinance"] = $id ;
         $infoFacture["statut"] = $finance->getStatut()->getNom() ;
         $infoFacture["refStatut"] = $finance->getStatut()->getReference() ;
         $infoFacture["numFact"] = $facture->getNumFact() ;
@@ -116,7 +119,6 @@ class CreditController extends AbstractController
         $infoFacture["date"] = $facture->getDate()->format("d/m/Y") ;
         $infoFacture["lieu"] = $facture->getLieu() ;
         $infoFacture["description"] = $facture->getDescription() ;
-
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 
         if(!is_null($facture->getDevise()))
@@ -144,7 +146,7 @@ class CreditController extends AbstractController
             }
         }
         else
-        {
+        { 
             $infoFacture["infoSup"] = false ;
         }
 
@@ -193,8 +195,8 @@ class CreditController extends AbstractController
         $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
         
         $financeDetails = $this->entityManager->getRepository(CrdDetails::class)->findBy([
-                "finance" => $finance
-            ]) ;
+            "finance" => $finance
+        ]) ;
 
         $refPaiement = $finance->getPaiement()->getReference() ; 
         
@@ -204,9 +206,8 @@ class CreditController extends AbstractController
 
         $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
             "reference" => $refCategorie
-            ]) ;
+        ]) ;
 
-            
         if($refPaiement == "AC")
         {
             $unAgdAcompte = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
@@ -237,7 +238,6 @@ class CreditController extends AbstractController
             }
             
             $echeances = $echeanceArray ;
-
             $unAgdAcompte = "" ;
         }
 
@@ -253,6 +253,97 @@ class CreditController extends AbstractController
             "unAgdAcompte" => $unAgdAcompte
         ]) ;
 
+    }
+
+    #[Route('/credit/echeance/imprimer/{idFinance}/{idModeleEntete}/{idModeleBas}', name: 'credit_echeance_imprimer', defaults: ["idModeleEntete" => null,"idFinance" => null, "idModeleBas" => null])]
+    public function creditImprimerEcheance($idModeleEntete,$idModeleBas,$idFinance)
+    {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentBas = $modeleBas->getContenu() ;
+        }
+
+        $finance = $this->entityManager->getRepository(CrdFinance::class)->find($idFinance) ;
+
+        $client = $finance->getFacture()->getClient() ;
+
+        $dataClient = [
+            "nom" => "",
+            "adresse" => "",   
+            "telephone" => "",   
+        ] ;
+
+        if(!is_null($client))
+        {
+            if(!is_null($client->getSociete()))
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getSociete()->getNom(),   
+                    "adresse" => $client->getSociete()->getAdresse(),   
+                    "telephone" => $client->getSociete()->getTelFixe(),   
+                ] ;
+            }
+            else
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getClient()->getNom(),   
+                    "adresse" => $client->getClient()->getAdresse(),   
+                    "telephone" => $client->getClient()->getTelephone(),   
+                ] ;
+            }
+        }
+
+        $financeDetails = $this->entityManager->getRepository(CrdDetails::class)->findBy([
+            "finance" => $finance
+        ]) ;
+
+        $refPaiement = $finance->getPaiement()->getReference() ; 
+        $infoFacture = [] ;
+        $infoFacture["refStatut"] = $finance->getStatut()->getReference() ;
+        $infoFacture["totalTtc"] = $finance->getFacture()->getTotal() ;
+
+        $contentIMpression = $this->renderView("credit/impressionFactureCredit.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "financeDetails" => $financeDetails,
+            "client" => $dataClient,
+            "finance" => $finance,
+            "refPaiement" => $refPaiement,
+            "facture" => $infoFacture,
+            "date" => date("d/m/Y"),
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
     }
 
     #[Route('/credit/paiement/credit/save', name: 'crd_paiement_credit_save')]

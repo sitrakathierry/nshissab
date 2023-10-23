@@ -928,7 +928,7 @@ class FactureController extends AbstractController
             "nom" => "",
             "adresse" => "",   
             "telephone" => "",   
-        ] ;
+        ] ; 
 
         if(!is_null($client))
         {

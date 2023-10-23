@@ -36,7 +36,7 @@
         <span class="ml-auto {{statutClass}} font-weight-bold">{{facture.statut|upper}}</span>
         {% if facture.refStatut == "ATN" %}
             &nbsp;|&nbsp;
-            <button value="{{facture.id}}" class="btn btn-outline-info cmd_btn_check btn-sm font-smaller"><i class="fa fa-check"></i>&nbsp;Valider</button>
+            <button value="{{facture.idFinance}}" class="btn btn-outline-info cmd_btn_check btn-sm font-smaller"><i class="fa fa-check"></i>&nbsp;Valider</button>
         {% endif %}
         </h4>
     </div>
@@ -128,7 +128,7 @@
                                 <div class="col-md-3">
                                     <label for="agd_acp_date" class="font-weight-bold text-uppercase">Fixer une date</label>
                                     <input type="text" {{ facture.refStatut == "TRM" ? "readonly" : "" }} name="agd_acp_date" id="agd_acp_date" class="form-control" value="{{dateAgdAcp}}" placeholder=". . .">
-                                    <input type="hidden" name="agd_acp_id" value="{{facture.id}}" >
+                                    <input type="hidden" name="agd_acp_id" value="{{facture.idFinance}}" >
                                 </div>
                                 <div class="col-md-6">
                                     <label for="agd_acp_objet" class="font-weight-bold text-uppercase">Objet</label>
@@ -159,7 +159,7 @@
                                 <div class="col-md-3">
                                     <label for="crd_paiement_montant" class="font-weight-bold">Montant</label>
                                     <input type="number" name="crd_paiement_montant" id="crd_paiement_montant" class="form-control crd_paiement_montant" placeholder=". . .">
-                                    <input type="hidden" name="crd_paiement_id" value="{{facture.id}}">
+                                    <input type="hidden" name="crd_paiement_id" value="{{facture.idFinance}}">
                                 </div>
                                 {% if refPaiement == "CR" %}
                                     <div class="col-md-3">
@@ -244,7 +244,7 @@
                         </table>
                     </div>
                     <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                        <button type="button" data-value="{{facture.id}}" class="btn btn-sm ml-2 btn_imprimer_facture btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                        <button type="button" data-value="{{facture.idFinance}}" class="btn btn-sm ml-2 btn_imprimer_echeance btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
                     </div>
                 </div>
             </div>
@@ -276,7 +276,7 @@
 
             {% if with_foot %}
                 <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                    <button type="button" data-value="{{facture.id}}" class="btn btn-sm ml-2 btn_imprimer_facture  btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                    <button type="button" data-value="{{facture.idFinance}}" class="btn btn-sm ml-2 btn_imprimer_echeance  btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
                 </div>
             {% endif %} 
         {% endif %}

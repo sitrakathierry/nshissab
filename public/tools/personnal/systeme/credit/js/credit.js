@@ -366,7 +366,7 @@ $(document).ready(function(){
     return false;
   })
 
-  $(document).on('click',".btn_imprimer_facture",function(){
+  $(document).on('click',".btn_imprimer_echeance",function(){
     var self = $(this)
     var realinstance = instance.loading()
     $.ajax({
@@ -394,27 +394,9 @@ $(document).ready(function(){
                         action: function(){
                             var idModeleEntete = $("#modele_pdf_entete").val() ;
                             var idModeleBas = $("#modele_pdf_bas").val() ;
-                            var realinstance = instance.loading()
-                            $.ajax({
-                                url: routes.fact_element_description_update,
-                                type:'post',
-                                cache: false,
-                                data:{
-                                    idFacture:self.data("value"),
-                                    facture_editor:facture_editor.getEditorText()
-                                },
-                                dataType: 'json',
-                                success: function(response){
-                                    realinstance.close()
-                                    var idFacture = self.data("value") ;
-                                    var url = routes.fact_facture_detail_imprimer + '/' + idFacture + '/' + idModeleEntete + '/' + idModeleBas;
-                                    window.open(url, '_blank');
-                                },
-                                error: function(resp){
-                                    realinstance.close()
-                                    $.alert(JSON.stringify(resp)) ;
-                                }
-                            })
+                            var idFinance = self.data("value") ;
+                            var url = routes.credit_echeance_imprimer + '/' + idFinance + '/' + idModeleEntete + '/' + idModeleBas;
+                            window.open(url, '_blank');
                         }
                     }
                 }
