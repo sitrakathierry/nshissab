@@ -224,14 +224,14 @@ class AdminController extends AbstractController
     #[Route('/admin/societe/list',name:'admin_listSociete')]
     public function listSociete()
     {
-        
-
         $agences = $this->entityManager->getRepository(Agence::class)->findAll() ;
 
         return $this->render('admin/societe/list.html.twig',[
             "agences" => $agences
         ]);
     }
+
+    
 
     #[Route('/admin/menu/attribution',name:'menu_attribution')]
     public function menuAttribution()

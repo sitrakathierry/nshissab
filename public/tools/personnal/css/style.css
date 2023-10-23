@@ -4,6 +4,25 @@
     font-family: "Poppins", Arial, sans-serif;
 }
 
+.btn_connecter
+    {
+        z-index: 999;
+        text-decoration: none;
+        font-weight: bold;
+        position: absolute;
+        top: 12%;
+        left: 65%;
+        font-size: 1.5em;
+        color: darkorange;
+        transition: .3s;
+    }
+
+    .btn_connecter:hover
+    {
+        color: orangered !important ;
+        text-decoration: none;
+    }
+
 /* ENTETE */
 .header-image
 {

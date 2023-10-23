@@ -18,15 +18,15 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody> 
                     {% for agence in agences %}
                         <tr class="align-middle">
                             <td>{{agence.nom}}</td>
                             <td>{{agence.region}}</td>
                             <td class="text-center">{{agence.capacite}}</td>
                             <td class="text-right px-3">
-                                <button class="btn btn-outline-info btn-sm"><i class="fa fa-edit"></i>&nbsp;Afficher</button>
-                                <button class="btn btn-perso-one btn-sm ml-2"><i class="fa fa-users"></i>&nbsp;Agents</button>
+                                <button class="btn btn-outline-info btn-sm font-smaller"><i class="fa fa-edit"></i>&nbsp;Afficher</button>
+                                <button class="btn btn-perso-one btn-sm ml-2 font-smaller"><i class="fa fa-users"></i>&nbsp;Agents</button>
                             </td>
                         </tr>
                     {% endfor %}

@@ -36,7 +36,8 @@ class AccueilController extends AbstractController
         // // retrieve the success flash messages
         // $successMessages = $flashBag->get('success');
 
-        return $this->render('accueil/index.html.twig',[
+        // return $this->render('accueil/index.html.twig',[
+        return $this->render('accueil/accueil.html.twig',[
             // 'messageFlash' => $successMessages
         ]);
     }
