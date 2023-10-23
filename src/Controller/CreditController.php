@@ -404,14 +404,14 @@ class CreditController extends AbstractController
             $echeance->setCategorie($categorie) ;
             $echeance->setCatTable($finance) ;
             $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$crd_paiement_date)) ;
-            $echeance->setMontant($crd_paiement_montant) ;
+            $echeance->setMontant(floatval($crd_paiement_montant)) ;
             $echeance->setStatut(True) ;
             $echeance->setCreatedAt(new \DateTimeImmutable) ; 
             $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
 
             $this->entityManager->persist($echeance) ;
             $this->entityManager->flush() ; 
-            
+             
             $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
             if(file_exists($filename))
             {
