@@ -1,18 +1,7 @@
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SHISSAB SYSTEME Website" />
-    <meta name="Author" content="Razafimiadana Edouardo Stevano" />
-    <link rel="shortcut icon" href="{{asset('tools/accueil/assets/SHISSAB_Logo.png')}}" type="image/x-icon==">
-    <link rel="stylesheet" href="{{asset('tools/accueil/style/_style.css')}}">
-    <link rel="stylesheet" href="{{asset('tools/accueil/style/_color_Variables.css')}}">
-    <!-- <link rel="stylesheet" href="{{asset('tools/bootstrap/css/bootstrap.css')}}"> -->
-    <link rel="stylesheet" href="{{asset('tools/personnal/css/style.css')}}">
-    <title>SHISSAB SYSTEME</title>
-</head>
 
-<body>
+{% extends 'baseAccueil.html.twig' %}
+
+{% block body %}
     <div class="Container">
         <div class="navbar" style="background-image: url({{asset('tools/accueil/assets/HeadBack.png')}});">
             <div class="logo">
@@ -22,7 +11,6 @@
             </div>
         </div>
     </div>
-
     <div class="banner">
         <div class="Banner-content">
             <h1>SHISSAB</h1>
@@ -477,19 +465,4 @@
 
         <img src="{{asset('tools/accueil/assets/Footer_Form_Background.png')}}" alt="footer image">
     </div>
-
-    <script>
-        function showInfo(tab) {
-            // Masquer toutes les informations
-            document.querySelectorAll('.info').forEach(function (info) {
-                info.style.display = 'none';
-            });
-
-            // Afficher les informations correspondantes
-            document.getElementById(tab + 'Info').style.display = 'block';
-        }
-    </script>
-
-</body>
-
-</html>
+{% endblock %}

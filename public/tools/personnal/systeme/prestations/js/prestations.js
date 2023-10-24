@@ -589,4 +589,48 @@ $(document).ready(function(){
           searchService()
       })
   })
+
+  $(document).on('click',".btn_imprimer_echeance",function(){
+    var self = $(this)
+    var realinstance = instance.loading()
+    $.ajax({
+        url: routes.param_modele_pdf_get,
+        type:"post",
+        dataType:"html",
+        processData:false,
+        contentType:false,
+        success : function(response){
+            realinstance.close()
+            $.confirm({
+                title: "Impression Facture",
+                content:response,
+                type:"blue",
+                theme:"modern",
+                buttons:{
+                    btn1:{
+                        text: 'Annuler',
+                        action: function(){}
+                    },
+                    btn2:{
+                        text: 'Imprimer',
+                        btnClass: 'btn-blue',
+                        keys: ['enter', 'shift'],
+                        action: function(){
+                            var idModeleEntete = $("#modele_pdf_entete").val() ;
+                            var idModeleBas = $("#modele_pdf_bas").val() ;
+                            var idFinance = self.data("value") ;
+                            var url = routes.prest_location_caution_imprimer + '/' + idFinance + '/' + idModeleEntete + '/' + idModeleBas;
+                            window.open(url, '_blank');
+                        }
+                    }
+                }
+            })
+        },
+        error: function(resp){
+            realinstance.close()
+            $.alert(JSON.stringify(resp)) ;
+        }
+    })
+    return false ;
+  })
 })

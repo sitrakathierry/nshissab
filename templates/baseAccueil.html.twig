@@ -1,0 +1,39 @@
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <meta name="Author" content="Razafimiadana Edouardo Stevano" />
+        <meta name="description" content="SHISSAB SYSTEME Website" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}SHISSAB SYSTEME{% endblock %}</title>
+        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+        {% block stylesheets %}
+            {# {{ encore_entry_link_tags('app') }} #}
+            <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+            <link rel="shortcut icon" href="{{asset('tools/accueil/assets/SHISSAB_Logo.png')}}" type="image/x-icon==">
+            <link rel="stylesheet" href="{{asset('tools/accueil/style/_style.css')}}">
+            <link rel="stylesheet" href="{{asset('tools/accueil/style/_color_Variables.css')}}">
+            <link rel="stylesheet" href="{{asset('tools/personnal/css/style.css')}}">
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+        {% block javascripts %}
+            {# {{ encore_entry_script_tags('app') }} #}
+            <script src="{{asset('tools/cdn/js/jquery.js')}}"></script>
+            <script>
+                function showInfo(tab) {
+                    // Masquer toutes les informations
+                    document.querySelectorAll('.info').forEach(function (info) {
+                        info.style.display = 'none';
+                    });
+
+                    // Afficher les informations correspondantes
+                    document.getElementById(tab + 'Info').style.display = 'block';
+                }
+            </script>
+        {% endblock %}
+</html>

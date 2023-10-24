@@ -2004,7 +2004,7 @@ class PrestationController extends AbstractController
                 $nbJour =  365 * $duree ;
             }
         }
-
+ 
         $dateFin = $this->appService->calculerDateApresNjours($dateDebut,$nbJour) ;
 
         $contrat->setStatut($statutActive) ;
@@ -2021,6 +2021,12 @@ class PrestationController extends AbstractController
             "type" => "green",
             "message" => "Renouvellement effectué.",
         ]) ;
+    }
+
+    #[Route('/prestation/location/caution/imprimer/{idFinance}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_caution_imprimer', defaults: ["idModeleEntete" => null,"idFinance" => null, "idModeleBas" => null])]
+    public function prestLocationImrpimer($idModeleEntete,$idModeleBas,$idContrat)
+    {
+
     }
 
     #[Route('/prestation/location/paiement/search', name: 'prest_location_paiement_search')]

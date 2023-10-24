@@ -245,6 +245,10 @@ $(document).ready(function(){
         $(".cs_mtn_recu").keyup()
     })
 
+    function limiterA2Decimales(nombre) {
+        return nombre.toFixed(2).replace(/\.0*$/, '');
+      }
+
     function ajoutProduitCaisse(venteDemi){
         var caisse_prix = $("#caisse_search_prix").val()
         var caisse_produit = $("#caisse_search_produit").val()
@@ -308,7 +312,7 @@ $(document).ready(function(){
             <td class="align-middle">
                 <input type="number" step="any" name="csenr_tva[]" `+(caisse_tva == "" ? "" : "readonly")+` class="csenr_tva form-control" value="`+(caisse_tva == "" ? 0 : caisse_tva)+`">
             </td>
-            <td class="align-middle csenr_total_partiel">`+totalPartiel+`</td>
+            <td class="align-middle csenr_total_partiel">`+limiterA2Decimales(totalPartiel)+`</td>
             <td class="text-center align-middle">
                 <button type="button" class="btn btn-sm remove_ligne_caisse font-smaller btn-outline-danger"><i class="fa fa-times"></i></button>
             </td>
@@ -382,15 +386,15 @@ $(document).ready(function(){
         var totalPayee = parseFloat(montantRecu) - parseFloat(a_rembourser);
         var totalTTC = totalPayee + totalTva
 
-        $(".cs_total_general").text(totalGeneral)
-        $(".csenr_total_general").val(totalGeneral)
+        $(".cs_total_general").text(limiterA2Decimales(totalGeneral))
+        $(".csenr_total_general").val(limiterA2Decimales(totalGeneral))
 
-        $(".cs_mtn_tva").text(totalTva)
-        $(".csenr_total_tva").val(totalTva)
+        $(".cs_mtn_tva").text(limiterA2Decimales(totalTva))
+        $(".csenr_total_tva").val(limiterA2Decimales(totalTva))
 
-        $(".cs_mtn_rembourse").text(a_rembourser)
-        $(".cs_total_pyee").text(totalPayee)
-        $(".cs_mtn_ttc").text(totalTTC)
+        $(".cs_mtn_rembourse").text(limiterA2Decimales(a_rembourser))
+        $(".cs_total_pyee").text(limiterA2Decimales(totalPayee))
+        $(".cs_mtn_ttc").text(limiterA2Decimales(totalTTC))
     }
 
     $("#formCaisse").submit(function(event){
