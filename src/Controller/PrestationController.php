@@ -1531,7 +1531,7 @@ class PrestationController extends AbstractController
         {
             return new Response($response) ;
         }
-
+ 
         return $this->render('prestations/location/detailsReleveContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Relevé de paiement",
@@ -1580,7 +1580,8 @@ class PrestationController extends AbstractController
         "idContrat" => null, 
         "details" => null, 
         "idModeleEntete" => null, 
-        "idModeleBas" => null ])]
+        "idModeleBas" => null
+    ])]
     public function prestLocationImprimerQuittanceLoyer($idContrat,$details, $idModeleEntete, $idModeleBas)
     {
         $contentEntete = "" ;
@@ -1767,7 +1768,7 @@ class PrestationController extends AbstractController
             "reference" => "CAUTION"
         ]) ;
 
-        $repartition = new LctRepartition() ;
+        $repartition = new LctRepartition();
 
         $repartition->setPaiement($paiement) ;
         $repartition->setMois(intval(date('m'))) ;
@@ -2023,9 +2024,90 @@ class PrestationController extends AbstractController
         ]) ;
     }
 
-    #[Route('/prestation/location/caution/imprimer/{idFinance}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_caution_imprimer', defaults: ["idModeleEntete" => null,"idFinance" => null, "idModeleBas" => null])]
-    public function prestLocationImrpimer($idModeleEntete,$idModeleBas,$idContrat)
+    #[Route('/prestation/location/caution/imprimer/{idContrat}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_caution_imprimer', defaults: ["idModeleEntete" => null,"idContrat" => null, "idModeleBas" => null])]
+    public function prestLocationImrpimerCaution($idModeleEntete,$idModeleBas,$idContrat)
     {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+
+        $contrat = $this->entityManager->getRepository(LctContrat::class)->find($idContrat) ;
+
+        $dataContrat = [
+            "numeroContrat" => $contrat->getNumContrat(),
+            "date" => $contrat->getDateContrat()->format("d/m/Y"),
+            "lieu" => $contrat->getLieuContrat(),
+        ] ;
+
+        // $totalPayee = 0 ;
+
+        // $statutLoyerCaution = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
+        //     "reference" => "CAUTION"
+        // ]) ;
+
+        // $paiementContrat = $this->entityManager->getRepository(LctPaiement::class)->findOneBy([
+        //     "contrat" => $contrat
+        // ]) ;
+
+
+
+        // $repartition = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
+        //     "statut" => $statutLoyerCaution
+        // ]) ;
+
+        $dataDetails = [
+            "date" => $contrat->getDateContrat()->format("d/m/Y"),
+            // "numReleve" => $repartition->getNumReleve(),
+            "montant" => $contrat->getCaution(),
+        ] ;
+
+        $dataContrat["lettre"] = $this->appService->NumberToLetter($contrat->getCaution()) ;
+
+        $locataire = $contrat->getLocataire() ;
+
+        $dataLocataire = [
+            "nom" => $locataire->getNom(),
+            "adresse" => $locataire->getAdresse(), 
+            "telephone" => $locataire->getTelephone(), 
+        ] ;
+
+        $contentImpression = $this->renderView("prestations/location/impression/impressionFicheCaution.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "contrat" => $dataContrat,
+            "locataire" => $dataLocataire,
+            "details" => $dataDetails,
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentImpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
+
 
     }
 
