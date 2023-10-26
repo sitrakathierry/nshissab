@@ -208,6 +208,8 @@
                             </thead>
                             <tbody>
                                 {% set totalQte = 0 %}
+                                {% set totalCredit = 0 %}
+                                {% set totalDebit = 0 %}
                                 {% for liste in listes %}
                                     <tr>
                                         <td>{{liste.date}}</td>
@@ -219,16 +221,18 @@
                                         <td class="text-center align-middle">{{liste.type|upper}}</td>
                                     </tr>
                                     {% if liste.indice == "CREDIT" %}
+                                        {% set totalCredit = totalCredit + liste.quantite %}
                                         {% set totalQte = totalQte - liste.quantite %}
                                     {% else %}
+                                        {% set totalDebit = totalDebit + liste.quantite %}
                                         {% set totalQte = totalQte + liste.quantite %}
                                     {% endif %}
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="3">Total</th>
-                                    <th colspan="4">{{totalQte}}</th>
+                                    <th colspan="2">Total</th>
+                                    <th colspan="4">{{totalQte}}={{totalDebit}}-{{totalCredit}}</th>
                                 </tr>
                             </tfoot>
                         </table>
