@@ -2069,6 +2069,7 @@ class StockController extends AbstractController
                 $item["prix"] = $caissePanier->getPrix() ;
                 $item["total"] = ($caissePanier->getPrix() * $caissePanier->getQuantite()) + $tva ;
                 $item["type"] = "Vente" ;
+                $item["indice"] = "CREDIT" ;
 
                 array_push($listes,$item) ;
             }
@@ -2088,6 +2089,7 @@ class StockController extends AbstractController
                 $item["prix"] = $prixVente ;
                 $item["total"] = ($prixVente * $appro->getQuantite());
                 $item["type"] = "Approvisionnement" ;
+                $item["indice"] = "DEBIT" ;
 
                 array_push($listes,$item) ;
             }
@@ -2126,6 +2128,7 @@ class StockController extends AbstractController
                     $item["prix"] = $factureVariation->getPrix() ;
                     $item["total"] = ($factureVariation->getPrix() * $factureVariation->getQuantite());
                     $item["type"] = "Facture Definitif" ;
+                    $item["indice"] = "CREDIT" ;
     
                     array_push($listes,$item) ;
                 }
