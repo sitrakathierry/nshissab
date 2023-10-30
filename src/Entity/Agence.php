@@ -214,6 +214,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: Client::class)]
     private Collection $clients;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdDeduction::class)]
+    private Collection $prdDeductions;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -270,6 +273,7 @@ class Agence
         $this->chkCheques = new ArrayCollection();
         $this->cltSocietes = new ArrayCollection();
         $this->clients = new ArrayCollection();
+        $this->prdDeductions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2034,6 +2038,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($client->getAgence() === $this) {
                 $client->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdDeduction>
+     */
+    public function getPrdDeductions(): Collection
+    {
+        return $this->prdDeductions;
+    }
+
+    public function addPrdDeduction(PrdDeduction $prdDeduction): self
+    {
+        if (!$this->prdDeductions->contains($prdDeduction)) {
+            $this->prdDeductions->add($prdDeduction);
+            $prdDeduction->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdDeduction(PrdDeduction $prdDeduction): self
+    {
+        if ($this->prdDeductions->removeElement($prdDeduction)) {
+            // set the owning side to null (unless already changed)
+            if ($prdDeduction->getAgence() === $this) {
+                $prdDeduction->setAgence(null);
             }
         }
 

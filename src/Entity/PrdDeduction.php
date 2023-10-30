@@ -32,6 +32,12 @@ class PrdDeduction
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $type = null;
 
+    #[ORM\ManyToOne(inversedBy: 'prdDeductions')]
+    private ?PrdVariationPrix $variationPrix = null;
+
+    #[ORM\ManyToOne(inversedBy: 'prdDeductions')]
+    private ?Agence $agence = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +111,30 @@ class PrdDeduction
     public function setType(?string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getVariationPrix(): ?PrdVariationPrix
+    {
+        return $this->variationPrix;
+    }
+
+    public function setVariationPrix(?PrdVariationPrix $variationPrix): self
+    {
+        $this->variationPrix = $variationPrix;
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }

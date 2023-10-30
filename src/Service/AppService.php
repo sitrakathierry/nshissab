@@ -694,7 +694,8 @@ class AppService extends AbstractController
         $produit = $this->entityManager->getRepository(Produit::class)->find($idProduit) ;
 
         $variations = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-            "produit" => $produit
+            "produit" => $produit,
+            "statut" => True
         ]) ;
 
         $elements = [] ;
@@ -702,7 +703,8 @@ class AppService extends AbstractController
         foreach($variations as $variation)
         {
             $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                "variationPrix" => $variation
+                "variationPrix" => $variation,
+                "statut" => True
             ]) ;
 
             $item = [];
@@ -3137,6 +3139,22 @@ class AppService extends AbstractController
 
     public function synchronisationGeneral()
     {
+        /* DEBUT MISE A JOUR DEDUCTION */
+
+        // $enrDeductions = $this->entityManager->getRepository(PrdDeduction::class)->findAll() ;
+
+        // foreach($enrDeductions as $enrDeduction)
+        // {
+        //     $variationPrix = $enrDeduction->getHistoEntrepot()->getVariationPrix() ; 
+        //     $agenceDeduc = $enrDeduction->getHistoEntrepot()->getAgence() ; 
+
+        //     $enrDeduction->setAgence($agenceDeduc) ;
+        //     $enrDeduction->setVariationPrix($variationPrix) ;
+        //     $this->entityManager->flush() ;
+        // }
+
+        /* FIN MISE A JOUR DEDUCTION */
+
         // $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
         //     "agence" => $this->agence,
         //     "statut" => False

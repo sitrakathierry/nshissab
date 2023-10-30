@@ -80,8 +80,8 @@
                             <input type="hidden" name="details_barcode_produit" class="details_barcode_produit" value="{{infoProduit.codeProduit}}">
                         </div>
                         <div class="col-md-3">
-                            <label for="unite_produit" class="mt-2 unite_produitunite_produit font-weight-bold">Stock disponible</label>
-                            <input type="text" readonly value="{{infoProduit.stock}}" name="unite_produit" id="unite_produit" class="form-control" placeholder=". . .">
+                            <label for="stock_produit" class="mt-2 unite_produitunite_produit font-weight-bold">Stock disponible</label>
+                            <input type="text" readonly value="{{infoProduit.stock}}" name="stock_produit" id="stock_produit" class="form-control" placeholder=". . .">
                         </div>
                         <div class="col-md-3">
                             <label for="unite_produit" class="mt-2 unite_produitunite_produit font-weight-bold">Unité</label>
@@ -165,7 +165,7 @@
                                             <input type="hidden" class="prd_list_solde_type" value="{{variationProduit.soldeType}}">
                                             <input type="hidden" class="prd_list_qte_solde" value="{{variationProduit.soldeQte}}">
                                             <input type="hidden" class="prd_list_solde_date" value="{{variationProduit.soldeDate}}">
-                                            </td>
+                                            </td> 
                                             {# <td>{{variationProduit.}}</td> #}
                                             <td class="prd_list_prix">{{variationProduit.prix}}</td>
                                             <td class="prd_list_solde">{{variationProduit.solde}}</td>

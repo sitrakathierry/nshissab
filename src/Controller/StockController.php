@@ -1993,6 +1993,8 @@ class StockController extends AbstractController
     #[Route('/stock/general/produit/details/{id}', name: 'stock_general_details', defaults: ["id" => null])]
     public function stockDetailsProduitsGeneral($id): Response
     {
+        $this->appService->synchronisationGeneral() ;
+         
         $id = $this->appService->decoderChiffre($id) ;
 
         $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
@@ -2013,8 +2015,6 @@ class StockController extends AbstractController
 
         $variationProduits = json_decode(file_get_contents($filename)) ;
 
-        // dd($variationProduits) ;
-
         $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
 
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
@@ -2034,7 +2034,6 @@ class StockController extends AbstractController
             "codeProduit" =>  $produit->getCodeProduit(),
             "categorie" =>  $produit->getPreference()->getId(),
             "stock" =>  $produit->getStock(),
-            "stock" =>  $produit->getStock(),
             "nomProduit" => is_null($produit->getType()) ? "NA" : $produit->getType()->getId(),
             "unite" =>  $produit->getUnite(),
             "description" =>  $produit->getDescription(),
@@ -2047,7 +2046,6 @@ class StockController extends AbstractController
             "produit" => $produit,
             "statut" => True,
         ]) ;
-
         $listes = [] ;
         $newArray = [] ;
         foreach($variationPrixs as $variationPrix)
@@ -2079,7 +2077,7 @@ class StockController extends AbstractController
             ]) ;
 
             foreach($appros as $appro)
-            {
+            { 
                 $item = [] ;
                 $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
                 $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
@@ -2136,9 +2134,30 @@ class StockController extends AbstractController
                 // $factureVariations
                 // $newArray = array_merge($listes,$factureVariations) ;
             }
-        }
-        // dd($factureVariations) ;
 
+            $deductionVariations = $this->entityManager->getRepository(PrdDeduction::class)->findBy([
+                "variationPrix" => $variationPrix
+            ]) ;
+
+            // dd($deductionVariations) ;
+            
+            foreach ($deductionVariations as $deductionVariation) {
+                $item = [] ;
+                $item["date"] = $deductionVariation->getCreatedAt()->format("d/m/Y");
+                // $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                $item["produit"] = $produit->getNom() ;
+                $item["quantite"] = $deductionVariation->getQuantite() ;
+                $item["prix"] = $deductionVariation->getVariationPrix()->getPrixVente() ;
+                $item["total"] = ($deductionVariation->getQuantite() * $deductionVariation->getVariationPrix()->getPrixVente());
+                $item["type"] = "Déduction" ;
+                $item["indice"] = "CREDIT" ;
+
+                array_push($listes,$item) ;
+            }
+        }
+
+        // dd($factureVariations) ;
+        
         usort($listes, [self::class, 'compareDates']);
 
         return $this->render('stock/general/details.html.twig', [
@@ -2428,7 +2447,6 @@ class StockController extends AbstractController
             if(!$result["allow"])
                 return new JsonResponse($result) ;
             
-
             $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
                 "variationPrix" => $variationPrix,
                 "statut" => True,
@@ -2478,6 +2496,8 @@ class StockController extends AbstractController
 
                 $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($reduc_val_entrepot[$key]) ;
 
+                $deduction->setAgence($this->agence) ;
+                $deduction->setVariationPrix($variationPrix) ;
                 $deduction->setHistoEntrepot($histoEntrepot) ;
                 $deduction->setQuantite($reduc_val_qte[$key]) ;
                 $deduction->setCause($reduc_val_type[$key] == "Par décompte" ? "-" : $reduc_val_cause[$key]) ;
@@ -2488,7 +2508,7 @@ class StockController extends AbstractController
                 $this->entityManager->persist($deduction) ;
                 $this->entityManager->flush() ;
                 
-                $produitDeduit = $histoEntrepot->getVariationProduit()->getProduit() ;
+                $produitDeduit = $variationPrix->getProduit() ;
 
                 $produitDeduit->setToUpdate(True) ;
                 $this->entityManager->flush() ;

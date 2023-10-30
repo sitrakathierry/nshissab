@@ -51,12 +51,16 @@ class PrdVariationPrix
     #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: CaissePanier::class)]
     private Collection $caissePaniers;
 
+    #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: PrdDeduction::class)]
+    private Collection $prdDeductions;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
         $this->prdSoldes = new ArrayCollection();
         $this->caissePaniers = new ArrayCollection();
+        $this->prdDeductions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -274,6 +278,36 @@ class PrdVariationPrix
             // set the owning side to null (unless already changed)
             if ($caissePanier->getVariationPrix() === $this) {
                 $caissePanier->setVariationPrix(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdDeduction>
+     */
+    public function getPrdDeductions(): Collection
+    {
+        return $this->prdDeductions;
+    }
+
+    public function addPrdDeduction(PrdDeduction $prdDeduction): self
+    {
+        if (!$this->prdDeductions->contains($prdDeduction)) {
+            $this->prdDeductions->add($prdDeduction);
+            $prdDeduction->setVariationPrix($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdDeduction(PrdDeduction $prdDeduction): self
+    {
+        if ($this->prdDeductions->removeElement($prdDeduction)) {
+            // set the owning side to null (unless already changed)
+            if ($prdDeduction->getVariationPrix() === $this) {
+                $prdDeduction->setVariationPrix(null);
             }
         }
 
