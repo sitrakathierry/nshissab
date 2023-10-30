@@ -3141,17 +3141,17 @@ class AppService extends AbstractController
     {
         /* DEBUT MISE A JOUR DEDUCTION */
 
-        // $enrDeductions = $this->entityManager->getRepository(PrdDeduction::class)->findAll() ;
+        $enrDeductions = $this->entityManager->getRepository(PrdDeduction::class)->findAll() ;
 
-        // foreach($enrDeductions as $enrDeduction)
-        // {
-        //     $variationPrix = $enrDeduction->getHistoEntrepot()->getVariationPrix() ; 
-        //     $agenceDeduc = $enrDeduction->getHistoEntrepot()->getAgence() ; 
+        foreach($enrDeductions as $enrDeduction)
+        {
+            $variationPrix = $enrDeduction->getHistoEntrepot()->getVariationPrix() ; 
+            $agenceDeduc = $enrDeduction->getHistoEntrepot()->getAgence() ; 
 
-        //     $enrDeduction->setAgence($agenceDeduc) ;
-        //     $enrDeduction->setVariationPrix($variationPrix) ;
-        //     $this->entityManager->flush() ;
-        // }
+            $enrDeduction->setAgence($agenceDeduc) ;
+            $enrDeduction->setVariationPrix($variationPrix) ;
+            $this->entityManager->flush() ;
+        }
 
         /* FIN MISE A JOUR DEDUCTION */
 
