@@ -2051,15 +2051,14 @@ class StockController extends AbstractController
         foreach($variationPrixs as $variationPrix)
         {
             $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
-                "variationPrix" => $variationPrix
+                "variationPrix" => $variationPrix,
+                "statut" => True 
             ]) ;
 
             foreach($caissePaniers as $caissePanier)
             {
                 $item = [] ;
-
                 $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
-
                 $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
                 // $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
                 $item["produit"] = $produit->getNom() ;
