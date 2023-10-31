@@ -887,6 +887,25 @@ class StockController extends AbstractController
     public function stockSavePrefs(Request $request)
     {
         $preferences = (array)$request->request->get('preferences') ;
+        
+        if(empty($preferences))
+        {
+            $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+
+            if(file_exists($filename))
+                unlink($filename) ;
+
+            if(!file_exists($filename))
+                $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
+            $dataPreferences = json_decode(file_get_contents($filename)) ;
+
+            $result = $this->renderView("stock/searchPreferences.html.twig",[
+                "preferences" => $dataPreferences
+            ]) ;
+
+            return new Response($result) ;
+        }
 
         $preferences = explode(",",$preferences[0]) ;
 

@@ -102,8 +102,7 @@ class AppService extends AbstractController
         {
             $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
             $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
-        }
-            
+        }  
     }
 
     public function getnameAgence()
