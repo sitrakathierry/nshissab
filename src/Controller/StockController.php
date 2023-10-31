@@ -887,10 +887,10 @@ class StockController extends AbstractController
     public function stockSavePrefs(Request $request)
     {
         $preferences = (array)$request->request->get('preferences') ;
-        
+
         if(empty($preferences))
         {
-            $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+            $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
 
             if(file_exists($filename))
                 unlink($filename) ;
@@ -948,7 +948,7 @@ class StockController extends AbstractController
             }
         }
 
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
 
         if(file_exists($filename))
             unlink($filename) ;
