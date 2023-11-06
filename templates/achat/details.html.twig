@@ -116,37 +116,37 @@
                     Arrêté la présente facture à la somme de <span class="font-weight-bold text-uppercase">{{achat.lettre}}</span>
                 </div>
             </div>
+            <div class="container mt-2">
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5"> 
+                        <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                        <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                            </div>
+                            <input type="text" class="form-control bg-white text-primary ach_lieu" name="ach_lieu" value="{{achat.lieu}}" placeholder=". . ." aria-label="Lieu Contrat" id="ach_lieu">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5"> 
+                        <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                            </div>
+                            <input type="text" class="form-control bg-white text-primary" name="ach_date" id="ach_date" value="{{achat.date}}" placeholder=". . ." aria-label="Date Contrat">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="foot_action p-3 mt-3 text-right w-100 barre_dashed">
+                <button type="button" class="btn btn-sm ml-3 btn_imprimer_bon_commande btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                <button type="button" class="btn btn-sm ml-3 btn_update_bon_commande btn-perso-one"><i class="fa fa-database"></i>&nbsp;Mettre à jour</button>
+            </div>
         </form>
-        <div class="container mt-2">
-            <div class="row">
-                <div class="col-md-7"></div>
-                <div class="col-md-5"> 
-                    <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
-                        </div>
-                        <input type="text" readonly class="form-control bg-white ach_lieu" name="ach_lieu" value="{{achat.lieu}}" placeholder=". . ." aria-label="Lieu Contrat" id="ach_lieu">
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-7"></div>
-                <div class="col-md-5"> 
-                    <label for="nom" class="mt-1 font-weight-bold">Le,</label>
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                        </div>
-                        <input type="text" readonly class="form-control bg-white" name="ach_date" value="{{achat.date}}" placeholder=". . ." aria-label="Date Contrat">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="foot_action p-3 mt-3 text-right w-100 barre_dashed">
-            <button type="submit" class="btn btn-sm ml-3 btn-primary"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
-            <button type="button" class="btn btn-sm ml-3 btn_update_bon_commande btn-perso-one"><i class="fa fa-database"></i>&nbsp;Mettre à jour</button>
-        </div>
         {% if achat.refType == "CREDIT" %}
             <div class="barre_dashed p-3">
                 {% if not (achat.montantPayee >= total) %}

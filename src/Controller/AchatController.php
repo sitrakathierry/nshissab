@@ -330,7 +330,7 @@ class AchatController extends AbstractController
         ],[
             "Fournisseur",
             "Type de paiement",
-            ]) ;
+        ]) ;
         
         if(!$result["allow"])
             return new JsonResponse($result) ;
@@ -410,6 +410,14 @@ class AchatController extends AbstractController
 
         $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($idBonCommande) ;
 
+        $ach_lieu = $request->request->get('ach_lieu') ; 
+        $ach_date = $request->request->get('ach_date') ; 
+
+        $bonCommande->setLieu($ach_lieu) ;
+        $bonCommande->setDate(\DateTime::createFromFormat("d/m/Y",$ach_date)) ;
+
+        $this->entityManager->flush() ;
+
         $statut = $this->entityManager->getRepository(AchStatut::class)->findOneBy([
             "reference" => "NOTLVR"
         ]) ;
@@ -439,6 +447,8 @@ class AchatController extends AbstractController
             $this->entityManager->persist($detail) ;
             $this->entityManager->flush() ;
         }
+
+        
 
         $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
 
@@ -528,7 +538,7 @@ class AchatController extends AbstractController
 
         return $this->render('achat/details.html.twig', [
             "filename" => "achat",
-            "titlePage" => "Details Achat",
+            "titlePage" => "Details Achat", 
             "with_foot" => true,
             "achat" => $achat,
             "listBonCommandes" => $listBonCommandes,

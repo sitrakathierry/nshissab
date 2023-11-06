@@ -721,7 +721,7 @@ $(document).ready(function(){
         })
         return false ;
     })
-
+    
     $(document).on('click',".btn_supprime_detail_bon", function(){
         var self = $(this)
         $.confirm({
