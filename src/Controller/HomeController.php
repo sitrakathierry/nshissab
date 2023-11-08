@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\CaissePanier;
+use App\Entity\ModModelePdf;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdVariationPrix;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -25,6 +27,7 @@ class HomeController extends AbstractController
     private $session ;
     private $appService ;
     private $urlGenerator ;
+    private $nameUser ;
 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
@@ -32,6 +35,7 @@ class HomeController extends AbstractController
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
         $this->appService->checkUrl() ;
+        $this->nameUser = strtolower($this->session->get("user")["username"]) ;
     }
 
     /**
@@ -153,7 +157,6 @@ class HomeController extends AbstractController
         return $this->redirectToRoute('app_home');
     }
 
-
     /**
      * @Route("/home/datas/variation/update/{idVar}/{idHEnt}", name="home_datas_variation_update")
     */
@@ -180,5 +183,49 @@ class HomeController extends AbstractController
         $this->appService->homeRefreshAllFiles($key) ;
 
         return $this->redirectToRoute('app_home');
+    }
+
+    public function validerImpressionFichier($idModeleEntete,$idModeleBas,$contenu) 
+    {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentBas = $modeleBas->getContenu() ;
+        }
+
+        $contentIMpression = $this->renderView("home/impression/impressionFichier.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            'contenu' => $contenu
+        ]) ; 
+        
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+    
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
     }
 }

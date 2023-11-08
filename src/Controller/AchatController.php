@@ -544,7 +544,7 @@ class AchatController extends AbstractController
             "listBonCommandes" => $listBonCommandes,
             "histoPaiements" => $histoPaiements,
             "marchandises" => $marchandises,
-        ]);
+        ]); 
     }
 
     #[Route('/achat/paiement/credit/save', name: 'achat_paiement_credit_save')]
@@ -632,4 +632,70 @@ class AchatController extends AbstractController
 
         return new Response('<span class="text-success font-weight-bold text-uppercase">Livré</span>') ;
     }
+
+    #[Route('/achat/information/update', name: 'achat_information_update')]
+    public function achatUpdateInformation(Request $request)
+    {
+        $idAchat = $request->request->get("idAchat") ;
+        $ach_commande_editor = $request->request->get("ach_commande_editor") ;
+        $ach_lieu = $request->request->get("ach_lieu") ;
+        $ach_date = $request->request->get("ach_date") ;
+
+        $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($idAchat) ;
+
+
+        $bonCommande->setDescription($ach_commande_editor) ;
+        $bonCommande->setLieu($ach_lieu) ;
+        $bonCommande->setDate(\DateTime::createFromFormat("d/m/Y",$ach_date)) ;
+
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([""]) ;
+    }
+
+    #[Route('/achat/details/imprimer/{idAchat}/{idModeleEntete}/{idModeleBas}', name: 'achat_detail_imprimer', defaults: ["idAchat" => null,"idModeleEntete" => null, "idModeleBas" => null])]
+    public function achatImprimerDetails($idAchat,$idModeleEntete,$idModeleBas, HomeController $homeController)
+    {
+
+        $bonCommande = $this->entityManager->getRepository(AchBonCommande::class)->find($idAchat) ;
+
+        $totalPaiement = $this->entityManager->getRepository(AchHistoPaiement::class)->getTotalPaiement($idAchat) ; 
+
+        $achat = [
+            "id" => $bonCommande->getId(),    
+            "numero" => $bonCommande->getNumero(),    
+            "fournisseur" => $bonCommande->getFournisseur()->getNom(),    
+            "type" => ($bonCommande->getType()->getReference() == "CREDIT") ? $bonCommande->getType()->getNom() : "",    
+            "description" => $bonCommande->getDescription(),    
+            "date" => $bonCommande->getDate()->format("d/m/Y"),    
+            "lieu" => $bonCommande->getLieu(),    
+            "lettre" => $this->appService->NumberToLetter($bonCommande->getMontant()) ,    
+            "refType" =>$bonCommande->getType()->getReference() ,
+            "montant" =>$bonCommande->getMontant() ,
+            "montantPayee" => is_null($totalPaiement["credit"]) ? 0 : $totalPaiement["credit"] ,
+        ] ;
+
+        $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateAchListBonCommande($filename,$this->agence) ;
+
+        $listBonCommandes = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "id" => $idAchat
+        ] ;
+        
+        $listBonCommandes = $this->appService->searchData($listBonCommandes, $search) ;
+
+        $contenu = $this->renderView("achat/impression/imprimerDetail.html.twig",[
+                "listBonCommandes" => $listBonCommandes,
+                "achat" => $achat,
+            ]) ;
+
+
+        return $homeController->validerImpressionFichier($idModeleEntete,$idModeleBas,$contenu) ;
+    }
+
+
+
 }

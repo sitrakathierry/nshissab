@@ -547,7 +547,7 @@ $(document).ready(function(){
                     type:"blue",
                     theme:"modern",
                     buttons:{
-                        btn1:{
+                        btn1:{ 
                             text: 'Annuler',
                             action: function(){}
                         },

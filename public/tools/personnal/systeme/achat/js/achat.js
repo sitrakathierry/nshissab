@@ -850,4 +850,68 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $(".btn_imprimer_bon_commande").click(function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Facture",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Imprimer',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var realinstance = instance.loading()
+                                $.ajax({
+                                    url: routes.achat_information_update,
+                                    type:'post',
+                                    cache: false,
+                                    data:{
+                                        idAchat:self.data("value"),
+                                        ach_commande_editor:ach_commande_editor.getEditorText(),
+                                        ach_lieu:$("#ach_lieu").val(),
+                                        ach_date:$("#ach_date").val()
+                                    },
+                                    dataType: 'json',
+                                    success: function(response){
+                                        realinstance.close()
+                                        var idAchat = self.data("value") ;
+                                        var url = routes.achat_detail_imprimer + '/' + idAchat + '/' + idModeleEntete + '/' + idModeleBas;
+                                        window.open(url, '_blank');
+                                    },
+                                    error: function(resp){
+                                        realinstance.close()
+                                        $.alert(JSON.stringify(resp)) ;
+                                    }
+                                })
+                            }
+                        }
+                    }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    })
 })

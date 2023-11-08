@@ -1,0 +1,57 @@
+<div class="text-center">
+    <h5 class="title_form_entete text-black text-uppercase">BON DE COMMANDE(ACHAT) N° {{achat.numero}} {{achat.type}}</h5>
+</div>
+{# <table class="border-0">
+    <tr>
+        <th></th>
+    </tr>
+</table> #}
+<div class="mt-3">
+    <span style="font-size: 0.92em ">Fournisseur : <span class="font-weight-bold ">{{achat.fournisseur}}</span></span>
+</div>
+{% if achat.description is not empty %}
+    <div class="px-3 pt-2">
+    {{ achat.description | raw}}
+    </div>
+{% endif %}
+<div class="table-responsive mt-2">
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Marchandise</th>
+                <th>Reference</th>
+                <th>Quantité</th>
+                <th>Prix</th>
+                <th>Montant Total</th>
+            </tr>
+        </thead>
+        <tbody id="contentItemMarchandise"> 
+            {% set total = 0 %}
+            {% for listBonCommande in listBonCommandes %}
+                <tr>
+                    <td>{{listBonCommande.designation}}</td>
+                    <td>{{listBonCommande.reference}}</td>
+                    <td>{{listBonCommande.quantite}}</td>
+                    <td>{{listBonCommande.prix}}</td>
+                    <td>
+                        {{listBonCommande.totalLigne}}
+                    </td>
+                </tr>
+                {% set total = total + listBonCommande.totalLigne %}
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4">Total General</th>
+                <th colspan="2" class="text-white bg-info" id="achat_bon_total_Gen">{{total}}</th>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="w-100">
+        Arrêté la présente facture à la somme de <span class="font-weight-bold text-uppercase">{{achat.lettre}}</span>
+    </div>
+</div>
+<div class="w-100 text-right mt-3" style="font-size: 0.92em ">
+    <span>Fait à {{achat.lieu}}, le {{achat.date}}</span>
+</div>
+<h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span>Le Client</span><span style="margin-left:390px !important;">Pour la société</span></h5>
