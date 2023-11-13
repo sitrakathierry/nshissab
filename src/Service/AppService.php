@@ -832,7 +832,10 @@ class AppService extends AbstractController
         foreach($stockGenerales as $stockGenerale)
         {
             $prefProd = $stockGenerale->getPreference() ;
-            $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"]  += $stockGenerale->getStock() ;
+            if(!isset($stockCats[strtolower($prefProd->getCategorie()->getNom())]))
+                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"] = $stockGenerale->getStock() ;
+            else
+                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"]  += $stockGenerale->getStock() ;
         }
 
         file_put_contents($filename,json_encode($stockCats)) ;
@@ -3154,31 +3157,31 @@ class AppService extends AbstractController
 
         /* FIN MISE A JOUR DEDUCTION */
 
-        // $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
-        //     "agence" => $this->agence,
-        //     "statut" => False
-        // ]) ; 
+        $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => False
+        ]) ; 
 
-        // foreach($produitFalses as $produitFalse)
-        // {
-        //     $variationPrixTrues = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-        //         "produit" => $produitFalse,
-        //     ]) ; 
+        foreach($produitFalses as $produitFalse)
+        {
+            $variationPrixTrues = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produitFalse,
+            ]) ; 
 
-        //     foreach ($variationPrixTrues as $variationPrixTrue) {
-        //         $variationPrixTrue->setStatut(False) ;
-        //         $this->entityManager->flush() ;
+            foreach ($variationPrixTrues as $variationPrixTrue) {
+                $variationPrixTrue->setStatut(False) ;
+                $this->entityManager->flush() ;
 
-        //         $histoEntrepotTrues = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-        //             "variationPrix" => $variationPrixTrue,
-        //         ]) ; 
+                $histoEntrepotTrues = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                    "variationPrix" => $variationPrixTrue,
+                ]) ; 
 
-        //         foreach ($histoEntrepotTrues as $histoEntrepotTrue) {
-        //             $histoEntrepotTrue->setStatut(False) ;
-        //             $this->entityManager->flush() ;
-        //         }
-        //     }
-        // }
+                foreach ($histoEntrepotTrues as $histoEntrepotTrue) {
+                    $histoEntrepotTrue->setStatut(False) ;
+                    $this->entityManager->flush() ;
+                }
+            }
+        }
 
         $produits = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,

@@ -509,36 +509,22 @@ $(document).ready(function(){
                                 $.confirm({
                                     title: "Déplacement Produit",
                                     content:`
-                                    <style>
-                                    .jconfirm.jconfirm-modern .jconfirm-box div.jconfirm-content > div{
-                                        height: 400px ;
-                                    }
-                                    </style>
                                         <div class="text-left">
                                             <label for="nom" class="mt-2 font-weight-bold">Sélectionner une preference pour déplacer les produits</label>
                                             <select name="prod_deplace_categorie" class="custom-select chosen_select custom-select-sm" id="prod_deplace_categorie">
                                                 `+options+`
                                             </select>
                                         </div>
-                                        <script>
-                                            $(".chosen_select").chosen({
-                                                    no_results_text: "Aucun resultat trouvé : "
-                                                });
-                                        </script>
                                     `,
                                     type:"orange",
                                     theme:"modern",
                                     buttons:{
-                                        btn1:{
-                                            text: 'Non',
-                                            action: function(){}
-                                        },
                                         btn2:{
-                                            text: 'Oui',
+                                            text: 'Valider',
                                             btnClass: 'btn-orange',
                                             keys: ['enter', 'shift'],
                                             action: function(){
-                                                var realinstance = instance.loading()
+                                                var realinstance = instance.loading() 
                                                 $.ajax({
                                                     url: routes.stock_deplace_produit_preference,
                                                     type:'post',

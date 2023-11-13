@@ -68,7 +68,7 @@ class StockController extends AbstractController
     #[Route('/stock/creationproduit', name: 'stock_creationproduit')]
     public function stockCreationproduit(): Response
     {
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
         if(!file_exists($filename))
             $this->appService->generateStockPreferences($filename, $this->agence) ;
 
@@ -537,6 +537,8 @@ class StockController extends AbstractController
 
         $stockParCategories = json_decode(file_get_contents($filename)) ; 
 
+        // dd($stockParCategories) ;
+
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",
@@ -555,7 +557,7 @@ class StockController extends AbstractController
         $idType = $type == "NA" ? $type : $this->appService->decoderChiffre($type) ;
         $idPref = $this->appService->decoderChiffre($idPref) ;
 
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
         if(!file_exists($filename))
             $this->appService->generateStockPreferences($filename, $this->agence) ;
 
@@ -977,7 +979,7 @@ class StockController extends AbstractController
 
         $this->entityManager->flush() ;
         
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
 
         if(file_exists($filename))
             unlink($filename) ;
@@ -986,7 +988,6 @@ class StockController extends AbstractController
             $this->appService->generateStockPreferences($filename,$this->userObj) ;
 
         $preferences = json_decode(file_get_contents($filename)) ;
-
 
         return new JsonResponse([
             "message" => "Suppression effectuée",
@@ -1015,6 +1016,7 @@ class StockController extends AbstractController
         foreach($produits as $produit)
         {
             $produit->setPreference($newPreference) ; 
+            $produit->setToUpdate(True) ;
             $this->entityManager->flush() ;
         }
 
@@ -1459,7 +1461,7 @@ class StockController extends AbstractController
     {
         $id = $this->appService->decoderChiffre($id) ;
 
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
         $preferences = json_decode(file_get_contents($filename)) ;
 
         $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
@@ -2016,7 +2018,7 @@ class StockController extends AbstractController
          
         $id = $this->appService->decoderChiffre($id) ;
 
-        $filename = $this->filename."preference(user)/".$this->nameUser.".json" ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
         if(!file_exists($filename))
             $this->appService->generateStockPreferences($filename, $this->agence) ;
 
@@ -2774,6 +2776,24 @@ class StockController extends AbstractController
 
         $produit->setStatut(False) ;
         $this->entityManager->flush() ;
+
+        $variationPrixTrues = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+            "produit" => $produit,
+        ]) ; 
+
+        foreach ($variationPrixTrues as $variationPrixTrue) {
+            $variationPrixTrue->setStatut(False) ;
+            $this->entityManager->flush() ;
+
+            $histoEntrepotTrues = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                "variationPrix" => $variationPrixTrue,
+            ]) ; 
+
+            foreach ($histoEntrepotTrues as $histoEntrepotTrue) {
+                $histoEntrepotTrue->setStatut(False) ;
+                $this->entityManager->flush() ;
+            }
+        }
 
         $produitActifs = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,
