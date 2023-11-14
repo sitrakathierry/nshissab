@@ -429,6 +429,7 @@ class StockController extends AbstractController
         $produit->setNom($prod_nom) ;
         $produit->setDescription($produit_editor) ;
         $produit->setUnite($unite_produit) ;
+        $produit->setToUpdate(True) ;
         $produit->setUpdatedAt(new \DateTimeImmutable) ; 
 
         $this->entityManager->persist($produit) ;
