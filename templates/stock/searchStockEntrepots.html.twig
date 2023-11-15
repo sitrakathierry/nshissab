@@ -1,17 +1,28 @@
 {% set total = 0 %}
+{% set totalGeneral = 0 %}
+{% set totalStock = 0 %}
 {% for stockEntrepot in stockEntrepots %}
+    {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
     <tr>
         <td>{{stockEntrepot.entrepot}}</td>
-        <td>{{stockEntrepot.code}}</td>
         <td>{{stockEntrepot.categorie|upper}}</td>
+        <td>{{stockEntrepot.nomType}}</td>
         <td>{{stockEntrepot.nom}}</td>
         <td>{{stockEntrepot.indice}}</td>
+        <td>{{stockEntrepot.prixVente}}</td>
         <td>{{stockEntrepot.stock}}</td>
-        <td class="text-center"><button class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></button></td>
+        <td>{{total}}</td>
+        <td class="text-center align-middle" > 
+            <button type="button" data-value="{{stockEntrepot.id}}" data-init='<i class="fa fa-square"></i>' data-check='<i class="fa fa-check"></i>' class="btn btn-sm check_export btn-outline-success font-smaller"><i class="fa fa-square"></i></button>
+        </td>
     </tr>
-    {% set total = total + stockEntrepot.stock %}
+    
+    {% set totalStock = totalStock + stockEntrepot.stock %}
+    {% set totalGeneral = totalGeneral + total %}
 {% endfor %}
 <tr>
-    <th colspan="5">Total</th>
-    <th colspan="2" class="bg-purple text-white">{{total}}</th>
-</tr>   
+    <th colspan="6" >Total</th>
+    <th class="bg-primary text-white">{{totalStock}}</th>
+    <th class="bg-success text-white">{{totalGeneral}}</th>
+    <th class="bg-success text-white"></th>
+</tr>

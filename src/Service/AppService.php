@@ -2580,9 +2580,15 @@ class AppService extends AbstractController
                         }
                         else
                         {
-                            $condition = $condition && (strpos(strtolower($item->$key), strtolower($value)) !== false) ;
+                            if(is_numeric($item->$key))
+                            {
+                                $condition = $condition && ($item->$key == $search[$key]) ;
+                            }
+                            else
+                            {
+                                $condition = $condition && (strpos($item->$key, $search[$key]) !== false) ;
+                            }
                         }
-
                     }
                 }
             }

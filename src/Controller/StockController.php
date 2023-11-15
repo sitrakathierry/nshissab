@@ -1037,19 +1037,34 @@ class StockController extends AbstractController
 
         $stockEntrepots = json_decode(file_get_contents($filename)) ;
 
-        // $newStockEntrepots = [] ;
-        // foreach ($stockEntrepots as $stockEntrepot) {
-        //     array_push($newStockEntrepots,(array)$stockEntrepot) ;
-        // }
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+        
+        $entrepots = json_decode(file_get_contents($filename)) ;
 
-        // dd($stockEntrepots) ;
+        $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
+
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
+        $preferences = json_decode(file_get_contents($filename)) ;
+
+        $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
 
         return $this->render('stock/inventaire.html.twig', [
             "filename" => "stock",
             "titlePage" => "Inventaire des Produits",
             "with_foot" => false,
             "stockEntrepots" => $stockEntrepots,
-        ]);
+            "entrepots" => $entrepots,
+            "preferences" => $preferences, 
+            "stockGenerales" => $stockGenerales, 
+        ]) ; 
     }
     
     #[Route('/stock/entrepot/produit/get', name: 'stock_get_produit_et_entrepot')]
@@ -2814,5 +2829,51 @@ class StockController extends AbstractController
             "type" => "green",
             "message" => "Suppression effectué"
         ]) ;
+    }
+
+    #[Route('/stock/inventaire/exporter', name: 'stock_inventaire_exporter')]
+    public function stockValidExporterInventaire(Request $request, ExcelGenService $excelgenerate)
+    {
+        $stock_id_histo_ent = (array)$request->request->get("stock_id_histo_ent") ;
+
+        $entete = ["ENTREPOT","CATEGORIE","NOM PRODUIT","DESIGNATION","INDICE","PRIX VENTE","STOCK","TOTAL"] ;
+
+        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateStockInEntrepot($filename, $this->agence) ;
+
+        $stockEntrepots = json_decode(file_get_contents($filename)) ;
+
+        $params = [] ;
+        $tabEntrepots = [] ;
+        $total = 0 ;
+        foreach($stock_id_histo_ent as $histoEnt)
+        {
+            $search = [
+                "id" => $histoEnt,
+            ] ;
+
+            $tabEntrepots = array_values($this->appService->searchData($stockEntrepots,$search) );
+
+            $item = [
+                $tabEntrepots[0]->entrepot,
+                $tabEntrepots[0]->categorie,
+                $tabEntrepots[0]->nomType,
+                $tabEntrepots[0]->nom,
+                $tabEntrepots[0]->indice,
+                $tabEntrepots[0]->prixVente,
+                $tabEntrepots[0]->stock,
+                $tabEntrepots[0]->prixVente * $tabEntrepots[0]->stock,
+            ] ;
+
+            $total = $total + ($tabEntrepots[0]->prixVente * $tabEntrepots[0]->stock) ;
+
+            array_push($params,$item) ;
+        }
+
+        array_push($params,["","","","","TOTAL","","",$total]) ;
+
+        $excelgenerate->generateFileExcel($entete,$params,'INVENTAIRE_PRODUIT.xlsx',"stock_inventaire") ;
     }
 }

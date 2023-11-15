@@ -9,85 +9,102 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/inventaire.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 pt-3 pb-5">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
-                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
-                    <option value="">TOUS</option>
+                <label for="stock_entrepot" class="mt-2 font-weight-bold text-uppercase">Entrepôts</label>
+                <select name="stock_entrepot" class="custom-select chosen_select custom-select-sm" id="stock_entrepot">
+                    <option value="">-</option>
+                    {% for entrepot in entrepots %}
+                        <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>   
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Catégorie</label>
-                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
-                    <option value="">TOUS</option>
+                <label for="stock_categorie" class="mt-2 font-weight-bold text-uppercase">Catégories</label>
+                <select name="stock_categorie" class="custom-select chosen_select custom-select-sm" id="stock_categorie">
+                    <option value="">-</option>
+                    {% for preference in preferences %}
+                        <option value="{{preference.id}}">{{preference.nom|upper}}</option>   
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Produit</label>
-                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
-                    <option value="">TOUS</option>
+                <label for="stock_produit" class="mt-2 font-weight-bold text-uppercase">Produits</label>
+                <select name="stock_produit" class="custom-select chosen_select custom-select-sm" id="stock_produit">
+                    <option value="">-</option>
+                    {% for stockGeneral in stockGenerales %}
+                        {% set nomProduit = stockGeneral.codeProduit ~ " | " ~ stockGeneral.nomType|upper ~ " | " ~ stockGeneral.nom|upper ~ " | stock : " ~ stockGeneral.stock %}
+                        <option value="{{stockGeneral.id}}" data-stock="{{stockGeneral.stock}}" data-code="{{stockGeneral.codeProduit}}" >{{nomProduit}}</option> 
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button class="btn btn-success btn-sm btn-block"><i class="fa fa-file-excel"></i>&nbsp;Exporter</button>
+                <button class="btn btn-success export_inventaire btn-sm btn-block"><i class="fa fa-file-excel"></i>&nbsp;Exporter</button>
             </div> 
         </div>
-        <div class="table-responsive mt-4">
-            <div class="pt-2 overflow-auto" style="max-height: 450px;">
-                <table class="table table-sm font-smaller table-bordered mb-0" >
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Entrepôt</th>
-                            <th>Catégorie</th>
-                            <th>Nom Produit</th>
-                            <th>Désignation</th>
-                            <th>Indice</th>
-                            <th>Prix de vente</th>
-                            <th>Stock</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% set total = 0 %}
-                        {% set totalGeneral = 0 %}
-                        {% set totalStock = 0 %}
-                        {% for stockEntrepot in stockEntrepots %}
-                            {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
+        <form id="formInventaire" action="{{path('stock_inventaire_exporter')}}" method="POST">
+            <div class="table-responsive mt-4">
+                <div class="pt-2 overflow-auto" style="max-height: 450px;">
+                    <table class="table table-sm font-smaller table-bordered mb-0" >
+                        <thead class="thead-light">
                             <tr>
-                                <td>{{stockEntrepot.entrepot}}</td>
-                                <td>{{stockEntrepot.categorie|upper}}</td>
-                                <td>{{stockEntrepot.nomType}}</td>
-                                <td>{{stockEntrepot.nom}}</td>
-                                <td>{{stockEntrepot.indice}}</td>
-                                <td>{{stockEntrepot.prixVente}}</td>
-                                <td>{{stockEntrepot.stock}}</td>
-                                <td>{{total}}</td>
+                                {# <th>N°</th> #}
+                                <th>Entrepôt</th>
+                                <th>Catégorie</th>
+                                <th>Nom Produit</th>
+                                <th>Désignation</th>
+                                <th>Indice</th>
+                                <th>Prix de vente</th>
+                                <th>Stock</th>
+                                <th>Total</th>
+                                <th></th>
                             </tr>
-                            
-                            {% set totalStock = totalStock + stockEntrepot.stock %}
-                            {% set totalGeneral = totalGeneral + total %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="elem_inventaire">
+                            {% set total = 0 %}
+                            {% set totalGeneral = 0 %}
+                            {% set totalStock = 0 %}
+                            {# {% set index = 1 %} #}
+                            {% for stockEntrepot in stockEntrepots %}
+                                {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
+                                <tr>
+                                    {# <td>{{index}}</td> #}
+                                    <td>{{stockEntrepot.entrepot}}</td>
+                                    <td>{{stockEntrepot.categorie|upper}}</td>
+                                    <td>{{stockEntrepot.nomType}}</td>
+                                    <td>{{stockEntrepot.nom}}</td>
+                                    <td>{{stockEntrepot.indice}}</td>
+                                    <td>{{stockEntrepot.prixVente}}</td>
+                                    <td>{{stockEntrepot.stock}}</td>
+                                    <td>{{total}}</td>
+                                    <td class="text-center align-middle" > 
+                                        <button type="button" data-value="{{stockEntrepot.id}}" data-init='<i class="fa fa-square"></i>' data-check='<i class="fa fa-check"></i>' class="btn btn-sm check_export btn-outline-success font-smaller"><i class="fa fa-square"></i></button>
+                                    </td>
+                                </tr>
+                                {% set totalStock = totalStock + stockEntrepot.stock %}
+                                {% set totalGeneral = totalGeneral + total %}
+                                {# {% set index = index + 1 %} #}
+                            {% endfor %}
+                            <tr>
+                                <th colspan="6" >Total</th>
+                                <th class="bg-primary text-white">{{totalStock}}</th>
+                                <th class="bg-success text-white">{{totalGeneral}}</th>
+                                <th class="bg-success text-white"></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <table class="table-sm table table-bordered">
-                <tr>
-                    <th style="width:80%" >Total</th>
-                    <th class="bg-primary text-white">{{totalStock}}</th>
-                    <th class="bg-success text-white">{{totalGeneral}}</th>
-                </tr>
-            </table>
-        </div>
-
+        </form>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                 <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
