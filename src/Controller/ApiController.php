@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiController extends AbstractController
 {
     #[Route('/api/insert', name: 'app_api_insert')]
-    public function index(): Response
+    public function apiInsertRecord()
     {
         header("Access-Control-Allow-Origin: *");
 
@@ -22,7 +22,7 @@ class ApiController extends AbstractController
         try {
             $conn = new \PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             // Définir le mode d'erreur de PDO sur Exception
-            $conn->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             // Préparer la requête d'insertion
             $stmt = $conn->prepare("INSERT INTO compte (nom, prenom) VALUES (:valeur1, :valeur2)");
