@@ -72,7 +72,9 @@ class ApiController extends AbstractController
             ] ;
         }
 
-        dd($dataProduits) ;
+        echo json_encode($dataProduits) ;
+
+        return new Response("") ;
     }
 
     
