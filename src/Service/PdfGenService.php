@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Service;
+
+use Atgp\FacturX\Reader;
+use Atgp\FacturX\Writer;
+use DOMDocument;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Mike42\Escpos\CapabilityProfile;
@@ -33,8 +37,21 @@ class PdfGenService extends AbstractController
         // Chargez le contenu HTML dans Dompdf
         $dompdf->loadHtml($content);
         $dompdf->setPaper('A4', 'portrait');
+        
+        // $writer = new Writer();
+        // $facturxPdf = $writer->generate($dompdf->output(), "");
+
+        // $reader = new Reader();
+        // $result = $reader->extractXML($facturxPdf, true);
+
+        // $doc = new DOMDocument('1.0');
+        // $doc->preserveWhiteSpace = false;
+        // $doc->formatOutput = true;
+        // $doc->loadXML($result);
+        // $doc->saveXML();
 
         $dompdf->render();
+
 
         // // // Renvoyez la réponse avec le PDF généré
         // return new Response(
@@ -54,6 +71,12 @@ class PdfGenService extends AbstractController
         $pdfFilePath = 'files/tempPdf/'.$nameUser.'_pdf.pdf';
         file_put_contents($pdfFilePath, $dompdf->output());
 
+        // $response = new Response($facturxPdf, 200, [
+        //     'Content-Type' => 'application/pdf',
+        //     'Content-Disposition' => 'inline; filename="example.pdf"',
+        // ]);
+
+        // return $response;
         return $pdfFilePath ;
     }
 
