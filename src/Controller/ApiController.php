@@ -9,8 +9,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
 {
-    #[Route('/api/insert', name: 'app_api_insert')]
-    public function apiInsertRecord()
+    private $connection ;
+
+    public function __construct()
     {
         header("Access-Control-Allow-Origin: *");
 
@@ -20,12 +21,21 @@ class ApiController extends AbstractController
         $dbname = "bazarbdd"; // le nom de votre base de données
 
         try {
-            $conn = new \PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+            $this->connection = new \PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+        } catch(\PDOException $e) {
+            echo "La connexion a échoué : " . $e->getMessage();
+        }
+    }
+
+    #[Route('/api/insert', name: 'app_api_insert')]
+    public function apiInsertRecord()
+    {
+        try {
             // Définir le mode d'erreur de PDO sur Exception
-            $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             // Préparer la requête d'insertion
-            $stmt = $conn->prepare("INSERT INTO compte (nom, prenom) VALUES (:valeur1, :valeur2)");
+            $stmt = $this->connection->prepare("INSERT INTO compte (nom, prenom) VALUES (:valeur1, :valeur2)");
             
             // Remplacez les valeurs ci-dessous par vos propres données
             $valeur1 = "ravaka";
@@ -37,12 +47,34 @@ class ApiController extends AbstractController
 
             $stmt->execute();
 
-            echo "Données insérées avec succès";
-
         } catch(\PDOException $e) {
             echo "La connexion a échoué : " . $e->getMessage();
         }
 
         return new Response("") ;
     }
+
+    #[Route('/api/get/produit', name: 'app_api_prodtui_get')]
+    public function apiGetProduitRecord()
+    {
+        $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, c.id as id_cat  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.statut = 1 AND c.statut = 1" ;
+
+        $stmt = $this->connection->query($sql);
+
+        $dataProduits = [] ;
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $dataProduits[$row['id_cat']."#".$row['categorie']][] = [
+                "id" => $row['id'],
+                "nom" => $row['nom'],
+                "profil" => $row['profil'],
+                "description" => $row['description'],
+                "prix" => $row['prix'],
+            ] ;
+        }
+
+        dd($dataProduits) ;
+    }
+
+    
+
 }
