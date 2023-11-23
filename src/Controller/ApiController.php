@@ -28,8 +28,8 @@ class ApiController extends AbstractController
             $stmt = $conn->prepare("INSERT INTO compte (nom, prenom) VALUES (:valeur1, :valeur2)");
             
             // Remplacez les valeurs ci-dessous par vos propres données
-            $valeur1 = "mamisoa";
-            $valeur2 = "olivia";
+            $valeur1 = "ravaka";
+            $valeur2 = "niaina";
             
             // Liaison des valeurs et exécution de la requête
             $stmt->bindParam(':valeur1', $valeur1);
@@ -42,5 +42,7 @@ class ApiController extends AbstractController
         } catch(\PDOException $e) {
             echo "La connexion a échoué : " . $e->getMessage();
         }
+
+        return new Response("") ;
     }
 }
