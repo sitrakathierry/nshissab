@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -55,22 +56,49 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/get/produit', name: 'app_api_prodtui_get')]
-    public function apiGetProduitRecord()
+    public function apiGetProduitRecord(Request $request)
     {
-        $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, c.id as id_cat  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.statut = 1 AND c.statut = 1" ;
-
-        $stmt = $this->connection->query($sql);
-
+        $idProduit = $request->request->get("idPrd") ;
         $dataProduits = [] ;
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $dataProduits[$row['id_cat']."#".$row['categorie']][] = [
-                "id" => $row['id'],
-                "nom" => $row['nom'],
-                "profil" => $row['profil'],
-                "description" => $row['description'],
-                "prix" => $row['prix'],
-            ] ;
+
+        if(!isset($idProduit))
+        {
+            $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, c.id as id_cat  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.statut = 1 AND c.statut = 1" ;
+
+            $stmt = $this->connection->query($sql);
+    
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $dataProduits[$row['id_cat']."#".$row['categorie']][] = [
+                    "id" => $row['id'],
+                    "nom" => $row['nom'],
+                    "profil" => $row['profil'],
+                    "description" => $row['description'],
+                    "prix" => $row['prix'],
+                ] ;
+            }
         }
+        else
+        {
+            $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = :val1 " ;
+
+            $stmt = $this->connection->prepare($sql);
+
+            $stmt->bindParam(':val1', $idProduit);
+
+            $stmt->execute();
+    
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $dataProduits[] = [
+                    "id" => $row['id'],
+                    "nom" => $row['nom'],
+                    "profil" => $row['profil'],
+                    "description" => $row['description'],
+                    "prix" => $row['prix'],
+                    "categorie" => $row['categorie'],
+                ] ;
+            }
+        }
+        
 
         echo json_encode($dataProduits) ;
 
