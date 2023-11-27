@@ -99,12 +99,37 @@ class ApiController extends AbstractController
             }
         }
         
-
         echo json_encode($dataProduits) ;
 
         return new Response("") ;
     }
 
-    
+    #[Route('/api/get/min/produit', name: 'app_api_produit_min_get')]
+    public function apiGetMinProduit(Request $request)
+    {
+        $idPrd = $request->request->get('idPrd') ;
+        $quantite = $request->request->get('quantite') ;
 
+        $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = :val1 " ;
+
+        $stmt = $this->connection->prepare($sql);
+
+        $stmt->bindParam(':val1', $idPrd);
+
+        $stmt->execute();
+        $dataProduits = [] ;
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $dataProduits = [
+                "id" => $row['id'],
+                "nom" => $row['nom'],
+                "prix" => $row['prix'],
+                "quantite" => $quantite,
+                "categorie" => $row['categorie'],
+            ] ;
+        }
+
+        echo json_encode($dataProduits) ;
+
+        return new Response("") ;
+    }
 }
