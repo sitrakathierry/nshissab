@@ -139,15 +139,11 @@ class ApiController extends AbstractController
     {
         $typeLvr = $request->request->get("typeLvr") ;
         if($typeLvr == "DRV")
-            $sql = "SELECT * FROM `lvr_point_recup` WHERE `statut` = :val1 " ;
+            $sql = "SELECT * FROM `lvr_point_recup` WHERE `statut` = 1 " ;
         else
-            $sql = "SELECT * FROM `lvr_zone` WHERE `statut` = :val1 " ;
+            $sql = "SELECT * FROM `lvr_zone` WHERE `statut` = 1 " ;
 
-        $stmt = $this->connection->prepare($sql);
-
-        $stmt->bindParam(':val1', 1);
-
-        $stmt->execute();
+        $stmt = $this->connection->query($sql);
 
         $dataLieuLvrs = [] ;
 
