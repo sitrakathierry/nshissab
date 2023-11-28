@@ -132,4 +132,47 @@ class ApiController extends AbstractController
 
         return new Response("") ;
     }
+
+    // 
+    #[Route('/api/lieu/livraison/get', name: 'app_api_lieu_livraison_get')]
+    public function apiGetLieuLivraison(Request $request)
+    {
+        $typeLvr = $request->request->get("typeLvr") ;
+        if($typeLvr == "DRV")
+            $sql = "SELECT * FROM `lvr_point_recup` WHERE `statut` = :val1 " ;
+        else
+            $sql = "SELECT * FROM `lvr_zone` WHERE `statut` = :val1 " ;
+
+        $stmt = $this->connection->prepare($sql);
+
+        $stmt->bindParam(':val1', 1);
+
+        $stmt->execute();
+
+        $dataLieuLvrs = [] ;
+
+        if($typeLvr == "DRV")
+        {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $dataLieuLvrs[] = [
+                    "id" => $row['id'],
+                    "lieu" => $row['lieu'],
+                ] ;
+            }
+        }
+        else
+        {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $dataLieuLvrs[] = [
+                    "id" => $row['id'],
+                    "lieu" => $row['nom_zone'],
+                ] ;
+            }
+        }
+
+        echo json_encode($dataLieuLvrs) ;
+
+        return new Response("") ;
+        
+    }
 }
