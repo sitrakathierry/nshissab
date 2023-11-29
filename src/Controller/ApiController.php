@@ -161,7 +161,7 @@ class ApiController extends AbstractController
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $dataLieuLvrs[] = [
                     "id" => $row['id'],
-                    "lieu" => $row['nom_zone']."| Prix : ".$row['prix']."€",
+                    "lieu" => $row['nom_zone']." | Prix : ".$row['prix']." €",
                 ] ;
             }
         }
