@@ -182,9 +182,6 @@ class ApiController extends AbstractController
         $telehphone = $request->request->get("typeLvr") ;
         $lieuLvr = $request->request->get("typeLvr") ;
 
-
-        dd($itemPanier) ;
-
         echo json_encode($itemPanier) ;
 
         return new Response("") ;
