@@ -161,7 +161,7 @@ class ApiController extends AbstractController
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $dataLieuLvrs[] = [
                     "id" => $row['id'],
-                    "lieu" => $row['nom_zone'],
+                    "lieu" => $row['nom_zone']."| Prix : ".$row['prix']."€",
                 ] ;
             }
         }
@@ -170,5 +170,14 @@ class ApiController extends AbstractController
 
         return new Response("") ;
         
+    }
+
+    #[Route('/api/commande/valider', name: 'app_api_commande_valider')]
+    public function apiValiderCommande(Request $request)
+    {
+        $typeLvr = $request->request->get("typeLvr") ;
+
+
+
     }
 }
