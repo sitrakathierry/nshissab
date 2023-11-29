@@ -175,9 +175,19 @@ class ApiController extends AbstractController
     #[Route('/api/commande/valider', name: 'app_api_commande_valider')]
     public function apiValiderCommande(Request $request)
     {
+        $itemPanier = $request->request->get("typeLvr") ;
         $typeLvr = $request->request->get("typeLvr") ;
+        $nom = $request->request->get("typeLvr") ;
+        $adresse = $request->request->get("typeLvr") ;
+        $telehphone = $request->request->get("typeLvr") ;
+        $lieuLvr = $request->request->get("typeLvr") ;
 
 
+        dd($itemPanier) ;
+
+        echo json_encode($itemPanier) ;
+
+        return new Response("") ;
 
     }
 }
