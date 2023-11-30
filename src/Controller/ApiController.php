@@ -11,9 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiController extends AbstractController
 {
     private $connection ;
-    private $appService ;
 
-    public function __construct(AppService $appService)
+    public function __construct()
     {
         header("Access-Control-Allow-Origin: *");
 
@@ -21,13 +20,55 @@ class ApiController extends AbstractController
         $username = "debian"; // votre nom d'utilisateur de base de données
         $password = "yQYRQqe9zFuB"; // votre mot de passe de base de données
         $dbname = "bazarbdd"; // le nom de votre base de données
-        $this->appService = $appService ;
 
         try {
             $this->connection = new \PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         } catch(\PDOException $e) {
             echo "La connexion a échoué : " . $e->getMessage();
         }
+    }
+
+    public function verificationElement($data= [], $dataMessage = [])
+    {
+        $allow = True ;
+        $type = "green" ;
+        $message = "Information enregistré avec succès" ;
+        for ($i=0; $i < count($data); $i++) { 
+            if(!is_numeric($data[$i]))
+            {
+                if(empty($data[$i]))
+                {
+                    $allow = False ;
+                    $type="orange" ;
+                    $message = $dataMessage[$i]." vide" ;
+                    break;
+                }
+            }
+            else
+            {
+                if(empty($data[$i]))
+                {
+                    $allow = False ;
+                    $type="orange" ;
+                    $message = $dataMessage[$i]." vide" ;
+                    break;
+                }
+                else if(intval($data[$i]) < 0)
+                {
+                    $allow = False ;
+                    $type="red" ;
+                    $message = $dataMessage[$i]." doit être supérieur à 0" ;
+                    break;
+                }
+            }
+        } 
+
+        $result = [] ;
+        $result["allow"] = $allow ;
+        $result["type"] = $type ;
+        $result["message"] = $message ;
+
+        return $result ;
     }
 
     #[Route('/api/insert', name: 'app_api_insert')]
@@ -194,7 +235,7 @@ class ApiController extends AbstractController
         $lieuLvr = $request->request->get("lieuLvr") ;
         $message = $typeLvr == "DRV" ? "Point de récupération" : "Zone de livraison" ;
 
-        $result = $this->appService->verificationElement([
+        $result = $this->verificationElement([
             $typeLvr,
             $nom,
             $adresse,
