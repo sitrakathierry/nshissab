@@ -73,7 +73,7 @@ class ApiController extends AbstractController
 
     public function getAllData($sql,$params = [])
     {
-        $stmt = $this->connection->query($sql);
+        $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
         $result = $stmt->fetchAll();
         return $result;
@@ -81,17 +81,10 @@ class ApiController extends AbstractController
 
     public function getData($sql,$params = [])
     {
-        $stmt = $this->connection->query($sql);
-        for ($i=1; $i <= count($params); $i++) { 
-            $param = ":p".$i ;
-            $stmt->bindParam($param,$params[$i-1]) ;
-        } ;
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
         $dataResult = [] ;
-        while($result = $stmt->fetch(\PDO::FETCH_ASSOC))
-        {
-            $dataResult[] = $result ;
-        }
-
+        $result = $stmt->fetch() ;
         return $dataResult;
     }
 
@@ -176,7 +169,7 @@ class ApiController extends AbstractController
         $idPrd = $request->request->get('idPrd') ;
         $quantite = $request->request->get('quantite') ;
 
-        $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = :p1 ", [
+        $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = ? ", [
             $idPrd
         ]) ;
 
