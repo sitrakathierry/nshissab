@@ -86,9 +86,13 @@ class ApiController extends AbstractController
             $param = ":p".$i ;
             $stmt->bindParam($param,$params[$i-1]) ;
         } ;
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC) ;
+        $dataResult = [] ;
+        while($result = $stmt->fetch(\PDO::FETCH_ASSOC))
+        {
+            $dataResult[] = $result ;
+        }
 
-        return $result;
+        return $dataResult;
     }
 
     public function setData($sql,$params = [])
