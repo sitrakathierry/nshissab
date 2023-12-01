@@ -82,7 +82,10 @@ class ApiController extends AbstractController
     public function getData($sql,$params = [])
     {
         $stmt = $this->connection->query($sql);
-        $stmt->execute($params);
+        for ($i=0; $i < count($params); $i++) { 
+            $stmt->bindParam($i,$params[$i]) ;
+        } ;
+        $stmt->execute();
         $result = $stmt->fetch();
         return $result;
     }
@@ -168,7 +171,7 @@ class ApiController extends AbstractController
         $idPrd = $request->request->get('idPrd') ;
         $quantite = $request->request->get('quantite') ;
 
-        $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = ? ", [
+        $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = :1 ", [
             $idPrd
         ]) ;
 
