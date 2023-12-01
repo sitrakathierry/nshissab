@@ -85,8 +85,8 @@ class ApiController extends AbstractController
         for ($i=0; $i < count($params); $i++) { 
             $stmt->bindParam(":p".$i,$params[$i]) ;
         } ;
-        $stmt->execute();
-        $result = $stmt->fetch();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC) ;
+
         return $result;
     }
 
