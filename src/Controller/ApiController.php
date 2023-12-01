@@ -237,6 +237,7 @@ class ApiController extends AbstractController
         $adresse = $request->request->get("adresse") ;
         $telehphone = $request->request->get("telehphone") ;
         $lieuLvr = $request->request->get("lieuLvr") ;
+        $dateLvr = $request->request->get("dateLvr") ;
         $message = $typeLvr == "DRV" ? "Point de récupération" : "Zone de livraison" ;
 
         $result = $this->verificationElement([
@@ -245,12 +246,14 @@ class ApiController extends AbstractController
             $adresse,
             $telehphone,
             $lieuLvr,
+            $dateLvr
         ],[
             "Type de livraison",
             "Nom",
             "Adresse",
             "Téléphone",
-            $message
+            $message,
+            "Date de livraison"
         ]) ;
 
         if(!$result["allow"])
@@ -325,7 +328,7 @@ class ApiController extends AbstractController
                 `) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [
                 NULL, 
                 $detailId,
-                NULL,
+                $dateLvr,
                 $lvrZone,
                 1,
                 4,
@@ -340,8 +343,8 @@ class ApiController extends AbstractController
         }
 
         echo json_encode([
-            "type" => "red",
-            "message" => "Test d'enregistrement"
+            "type" => "green",
+            "message" => "Succès"
         ]) ;
 
         return new Response("") ;
