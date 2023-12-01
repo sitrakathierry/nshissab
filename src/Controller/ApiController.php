@@ -83,9 +83,8 @@ class ApiController extends AbstractController
     {
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
-        $dataResult = [] ;
         $result = $stmt->fetch() ;
-        return $dataResult;
+        return $result;
     }
 
     public function setData($sql,$params = [])
