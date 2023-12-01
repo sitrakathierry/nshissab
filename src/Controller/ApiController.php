@@ -168,11 +168,9 @@ class ApiController extends AbstractController
         $idPrd = $request->request->get('idPrd') ;
         $quantite = $request->request->get('quantite') ;
 
-        $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = ? ", [
+        $produit = $this->getData("SELECT p.id, p.nom, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = ? ", [
             $idPrd
         ]) ;
-
-        dd($produit) ;
 
         $dataProduit = [
             "id" => $produit['id'],
