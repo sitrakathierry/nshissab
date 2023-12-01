@@ -264,7 +264,7 @@ class ApiController extends AbstractController
 
         $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` LIMIT 1 ") ;
 
-        $numCommande = !is_null($lastRecord) ? ($lastRecord["id"]+1) : 1 ;
+        $numCommande = !is_null($lastRecord) ? (intval($lastRecord["id"]) + 1) : 1 ;
         $numCommande = str_pad($numCommande, 4, "0", STR_PAD_LEFT)."/".date('y');
 
         // Requête SQL d'insertion avec des marqueurs de position (?)
@@ -293,7 +293,7 @@ class ApiController extends AbstractController
                 $element["id"],
                 4,
                 $element["nom"],
-                $element["montant"],
+                $element["prix"],
                 $element["quantite"],
                 true,
             ]) ;
