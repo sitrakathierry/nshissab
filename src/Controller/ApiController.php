@@ -71,6 +71,29 @@ class ApiController extends AbstractController
         return $result ;
     }
 
+    public function getAllData($sql,$params = [])
+    {
+        $stmt = $this->connection->query($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+
+    public function getData($sql,$params = [])
+    {
+        $stmt = $this->connection->query($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch();
+        return $result;
+    }
+
+    public function setData($sql,$params = [])
+    {
+        $stmt = $this->connection->query($sql);
+        $stmt->execute($params);
+        return true;
+    }
+
     #[Route('/api/insert', name: 'app_api_insert')]
     public function apiInsertRecord()
     {
@@ -106,40 +129,32 @@ class ApiController extends AbstractController
 
         if(!isset($idProduit))
         {
-            $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, c.id as id_cat  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.statut = 1 AND c.statut = 1" ;
+            $produits = $this->getAllData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, c.id as id_cat  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.statut = 1 AND c.statut = 1") ;
 
-            $stmt = $this->connection->query($sql);
-    
-            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $dataProduits[$row['id_cat']."#".$row['categorie']][] = [
-                    "id" => $row['id'],
-                    "nom" => $row['nom'],
-                    "profil" => $row['profil'],
-                    "description" => $row['description'],
-                    "prix" => $row['prix'],
+            foreach ($produits as $produit) {
+                $dataProduits[$produit['id_cat']."#".$produit['categorie']][] = [
+                    "id" => $produit['id'],
+                    "nom" => $produit['nom'],
+                    "profil" => $produit['profil'],
+                    "description" => $produit['description'],
+                    "prix" => $produit['prix'],
                 ] ;
             }
         }
         else
         {
-            $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = :val1 " ;
-
-            $stmt = $this->connection->prepare($sql);
-
-            $stmt->bindParam(':val1', $idProduit);
-
-            $stmt->execute();
+            $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = ? ",[
+                $idProduit
+            ]) ; 
     
-            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $dataProduits[] = [
-                    "id" => $row['id'],
-                    "nom" => $row['nom'],
-                    "profil" => $row['profil'],
-                    "description" => $row['description'],
-                    "prix" => $row['prix'],
-                    "categorie" => $row['categorie'],
-                ] ;
-            }
+            $dataProduits[] = [
+                "id" => $produit['id'],
+                "nom" => $produit['nom'],
+                "profil" => $produit['profil'],
+                "description" => $produit['description'],
+                "prix" => $produit['prix'],
+                "categorie" => $produit['categorie'],
+            ] ;
         }
         
         echo json_encode($dataProduits) ;
@@ -153,26 +168,20 @@ class ApiController extends AbstractController
         $idPrd = $request->request->get('idPrd') ;
         $quantite = $request->request->get('quantite') ;
 
-        $sql = "SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = :val1 " ;
+        $produit = $this->getData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, p.user_id as fournisseur  FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.id = ? ", [
+            $idPrd
+        ]) ;
 
-        $stmt = $this->connection->prepare($sql);
+        $dataProduit = [
+            "id" => $produit['id'],
+            "nom" => $produit['nom'],
+            "prix" => $produit['prix'],
+            "quantite" => $quantite,
+            "categorie" => $produit['categorie'],
+            "fournisseur" => $produit['fournisseur'],
+        ] ;
 
-        $stmt->bindParam(':val1', $idPrd);
-
-        $stmt->execute();
-        $dataProduits = [] ;
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $dataProduits = [
-                "id" => $row['id'],
-                "nom" => $row['nom'],
-                "prix" => $row['prix'],
-                "quantite" => $quantite,
-                "categorie" => $row['categorie'],
-                "fournisseur" => $row['user_id'],
-            ] ;
-        }
-
-        echo json_encode($dataProduits) ;
+        echo json_encode($dataProduit) ;
 
         return new Response("") ;
     }
