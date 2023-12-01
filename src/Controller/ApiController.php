@@ -217,13 +217,12 @@ class ApiController extends AbstractController
             }
         }
 
-        $dataDateLvrs = [] ;
+        $dataDateLvrs = $this->getAllData("SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1 ")  ;
 
-        $sqlDateLvr = "SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1 "  ;
-
-        // $stmt = $this->connection->query();
-
-        echo json_encode($dataLieuLvrs) ;
+        echo json_encode([
+            "lieuLvrs" => $dataLieuLvrs,
+            "dateLvrs" => $dataDateLvrs
+        ]) ;
 
         return new Response("") ;
         
@@ -233,9 +232,6 @@ class ApiController extends AbstractController
     public function apiValiderCommande(Request $request)
     {
         $itemPanier = (array)$request->request->get("itemPanier") ;
-
-        dd($itemPanier) ;
-
         $typeLvr = $request->request->get("typeLvr") ;
         $nom = $request->request->get("nom") ;
         $adresse = $request->request->get("adresse") ;
@@ -263,23 +259,13 @@ class ApiController extends AbstractController
             return new Response("") ;
         }
 
-        $sqlLastCommande = "SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` LIMIT 1 " ;
-
-        $stmt = $this->connection->prepare($sqlLastCommande);
-
-        $stmt->execute();
-
-        // Récupération du dernier enregistrement
-        $lastRecord = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` LIMIT 1 ") ;
 
         $numCommande = !is_null($lastRecord) ? ($lastRecord["id"]+1) : 1 ;
         $numCommande = str_pad($numCommande, 4, "0", STR_PAD_LEFT)."/".date('y');
 
         // Requête SQL d'insertion avec des marqueurs de position (?)
-        $sqlCmdCommande = "INSERT INTO `cmd_commande`(`id`, `client_id`, `cmd_statut_id`, `date`, `lieu`, `montant`, `statut`, `created_at`, `updated_at`, `num_commande`) VALUES (?,?,?,?,?,?,?,?,?,?)";
-
-        $stmt = $this->connection->prepare($sqlCmdCommande);
-        $stmt->execute([
+        $this->setData("INSERT INTO `cmd_commande`(`id`, `client_id`, `cmd_statut_id`, `date`, `lieu`, `montant`, `statut`, `created_at`, `updated_at`, `num_commande`) VALUES (?,?,?,?,?,?,?,?,?,?)",[
             NULL, 
             NULL,
             4,
@@ -290,30 +276,26 @@ class ApiController extends AbstractController
             date("Y-m-d H:i:s"),
             date("Y-m-d H:i:s"),
             $numCommande,
-        ]);
+        ]) ;
 
         $commandeId = $this->connection->lastInsertId();
-
-        $sqlCmdDetail = "INSERT INTO `cmd_details` (`id`, `commande_id`, `fournisseur_id`, `prix_id`, `produit_id`, `cmd_statut_id`, `designation`, `montant`, `quantite`, `statut`) VALUES (?,?,?,?,?,?,?,?,?,?) " ;
         
         for ($i=0; $i < count($itemPanier); $i++) { 
-            $stmt = $this->connection->prepare($sqlCmdDetail);
-            $stmt->execute([
+            $element = $itemPanier[$i] ;
+            $this->setData("INSERT INTO `cmd_details` (`id`, `commande_id`, `fournisseur_id`, `prix_id`, `produit_id`, `cmd_statut_id`, `designation`, `montant`, `quantite`, `statut`) VALUES (?,?,?,?,?,?,?,?,?,?) ",[
                 NULL, 
                 $commandeId, 
-                $itemPanier->fournisseur,
+                $element["fournisseur"],
                 NULL,
-                $itemPanier->id,
+                $element["id"],
                 4,
-                $itemPanier->nom,
-                $itemPanier->montant,
-                $itemPanier->quantite,
+                $element["nom"],
+                $element["montant"],
+                $element["quantite"],
                 true,
-            ]);
+            ]) ;
 
             $detailId = $this->connection->lastInsertId();
-
-            $sqlLivraison = "INSERT INTO `lvr_livraison`(`id`, `cmd_detail_id`, `lvr_date_id`, `lvr_zone_id`, `statut`, `cmd_statut_id`, `commande_id`, `client_id`, `point_recup_id`, `livreur_id`, `nom`, `adresse`, `telephone`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) " ;
             
             if($typeLvr == "DRV")
             {
@@ -326,18 +308,34 @@ class ApiController extends AbstractController
                 $lvrPoint = NULL ;
             }
             
-
-            $stmt = $this->connection->prepare($sqlLivraison);
-            $stmt->execute([
+            $this->setData("INSERT INTO `lvr_livraison`(
+                `id`, 
+                `cmd_detail_id`, 
+                `lvr_date_id`, 
+                `lvr_zone_id`, 
+                `statut`, 
+                `cmd_statut_id`, 
+                `commande_id`, 
+                `client_id`, 
+                `point_recup_id`, 
+                `livreur_id`, 
+                `nom`, 
+                `adresse`, 
+                `telephone
+                `) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [
                 NULL, 
                 $detailId,
-                1, 
                 NULL,
                 $lvrZone,
                 1,
                 4,
                 $commandeId,
-
+                NULL,
+                $lvrPoint,
+                NULL,
+                $nom,
+                $adresse,
+                $telehphone,
             ]);
         }
 
