@@ -83,7 +83,7 @@ class ApiController extends AbstractController
     {
         $stmt = $this->connection->query($sql);
         for ($i=0; $i < count($params); $i++) { 
-            $stmt->bindParam("p".$i,$params[$i]) ;
+            $stmt->bindParam(":p".$i,$params[$i]) ;
         } ;
         $stmt->execute();
         $result = $stmt->fetch();
