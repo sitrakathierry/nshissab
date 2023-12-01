@@ -89,7 +89,7 @@ class ApiController extends AbstractController
 
     public function setData($sql,$params = [])
     {
-        $stmt = $this->connection->query($sql);
+        $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
         return true;
     }
@@ -192,40 +192,36 @@ class ApiController extends AbstractController
     {
         $typeLvr = $request->request->get("typeLvr") ;
         if($typeLvr == "DRV")
-            $sql = "SELECT * FROM `lvr_point_recup` WHERE `statut` = 1 " ;
+            $dataLieux = $this->getAllData("SELECT * FROM `lvr_point_recup` WHERE `statut` = 1 ") ;
         else
-            $sql = "SELECT * FROM `lvr_zone` WHERE `statut` = 1 " ;
-
-        $stmt = $this->connection->query($sql);
+            $dataLieux = $this->getAllData("SELECT * FROM `lvr_zone` WHERE `statut` = 1 ") ;
 
         $dataLieuLvrs = [] ;
 
         if($typeLvr == "DRV")
         {
-            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($dataLieux as $dataLieu) {
                 $dataLieuLvrs[] = [
-                    "id" => $row['id'],
-                    "lieu" => $row['lieu'],
+                    "id" => $dataLieu['id'],
+                    "lieu" => $dataLieu['lieu'],
                 ] ;
             }
         }
         else
         {
-            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($dataLieux as $dataLieu)  {
                 $dataLieuLvrs[] = [
-                    "id" => $row['id'],
-                    "lieu" => $row['nom_zone']." | Prix : ".$row['prix']." €",
+                    "id" => $dataLieu['id'],
+                    "lieu" => $dataLieu['nom_zone']." | Prix : ".$dataLieu['prix']." €",
                 ] ;
             }
         }
 
         $dataDateLvrs = [] ;
 
-        $sqlDateLvr = "SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1"  ;
+        $sqlDateLvr = "SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1 "  ;
 
-        $stmt = $this->connection->query($sql);
-
-
+        // $stmt = $this->connection->query();
 
         echo json_encode($dataLieuLvrs) ;
 
@@ -236,7 +232,10 @@ class ApiController extends AbstractController
     #[Route('/api/commande/valider', name: 'app_api_commande_valider')]
     public function apiValiderCommande(Request $request)
     {
-        $itemPanier = json_decode($request->request->get("itemPanier")) ;
+        $itemPanier = (array)$request->request->get("itemPanier") ;
+
+        dd($itemPanier) ;
+
         $typeLvr = $request->request->get("typeLvr") ;
         $nom = $request->request->get("nom") ;
         $adresse = $request->request->get("adresse") ;
