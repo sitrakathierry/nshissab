@@ -232,6 +232,7 @@ class ApiController extends AbstractController
     public function apiValiderCommande(Request $request)
     {
         $itemPanier = (array)$request->request->get("itemPanier") ;
+        $itemPanier = isset($itemPanier) ? $itemPanier : [] ;
         $typeLvr = $request->request->get("typeLvr") ;
         $nom = $request->request->get("nom") ;
         $adresse = $request->request->get("adresse") ;
@@ -241,6 +242,7 @@ class ApiController extends AbstractController
         $message = $typeLvr == "DRV" ? "Point de récupération" : "Zone de livraison" ;
 
         $result = $this->verificationElement([
+            $itemPanier,
             $typeLvr,
             $nom,
             $adresse,
@@ -248,6 +250,7 @@ class ApiController extends AbstractController
             $lieuLvr,
             $dateLvr
         ],[
+            "Commande",
             "Type de livraison",
             "Nom",
             "Adresse",
