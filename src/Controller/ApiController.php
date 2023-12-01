@@ -173,6 +173,8 @@ class ApiController extends AbstractController
             $idPrd
         ]) ;
 
+        dd($produit) ;
+
         $dataProduit = [
             "id" => $produit['id'],
             "nom" => $produit['nom'],
