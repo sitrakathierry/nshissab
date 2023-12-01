@@ -235,7 +235,7 @@ class ApiController extends AbstractController
         $typeLvr = $request->request->get("typeLvr") ;
         $nom = $request->request->get("nom") ;
         $adresse = $request->request->get("adresse") ;
-        $telehphone = $request->request->get("telehphone") ;
+        $telephone = $request->request->get("telephone") ;
         $lieuLvr = $request->request->get("lieuLvr") ;
         $dateLvr = $request->request->get("dateLvr") ;
         $message = $typeLvr == "DRV" ? "Point de récupération" : "Zone de livraison" ;
@@ -244,7 +244,7 @@ class ApiController extends AbstractController
             $typeLvr,
             $nom,
             $adresse,
-            $telehphone,
+            $telephone,
             $lieuLvr,
             $dateLvr
         ],[
@@ -262,7 +262,7 @@ class ApiController extends AbstractController
             return new Response("") ;
         }
 
-        $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` LIMIT 1 ") ;
+        $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` DESC LIMIT 1 ") ;
 
         $numCommande = !is_null($lastRecord) ? (intval($lastRecord["id"]) + 1) : 1 ;
         $numCommande = str_pad($numCommande, 4, "0", STR_PAD_LEFT)."/".date('y');
@@ -324,8 +324,7 @@ class ApiController extends AbstractController
                 `livreur_id`, 
                 `nom`, 
                 `adresse`, 
-                `telephone
-                `) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [
+                `telephone`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [
                 NULL, 
                 $detailId,
                 $dateLvr,
@@ -338,7 +337,7 @@ class ApiController extends AbstractController
                 NULL,
                 $nom,
                 $adresse,
-                $telehphone,
+                $telephone,
             ]);
         }
 
