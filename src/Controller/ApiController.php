@@ -147,7 +147,7 @@ class ApiController extends AbstractController
                 $idProduit
             ]) ; 
     
-            $dataProduits[] = [
+            $dataProduits = [
                 "id" => $produit['id'],
                 "nom" => $produit['nom'],
                 "profil" => $produit['profil'],
@@ -217,7 +217,7 @@ class ApiController extends AbstractController
             }
         }
 
-        $dataDateLvrs = $this->getAllData("SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1 ")  ;
+        $dataDateLvrs = $this->getAllData("SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1 ORDER BY `date` ASC ")  ;
 
         echo json_encode([
             "lieuLvrs" => $dataLieuLvrs,
@@ -352,4 +352,6 @@ class ApiController extends AbstractController
         return new Response("") ;
 
     }
+
+    
 }
