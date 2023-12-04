@@ -381,8 +381,6 @@ class ApiController extends AbstractController
             $username
         ]) ;
 
-        dd($user) ;
-
         if($user != false)
         {
             $user = $this->getData("SELECT * FROM `user` WHERE `username` = ? AND `statut` = 1 ",[
