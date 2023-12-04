@@ -359,13 +359,39 @@ class ApiController extends AbstractController
         $username = $request->request->get('username') ;
         $password = $request->request->get('password') ;
         $csrf_token = $request->request->get('csrf_token') ;
-        
 
-        echo json_encode([
-            "type" => "red",
-            "message" => "Voici le token officiel => ".$csrf_token
+        $result = $this->verificationElement([
+            $username,
+            $password,
+            $csrf_token,
+        ],[
+            "Nom d'utilisateur",
+            "Mot de passe ",
+            "Token"
         ]) ;
 
+        if(!$result["allow"])
+        {
+            echo json_encode($result) ;
+            return new Response("") ;
+        }
+
+        // verification du nom
+        $user = $this->getData("SELECT * FROM `user` WHERE `username` = ? AND `statut` = 1",[
+            $username
+        ]) ;
+
+        dd($user) ;
+
+        if(!is_null($user))
+        {
+            echo json_encode([
+                "type" => "red",
+                "message" => "Voici le token officiel => ".$csrf_token
+            ]) ;
+        }
+
+    
         return new Response("") ;
     }
     
