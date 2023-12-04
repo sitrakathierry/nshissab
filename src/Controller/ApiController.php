@@ -510,7 +510,7 @@ class ApiController extends AbstractController
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[
                 NULL,
                 $ins_email,
-                ["CLT"],
+                array("CLT"),
                 password_hash($ins_pass, PASSWORD_DEFAULT),
                 "CLT",
                 true,
