@@ -434,7 +434,7 @@ class ApiController extends AbstractController
     {
         $userId = $request->request->get('userId') ;
 
-        $dataAchats = $this->getAllData("SELECT cs.nom as statut, DATE_FORMAT(cc.date,'%d/%m/%Y') as date, cc.montant, cc.num_commande as numero, cc.id FROM `cmd_commande` cc JOIN cmd_statut cs WHERE `client_id` = ? AND `statut` = 1 ", [
+        $dataAchats = $this->getAllData("SELECT cs.nom as statut, DATE_FORMAT(cc.date,'%d/%m/%Y') as date, cc.montant, cc.num_commande as numero, cc.id FROM `cmd_commande` cc JOIN cmd_statut cs ON cs.id = cc.cmd_statut_id WHERE `client_id` = ? AND `statut` = 1 ", [
             $userId
         ]) ;
 
