@@ -353,5 +353,20 @@ class ApiController extends AbstractController
 
     }
 
+    #[Route('/api/user/auth', name: 'app_api_authentificate_user')]
+    public function apiAuthUser(Request $request)
+    {
+        $username = $request->request->get('username') ;
+        $password = $request->request->get('password') ;
+        $csrf_token = $request->request->get('csrf_token') ;
+        
+
+        echo json_encode([
+            "type" => "red",
+            "message" => "Voici le token officiel => ".$csrf_token
+        ]) ;
+
+        return new Response("") ;
+    }
     
 }
