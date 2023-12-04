@@ -397,6 +397,9 @@ class ApiController extends AbstractController
                         "email" => $user["email"],
                         "fonction" => $user["fonction"],
                         "username" => $user["username"],
+                        "nom" => $user["nom"],
+                        "adresse" => $user["adresse"],
+                        "telephone" => $user["telephone"],
                     ],
                 ] ;
 
