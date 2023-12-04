@@ -425,5 +425,20 @@ class ApiController extends AbstractController
 
         return new Response("") ;
     }
+
+    
+    #[Route('/api/user/achat/get', name: 'app_api_user_achat_get')]
+    public function apiGetUserAchat(Request $request)
+    {
+        $userId = $request->request->get('userId') ;
+
+        $dataAchats = $this->getAllData("SELECT cs.nom as statut, DATE_FORMAT(cc.date,'%d/%m/%Y') as date, cc.montant, cc.num_commande as numero, cc.id FROM `cmd_commande` cc JOIN cmd_statut cs WHERE `client_id` = ? AND `statut` = 1 ", [
+            $userId
+        ]) ;
+
+        echo json_encode($dataAchats) ;
+
+        return new Response("") ;
+    }
     
 }
