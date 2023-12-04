@@ -383,15 +383,45 @@ class ApiController extends AbstractController
 
         dd($user) ;
 
-        if(!is_null($user))
+        if($user != false)
+        {
+            $user = $this->getData("SELECT * FROM `user` WHERE `username` = ? AND `statut` = 1 ",[
+                $username
+            ]) ;
+
+            if(password_verify($password,$user["password"]))
+            {
+                $response = [
+                    "type" => "green",
+                    "csrf_token" => $csrf_token,
+                    "dataUser" => [
+                        "id" => $user["id"],
+                        "email" => $user["email"],
+                        "fonction" => $user["fonction"],
+                        "username" => $user["username"],
+                    ],
+                ] ;
+
+                echo json_encode($response) ;
+            }
+            else
+            {
+                echo json_encode([
+                    "type" => "red",
+                    "message" => "Mot de passe incorrect"
+                ]) ;
+            }
+
+            
+        }
+        else
         {
             echo json_encode([
-                "type" => "red",
-                "message" => "Voici le token officiel => ".$csrf_token
+                "type" => "orange",
+                "message" => "Le Nom d'utilisateur n'existe pas"
             ]) ;
         }
 
-    
         return new Response("") ;
     }
     
