@@ -265,6 +265,8 @@ class ApiController extends AbstractController
             return new Response("") ;
         }
 
+        $clientId = $request->request->get("userId") ;
+
         $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` DESC LIMIT 1 ") ;
 
         $numCommande = !is_null($lastRecord) ? (intval($lastRecord["id"]) + 1) : 1 ;
@@ -273,7 +275,7 @@ class ApiController extends AbstractController
         // Requête SQL d'insertion avec des marqueurs de position (?)
         $this->setData("INSERT INTO `cmd_commande`(`id`, `client_id`, `cmd_statut_id`, `date`, `lieu`, `montant`, `statut`, `created_at`, `updated_at`, `num_commande`) VALUES (?,?,?,?,?,?,?,?,?,?)",[
             NULL, 
-            NULL,
+            $clientId,
             4,
             date("Y-m-d"),
             "",
