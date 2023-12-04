@@ -442,5 +442,97 @@ class ApiController extends AbstractController
 
         return new Response("") ;
     }
+
+
+    #[Route('/api/user/inscription/valider', name: 'app_api_user_inscription_valider')]
+    public function apiUserValiderInscription(Request $request)
+    {
+        $ins_civilite = $request->request->get("ins_prenom") ;
+        $ins_prenom = $request->request->get("ins_prenom") ;
+        $ins_nom = $request->request->get("ins_nom") ;
+        $ins_email = $request->request->get("ins_email") ;
+        $ins_adresse = $request->request->get("ins_adresse") ;
+        $ins_telephone = $request->request->get("ins_telephone") ;
+        $ins_username = $request->request->get("ins_username") ;
+        $ins_pass = $request->request->get("ins_pass") ;
+        $ins_confirm = $request->request->get("ins_confirm") ;
+
+        $result = $this->verificationElement([
+            $ins_prenom,
+            $ins_nom,
+            $ins_email,
+            $ins_adresse,
+            $ins_telephone,
+            $ins_username,
+            $ins_pass,
+            $ins_confirm,
+        ],[
+            "Prénom",
+            "Nom",
+            "E-mail",
+            "Adresse",
+            "Téléphone",
+            "Nom d'utilisateur",
+            "Mot de passe",
+            "Confirmation mot de passe",
+        ]) ;
+
+        if(!$result["allow"])
+        {
+            echo json_encode($result) ;
+            return new Response("") ;
+        }
+
+        if($ins_pass != $ins_confirm)
+        {
+            echo json_encode("Mot de passe non identiques. Rééssayez") ;
+            return new Response("") ;
+        }
+
+        $this->setData("INSERT INTO `user`
+            (
+                `id`, 
+                `email`, 
+                `roles`, 
+                `password`, 
+                `fonction`, 
+                `statut`, 
+                `disabled`, 
+                `profil`, 
+                `created_at`, 
+                `updated_at`, 
+                `username`, 
+                `nom`, 
+                `civilite`, 
+                `prenom`, 
+                `adresse`, 
+                `telephone`
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[
+                NULL,
+                $ins_email,
+                ["CLT"],
+                password_hash($ins_pass, PASSWORD_DEFAULT),
+                "CLT",
+                true,
+                null,
+                null,
+                date('Y-m-d H:i:s'),
+                date('Y-m-d H:i:s'),
+                $ins_username,
+                $ins_nom,
+                $ins_civilite,
+                $ins_prenom,
+                $ins_adresse,
+                $ins_telephone,
+            ]) ;
+
+        echo json_encode([
+            "type" => "green",
+            "message" => "Succès"
+        ]) ;
+
+        return new Response("");
+
+    }
     
 }
