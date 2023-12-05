@@ -265,7 +265,7 @@ class ApiController extends AbstractController
             return new Response("") ;
         }
 
-        $clientId = $request->request->get("userId") ;
+        $clientId = empty($request->request->get("userId")) ? NULL : $request->request->get("userId") ;
 
         $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` DESC LIMIT 1 ") ;
 
