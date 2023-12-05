@@ -532,7 +532,20 @@ class ApiController extends AbstractController
         ]) ;
 
         return new Response("");
+    }
 
+    #[Route('/api/categorie/detail/get', name: 'app_api_detail_categorie_get')]
+    public function apuGetCategorieDetail(Request $request)
+    {
+        $catId = $request->request->get("catId") ;
+
+        $dataCatDetails = $this->getAllData("SELECT p.id, p.nom, p.profil, p.description, p.prix, c.nom as categorie, c.id as id_cat FROM `prd_produit` p JOIN prd_categorie c ON p.categorie_id = c.id WHERE p.`categorie_id` = ? AND c.statut = 1 and p.`statut` = 1; ",[
+            $catId
+        ]) ;
+
+        echo json_encode($dataCatDetails) ;
+
+        return new Response("") ;
     }
     
 }
