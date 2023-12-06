@@ -419,7 +419,7 @@ $(document).ready(function(){
                       var realinstance = instance.loading()
                       
                       $.ajax({
-                          url: routes.stock_general_produit_delete,
+                          url: routes.stock_general_produit_delete, 
                           type:'post',
                           cache: false,
                           data:{idProduit:self.data("value")},

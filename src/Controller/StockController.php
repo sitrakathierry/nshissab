@@ -2813,7 +2813,6 @@ class StockController extends AbstractController
 
         $produitActifs = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,
-            "toUpdate" => True,
             "statut" => True
         ]) ;
 
