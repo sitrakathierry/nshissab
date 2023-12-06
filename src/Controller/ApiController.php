@@ -558,4 +558,44 @@ class ApiController extends AbstractController
         return new Response("") ;
     }   
 
+    #[Route('/api/livraison/get', name: 'app_api_livraison_get')]
+    public function apiGetLivraison(Request $request)
+    {
+        $idLivreur = $request->request->get("idLivreur") ;
+
+        $dataLivraisons = $this->getAllData("
+        SELECT 
+            cc.num_commande as numCommande, 
+            cd.designation as prdNom, 
+            DATE_FORMAT(ld.date, '%d/%m/%Y') as dateLvr,
+            cs.nom as statut, 
+            lz.id as idZone,
+            lz.num_zone as numZone, 
+            lz.nom_zone as nomZone
+
+            FROM `lvr_livraison` lv
+
+            JOIN cmd_commande cc ON cc.id = lv.commande_id
+            JOIN cmd_details cd ON cd.id = lv.cmd_detail_id
+            JOIN cmd_statut cs ON cs.id = lv.cmd_statut_id
+            JOIN lvr_zone lz ON lz.id = lv.lvr_zone_id
+            JOIN lvr_date_livraison ld ON ld.id = lv.lvr_date_id
+        WHERE `livreur_id` = ? and lv.statut = 1
+        ",[
+            $idLivreur
+        ]) ;
+
+        $tabLivrs = [] ;
+
+        foreach ($dataLivraisons as $itemLvr) {
+            $tabLivrs[$itemLvr["dateLvr"]][$itemLvr["idZone"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["statut"]][] = [
+                "designation" => $itemLvr["prdNom"]
+            ] ;
+        }
+
+        echo json_encode($tabLivrs) ;
+
+        return new Response("") ;
+
+    }
 }
