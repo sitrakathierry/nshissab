@@ -96,7 +96,7 @@ class CommandeController extends AbstractController
             "with_foot" => true,
             "factures" => $dataFactures,
             "numBonCommande" => $numBonCommande
-        ]);
+        ]); 
     }
     
     #[Route('/commande/facture/display', name: 'cmd_facture_display')]
@@ -605,12 +605,15 @@ class CommandeController extends AbstractController
         //     "factureDetails" => $elements
         // ]) ;
         
+        $nomDevise = is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() ;
+
         return $this->render('commande/detailsBonCommande.html.twig', [
             "filename" => "commande",
             "titlePage" => "Bon de Commande",
             "with_foot" => true,
             "facture" => $infoFacture,
-            "factureDetails" => $elements
+            "factureDetails" => $elements,
+            "nomDevise" => $nomDevise,
         ]) ;
 
     }

@@ -535,7 +535,7 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/categorie/detail/get', name: 'app_api_detail_categorie_get')]
-    public function apuGetCategorieDetail(Request $request)
+    public function apiGetCategorieDetail(Request $request)
     {
         $catId = $request->request->get("catId") ;
 
@@ -543,9 +543,15 @@ class ApiController extends AbstractController
             $catId
         ]) ;
 
-        echo json_encode($dataCatDetails) ;
+        echo json_encode($dataCatDetails) ; 
 
         return new Response("") ;
     }
-    
+
+    #[Route('/api/categorie/liste', name: 'app_api_categorie_liste')]
+    public function apiListeCategorie()
+    {
+
+    }   
+
 }
