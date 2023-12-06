@@ -551,7 +551,11 @@ class ApiController extends AbstractController
     #[Route('/api/categorie/liste', name: 'app_api_categorie_liste')]
     public function apiListeCategorie()
     {
+        $dataCategories = $this->getAllData("SELECT * FROM `prd_categorie` WHERE `statut` = 1") ;
 
+        echo json_encode($dataCategories) ;
+
+        return new Response("") ;
     }   
 
 }
