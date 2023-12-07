@@ -588,7 +588,7 @@ class ApiController extends AbstractController
         $tabLivrs = [] ;
 
         foreach ($dataLivraisons as $itemLvr) {
-            $tabLivrs[$itemLvr["dateLvr"]][$itemLvr["idZone"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["statut"]][] = [
+            $tabLivrs[$itemLvr["dateLvr"]][$itemLvr["idZone"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["statut"]][$itemLvr["numCommande"]][] = [
                 "designation" => $itemLvr["prdNom"]
             ] ;
         }
