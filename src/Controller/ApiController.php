@@ -649,10 +649,20 @@ class ApiController extends AbstractController
     {
         $idLivraison = $request->request->get("idLivraison") ;
 
-        $stautLivree = $this->getData("",[
-
+        $stautPayeLivre = $this->getData("SELECT * FROM `cmd_statut` WHERE `reference` = ? ",[
+            'PL'
         ]) ;
 
+        $this->setData("UPDATE `lvr_livraison` SET `statut`= ? WHERE `id` = ? ",[
+            $stautPayeLivre['id'],
+            $idLivraison
+        ]) ;
 
+        echo json_encode([
+            "type" => "green",
+            "message" => "succès"
+        ]) ;
+
+        return new Response("") ;
     }
 }
