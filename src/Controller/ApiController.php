@@ -217,7 +217,7 @@ class ApiController extends AbstractController
             }
         }
 
-        $dataDateLvrs = $this->getAllData("SELECT * FROM `lvr_date_livraison` WHERE `statut` = 1 ORDER BY `date` ASC ")  ;
+        $dataDateLvrs = $this->getAllData("SELECT id, DATE_FORMAT(date,'%d/%m/%Y') as date FROM `lvr_date_livraison` WHERE `statut` = 1 ORDER BY `date` ASC ")  ;
 
         echo json_encode([
             "lieuLvrs" => $dataLieuLvrs,
