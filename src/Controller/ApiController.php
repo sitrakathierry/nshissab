@@ -653,7 +653,7 @@ class ApiController extends AbstractController
             'PL'
         ]) ;
 
-        $this->setData("UPDATE `lvr_livraison` SET `statut`= ? WHERE `id` = ? ",[
+        $this->setData("UPDATE `lvr_livraison` SET `cmd_statut_id`= ? WHERE `id` = ? ",[
             $stautPayeLivre['id'],
             $idLivraison
         ]) ;
