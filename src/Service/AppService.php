@@ -451,7 +451,7 @@ class AppService extends AbstractController
         $client = new Client($basic);
 
         $response = $client->sms()->send(
-            new SMS("261327609366", "HIKAM", 'Bonjour Cher ami, bienvenue sur shissab (Hahah)')
+            new SMS("261345481995", "HIKAM", 'Bonjour Cher ami, bienvenue sur bazardagoni')
         );
         
         $message = $response->current();
