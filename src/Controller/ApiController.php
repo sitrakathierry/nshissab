@@ -665,4 +665,16 @@ class ApiController extends AbstractController
 
         return new Response("") ;
     }
+
+    
+
+    #[Route('/api/vonage/sms', name: 'app_api_vonage_sms')]
+    public function apiSmsVonage(AppService $appService)
+    {
+        $appService->sendSms() ;
+
+        echo json_encode(["message" => "succès"]) ;
+
+        return new Response() ;
+    }
 }
