@@ -607,6 +607,7 @@ class ApiController extends AbstractController
 
         $dataLivraisons = $this->getAllData("
             SELECT 
+                lv.id as idLvr,
                 cc.num_commande as numCommande, 
                 cd.designation as prdNom, 
                 cd.montant as prdMontant, 
@@ -634,6 +635,7 @@ class ApiController extends AbstractController
                 "designation" => $itemLvr["prdNom"],
                 "prix" => $itemLvr["prdMontant"],
                 "quantite" => $itemLvr["prdQte"],
+                "idLvr" => $itemLvr["idLvr"],
             ] ;
         }
 
@@ -641,4 +643,16 @@ class ApiController extends AbstractController
 
         return new Response("") ;
     }   
+
+    #[Route('/api/livraison/validation', name: 'app_api_livraison_valider')]
+    public function apiValiderLivraison(Request $request)
+    {
+        $idLivraison = $request->request->get("idLivraison") ;
+
+        $stautLivree = $this->getData("",[
+
+        ]) ;
+
+
+    }
 }
