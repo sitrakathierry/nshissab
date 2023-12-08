@@ -573,9 +573,7 @@ class ApiController extends AbstractController
             lz.id as idZone,
             lz.num_zone as numZone, 
             lz.nom_zone as nomZone
-
             FROM `lvr_livraison` lv
-
             JOIN cmd_commande cc ON cc.id = lv.commande_id
             JOIN cmd_details cd ON cd.id = lv.cmd_detail_id
             JOIN cmd_statut cs ON cs.id = lv.cmd_statut_id
@@ -616,7 +614,8 @@ class ApiController extends AbstractController
                 cs.nom as statut, 
                 lz.id as idZone,
                 lz.num_zone as numZone, 
-                lz.nom_zone as nomZone
+                lz.nom_zone as nomZone,
+                cs.reference
                 FROM `lvr_livraison` lv
                 JOIN cmd_commande cc ON cc.id = lv.commande_id
                 JOIN cmd_details cd ON cd.id = lv.cmd_detail_id
@@ -632,6 +631,7 @@ class ApiController extends AbstractController
 
         foreach ($dataLivraisons as $itemLvr) {
             $tabLivrs[$itemLvr["dateLvr"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["numCommande"]][] = [
+                "refStatut" => $itemLvr["reference"],
                 "designation" => $itemLvr["prdNom"],
                 "prix" => $itemLvr["prdMontant"],
                 "quantite" => $itemLvr["prdQte"],
