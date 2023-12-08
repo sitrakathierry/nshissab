@@ -565,6 +565,7 @@ class ApiController extends AbstractController
 
         $dataLivraisons = $this->getAllData("
         SELECT 
+            cc.id as commandeId,
             cc.num_commande as numCommande, 
             cd.designation as prdNom, 
             DATE_FORMAT(ld.date, '%d/%m/%Y') as dateLvr,
@@ -588,7 +589,7 @@ class ApiController extends AbstractController
         $tabLivrs = [] ;
 
         foreach ($dataLivraisons as $itemLvr) {
-            $tabLivrs[$itemLvr["dateLvr"]][$itemLvr["idZone"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["statut"]][$itemLvr["numCommande"]][] = [
+            $tabLivrs[$itemLvr["dateLvr"]][$itemLvr["idZone"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["statut"]][$itemLvr["commandeId"]."#".$itemLvr["numCommande"]][] = [
                 "designation" => $itemLvr["prdNom"]
             ] ;
         }
@@ -598,4 +599,46 @@ class ApiController extends AbstractController
         return new Response("") ;
 
     }
+
+    #[Route('/api/livraison/detail/get', name: 'app_api_livraison_detail_get')]
+    public function apiGetDetailLivraison(Request $request)
+    {
+        $idCommande = $request->request->get("idCommande") ;
+
+        $dataLivraisons = $this->getAllData("
+            SELECT 
+                cc.num_commande as numCommande, 
+                cd.designation as prdNom, 
+                cd.montant as prdMontant, 
+                cd.quantite as prdQte, 
+                DATE_FORMAT(ld.date, '%d/%m/%Y') as dateLvr,
+                cs.nom as statut, 
+                lz.id as idZone,
+                lz.num_zone as numZone, 
+                lz.nom_zone as nomZone
+                FROM `lvr_livraison` lv
+                JOIN cmd_commande cc ON cc.id = lv.commande_id
+                JOIN cmd_details cd ON cd.id = lv.cmd_detail_id
+                JOIN cmd_statut cs ON cs.id = lv.cmd_statut_id
+                JOIN lvr_zone lz ON lz.id = lv.lvr_zone_id
+                JOIN lvr_date_livraison ld ON ld.id = lv.lvr_date_id
+            WHERE cc.id = ? and lv.statut = 1 ",
+        [
+            $idCommande
+        ]) ;
+
+        $tabLivrs = [] ;
+
+        foreach ($dataLivraisons as $itemLvr) {
+            $tabLivrs[$itemLvr["dateLvr"]."#".$itemLvr["numZone"]."#".$itemLvr["nomZone"]."#".$itemLvr["numCommande"]][] = [
+                "designation" => $itemLvr["prdNom"],
+                "prix" => $itemLvr["prdMontant"],
+                "quantite" => $itemLvr["prdQte"],
+            ] ;
+        }
+
+        echo json_encode($tabLivrs) ;
+
+        return new Response("") ;
+    }   
 }
