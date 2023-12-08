@@ -445,13 +445,13 @@ class AppService extends AbstractController
         file_put_contents($pathListeMenu, json_encode($listeMenu)) ;
     }
 
-    public function sendSms()
+    public function sendSms($numero,$entete, $contenu)
     {
         $basic  = new Basic("4c66ffd6", "XCiCWpI9qBqffTNA");
         $client = new Client($basic);
 
         $response = $client->sms()->send(
-            new SMS("261345481995", "HIKAM", 'Bonjour Cher ami, bienvenue sur bazardagoni')
+            new SMS($numero, $entete, $contenu)
         );
         
         $message = $response->current();

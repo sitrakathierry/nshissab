@@ -669,9 +669,12 @@ class ApiController extends AbstractController
     
 
     #[Route('/api/vonage/sms', name: 'app_api_vonage_sms')]
-    public function apiSmsVonage(AppService $appService)
+    public function apiSmsVonage(AppService $appService, Request $request)
     {
-        $appService->sendSms() ;
+        $numero = $request->request->get("numero") ;
+        $contenu = $request->request->get("contenu") ;
+
+        $appService->sendSms($numero,"BAZARDAGONI",$contenu) ;
 
         echo json_encode(["message" => "succès"]) ;
 
