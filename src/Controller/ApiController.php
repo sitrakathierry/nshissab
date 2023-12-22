@@ -579,7 +579,7 @@ class ApiController extends AbstractController
             JOIN cmd_statut cs ON cs.id = lv.cmd_statut_id
             JOIN lvr_zone lz ON lz.id = lv.lvr_zone_id
             JOIN lvr_date_livraison ld ON ld.id = lv.lvr_date_id
-        WHERE `livreur_id` = ? and lv.statut = 1
+        WHERE lv.livreur_id = ? and lv.statut = 1
         ",[
             $idLivreur
         ]) ;

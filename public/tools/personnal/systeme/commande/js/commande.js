@@ -122,7 +122,7 @@ $(document).ready(function(){
                             text: 'Oui',
                             btnClass: 'btn-blue',
                             keys: ['enter', 'shift'],
-                            action: function(){
+                            action: function(){ 
                                 var idModeleEntete = $("#modele_pdf_entete").val() ;
                                 var idModeleBas = $("#modele_pdf_bas").val() ;
                                 var idBonCommande = self.data("value") ;

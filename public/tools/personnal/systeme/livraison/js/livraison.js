@@ -208,4 +208,8 @@ $(document).ready(function(){
             }
         })
     })
+
+    $(".lvr_btn_imprime").click(function(){
+        // $.alert("test, bonjour tsiky") ;
+    })
 })

@@ -651,6 +651,25 @@ class PrestationController extends AbstractController
         ]);
     }
 
+    #[Route('/prestation/location/locataire', name: 'prest_location_locataire')]
+    public function prestLocationLocataire()
+    {
+
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        $locataires = json_decode(file_get_contents($filename)) ;
+        
+        return $this->render('prestations/location/locataire.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Locataires",
+            "with_foot" => true,
+            "locataires" => $locataires
+        ]);
+    }
+
     #[Route('/prestation/location/detail/bailleur/{id}', name: 'prest_location_bailleur_detail')]
     public function prestDetailLocationBailleur($id){
         $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($id) ;
@@ -666,6 +685,44 @@ class PrestationController extends AbstractController
             "bailleur" => $bailleur,
             "bails" => $bails
         ]);
+    }
+
+    #[Route('/prestation/location/detail/locataire/{id}', name: 'prest_location_locataire_detail')]
+    public function prestDetailLocationLocataire($id){
+        $locataire = $this->entityManager->getRepository(LctLocataire::class)->find($id) ;
+
+        return $this->render('prestations/location/detailLocataire.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Detail Locataire",
+            "with_foot" => true,
+            "locataire" => $locataire,
+        ]);
+    }
+
+    #[Route('/prestation/location/locataire/update', name: 'prest_location_locataire_update')]
+    public function prestLocationUpdateLocataire(Request $request)
+    {
+        $lct_loc_id = $request->request->get("lct_loc_id") ;
+        $lct_nom = $request->request->get("lct_nom") ;
+        $lct_tel = $request->request->get("lct_tel") ;
+        $lct_adresse = $request->request->get("lct_adresse") ;
+        $lct_email = $request->request->get("lct_email") ;
+
+        $locataire = $this->entityManager->getRepository(LctLocataire::class)->find($lct_loc_id);
+
+        // $locataire->setAgence($this->agence) ;
+        $locataire->setNom($lct_nom) ;
+        $locataire->setTelephone($lct_tel) ;
+        $locataire->setAdresse($lct_adresse) ;
+        $locataire->setEmail($lct_email) ;
+        // $locataire->setStatut(True) ;
+
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué",
+        ]) ;
     }
 
     #[Route('/prestation/location/bailleur/delete', name: 'param_location_bailleur_delete')]

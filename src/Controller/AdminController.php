@@ -231,8 +231,6 @@ class AdminController extends AbstractController
         ]);
     }
 
-    
-
     #[Route('/admin/menu/attribution',name:'menu_attribution')]
     public function menuAttribution()
     {

@@ -492,19 +492,27 @@ $(document).ready(function(){
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()
-                                $.alert({
-                                    title: 'Message',
-                                    content: json.message,
-                                    type: json.type,
-                                    // buttons: {
-                                    //     OK: function(){
-                                    //         if(json.type == "green")
-                                    //         {
-                                    //             location.reload()
-                                    //         }
-                                    //     }
-                                    // }
-                                });
+                                self.closest("tr").find(".sav_modif_quantite").text(json.valQte)
+                                self.closest("tr").find(".sav_modif_tva").text(json.valTva)
+                                self.closest("tr").find(".sav_modif_mtn_total").text(json.valMtnTotal)
+                                self.closest("tr").find(".fact_enr_prod_quantite").val(json.valQte)
+                                self.closest("tr").find(".fact_enr_prod_tva_val").val(json.valTva)
+                                self.closest("tr").find(".fact_enr_total_ligne").val(json.valMtnTotal)
+                                self.closest("tr").find("#fact_enr_ligne_spec_quantite").val(json.valQte)
+                                self.closest("tr").find("#fact_percent_tva_ligne").val(json.percentTva)
+                                // $.alert({
+                                //     title: 'Message',
+                                //     content: json.message,
+                                //     type: json.type,
+                                //     // buttons: {
+                                //     //     OK: function(){
+                                //     //         if(json.type == "green")
+                                //     //         {
+                                //     //             location.reload()
+                                //     //         }
+                                //     //     }
+                                //     // }
+                                // });
                             },
                             error: function(resp){
                                 realinstance.close()

@@ -633,4 +633,68 @@ $(document).ready(function(){
     })
     return false ;
   })
+
+  $("#formLocataire").submit(function(){
+    var self = $(this);
+    $.confirm({
+      title: "Modification",
+      content: "Etes-vous sûre ?",
+      type: "orange",
+      theme: "modern",
+      buttons: {
+        btn1: {
+          text: "Non",
+          action: function () {
+          },
+        },
+        btn2: {
+          text: "Oui",
+          btnClass: "btn-orange",
+          keys: ["enter", "shift"],
+          action: function () {
+            var data = self.serialize();
+            var realinstance = instance.loading();
+            $.ajax({
+              url: routes.prest_location_locataire_update,
+              type: "post",
+              data: data,
+              dataType: "json",
+              success: function (json) {
+                realinstance.close() ;
+                $.alert({
+                  title: "Message",
+                  content: json.message,
+                  type: json.type,
+                  buttons: {
+                    OK: function () {
+                      if (json.type == "green") {
+                        location.reload();
+                      }
+                    },
+                  },
+                });
+              },
+              error: function (resp) {
+                realinstance.close();
+                $.alert(JSON.stringify(resp));
+              },
+            });
+          },
+        },
+      },
+    });
+      return false;
+  });
+
+  $(".lct_btn_modifier").click(function(){
+    $("#lct_nom").removeAttr("readonly") ;
+    $("#lct_tel").removeAttr("readonly") ;
+    $("#lct_adresse").removeAttr("readonly") ;
+    $("#lct_email").removeAttr("readonly") ;
+    $(this).parent().html('<button type="submit" class="btn btn-purple btn-sm"><i class="fa fa-database"></i>&nbsp;Mettre à jour</button>')
+    $.alert({
+        title: 'Modification',
+        content: 'Les champs sont maintenant active',
+    })
+  })
 })

@@ -469,6 +469,7 @@ class LivraisonController extends AbstractController
         }
         $livraison = [] ;
 
+        $livraison["id"] = $bonLivraison->getId() ;
         $livraison["numLivraison"] = $bonLivraison->getNumLivraison() ;
         $livraison["libelleNum"] = $libelle ;
         $livraison["valeurNum"] = $numero ;
@@ -494,10 +495,10 @@ class LivraisonController extends AbstractController
         } 
 
         return $this->render('livraison/detailsBonLivraison.html.twig', [
-            "filename" => "commande",
+            "filename" => "livraison",
             "titlePage" => "Bon de Livraison",
             "with_foot" => true,
-            "livraison" => $livraison,
+            "livraison" => $livraison, 
             "details" => $details
         ]) ;
     }

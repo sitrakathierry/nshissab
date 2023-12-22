@@ -882,9 +882,16 @@ class FactureController extends AbstractController
         $factureDetail->getFacture()->setSynchro(null) ;
         $this->entityManager->flush() ;
 
+        $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+        $total = $factureDetail->getPrix()  * $factureDetail->getQuantite();
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Modification effectué, cliquer sur enregistrer une fois toutes les modifications terminé",
+            "valQte" => $sav_elem_quantite,
+            "valTva" => $tva,
+            "valMtnTotal" => $total,
+            "percentTva" => $sav_elem_tva,
             ]) ;
 
     }
