@@ -499,7 +499,7 @@ class LivraisonController extends AbstractController
             "titlePage" => "Bon de Livraison",
             "with_foot" => true,
             "livraison" => $livraison, 
-            "details" => $details
+            "details" => $details 
         ]) ;
     }
 }
