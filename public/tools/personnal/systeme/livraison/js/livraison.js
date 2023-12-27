@@ -210,7 +210,22 @@ $(document).ready(function(){
     })
 
     $(".lvr_btn_imprime").click(function(){
-        // $.alert("test, bonjour tsiky") ;
         var realinstance = instance.loading()
+        $.ajax({
+            url: routes.compta_cheque_details,
+            type:'post',
+            cache: false,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close() ;
+                
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
     })
 })

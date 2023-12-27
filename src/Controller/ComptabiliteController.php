@@ -758,13 +758,17 @@ class ComptabiliteController extends AbstractController
         $refMode = $depense->getModePaiement()->getReference() ;
 
         $element = [
+            "id" => $depense->getId(),
             "dateDeclaration" => $depense->getDateDeclaration()->format("d/m/Y"),
             "element" => $depense->getElement(),
             "beneficiaire" => $depense->getNomConcerne(),
             "numFacture" => $depense->getNumFacture(),
             "service" => $depense->getService()->getNom(),
+            "idService" => $depense->getService()->getId(),
             "motif" => $depense->getMotif()->getNom(),
+            "idMotif" => $depense->getMotif()->getId(),
             "modePaiement" => $depense->getModePaiement()->getNom(),
+            "idModePaiement" => $depense->getModePaiement()->getId(),
             "refMode" => $refMode,
             "numeroMode" => is_null($depense->getNumeroMode()) ? "-" : $depense->getNumeroMode(),
             "editeurMode" => is_null($depense->getEditeurMode()) ? "-" : $depense->getEditeurMode(),
@@ -774,6 +778,7 @@ class ComptabiliteController extends AbstractController
             "lblDateMode" => $libelleArrayMode[$refMode]["date"],
             "montant" => $depense->getMontantDep(),
             "moisFacture" => $tabMois[$depense->getMoisFacture() - 1] ,
+            "keyMoisFacture" => $depense->getMoisFacture() - 1 ,
             "anneeFacture" => $depense->getAnneeFacture(),
             "description" => $depense->getDescription(),
             "statut" => $depense->getStatut()->getNom(),
@@ -783,12 +788,23 @@ class ComptabiliteController extends AbstractController
              "depense" => $depense
         ]) ;
 
+        $modePaiements = $this->entityManager->getRepository(DepModePaiement::class)->findAll() ;
+        $motifs = $this->entityManager->getRepository(DepMotif::class)->findAll() ;
+        $services = $this->entityManager->getRepository(DepService::class)->findBy([
+            "agence" => $this->agence ,
+            "statut" => True   
+        ]) ;
+
         return $this->render('comptabilite/depense/detailsDepense.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Détails Dépense ",
             "with_foot" => true,
             "depense" => $element,
-            "details" => $details,
+            "details" => $details, 
+            "modePaiements" => $modePaiements,
+            "motifs" => $motifs,
+            "services" => $services,
+            "tabMois" => $tabMois,
         ]);
     }
 
@@ -872,7 +888,20 @@ class ComptabiliteController extends AbstractController
             $editeurMode = !empty($dep_editeur_mode) ? $dep_editeur_mode : null ;
         }
 
-        $depense = new Depense() ;
+        $depense_type = $request->request->get("depense_type") ;
+        $id_depense_modif = $request->request->get("id_depense_modif") ;
+
+        if(isset($depense_type) && !empty($depense_type))
+        {
+            $depense = $this->entityManager->getRepository(Depense::class)->find($id_depense_modif) ;
+        }
+        else
+        {
+            $depense = new Depense() ;
+            $depense->setStatutGen(True) ;
+            $depense->setCreatedAt(new \DateTimeImmutable) ;
+            $depense->setUpdatedAt(new \DateTimeImmutable) ;
+        }
 
         $depense->setAgence($this->agence) ;
         $depense->setService($service) ;
@@ -889,12 +918,10 @@ class ComptabiliteController extends AbstractController
         $depense->setMoisFacture(empty($dep_mois_facture) ? null : $dep_mois_facture) ;
         $depense->setAnneeFacture(empty($dep_annee_facture) ? date("Y") : $dep_annee_facture ) ;
         $depense->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$dep_date_declaration)) ;
-        $depense->setStatutGen(True) ;
         $depense->setDescription($depense_editor) ;
-        $depense->setCreatedAt(new \DateTimeImmutable) ;
-        $depense->setUpdatedAt(new \DateTimeImmutable) ;
-
-        $this->entityManager->persist($depense) ;
+        
+        if(!isset($depense_type))
+            $this->entityManager->persist($depense) ;
         $this->entityManager->flush() ;
 
         $dep_item_id_libelle = (array)$request->request->get("dep_item_id_libelle") ;
@@ -904,7 +931,7 @@ class ComptabiliteController extends AbstractController
 
         foreach ($dep_item_id_libelle as $key => $value) {
             $libelle = $this->entityManager->getRepository(DepLibelle::class)->find($dep_item_id_libelle[$key]) ;
-
+            
             $detail = new DepDetails() ;
 
             $detail->setAgence($this->agence) ;
@@ -950,6 +977,20 @@ class ComptabiliteController extends AbstractController
 
         return new JsonResponse($result) ;
     } 
+
+    #[Route('/comptabilite/depense/template/get', name: 'compta_depense_template_get')]
+    public function compteDepenseGetTemplate(Request $request)
+    {
+        $libelles = $this->entityManager->getRepository(DepLibelle::class)->findBy([
+            "agence" => $this->agence    
+        ]) ;
+
+        $response = $this->renderView("comptabilite/depense/templateEditElemDepense.html.twig",[
+            "libelles" => $libelles
+        ]) ;
+
+        return new Response($response) ;
+    }
 
     #[Route('/comptabilite/depense/consultation', name: 'compta_depense_consultation')]
     public function comptaConsultationDepense()

@@ -17,116 +17,151 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{depense.numFacture}}</span></h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <div class="row">
-            <div class="col-md-4">
-                <label for="dep_nom_concerne" class="mt-2 font-weight-bold">Nom Concerné</label>
-                <input readonly type="text" value="{{depense.beneficiaire}}" name="dep_nom_concerne"  id="dep_nom_concerne" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <label for="dep_element" class="mt-2 font-weight-bold">Elément</label>
-                <input readonly type="text" value="{{depense.element}}" name="dep_element"  id="dep_element" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-            </div>
-            <div class="col-md-5">
-                <label for="dep_service" class="mt-2 font-weight-bold">Service</label>
-                <input readonly type="text" value="{{depense.service}}" name="dep_service"  id="dep_service" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="dep_motif" class="mt-2 font-weight-bold">Motif</label>
-                <input readonly type="text" name="dep_motif" value="{{depense.motif}}"  id="dep_motif" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="dep_mode_paiement" class="mt-3 font-weight-bold">Mode de paiement</label>
-                <input readonly type="text" name="dep_mode_paiement" value="{{depense.modePaiement}}"  id="dep_mode_paiement" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-            </div>
-            <div class="col-md-3">
-                <label for="dep_montant" class="mt-3 font-weight-bold">Montant</label>
-                <input readonly type="number" step="any" value="{{depense.montant}}" name="dep_montant" id="dep_montant" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-            </div>
-            {% if depense.refMode != "ESP" %}
-                <div class="col-md-3" >
-                    <label for="dep_numero_mode" class="mt-3 font-weight-bold caption_mode_numero">value="{{depense.lblNumeroMode}}"</label>
-                    <input readonly type="text" name="dep_numero_mode" value="{{depense.numeroMode}}" id="dep_numero_mode" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+        <form id="formDepModif">
+            <input type="hidden" name="depense_type" value="MODIF_DEP">
+            <input type="hidden" name="id_depense_modif" value="{{depense.id}}">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="dep_nom_concerne" class="mt-2 font-weight-bold">Nom Concerné</label>
+                    <input readonly type="text" value="{{depense.beneficiaire}}" name="dep_nom_concerne"  id="dep_nom_concerne" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
                 </div>
-                <div class="col-md-3" >
-                    <label for="dep_editeur_mode" class="mt-3 font-weight-bold caption_mode_editeur">value="{{depense.lblEditeurMode}}"</label>
-                    <input readonly type="text" name="dep_editeur_mode" value="{{depense.editeurMode}}" id="dep_editeur_mode" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-                </div>
-                <div class="col-md-3" >
-                    <label for="dep_date_mode" class="mt-3 font-weight-bold caption_mode_date">value="{{depense.lblDateMode}}"</label>
-                    <input readonly type="text" name="dep_date_mode" value="{{depense.dateMode}}" id="dep_date_mode" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
-                </div>
-            {% endif %}
-            <div class="col-md-3">
-                <label for="dep_num_facture" class="mt-3 font-weight-bold">Facture N°</label>
-                <input readonly type="text" name="dep_num_facture" value="{{depense.numFacture}}" id="dep_num_facture" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
             </div>
-            <div class="col-md-4">
-                <label for="dep_mois_facture" class="mt-3 font-weight-bold">Facture Mois de </label>
-                <div class="row">
-                    <div class="col-md-7">
-                        <input readonly type="text" name="dep_mois_facture" value="{{depense.moisFacture}}" id="dep_mois_facture" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="dep_element" class="mt-2 font-weight-bold">Elément</label>
+                    <input readonly type="text" value="{{depense.element}}" name="dep_element"  id="dep_element" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+                </div>
+                <div class="col-md-5">
+                    <label for="dep_service" class="mt-2 font-weight-bold">Service</label>
+                    <select name="dep_service" class="custom-select chosen_select custom-select-sm" id="dep_service">
+                        <option value="">-</option>
+                        {% for service in services %}
+                            <option value="{{service.id}}" {{ depense.idService == service.id ? "selected" : "" }}>{{service.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="add_new_service" id="add_new_service" value="NON" >
+                </div>
+                <div class="col-md-3">
+                    <label for="dep_motif" class="mt-2 font-weight-bold">Motif</label>
+                    <select name="dep_motif" class="custom-select chosen_select custom-select-sm" id="dep_motif">
+                        <option value="">-</option>
+                        {% for motif in motifs %}
+                            <option value="{{motif.id}}" {{ depense.idMotif == motif.id ? "selected" : "" }}>{{motif.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="dep_mode_paiement" class="mt-3 font-weight-bold">Mode de paiement</label>
+                    <select name="dep_mode_paiement" class="custom-select chosen_select custom-select-sm" id="dep_mode_paiement">
+                        <option value="">-</option>
+                        {% for modePaiement in modePaiements %}
+                            <option value="{{modePaiement.id}}" {{ depense.idModePaiement == modePaiement.id ? "selected" : "" }} data-reference="{{modePaiement.reference}}">{{modePaiement.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="dep_montant" class="mt-3 font-weight-bold">Montant</label>
+                    <input readonly type="number" step="any" value="{{depense.montant}}" name="dep_montant" id="dep_montant" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+                </div>
+                {% if depense.refMode != "ESP" %}
+                    <div class="col-md-3" >
+                        <label for="dep_numero_mode" class="mt-3 font-weight-bold caption_mode_numero">value="{{depense.lblNumeroMode}}"</label>
+                        <input readonly type="text" name="dep_numero_mode" value="{{depense.numeroMode}}" id="dep_numero_mode" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
                     </div>
-                    <div class="col-md-5">
-                        <input readonly type="number" step="any" value="{{depense.anneeFacture}}" name="dep_annee_facture" id="dep_annee_facture" class="form-control bg-white text-uppercase text-primary font-weight-bold">
+                    <div class="col-md-3" >
+                        <label for="dep_editeur_mode" class="mt-3 font-weight-bold caption_mode_editeur">value="{{depense.lblEditeurMode}}"</label>
+                        <input readonly type="text" name="dep_editeur_mode" value="{{depense.editeurMode}}" id="dep_editeur_mode" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+                    </div>
+                    <div class="col-md-3" >
+                        <label for="dep_date_mode" class="mt-3 font-weight-bold caption_mode_date">value="{{depense.lblDateMode}}"</label>
+                        <input readonly type="text" name="dep_date_mode" value="{{depense.dateMode}}" id="dep_date_mode" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+                    </div>
+                {% endif %}
+                <div class="col-md-3">
+                    <label for="dep_num_facture" class="mt-3 font-weight-bold">Facture N°</label>
+                    <input readonly type="text" name="dep_num_facture" value="{{depense.numFacture}}" id="dep_num_facture" class="form-control bg-white text-uppercase text-primary font-weight-bold" placeholder=". . .">
+                </div>
+                <div class="col-md-4">
+                    <label for="dep_mois_facture" class="mt-3 font-weight-bold">Facture Mois de </label>
+                    <div class="row">
+                        <div class="col-md-7">
+                            {% set i = 1 %}
+                            <select name="dep_mois_facture" class="custom-select chosen_select custom-select-sm" id="dep_mois_facture">
+                                <option value="">-</option>
+                                {% for tabMois in tabMois %}
+                                    <option value="{{i}}" {{ depense.keyMoisFacture == i ? "selected" : "" }}  >{{tabMois|upper}}</option>
+                                    {% set i = i + 1 %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <input readonly type="number" step="any" value="{{depense.anneeFacture}}" name="dep_annee_facture" id="dep_annee_facture" class="form-control bg-white text-uppercase text-primary font-weight-bold">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="w-100 mt-3">
-            <label for="depense_editor" class="mt-2 font-weight-bold">Description</label>
-            <textarea name="depense_editor" class="form-control depense_editor" id="depense_editor" cols="10" rows="5">{{depense.description}}</textarea>
-        </div>
-        <div class="table-responsive mt-3">
-            <table class="table table-sm table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Désignation</th>
-                        <th>Quantité</th>
-                        <th>Prix Unitaire</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% set total = 0 %}
-                    {% for detail in details %}
+            <div class="w-100 mt-3">
+                <label for="depense_editor" class="mt-2 font-weight-bold">Description</label>
+                <textarea name="depense_editor" class="form-control depense_editor" id="depense_editor" cols="10" rows="5">{{depense.description}}</textarea>
+            </div>
+            <div class="contentEditDep mt-3">
+                
+            </div>
+            <div class="table-responsive mt-3">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark">
                         <tr>
-                            <td>{{detail.designation}}</td>
-                            <td>{{detail.quantite}}</td>
-                            <td>{{detail.prixUnitaire}}</td>
-                            <td>{{detail.quantite * detail.prixUnitaire}}</td>
+                            <th>Désignation</th>
+                            <th>Quantité</th>
+                            <th>Prix Unitaire</th>
+                            <th>Total</th>
+                            <th></th>
                         </tr>
-                        {% set total = total + (detail.quantite * detail.prixUnitaire) %}
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3">Total</th>
-                        <th class="bg-primary text-white">{{total}}</th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-7"></div>
-            <div class="col-md-5"> 
-                <label for="nom" class="mt-1 font-weight-bold">Date déclaration,</label>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </thead>
+                    <tbody class="elemDetailsDepense">
+                        {% set total = 0 %}
+                        {% for detail in details %}
+                            <tr>
+                                <td>{{detail.designation}}</td>
+                                <td>{{detail.quantite}}</td>
+                                <td>{{detail.prixUnitaire}}</td>
+                                <td>{{detail.quantite * detail.prixUnitaire}}</td>
+                                <td class="align-middle text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></button>
+                                </td>
+                            </tr>
+                            {% set total = total + (detail.quantite * detail.prixUnitaire) %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3">Total</th>
+                            <th colspan="2" class="bg-primary totalDepGeneral text-white">{{total}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold">Date déclaration,</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        <input type="text" readonly class="form-control bg-white text-uppercase text-primary font-weight-bold" name="dep_date_declaration" value="{{depense.dateDeclaration}}" placeholder=". . ." aria-label="Date Dépense" id="dep_date_declaration">
                     </div>
-                    <input type="text" readonly class="form-control bg-white text-uppercase text-primary font-weight-bold" name="dep_date_declaration" value="{{depense.dateDeclaration}}" placeholder=". . ." aria-label="Date Dépense" id="dep_date_declaration">
                 </div>
             </div>
-        </div>
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm ml-3 btn-primary px-3"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
-            </div>
-        {% endif %} 
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="button" class="btn btn-sm btn_dep_modif ml-3 btn-warning px-3"><i class="fa fa-edit"></i>&nbsp;Modifier</button>
+                    <button type="button" class="btn btn-sm ml-3 btn-primary px-3"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                </div>
+            {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}

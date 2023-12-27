@@ -422,7 +422,7 @@ $(document).ready(function(){
       $(".chosen_select").trigger("chosen:updated")
     }
 
-    $(".dep_details_ajouter").click(function(){
+    $(document).on("click",".dep_details_ajouter",function(){
       var dep_details_designation = $("#dep_details_designation").val()
       var dep_details_quantite = $("#dep_details_quantite").val()
       var dep_details_prix = $("#dep_details_prix").val()
@@ -653,7 +653,108 @@ $(document).ready(function(){
         $(".caption_mode_editeur").text(dataElement[reference].editeur)
         $(".caption_mode_date").text(dataElement[reference].date)
       }
-
     })
+
+    $(".btn_dep_modif").click(function(){
+      var self = $(this) ;
+      var realinstance = instance.loading()
+      $.ajax({
+          url: routes.compta_depense_template_get,
+          type:'post',
+          cache: false,
+          dataType: 'html',
+          processData: false,
+          contentType: false,
+          success: function(response){
+              realinstance.close() ;
+              var tabElemDep = [
+                "#dep_nom_concerne",
+                "#dep_element",
+                "#dep_service",
+                "#dep_motif",
+                "#dep_mode_paiement",
+                "#dep_montant",
+                "#dep_numero_mode",
+                "#dep_editeur_mode",
+                "#dep_date_mode",
+                "#dep_num_facture",
+                "#dep_mois_facture",
+                "#dep_annee_facture",
+              ] ;
+
+              for (let i = 0; i < tabElemDep.length; i++) {
+                const element = tabElemDep[i];
+                $(element).removeAttr("readonly") ;
+                $(element).removeClass("text-primary") ;
+                $(element).addClass("text-success") ;
+                self.parent().html(`
+                <button type="submit" class="btn btn-sm btn_dep_maj font-weight-bold text-white ml-3 btn-warning px-3"><i class="fa fa-check"></i>&nbsp;Mettre à jour</button>
+                <button type="button" class="btn btn-sm ml-3 btn-primary px-3"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                `) ;
+              }
+
+              $(".contentEditDep").html(response) ;
+          },
+          error: function(resp){
+              realinstance.close()
+              $.alert(JSON.stringify(resp)) ;
+          }
+      })
+    })
+
+    $("#formDepModif").submit(function(){
+      var self = $(this);
+      $("#depense_editor").val(depense_editor.getEditorText('#depense_editor'))
+      $.confirm({
+        title: "Confirmation",
+        content: "Etes-vous sûre ?",
+        type: "blue",
+        theme: "modern",
+        buttons: {
+          btn1: {
+            text: "Non",
+            action: function () {},
+          },
+          btn2: {
+            text: "Oui",
+            btnClass: "btn-blue",
+            keys: ["enter", "shift"],
+            action: function () {
+              var data = self.serialize();
+              var realinstance = instance.loading();
+              $.ajax({
+                url: routes.compta_declaration_depense_save,
+                type: "post",
+                cache: false,
+                data: data,
+                dataType: "json",
+                success: function (json) {
+                  realinstance.close();
+                  $.alert({
+                    title: "Message",
+                    content: json.message,
+                    type: json.type,
+                    buttons: {
+                      OK: function () {
+                        if (json.type == "green") {
+                          // $("input,select").val("")
+                          $(".chosen_select").trigger("chosen:updated") ;
+                          location.reload();
+                        }
+                      },
+                    },
+                  });
+                },
+                error: function (resp) {
+                  realinstance.close();
+                  $.alert(JSON.stringify(resp));
+                },
+              });
+            },
+          },
+        },
+      });
+      return false;
+    }) ;
 
 })
