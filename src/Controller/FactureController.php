@@ -927,6 +927,7 @@ class FactureController extends AbstractController
             "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
             "description" => $facture->getDescription(),
             "addsNum" => $addsNum ,
+            "titreFacture" => $facture->getType()->getReference() == "DF" ? "FACT" : "DEVIS" ,
         ] ;
 
         $client = $facture->getClient() ;

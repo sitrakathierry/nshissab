@@ -210,22 +210,66 @@ $(document).ready(function(){
     })
 
     $(".lvr_btn_imprime").click(function(){
+        var self = $(this)
         var realinstance = instance.loading()
         $.ajax({
-            url: routes.compta_cheque_details,
-            type:'post',
-            cache: false,
-            dataType: 'html',
-            processData: false,
-            contentType: false,
-            success: function(response){
-                realinstance.close() ;
-                
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Facture",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{ 
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Imprimer',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var realinstance = instance.loading()
+                                $.ajax({
+                                    url: routes.fact_element_description_update,
+                                    type:'post',
+                                    cache: false,
+                                    data:{
+                                        idFacture:self.data("value"),
+                                        // facture_editor:facture_editor.getEditorText(),
+                                        cmd_lieu:$("#cmd_lieu").val(),
+                                        cmd_date:$("#cmd_date").val()
+                                    },
+                                    dataType: 'json',
+                                    success: function(response){
+                                        realinstance.close()
+                                        var idFacture = self.data("value") ;
+                                        var url = routes.fact_facture_detail_imprimer + '/' + idFacture + '/' + idModeleEntete + '/' + idModeleBas;
+                                        window.open(url, '_blank');
+                                    },
+                                    error: function(resp){
+                                        realinstance.close()
+                                        $.alert(JSON.stringify(resp)) ;
+                                    }
+                                })
+                            }
+                        }
+                    }
+                })
             },
             error: function(resp){
                 realinstance.close()
                 $.alert(JSON.stringify(resp)) ;
             }
         })
+        return false ;
     })
 })

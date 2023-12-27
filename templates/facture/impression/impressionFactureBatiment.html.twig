@@ -10040,7 +10040,7 @@ a.text-dark:hover, a.text-dark:focus {
 
 .title_form
 {
-    font-size: 0.75em;
+    font-size: 0.85em;
     font-weight: 600;
     letter-spacing: 1px;
 }
@@ -10057,7 +10057,7 @@ a.text-dark:hover, a.text-dark:focus {
 
 .table, .table thead, .table tbody, .table tfoot, 
 {
-    font-size : 0.87em !important ;
+    font-size : 0.85em !important ;
 }
 .form_flex_row
 {
@@ -10112,8 +10112,13 @@ footer {
 }
 .sizePdf
 {
-  font-size: 0.75em !important ;
+  font-size: 0.85em !important ;
 }
+.familyRoman
+{
+  font-family: 'Times New Roman' !important ;
+}
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
@@ -10121,15 +10126,15 @@ footer {
     </div>
     <div class="mt-3">
         <div class="text-right ml-2">
-            <h5 class="title_form_entete text-black text-uppercase">Facture {{facture.type}} N° {{facture.numFact}} {{facture.addsNum}}</h5>
+            <h5 class="title_form_entete text-black text-uppercase">{{facture.titreFacture}} {{facture.type}} N° {{facture.numFact}} {{facture.addsNum}}</h5>
         </div>
         <div class="mt-4 text-wrap" style="width: 380px; margin-left: 65%">
             <ul class="list-unstyled sizePdf" style="line-height: 15px;">
-                <li><b>DOIT</b></li>
+                {# <li><b>DOIT</b></li> #}
                 {# <li><span class="font-weight-bold">Statut</span>&nbsp;:&nbsp;<span>{{client.statut}}</span></li> #}
-                <li><span class="font-weight-bold">Nom Client</span>&nbsp;:&nbsp;<span>{{client.nom}}</span></li>
-                <li><span class="font-weight-bold">Adresse</span>&nbsp;:&nbsp;<span>{{client.adresse}}</span></li>
-                <li><span class="font-weight-bold">Téléphone</span>&nbsp;:&nbsp;<span>{{client.telephone}}</span></li>
+                <li><span class="font-weight-bold familyRoman" >Nom Client</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.nom}}</span></li>
+                <li><span class="font-weight-bold familyRoman" >Adresse</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.adresse}}</span></li>
+                <li><span class="font-weight-bold familyRoman" >Téléphone</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.telephone}}</span></li>
             </ul>
         </div>
         {% if facture.description is not empty %}
