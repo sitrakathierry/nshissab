@@ -120,6 +120,7 @@
         </div>
         <div class="accordion" id="accordionExample">
             {% set index = 1 %}
+            {% set totalDepense = 0 %}
             {% for key,element in depenses %}
                 <div class="barre_left rounded elemMoisDepense shadow mt-4">
                     <div class="d-flex flex-row align-items-center justify-content-center">
@@ -201,7 +202,16 @@
                     </div>
                 </div>
                 {% set index = index + 1 %}
+                {% set totalDepense = totalDepense + element.montant %}
             {% endfor %}
+        </div>
+        <div class="mt-4 w-100 d-flex flex-row align-items-center justify-content-center shadow rounded">
+            <div class="w-75 ml-auto height_box px-3 d-flex flex-column pt-2 justify-content-center">
+                <h6 class="title_form text-black text-uppercase">Montant Total</h6>
+            </div>
+            <div class="w-25 ml-auto height_box px-3 border-left d-flex flex-column align-items-center justify-content-center">
+                <span>{{totalDepense}}</span>
+            </div>
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
