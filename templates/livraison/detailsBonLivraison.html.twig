@@ -25,7 +25,11 @@
                 <h5 class="font-medium" >Client : <span class="text-primary">{{livraison.client|upper}}</span></h5>
             </div>
         </div>
-                <div class="table-responsive mt-4">
+        <div class="w-100">
+            <label for="lvr_creation_description" class="mt-3 font-weight-bold text-uppercase">Déscription</label>
+            <textarea name="lvr_creation_description" id="lvr_creation_description" class="lvr_creation_description form-control" cols="30" rows="10">{{livraison.description}}</textarea>
+        </div>
+        <div class="table-responsive mt-4">
             <table class="table table-bordered table-sm"> 
                 <thead class="thead-light">
                     <tr>
@@ -51,9 +55,9 @@
                 <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
                 <div class="input-group mb-2">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span> 
                     </div>
-                    <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="{{ livraison.lieu }}" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+                    <input type="text" class="form-control" name="lvr_lieu" value="{{ livraison.lieu }}" placeholder=". . ." aria-label="Lieu Facture" id="lvr_lieu">
                 </div>
             </div>
         </div>
@@ -65,7 +69,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
                     </div>
-                    <input type="text" class="form-control cmd_date" name="cmd_date" value="{{ livraison.date }}" placeholder=". . ." aria-label="Date Facture" id="cmd_date">
+                    <input type="text" class="form-control" name="lvr_date" value="{{ livraison.date }}" placeholder=". . ." aria-label="Date Facture" id="lvr_date">
                 </div>
             </div>
         </div>

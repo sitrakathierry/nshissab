@@ -1,6 +1,7 @@
 $(document).ready(function(){
     var cmd_creation_description = new LineEditor(".lvr_creation_description") ;
     var instance = new Loading(files.loading)
+    cmd_creation_description.setEditorText($(".lvr_creation_description").text())
     $("#lvr_date").datepicker()
     
     $("#lvr_val_source").chosen({
@@ -220,7 +221,7 @@ $(document).ready(function(){
             contentType:false,
             success : function(response){
                 realinstance.close()
-                $.confirm({
+                $.confirm({ 
                     title: "Impression Facture",
                     content:response,
                     type:"blue",
@@ -239,20 +240,20 @@ $(document).ready(function(){
                                 var idModeleBas = $("#modele_pdf_bas").val() ;
                                 var realinstance = instance.loading()
                                 $.ajax({
-                                    url: routes.fact_element_description_update,
+                                    url: routes.lvr_bon_description_update,
                                     type:'post',
                                     cache: false,
                                     data:{
-                                        idFacture:self.data("value"),
-                                        // facture_editor:facture_editor.getEditorText(),
-                                        cmd_lieu:$("#cmd_lieu").val(),
-                                        cmd_date:$("#cmd_date").val()
+                                        idLivraison:self.data("value"),
+                                        lvr_creation_description:cmd_creation_description.getEditorText('.lvr_creation_description'),
+                                        lvr_lieu:$("#lvr_lieu").val(),
+                                        lvr_date:$("#lvr_date").val()
                                     },
                                     dataType: 'json',
                                     success: function(response){
                                         realinstance.close()
-                                        var idFacture = self.data("value") ;
-                                        var url = routes.fact_facture_detail_imprimer + '/' + idFacture + '/' + idModeleEntete + '/' + idModeleBas;
+                                        var idLivraison = self.data("value") ;
+                                        var url = routes.lvr_bon_livraison_detail_imprimer + '/' + idLivraison + '/' + idModeleEntete + '/' + idModeleBas;
                                         window.open(url, '_blank');
                                     },
                                     error: function(resp){

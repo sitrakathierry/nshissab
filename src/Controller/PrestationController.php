@@ -52,7 +52,7 @@ class PrestationController extends AbstractController
     private $nameUser ; 
     private $userObj ; 
     private $prestService ;
-
+ 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService,PrestationService $prestService)
     {
         $this->session = $session;
@@ -65,7 +65,8 @@ class PrestationController extends AbstractController
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
-            "username" => $this->user["username"] 
+            "username" => $this->user["username"],
+            "agence" => $this->agence 
         ]) ;
         $this->prestService = $prestService ;
     }

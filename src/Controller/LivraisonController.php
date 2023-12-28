@@ -11,8 +11,10 @@ use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
+use App\Entity\ModModelePdf;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,6 +34,7 @@ class LivraisonController extends AbstractController
     private $nameAgence ; 
     private $nameUser ; 
     private $userObj ; 
+
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
@@ -44,7 +47,8 @@ class LivraisonController extends AbstractController
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
-            "username" => $this->user["username"] 
+            "username" => $this->user["username"],
+            "agence" => $this->agence  
         ]) ;
     }
     
@@ -245,6 +249,7 @@ class LivraisonController extends AbstractController
         $filename = $this->filename."bonLivraison(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateBonLivraison($filename,$this->agence) ;
+
         $bonLivraisons = json_decode(file_get_contents($filename)) ;
 
         if($source == "BonCommande") // Bon de commande
@@ -462,16 +467,17 @@ class LivraisonController extends AbstractController
         {
             $facture = $this->entityManager->getRepository(Facture::class)
                                             ->find($bonLivraison->getSource()) ;
-                                            
             $numero = $facture->getNumFact() ;
             $libelle = "facture" ;
             $client = $this->appService->getFactureClient($facture) ;
         }
+
         $livraison = [] ;
 
         $livraison["id"] = $bonLivraison->getId() ;
         $livraison["numLivraison"] = $bonLivraison->getNumLivraison() ;
         $livraison["libelleNum"] = $libelle ;
+        $livraison["description"] = $bonLivraison->getNumLivraison() ;
         $livraison["valeurNum"] = $numero ;
         $livraison["date"] = $bonLivraison->getDate()->format('d/m/Y') ;
         $livraison["lieu"] = $bonLivraison->getLieu() ;
@@ -501,5 +507,177 @@ class LivraisonController extends AbstractController
             "livraison" => $livraison, 
             "details" => $details 
         ]) ;
+    }
+
+    #[Route('/livraison/bon/description/update', name: 'lvr_bon_description_update')]
+    public function lvrBonUpdateDescription(Request $request)
+    {
+        $idLivraison = $request->request->get("idLivraison") ;
+        $lvr_creation_description = $request->request->get("lvr_creation_description") ;
+        $lvr_lieu = $request->request->get("lvr_lieu") ;
+        $lvr_date = $request->request->get("lvr_date") ;
+
+        $livraison = $this->entityManager->getRepository(LvrLivraison::class)->find($idLivraison) ;
+
+        $livraison->setDescription($lvr_creation_description) ;
+        
+        if(isset($lvr_lieu) && !empty($lvr_lieu))
+            $livraison->setLieu($lvr_lieu) ;
+
+        if(isset($lvr_date) && !empty($lvr_date))
+            $livraison->setDate(\DateTime::createFromFormat("d/m/Y",$lvr_date)) ;
+
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([""]) ;
+
+    }
+
+    #[Route('/livraison/bon/livraison/update/{idLivraison}/{idModeleEntete}/{idModeleBas}', name: 'lvr_bon_livraison_detail_imprimer',
+    defaults: [
+        "idLivraison" => null,
+        "idModeleEntete" => null,
+        "idModeleBas" => null]
+    )]
+    public function lvrImprimerBonLivraison($idLivraison,$idModeleEntete,$idModeleBas)
+    {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+
+        $bonLivraison = $this->entityManager->getRepository(LvrLivraison::class)->find($idLivraison) ;
+        if($bonLivraison->getTypeSource() == "BonCommande")
+        {
+            $bonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->find($bonLivraison->getSource()) ;
+            $facture = $bonCommande->getFacture() ;
+        }
+        else
+        {
+            $facture = $this->entityManager->getRepository(Facture::class)->find($bonLivraison->getSource()) ;
+        }
+
+        $dataFacture = [
+            "numBonLivraison" => $bonLivraison->getNumLivraison() ,
+            "numFact" => $facture->getNumFact() ,
+            "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
+            "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
+            "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() ,
+            "description" => $bonLivraison->getDescription() 
+        ] ;
+
+        $client = $facture->getClient() ;
+
+        $dataClient = [
+            "statut" => "",   
+            "nom" => "",   
+            "adresse" => "",   
+            "telephone" => "",   
+        ] ;
+
+        if(!is_null($client))
+        {
+            if(!is_null($client->getSociete()))
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getSociete()->getNom(),   
+                    "adresse" => $client->getSociete()->getAdresse(),   
+                    "telephone" => $client->getSociete()->getTelFixe(),   
+                ] ;
+            }
+            else
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getClient()->getNom(),   
+                    "adresse" => $client->getClient()->getAdresse(),   
+                    "telephone" => $client->getClient()->getTelephone(),   
+                ] ;
+            }
+        }
+
+        $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture,
+            "statut" => True,
+        ]) ;
+
+        $dataDetails = [] ;
+        $totalHt = 0 ;
+        $totalTva = 0 ;
+
+        foreach ($details as $detail) {
+            $tvaVal = is_null($detail->getTvaVal()) ? 0 : $detail->getTvaVal() ;
+            $tva = (($detail->getPrix() * $tvaVal) / 100) * $detail->getQuantite();
+            $total = $detail->getPrix() * $detail->getQuantite()  ;
+            $remise = $this->appService->getFactureRemise($detail,$total) ; 
+            
+            $total = $total - $remise ;
+            
+            $element = [] ;
+            $element["type"] = $detail->getActivite() ;
+            $element["designation"] = $detail->getDesignation() ;
+            $element["quantite"] = $detail->getQuantite() ;
+            $element["format"] = "-" ;
+            $element["prix"] = $detail->getPrix() ; 
+            $element["tva"] = $tva ;
+            $element["typeRemise"] = is_null($detail->getRemiseType()) ? "-" : $detail->getRemiseType()->getNotation() ;
+            $element["valRemise"] = $detail->getRemiseVal() ;
+            $element["statut"] = $detail->isStatut();
+            $element["total"] = $total ;
+            array_push($dataDetails,$element) ;
+
+            $totalHt += $total ;
+            $totalTva += $tva ;
+        } 
+
+        $dataFacture["totalHt"] = $totalHt ;
+        $dataFacture["totalTva"] = $totalTva ;
+        $dataFacture["remise"] = $this->appService->getFactureRemise($facture,$totalHt) ; 
+        $dataFacture["devise"] = !is_null($facture->getDevise()) ;
+        $dataFacture["date"] = $facture->getDate()->format("d/m/Y") ;
+        $dataFacture["lieu"] = $facture->getLieu() ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $dataFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,","," ")." ".$facture->getDevise()->getSymbole();
+        }
+
+        $contentIMpression = $this->renderView("livraison/impressionBonLivraison.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "facture" => $dataFacture,
+            "client" => $dataClient,
+            "details" => $dataDetails,
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
     }
 }

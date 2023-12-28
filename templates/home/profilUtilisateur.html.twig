@@ -1,0 +1,48 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3 pt-3">
+        <form id="formUser" >
+            <div class="row">
+                <div class="col-4">
+                    <label for="home_user_nom" class="mt-2 font-weight-bold">Nom d'utilisateur</label>
+                    <input type="text" readonly oninput="this.value = this.value.toUpperCase();" name="home_user_nom" id="home_user_nom" class="form-control font-weight-bold text-primary" value="{{user.username}}">
+                </div>
+                <div class="col-4">
+                    <label for="home_user_email" class="mt-2 font-weight-bold">Email</label>
+                    <input type="email" readonly name="home_user_email" id="home_user_email" class="form-control font-weight-bold text-primary" value="{{user.email}}">
+                </div>
+                <div class="col-4">
+                    <label for="home_user_resp" class="mt-2 font-weight-bold">Responsabilite</label>
+                    <input type="text" readonly oninput="this.value = this.value.toUpperCase();" name="home_user_resp" id="home_user_resp" class="form-control font-weight-bold text-primary" value="{{user.poste}}">
+                </div>
+            </div>
+            <div class="text-right mt-3">
+                <button type="button" class="btn btn_mdp_form btn-info btn-sm"><i class="fa fa-database"></i>&nbsp;Modifier mot de passe</button>
+            </div>
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="button" class="btn btn_edit_dep btn-sm ml-3 btn-perso-one"><i class="fa fa-edit"></i>&nbsp;Modifier</button>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

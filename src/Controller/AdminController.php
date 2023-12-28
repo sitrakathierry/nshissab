@@ -135,7 +135,9 @@ class AdminController extends AbstractController
         $type = $result["type"] ;
         $message = $result["message"] ;
 
-        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy(["username" => strtoupper($username)]) ;
+        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy([
+            "username" => strtoupper($username),
+        ]) ;
 
         if(!is_null($chk_uname))
         {

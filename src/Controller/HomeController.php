@@ -12,6 +12,7 @@ use App\Service\AppService;
 use App\Service\PdfGenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,14 +29,23 @@ class HomeController extends AbstractController
     private $appService ;
     private $urlGenerator ;
     private $nameUser ;
+    private $agence ;
+    private $userObj ; 
+    private $user ; 
 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
+        $this->user = $this->session->get("user") ;
         $this->appService->checkUrl() ;
         $this->nameUser = strtolower($this->session->get("user")["username"]) ;
+        $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
+        $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
+            "username" => $this->user["username"],
+            "agence" => $this->agence 
+        ]) ;
     }
 
     /**
@@ -227,5 +237,121 @@ class HomeController extends AbstractController
     
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
+    }
+
+    #[Route('/home/profil/user', name: 'home_profil_utilisateur')]
+    public function homeProfilUtilisateur()
+    {
+
+        
+
+        return $this->render('home/profilUtilisateur.html.twig', [
+            "filename" => "home",
+            "titlePage" => "Profil Utilisateur",
+            "with_foot" => true,
+            "user" => $this->userObj
+        ]);
+    }
+ 
+    #[Route('/home/profil/user/update', name: 'home_profil_utilisateur_update')]
+    public function homeUpdateProfilUtilisateur(Request $request)
+    {
+        $home_user_nom = $request->request->get("home_user_nom") ;
+        $home_user_email = $request->request->get("home_user_email") ;
+        $home_user_resp = $request->request->get("home_user_resp") ;
+        $home_user_mdp = $request->request->get("home_user_mdp") ;
+        $home_user_confirm = $request->request->get("home_user_confirm") ;
+
+        if(isset($home_user_mdp))
+        {
+            if(strlen($home_user_mdp) < 8)
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Votre mot de passe doit contenir au moins 8 caractère"
+                ]) ;
+            }
+            else if($home_user_mdp !== $home_user_confirm)
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Mot de passe non identique. Confirmer votre mot de passe"
+                ]) ;
+            }
+
+            $encodedPass = $this->appService->hashPassword($this->userObj,$home_user_mdp) ;
+            $this->userObj->setPassword($encodedPass) ;
+        }
+
+        if (!filter_var($home_user_email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Votre adresse email est invalide"
+            ]) ;
+        }
+
+        $chk_uname = $this->entityManager->getRepository(User::class)->findOneBy([
+            "username" => strtoupper($home_user_nom),
+            "agence" => $this->agence
+        ]) ;
+
+        if(!is_null($chk_uname))
+        {
+            if($chk_uname->getId() != $this->userObj->getId())
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Votre nom d'utilisateur existe déjà, veuillez entrer un autre"
+                ]) ;
+            }
+        }
+
+        $chk_email = $this->entityManager->getRepository(User::class)->findOneBy([
+            "email" => strtoupper($home_user_email),
+            "agence" => $this->agence
+        ]) ;
+
+        if(!is_null($chk_email))
+        {
+            if($chk_email->getId() != $this->userObj->getId())
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Votre email existe déjà, veuillez entrer un autre"
+                ]) ;
+            }
+        }
+
+        $this->userObj->setEmail($home_user_email) ;
+        $this->userObj->setUsername(strtoupper($home_user_nom)) ;
+        $this->userObj->setPoste(strtoupper($home_user_resp)) ;
+        $this->userObj->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $data = [
+            "username" => strtoupper($home_user_nom),
+            "email" => $home_user_email,
+            "deviseLettre" => $this->session->get("user")["deviseLettre"],
+            "deviseSymbole" => $this->session->get("user")["deviseSymbole"],
+            "agence" => $this->agence->getId(),
+            "role" => $this->session->get("user")["role"],
+            "csrf_token" => $this->session->get("user")["csrf_token"]
+        ];  
+        
+        $this->session->set("user", $data) ;
+
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectuée"
+        ]) ;
+
+    }
+
+    #[Route('/home/user/mdp/formulaire', name: 'home_user_mdp_form')]
+    public function homeUserGetFormulaireMdp()
+    {
+        $response = $this->renderView("home/formulaireMotDePasse.html.twig") ;
+        return new Response($response) ;
     }
 }

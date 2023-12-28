@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\AgcDevise;
 use App\Entity\Agence;
+use App\Entity\DepService;
 use App\Entity\Devise;
 use App\Entity\Menu;
 use App\Entity\MenuAgence;
@@ -34,7 +35,7 @@ class ParametresController extends AbstractController
     private $nameAgence ; 
     private $nameUser ; 
     private $userObj ; 
-    public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
+    public function __construct(EntityManagerInterface $entityManager, SessionInterface $session, AppService $appService)
     {
         $this->session = $session;
         $this->entityManager = $entityManager;
@@ -46,7 +47,8 @@ class ParametresController extends AbstractController
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
-            "username" => $this->user["username"] 
+            "username" => $this->user["username"],
+            "agence" => $this->agence
         ]) ;
     }
 

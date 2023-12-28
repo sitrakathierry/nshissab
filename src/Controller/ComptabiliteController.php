@@ -53,7 +53,8 @@ class ComptabiliteController extends AbstractController
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         $this->nameUser = strtolower($this->user["username"]) ;
         $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
-            "username" => $this->user["username"] 
+            "username" => $this->user["username"],
+            "agence" => $this->agence  
         ]) ;
     }
     

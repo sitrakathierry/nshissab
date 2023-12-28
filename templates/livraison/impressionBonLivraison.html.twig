@@ -10040,13 +10040,13 @@ a.text-dark:hover, a.text-dark:focus {
 
 .title_form
 {
-    font-size: 0.85em;
+    font-size: 0.95em;
     font-weight: 600;
     letter-spacing: 1px;
 }
 .title_form_entete
 {
-  font-size: 0.85em;
+  font-size: 1.15em;
   font-weight: 600;
   letter-spacing: 1px;
   text-decoration: underline ;
@@ -10066,7 +10066,7 @@ a.text-dark:hover, a.text-dark:focus {
     justify-content: center ;
 }
 .table {
-  // border: 0.5px solid #000000;
+  border: 0.5px solid #000000;
 }
 .table-bordered > thead,
 .table-bordered > tbody,
@@ -10108,15 +10108,6 @@ footer {
   }
 }
 
-.sizePdf
-{
-  font-size: 0.85em !important ;
-}
-
-.familyRoman
-{
-  font-family: 'Times New Roman' !important ;
-}
 
 </style>
 <div style="width: 100% !important">
@@ -10124,16 +10115,12 @@ footer {
         {{contentEntete|raw}}
     </div>
     <div>
-        <div class="text-right ml-2">
-        </div>
-        <div class="mt-2 text-wrap" style="width: 380px; margin-left: 65%">
-            <ul class="list-unstyled sizePdf" style="line-height: 15px;">
-                <h5 class="title_form_entete text-black text-uppercase">{{facture.titreFacture}} {{facture.numFact}} {{facture.addsNum}}</h5>
-                {# <li><b>DOIT</b></li> #}
-                {# <li><span class="font-weight-bold">Statut</span>&nbsp;:&nbsp;<span>{{client.statut}}</span></li> #}
-                <li class="familyRoman"><span class="font-weight-bold familyRoman">Nom Client</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.nom}}</span></li>
-                <li class="familyRoman"><span class="font-weight-bold familyRoman">Adresse</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.adresse}}</span></li>
-                <li class="familyRoman"><span class="font-weight-bold familyRoman">Téléphone</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.telephone}}</span></li>
+        <div class="mt-1" style="width: 380px; margin-left: 57%">
+            <ul class="list-unstyled" style="line-height: 20px ; font-size: 0.92em">
+                <h5 class="title_form_entete text-black text-uppercase">Bon de Livraison <br> N° {{facture.numBonLivraison}}</h5>
+                <li><span class="font-weight-bold">Nom Client</span>&nbsp;:&nbsp;<span>{{client.nom}}</span></li>
+                <li><span class="font-weight-bold">Adresse</span>&nbsp;:&nbsp;<span>{{client.adresse}}</span></li>
+                <li><span class="font-weight-bold">Téléphone</span>&nbsp;:&nbsp;<span>{{client.telephone}}</span></li>
             </ul>
         </div>
         {% if facture.description is not empty %}
@@ -10141,8 +10128,8 @@ footer {
             {{ facture.description | raw}}
           </div>
         {% endif %}
-        <div class="table-responsive sizePdf mt-2">
-            <table class="table table-sm">
+        <div class="table-responsive mt-2">
+            <table class="table table-sm table-bordered">
                 <thead class="thead-dark">
                     <tr>
                         <th class="text-left">Désignation</th>
@@ -10193,18 +10180,17 @@ footer {
                     {% endif %}
                 </tfoot>
             </table>
-            <div class="w-100 mt-2 sizePdf ">
+            <div class="w-100 mt-2" style="font-size: 0.92em ">
                 Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}&nbsp;{{facture.deviseLettre}}</span>
             </div>
         </div>
-        <div class="w-100 text-right sizePdf mt-3">
+        <div class="w-100 text-right mt-3" style="font-size: 0.92em ">
             <span>Fait à {{facture.lieu}}, le {{facture.date}}</span>
         </div>
-        <h5 class="title_form text-black sizePdf text-uppercase text-left mt-3 px-3"><span></span><span style="margin-left:450px !important;">Signature</span></h5>
+        <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span></span><span style="margin-left:390px !important;">Signature</span></h5>
     </div>
 </div>
 <footer>
-  <hr>
   {{contentBas|raw}}
 </footer>
 

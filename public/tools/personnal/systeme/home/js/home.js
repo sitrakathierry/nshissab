@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    var instance = new Loading(files.loading)
     // var data = [
     //     [0, 4],
     //     [1, 8],
@@ -95,71 +96,197 @@ $(document).ready(function() {
         })
     })
 
-    Morris.Donut({
-        element: 'donut_client',
-        data: clientDonut,
-        formatter: function (x) { return x + "%"}
-      }).on('click', function(i, row){
-        console.log(i, row);
-    });
+    try 
+    {
+        Morris.Donut({
+            element: 'donut_client',
+            data: clientDonut,
+            formatter: function (x) { return x + "%"}
+          }).on('click', function(i, row){
+            console.log(i, row);
+        });
+    
+        Morris.Donut({
+            element: 'donut_facture',
+            data: factureDonut,
+            formatter: function (x) { return x + "%"}
+          }).on('click', function(i, row){
+            console.log(i, row);
+        });
+    
+        // Use Morris.Bar
+        Morris.Bar({
+            element: 'bar_article',
+            data: [
+                {x: 'Article(s)', y: 25, z: 5, a: 1},
+                // {x: '2011 Q2', y: 2, z: null, a: 1},
+                // {x: '2011 Q3', y: 0, z: 2, a: 4},
+                // {x: '2011 Q4', y: 2, z: 4, a: 3}
+            ],
+            xkey: 'x',
+            ykeys: ['y', 'z', 'a'],
+            labels: ['En Cours', 'Expiré', 'Déduit']
+            }).on('click', function(i, row){
+            console.log(i, row);
+        });
+    
+        // Use Morris.Area instead of Morris.Line
+        Morris.Area({
+            element: 'area_caisse',
+            data: [
+                {x: '2023-08-25', y: 3, z: 30000},
+                {x: '2023-08-12', y: 6, z: 60000},
+                {x: '2023-07-03', y: 2, z: 20000},
+                // {x: '2011 Q2', y: null, z: 1},
+                // {x: '2011 Q3', y: 2, z: 5},
+                // {x: '2011 Q4', y: 8, z: 2},
+                // {x: '2012 Q1', y: 4, z: 4}
+            ],
+            xkey: 'x',
+            ykeys: ['y'],
+            ykeys: ['y', 'z'],
+            labels: ['Vente','Montant']
+            }).on('click', function(i, row){
+            console.log(i, row);
+        });
+    
+        // Use Morris.Bar
+        Morris.Bar({
+            element: 'line_bon',
+            data: [
+                {x: 'Bon commande(s)', y: 25, z: 5, a: 8},
+                {x: 'Bon Livraison(s)', y: 2, z: 5},
+                // {x: '2011 Q3', y: 0, z: 2, a: 4},
+                // {x: '2011 Q4', y: 2, z: 4, a: 3}
+            ],
+            xkey: 'x',
+            ykeys: ['y', 'z', 'a'],
+            labels: ['En Cours', 'Validée', 'Supprimée']
+            }).on('click', function(i, row){
+            console.log(i, row);
+        });
+    }
+    catch (error) {
+        console.log(error)
+    }
+    
+    $(document).on("click",".btn_edit_dep",function(){
+        var tabElem = [
+            "#home_user_nom",
+            "#home_user_email",
+            "#home_user_resp",
+        ] ;
 
-    Morris.Donut({
-        element: 'donut_facture',
-        data: factureDonut,
-        formatter: function (x) { return x + "%"}
-      }).on('click', function(i, row){
-        console.log(i, row);
-    });
+        for (let i = 0; i < tabElem.length; i++) {
+            const element = tabElem[i];
+            $(element).removeClass("text-primary") ;
+            $(element).addClass("text-success") ;
+            $(element).removeAttr("readonly") ;
+        }
 
-    // Use Morris.Bar
-    Morris.Bar({
-        element: 'bar_article',
-        data: [
-            {x: 'Article(s)', y: 25, z: 5, a: 1},
-            // {x: '2011 Q2', y: 2, z: null, a: 1},
-            // {x: '2011 Q3', y: 0, z: 2, a: 4},
-            // {x: '2011 Q4', y: 2, z: 4, a: 3}
-        ],
-        xkey: 'x',
-        ykeys: ['y', 'z', 'a'],
-        labels: ['En Cours', 'Expiré', 'Déduit']
-        }).on('click', function(i, row){
-        console.log(i, row);
-    });
+        $(this).parent().html(`
+        <button type="button" class="btn btn-sm ml-3 btn_annule_modif btn-purple font-weight-bold text-white"><i class="fa fa-times"></i>&nbsp;Annuler</button>
+        <button type="submit" class="btn btn-sm ml-3 btn-warning font-weight-bold text-white"><i class="fa fa-edit"></i>&nbsp;Mettre à jour</button>
+        `)
+    }) ;
 
-    // Use Morris.Area instead of Morris.Line
-    Morris.Area({
-        element: 'area_caisse',
-        data: [
-            {x: '2023-08-25', y: 3, z: 30000},
-            {x: '2023-08-12', y: 6, z: 60000},
-            {x: '2023-07-03', y: 2, z: 20000},
-            // {x: '2011 Q2', y: null, z: 1},
-            // {x: '2011 Q3', y: 2, z: 5},
-            // {x: '2011 Q4', y: 8, z: 2},
-            // {x: '2012 Q1', y: 4, z: 4}
-        ],
-        xkey: 'x',
-        ykeys: ['y'],
-        ykeys: ['y', 'z'],
-        labels: ['Vente','Montant']
-        }).on('click', function(i, row){
-        console.log(i, row);
-    });
+    $(document).on("click",".btn_annule_modif",function(){
+        location.reload() ;
+    })
 
-    // Use Morris.Bar
-    Morris.Bar({
-        element: 'line_bon',
-        data: [
-            {x: 'Bon commande(s)', y: 25, z: 5, a: 8},
-            {x: 'Bon Livraison(s)', y: 2, z: 5},
-            // {x: '2011 Q3', y: 0, z: 2, a: 4},
-            // {x: '2011 Q4', y: 2, z: 4, a: 3}
-        ],
-        xkey: 'x',
-        ykeys: ['y', 'z', 'a'],
-        labels: ['En Cours', 'Validée', 'Supprimée']
-        }).on('click', function(i, row){
-        console.log(i, row);
-    });
+    $(document).on("click",".btn_annule_mdp",function(){
+        $(this).closest(".text-left").parent().html(`
+        <button type="button" class="btn btn_mdp_form btn-info btn-sm"><i class="fa fa-database"></i>&nbsp;Modifier mot de passe</button>
+        `) ;
+    })
+
+    $("#formUser").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Modification",
+            content:"Êtes-vous sûre ?",
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var data = self.serialize() ;
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.home_profil_utilisateur_update,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
+
+    $(document).on("click",".btn_mdp_form",function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.home_user_mdp_form,
+            type:'post',
+            cache: false,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                self.parent().html(response) ;
+                $(".btn_edit_dep").click() ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }) ;
+
+    $(document).on("click",".disp_mdp",function(){
+        var target = $(this).data("target") ;
+        if($(target).attr("type") == "text")
+        {
+            $(target).attr("type","password") ;
+            $(this).html('<i class="fa fa-eye-slash" ></i>')
+        }
+        else
+        {
+            $(target).attr("type","text") ;
+            $(this).html('<i class="fa fa-eye" ></i>')
+        }
+    }) ;
+
 });
