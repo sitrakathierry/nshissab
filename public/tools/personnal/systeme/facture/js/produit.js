@@ -296,6 +296,7 @@ $(document).ready(function(){
                     <input type="hidden" value="`+fact_text_prix+`" name="fact_enr_text_prix[]" class="fact_enr_text_prix"> 
                 </td>
                 <td>
+                
                     `+(fact_valeur_tva == 0 ? "" : fact_valeur_tva)+` `+ (fact_mod_prod_tva_val == "" ? "" : "("+fact_mod_prod_tva_val+"%)") +` 
                     <input type="hidden" value="`+fact_mod_prod_tva_val+`" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val"> 
                 </td>
@@ -345,16 +346,17 @@ $(document).ready(function(){
         
         var remiseType = $("#fact_type_remise_prod_general").val()
         var selectedTypeRemise = $("#fact_type_remise_prod_general").find("option:selected")
-        var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : parseFloat($("#fact_remise_prod_general").val())
-        
+        var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : Number($("#fact_remise_prod_general").val()) ;
+
         $(".elem_facture_produit tr").each(function(){
             var quantiteLigne = $(this).find(".fact_enr_prod_quantite").val() ;
             var prixLigne = $(this).find(".fact_enr_text_prix").val() ;
             var tvaLigne = $(this).find(".fact_enr_prod_tva_val").val() ; 
             var totalLigne = $(this).find(".fact_enr_total_ligne").val() ;
 
-            totalHT += parseFloat(totalLigne) ;
-            totalTva += (((parseFloat(tvaLigne) * parseFloat(prixLigne)) / 100) * parseFloat(quantiteLigne)) ;
+            totalHT += Number(totalLigne) ;
+            var valTva = ((Number(tvaLigne) * Number(prixLigne)) / 100) * Number(quantiteLigne)
+            totalTva = totalTva + valTva ;
         })
 
         var remise = 0 ;
@@ -366,6 +368,7 @@ $(document).ready(function(){
         totalApresDeduction = totalHT - remise ; 
         
         var lettreTotal = NumberToLetter(totalTTC)
+
         $("#fact_total_fixe").text(totalHT)
 
         $("#fact_total_apres_deduction").text(totalApresDeduction)

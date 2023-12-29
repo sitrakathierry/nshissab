@@ -117,7 +117,7 @@
                             <td class="align-middle sav_modif_quantite">{{ factureDetail.quantite }}</td>
                             <td class="align-middle">{{ factureDetail.format }}</td>
                             <td class="align-middle">{{ factureDetail.prix }}</td>
-                            <td class="align-middle sav_modif_tva">{{ factureDetail.tva }}</td>
+                            <td class="align-middle sav_modif_tva">{{factureDetail.tva}} ({{factureDetail.percentTva}}%)</td>
                             <td class="align-middle">{{ factureDetail.typeRemise }}</td>
                             <td class="align-middle">{{ factureDetail.valRemise }}</td>
                             <td class="align-middle sav_modif_mtn_total">{{ factureDetail.total }}</td>
@@ -128,7 +128,7 @@
                                 <input type="hidden" value="{{factureDetail.quantite}}" name="fact_enr_prod_quantite[]" class="fact_enr_prod_quantite"> 
                                 <input type="hidden" value="{{factureDetail.prix}}" name="fact_enr_prod_prix[]" class="fact_enr_prod_prix"> 
                                 <input type="hidden" value="{{factureDetail.prix}}" name="fact_enr_text_prix[]" class="fact_enr_text_prix"> 
-                                <input type="hidden" value="{{factureDetail.tva}}" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val">
+                                <input type="hidden" value="{{factureDetail.percentTva}}" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val">
                                 <input type="hidden" value="-" name="fact_enr_prod_remise_type[]" class="fact_enr_prod_remise_type"> 
                                 <input type="hidden" value="-" name="fact_enr_prod_remise[]" class="fact_enr_prod_remise"> 
                                 <input type="hidden" id="fact_enr_ligne_spec_quantite" value="{{factureDetail.quantite}}">
@@ -172,7 +172,7 @@
                     </tr>
                     <tr> 
                         <th colspan="8">Montant après déduction</th>
-                        <th class="bg-light"><span id="fact_total_apres_deduction"></span></th>
+                        <th class="bg-light"><span id="fact_total_apres_deduction">{{facture.totalHt - facture.remise}}</span></th>
                         <td colspan="2" class="bg-light"></td>
                     </tr>
                     <tr>
@@ -202,7 +202,7 @@
                 </tfoot>
             </table>
         <div class="w-100">
-            Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> {{app.session.get("user")["deviseLettre"]}}
+            Arrêté la présente facture à la somme de <span id="fact_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> {{app.session.get("user")["deviseLettre"]}}
         </div>
     </div>
     <div class="row">

@@ -94,6 +94,9 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?bool $synchro = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isUpdated = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -525,6 +528,18 @@ class Facture
     public function setSynchro(?bool $synchro): self
     {
         $this->synchro = $synchro;
+
+        return $this;
+    }
+
+    public function isIsUpdated(): ?bool
+    {
+        return $this->isUpdated;
+    }
+
+    public function setIsUpdated(?bool $isUpdated): self
+    {
+        $this->isUpdated = $isUpdated;
 
         return $this;
     }

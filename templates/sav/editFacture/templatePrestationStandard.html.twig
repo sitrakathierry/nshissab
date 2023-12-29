@@ -128,7 +128,7 @@
                                 <input type="hidden" value="{{factureDetail.quantite}}" name="fact_enr_prod_quantite[]" class="fact_enr_prod_quantite"> 
                                 <input type="hidden" value="{{factureDetail.prix}}" name="fact_enr_prod_prix[]" class="fact_enr_prod_prix"> 
                                 <input type="hidden" value="{{factureDetail.prix}}" name="fact_enr_text_prix[]" class="fact_enr_text_prix"> 
-                                <input type="hidden" value="{{factureDetail.tva}}" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val">
+                                <input type="hidden" value="{{factureDetail.percentTva}}" name="fact_enr_prod_tva_val[]" class="fact_enr_prod_tva_val">
                                 <input type="hidden" id="fact_enr_ligne_spec_quantite" value="{{factureDetail.quantite}}">
                                 <input type="hidden" id="fact_percent_tva_ligne" value="{{factureDetail.percentTva}}">
                                 <input type="hidden" value="-" name="fact_enr_prod_remise_type[]" class="fact_enr_prod_remise_type"> 
@@ -172,7 +172,7 @@
                     </tr>
                     <tr> 
                         <th colspan="8">Montant après déduction</th>
-                        <th class="bg-light"><span id="fact_total_apres_deduction"></span></th>
+                        <th class="bg-light"><span id="fact_total_apres_deduction">{{facture.totalHt - facture.remise}}</span></th>
                         <td colspan="2" class="bg-light"></td>
                     </tr>
                     <tr>

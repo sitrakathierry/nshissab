@@ -438,6 +438,56 @@ $(document).ready(function(){
         $("#formSavModifFacture").submit()
     })
 
+    function calculFacture()
+    {
+        var totalHT = 0
+        var totalTva = 0
+        var totalTTC = 0
+        var totalApresDeduction = 0
+        
+        var remiseType = $("#fact_type_remise_prod_general").val()
+        var selectedTypeRemise = $("#fact_type_remise_prod_general").find("option:selected")
+        var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : Number($("#fact_remise_prod_general").val()) ;
+
+        $(".elem_facture_produit tr").each(function(){
+            var quantiteLigne = $(this).find(".fact_enr_prod_quantite").val() ;
+            var prixLigne = $(this).find(".fact_enr_text_prix").val() ;
+            var tvaLigne = $(this).find(".fact_enr_prod_tva_val").val() ; 
+            var totalLigne = $(this).find(".fact_enr_total_ligne").val() ;
+
+            totalHT += Number(totalLigne) ;
+            var valTva = ((Number(tvaLigne) * Number(prixLigne)) / 100) * Number(quantiteLigne)
+            totalTva = totalTva + valTva ;
+        })
+
+        var remise = 0 ;
+
+        if(selectedTypeRemise.data("calcul") != "")
+            remise = selectedTypeRemise.data("calcul") == 1 ? remiseVal : (totalHT * remiseVal) / 100 
+
+        totalTTC = (totalHT + totalTva) - remise ;
+        totalApresDeduction = totalHT - remise ; 
+        
+        var lettreTotal = NumberToLetter(totalTTC)
+
+        $("#fact_total_fixe").text(totalHT)
+
+        $("#fact_total_apres_deduction").text(totalApresDeduction)
+
+        $("#fact_total_tva").text(totalTva)
+        $(".fact_enr_total_tva").val(totalTva)
+        
+        $("#agd_total_facture").text(totalTTC)  
+
+        $("#agd_total_restant").text(totalTTC)
+        $("#agd_val_total_restant").val(totalTTC)
+
+        $("#fact_total_general").text(totalTTC)
+        $(".fact_enr_total_general").val(totalTTC)
+
+        $("#fact_somme_lettre").text(lettreTotal) ;
+    }
+
     $(document).on("click",".sav_ligne_modif_facture",function(){
         var fact_detail_modele = $("#fact_detail_modele").val()
         var designation = ""
@@ -496,7 +546,7 @@ $(document).ready(function(){
                                 self.closest("tr").find(".sav_modif_tva").text(json.valTva)
                                 self.closest("tr").find(".sav_modif_mtn_total").text(json.valMtnTotal)
                                 self.closest("tr").find(".fact_enr_prod_quantite").val(json.valQte)
-                                self.closest("tr").find(".fact_enr_prod_tva_val").val(json.valTva)
+                                self.closest("tr").find(".fact_enr_prod_tva_val").val(json.percentTva)
                                 self.closest("tr").find(".fact_enr_total_ligne").val(json.valMtnTotal)
                                 self.closest("tr").find("#fact_enr_ligne_spec_quantite").val(json.valQte)
                                 self.closest("tr").find("#fact_percent_tva_ligne").val(json.percentTva)
@@ -513,6 +563,7 @@ $(document).ready(function(){
                                 //     //     }
                                 //     // }
                                 // });
+                                calculFacture()
                             },
                             error: function(resp){
                                 realinstance.close()

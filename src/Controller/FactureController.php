@@ -374,7 +374,7 @@ class FactureController extends AbstractController
     public function factureConsultation(): Response
     { 
         
-
+        $this->appService->synchronisationFacture($this->agence) ;
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
@@ -672,6 +672,8 @@ class FactureController extends AbstractController
     #[Route('/facture/contenu/facture/modif', name: 'fact_content_facture_modif')]
     public function factureContenuModifFacture(Request $request)
     {
+        $this->appService->synchronisationFacture($this->agence) ;
+
         $idFacture = $request->request->get("idFacture") ;
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
 
@@ -736,7 +738,8 @@ class FactureController extends AbstractController
         $elements = [] ;
 
         foreach ($factureDetails as $factureDetail) {
-            $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+            $tvaVal = (empty($factureDetail->getTvaVal()) || is_null($factureDetail->getTvaVal())) ? 0 : $factureDetail->getTvaVal() ;
+            $tva = (($factureDetail->getPrix() * $tvaVal ) / 100) * $factureDetail->getQuantite();
             $total = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
 
             $infoSupDetail = $this->entityManager->getRepository(FactSupDetailsPbat::class)->findOneBy([
@@ -754,7 +757,7 @@ class FactureController extends AbstractController
             $element["quantite"] = $factureDetail->getQuantite() ;
             $element["format"] = "-" ;
             $element["prix"] = $factureDetail->getPrix() ;
-            $element["tva"] = ($tva == 0) ? 0 : $tva ;
+            $element["tva"] = $tva ;
             $element["percentTva"] = $factureDetail->getTvaVal() ;
             $element["typeRemise"] = is_null($factureDetail->getRemiseType()) ? "-" : $factureDetail->getRemiseType()->getNotation() ;
             $element["valRemise"] = $factureDetail->getRemiseVal() ;
@@ -883,7 +886,7 @@ class FactureController extends AbstractController
         $factureDetail->getFacture()->setSynchro(null) ;
         $this->entityManager->flush() ;
 
-        $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite();
+        $tva = (($factureDetail->getPrix() * $factureDetail->getTvaVal()) / 100) * $factureDetail->getQuantite() ;
         $total = $factureDetail->getPrix()  * $factureDetail->getQuantite();
 
         return new JsonResponse([
@@ -891,6 +894,7 @@ class FactureController extends AbstractController
             "message" => "Modification effectué, cliquer sur enregistrer une fois toutes les modifications terminé",
             "valQte" => $sav_elem_quantite,
             "valTva" => $tva,
+            "percentTva" => $sav_elem_tva,
             "valMtnTotal" => $total,
             "percentTva" => $sav_elem_tva,
             ]) ;
@@ -2018,11 +2022,22 @@ class FactureController extends AbstractController
         $cmd_lieu = $request->request->get("cmd_lieu") ;
         $cmd_date = $request->request->get("cmd_date") ;
         
-        $facture = $this->entityManager->getRepository(Facture::class)->find($fact_id_facture) ;
+        $fact_type_remise_prod_general = !empty($request->request->get('fact_type_remise_prod_general')) ? $this->entityManager->getRepository(FactRemiseType::class)->find($request->request->get('fact_type_remise_prod_general')) : null ; 
+        if(!is_null($fact_type_remise_prod_general))
+            $fact_remise_prod_general = !empty($request->request->get('fact_remise_prod_general')) ? $request->request->get('fact_remise_prod_general') : null ; 
+        else
+            $fact_remise_prod_general = null ;
 
+        $facture = $this->entityManager->getRepository(Facture::class)->find($fact_id_facture) ;
+        
+        $facture->setRemiseType($fact_type_remise_prod_general) ;
+        $facture->setRemiseVal($fact_remise_prod_general) ;
         $facture->setDescription($facture_editor) ; 
         $facture->setLieu($cmd_lieu) ; 
+        $facture->setIsUpdated(True) ; 
         $facture->setDate(\DateTime::createFromFormat("d/m/Y",$cmd_date)) ; 
+
+
         $this->entityManager->flush() ; 
 
         if($fact_detail_modele == "PROD" || $fact_detail_modele == "PSTD") // Produit ou Prestation Standard

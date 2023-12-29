@@ -3656,4 +3656,48 @@ class AppService extends AbstractController
 
 
     }
+
+    public function synchronisationFacture($agence)
+    {
+        $factures = $this->entityManager->getRepository(Facture::class)->findBy([
+            "agence" => $agence,
+            "statut" => True,
+            "isUpdated" => True
+        ],[
+            "id" => "DESC"
+            ]
+        ) ; 
+
+        foreach ($factures as $facture) {
+            $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "facture" => $facture,
+                "statut" => True ]
+            ) ; 
+
+            $totalGHt = 0 ;
+            $totalTva = 0 ;
+
+            foreach ($details as $factureDetail) {
+                $tvaVal = (empty($factureDetail->getTvaVal()) || is_null($factureDetail->getTvaVal())) ? 0 : $factureDetail->getTvaVal() ;
+                $tva = (($factureDetail->getPrix() * $tvaVal) / 100) * $factureDetail->getQuantite();
+                $totalDHt = $factureDetail->getPrix() * $factureDetail->getQuantite()  ;
+                $remise = $this->getFactureRemise($factureDetail,$totalDHt) ;
+                $totalDHt = $totalDHt - $remise ;
+
+                $totalGHt += $totalDHt ;
+                $totalTva += $tva ;
+            }
+
+            $remiseGeneral = $this->getFactureRemise($facture,$totalGHt) ;
+            $totalTTC = $totalGHt + $totalTva - $remiseGeneral ;
+
+            $facture->setTvaVal(floatval($totalTva)) ;
+            $facture->setTotal(floatval($totalTTC)) ;
+            $facture->setIsUpdated(null) ;
+
+            $this->entityManager->flush() ;
+        }
+
+    }
+
 }
