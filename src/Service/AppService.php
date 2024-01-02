@@ -3670,7 +3670,7 @@ class AppService extends AbstractController
         ]) ; 
 
         foreach ($donnees as $donnee) {
-            $donnee->setAnneeData($donnee->gatDate()->format('Y')) ;
+            $donnee->setAnneeData($donnee->getDate()->format('Y')) ;
             $this->entityManager->flush() ;
         }
     }
