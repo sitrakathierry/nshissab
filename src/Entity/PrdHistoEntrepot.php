@@ -48,6 +48,9 @@ class PrdHistoEntrepot
     #[ORM\OneToMany(mappedBy: 'histoEntrepot', targetEntity: CaissePanier::class)]
     private Collection $caissePaniers;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $anneeData = null;
+
     public function __construct()
     {
         $this->prdDeductions = new ArrayCollection();
@@ -242,6 +245,18 @@ class PrdHistoEntrepot
                 $caissePanier->setHistoEntrepot(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAnneeData(): ?int
+    {
+        return $this->anneeData;
+    }
+
+    public function setAnneeData(?int $anneeData): self
+    {
+        $this->anneeData = $anneeData;
 
         return $this;
     }

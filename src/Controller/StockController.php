@@ -299,6 +299,7 @@ class StockController extends AbstractController
             $histoEntrepot->setStock($crt_stock[$key]) ;
             $histoEntrepot->setStatut(True) ;
             $histoEntrepot->setAgence($this->agence) ;
+            $histoEntrepot->setAnneeData(date('Y')) ;
             $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
             $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
 
@@ -2371,6 +2372,7 @@ class StockController extends AbstractController
             $histoEntrepot->setIndice(empty($prod_variation_indice) ? null : $prod_variation_indice ) ;
             $histoEntrepot->setStock(floatval($prod_variation_stock)) ;
             $histoEntrepot->setStatut(True) ;
+            $histoEntrepot->setAnneeData(date('Y')) ;
             $histoEntrepot->setAgence($this->agence) ;
             $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
             $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
