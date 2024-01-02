@@ -3663,7 +3663,9 @@ class AppService extends AbstractController
 
     public function updateAnneeData()
     {
-        $donnees = $this->entityManager->getRepository(Produit::class)->findAll() ; 
+        $donnees = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence
+        ]) ; 
 
         foreach ($donnees as $donnee) {
             $donnee->setAnneeData($donnee->getCreatedAt()->format('Y')) ;
