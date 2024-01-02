@@ -42,6 +42,9 @@ class CaissePanier
     #[ORM\OneToMany(mappedBy: 'caisseDetail', targetEntity: SavDetails::class)]
     private Collection $savDetails;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $anneeData = null;
+
     public function __construct()
     {
         $this->savDetails = new ArrayCollection();
@@ -174,6 +177,18 @@ class CaissePanier
                 $savDetail->setCaisseDetail(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAnneeData(): ?int
+    {
+        return $this->anneeData;
+    }
+
+    public function setAnneeData(?int $anneeData): self
+    {
+        $this->anneeData = $anneeData;
 
         return $this;
     }

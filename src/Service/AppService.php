@@ -1282,7 +1282,8 @@ class AppService extends AbstractController
     {
         $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
             "agence" => $agence,
-            "statut" => True
+            "statut" => True,
+            "anneeData" => date('Y')
         ],["id" => "DESC"]) ;
 
         $elements = [] ;
@@ -3704,6 +3705,17 @@ class AppService extends AbstractController
             $histoEntrepot->setAnneeData($histoEntrepot->getCreatedAt()->format('Y')) ;
             $this->entityManager->flush() ;
         }
+
+        $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+            "agence" => $this->agence,
+            "anneeData" => NULL,
+        ]) ; 
+
+        foreach ($caissePaniers as $caissePanier) {
+            $caissePanier->setAnneeData($caissePanier->getCommande()->getDate()->format('Y')) ;
+            $this->entityManager->flush() ;
+        }
+
     }
 
     public function synchronisationFacture($agence)

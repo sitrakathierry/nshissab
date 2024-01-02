@@ -145,6 +145,7 @@ class CaisseController extends AbstractController
             $panier->setQuantite($csenr_quantite[$key]) ;
             $panier->setTva($csenr_tva[$key]) ;
             $panier->setStatut(True) ;
+            $panier->setAnneeData(date('Y')) ;
 
             $this->entityManager->persist($panier) ;
             $this->entityManager->flush() ;
@@ -181,6 +182,8 @@ class CaisseController extends AbstractController
     #[Route('/caisse/vente/liste', name: 'caisse_liste_vente')]
     public function caisseListeVente()
     {
+        $this->appService->updateAnneeData() ;
+
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
         $filename = $this->filename."panierCommande(agence)/".$this->nameAgence ; 
