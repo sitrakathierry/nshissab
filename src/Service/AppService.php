@@ -1210,6 +1210,7 @@ class AppService extends AbstractController
         $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
             "agence" => $agence,
             "statut" => True,
+            ""
         ],[
             "entrepot" => "ASC"
         ]) ;
@@ -3664,12 +3665,12 @@ class AppService extends AbstractController
 
     public function updateAnneeData()
     {
-        $donnees = $this->entityManager->getRepository(Produit::class)->findBy([
+        $donnees = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $this->agence
         ]) ; 
 
         foreach ($donnees as $donnee) {
-            $donnee->setAnneeData($donnee->getCreatedAt()->format('Y')) ;
+            $donnee->setAnneeData($donnee->gatDate()->format('Y')) ;
             $this->entityManager->flush() ;
         }
     }
