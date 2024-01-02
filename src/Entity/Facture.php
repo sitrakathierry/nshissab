@@ -97,6 +97,9 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?bool $isUpdated = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $anneeData = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -540,6 +543,18 @@ class Facture
     public function setIsUpdated(?bool $isUpdated): self
     {
         $this->isUpdated = $isUpdated;
+
+        return $this;
+    }
+
+    public function getAnneeData(): ?int
+    {
+        return $this->anneeData;
+    }
+
+    public function setAnneeData(?int $anneeData): self
+    {
+        $this->anneeData = $anneeData;
 
         return $this;
     }

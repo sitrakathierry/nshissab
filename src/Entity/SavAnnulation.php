@@ -70,6 +70,9 @@ class SavAnnulation
     #[ORM\ManyToOne(inversedBy: 'savAnnulations')]
     private ?CaisseCommande $caisse = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $anneeData = null;
+
     public function __construct()
     {
         $this->savDetails = new ArrayCollection();
@@ -310,6 +313,18 @@ class SavAnnulation
     public function setCaisse(?CaisseCommande $caisse): self
     {
         $this->caisse = $caisse;
+
+        return $this;
+    }
+
+    public function getAnneeData(): ?int
+    {
+        return $this->anneeData;
+    }
+
+    public function setAnneeData(?int $anneeData): self
+    {
+        $this->anneeData = $anneeData;
 
         return $this;
     }

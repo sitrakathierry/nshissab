@@ -373,12 +373,12 @@ class FactureController extends AbstractController
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
     { 
-        
+        // $this->appService->updateAnneeData() ;
         $this->appService->synchronisationFacture($this->agence) ;
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
-
+ 
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
 
@@ -1650,8 +1650,11 @@ class FactureController extends AbstractController
             $client = $this->entityManager->getRepository(CltHistoClient::class)->find($fact_client) ; 
         }
  
-        $lastRecordFacture = $this->entityManager->getRepository(Facture::class)->findOneBy([], ['id' => 'DESC']);
-        $numFacture = !is_null($lastRecordFacture) ? ($lastRecordFacture->getId()+1) : 1 ;
+        $recordFacture = $this->entityManager->getRepository(Facture::class)->findBy([ 
+            "agence" => $this->agence,
+            "anneeData" => date('Y')
+        ], ['id' => 'DESC']);
+        $numFacture = !is_null($recordFacture) ? (count($recordFacture) + 1) : 1 ;
         $numFacture = str_pad($numFacture, 3, "0", STR_PAD_LEFT);
         $numFacture = $type->getReference()."-".$numFacture."/".date('y') ; 
         
@@ -1701,6 +1704,7 @@ class FactureController extends AbstractController
         $facture->setTotal(floatval($fact_enr_total_general)) ;
         $facture->setDevise($fact_enr_val_devise) ;
         $facture->setStatut(True) ;
+        $facture->setAnneeData($dateTime->format('Y')) ;
         $facture->setCreatedAt(new \DateTimeImmutable) ;
         $facture->setUpdatedAt(new \DateTimeImmutable) ;
 

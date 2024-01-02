@@ -598,6 +598,7 @@ class SAVController extends AbstractController
         $annulation->setLieu($sav_lieu) ;
         $annulation->setExplication($sav_annule_editor) ;
         $annulation->setStatut(True) ;
+        $annulation->setAnneeData(\DateTime::createFromFormat('j/m/Y',$sav_date)->format('Y')) ;
         $annulation->setCreatedAt(new \DateTimeImmutable) ;
         $annulation->setUpdatedAt(new \DateTimeImmutable) ;
 

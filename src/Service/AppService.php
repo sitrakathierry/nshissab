@@ -1372,7 +1372,8 @@ class AppService extends AbstractController
     {
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $agence,
-            "statut" => True
+            "statut" => True,
+            "anneeData" => date('Y')
         ],[
             "id" => "DESC"
             ]
@@ -1586,7 +1587,8 @@ class AppService extends AbstractController
     {
         $annulations = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
             "statut" => True,
-            "agence" => $agence
+            "agence" => $agence,
+            "anneeData" => date('Y')
         ]) ;
 
         $elements = [] ;
@@ -3655,6 +3657,16 @@ class AppService extends AbstractController
         }
 
 
+    }
+
+    public function updateAnneeData()
+    {
+        $donnees = $this->entityManager->getRepository(SavAnnulation::class)->findAll() ; 
+
+        foreach ($donnees as $donnee) {
+            $donnee->setAnneeData($donnee->getDate()->format('Y')) ;
+            $this->entityManager->flush() ;
+        }
     }
 
     public function synchronisationFacture($agence)
