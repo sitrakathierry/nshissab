@@ -661,7 +661,8 @@ class AppService extends AbstractController
     {
         $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $agence,
-            "statut" => True
+            "statut" => True,
+            "anneeData" => date('Y'),
         ]) ;
         
         $elements = [] ;
