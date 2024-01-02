@@ -95,17 +95,20 @@
                     <tbody class="elem_facture">
                         {% set totalGeneral = 0 %}
                         {% for facture in factures %}
-                            <tr>
-                                <td>{{ facture.numFact }}</td>
-                                <td>{{ facture.modele|upper}}</td>
-                                <td>{{ facture.type|upper}}</td>
-                                <td>{{ facture.dateCreation }}</td>
-                                <td>{{ facture.dateFacture }}</td>
-                                <td>{{ facture.client|upper}}</td>
-                                <td>{{ facture.total }}</td>
-                                <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id,'nature':facture.nature})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
-                            </tr>  
-                            {% set totalGeneral = totalGeneral + facture.total %}
+                            {% set annee_actuel = 'now'|date('Y') %}
+                            {% if facture.annee == annee_actuel %}
+                                <tr>
+                                    <td>{{ facture.numFact }}</td>
+                                    <td>{{ facture.modele|upper}}</td>
+                                    <td>{{ facture.type|upper}}</td>
+                                    <td>{{ facture.dateCreation }}</td>
+                                    <td>{{ facture.dateFacture }}</td>
+                                    <td>{{ facture.client|upper}}</td>
+                                    <td>{{ facture.total }}</td>
+                                    <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id,'nature':facture.nature})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
+                                </tr>  
+                                {% set totalGeneral = totalGeneral + facture.total %}
+                            {% endif %}
                         {% endfor %}
                         <tr>
                             <th colspan="6">Total General</th>

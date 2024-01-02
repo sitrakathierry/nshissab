@@ -662,7 +662,6 @@ class AppService extends AbstractController
         $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $agence,
             "statut" => True,
-            "anneeData" => date('Y'),
         ]) ;
         
         $elements = [] ;
@@ -814,7 +813,6 @@ class AppService extends AbstractController
         $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $agence,
             "statut" => True,
-            "anneeData" => date('Y')
         ]) ;
 
         $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
@@ -1210,7 +1208,6 @@ class AppService extends AbstractController
         $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
             "agence" => $agence,
             "statut" => True,
-            "anneeData" => date('Y')
         ],[
             "entrepot" => "ASC"
         ]) ;
@@ -1283,13 +1280,15 @@ class AppService extends AbstractController
         $panierCommandes = $this->entityManager->getRepository(CaissePanier::class)->findBy([
             "agence" => $agence,
             "statut" => True,
-            "anneeData" => date('Y')
         ],["id" => "DESC"]) ;
 
         $elements = [] ;
 
         foreach ($panierCommandes as $panierCommande) {
             $element = [] ;
+
+            if($panierCommande->getCommande()->getDate()->format('Y') != date('Y'))
+                continue ;
 
             $element["id"] = $panierCommande->getCommande()->getId() ;
             $element["date"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
@@ -1378,7 +1377,6 @@ class AppService extends AbstractController
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $agence,
             "statut" => True,
-            "anneeData" => date('Y')
         ],[
             "id" => "DESC"
             ]
@@ -1593,13 +1591,11 @@ class AppService extends AbstractController
         $annulations = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
             "statut" => True,
             "agence" => $agence,
-            "anneeData" => date('Y')
         ]) ;
 
         $elements = [] ;
 
         foreach ($annulations as $annulation) {
-
             $facture = $annulation->getFacture() ;
             if(!is_null($facture))
             {
@@ -1636,6 +1632,7 @@ class AppService extends AbstractController
             $element["agence"] = $annulation->getAgence()->getId() ;
             $element["user"] = $annulation->getUser()->getId() ;
             $element["date"] = $annulation->getDate()->format('d/m/Y') ;
+            $element["annee"] = $annulation->getDate()->format('Y') ;
             $element["lieu"] = $annulation->getLieu() ;
             $element["typeAffiche"] = is_null($annulation->getFacture()) ? "CAISSE" : "FACTURE" ;
             $element["numero"] = $annulation->getNumFact() ;
@@ -1670,6 +1667,15 @@ class AppService extends AbstractController
 
         $elements = [] ;
         foreach ($finances as $finance) {
+
+            if($finance->getCreatedAt()->format('Y') != date('Y'))
+            {
+                if($finance->getStatut()->getReference() != 'ECR')
+                {
+                    continue;
+                }
+            }
+                
             $client = $this->getFactureClient($finance->getFacture())["client"] ;
             $facture = $finance->getFacture() ;
             $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;
@@ -3666,7 +3672,7 @@ class AppService extends AbstractController
 
     public function updateAnneeData()
     {
-        $factures = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+        $factures = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $this->agence,
             "anneeData" => NULL,
         ]) ; 
