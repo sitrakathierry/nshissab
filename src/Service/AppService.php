@@ -775,7 +775,8 @@ class AppService extends AbstractController
     {
         $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $agence,
-            "statut" => True
+            "statut" => True,
+            "anneeData" => date('Y'),
         ]) ;
 
         $types = $this->entityManager->getRepository(PrdType::class)->findBy([
@@ -811,7 +812,8 @@ class AppService extends AbstractController
     {
         $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $agence,
-            "statut" => True
+            "statut" => True,
+            "anneeData" => date('Y')
         ]) ;
 
         $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
@@ -3661,10 +3663,10 @@ class AppService extends AbstractController
 
     public function updateAnneeData()
     {
-        $donnees = $this->entityManager->getRepository(SavAnnulation::class)->findAll() ; 
+        $donnees = $this->entityManager->getRepository(Produit::class)->findAll() ; 
 
         foreach ($donnees as $donnee) {
-            $donnee->setAnneeData($donnee->getDate()->format('Y')) ;
+            $donnee->setAnneeData($donnee->getCreatedAt()->format('Y')) ;
             $this->entityManager->flush() ;
         }
     }

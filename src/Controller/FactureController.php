@@ -373,7 +373,7 @@ class FactureController extends AbstractController
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
     { 
-        // $this->appService->updateAnneeData() ;
+        $this->appService->updateAnneeData() ;
         $this->appService->synchronisationFacture($this->agence) ;
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
 

@@ -245,6 +245,7 @@ class StockController extends AbstractController
         $produit->setUnite($unite_produit) ;
         $produit->setStock(null) ;
         $produit->setStatut(True) ;
+        $produit->setAnneeData(date('Y')) ;
         $produit->setToUpdate(True) ;
         $produit->setCreatedAt(new \DateTimeImmutable) ;
         $produit->setUpdatedAt(new \DateTimeImmutable) ;
@@ -507,6 +508,7 @@ class StockController extends AbstractController
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
     {   
+        $this->appService->updateAnneeData() ;
         $this->appService->synchronisationGeneral() ;
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;

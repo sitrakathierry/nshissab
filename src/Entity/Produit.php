@@ -68,6 +68,9 @@ class Produit
     #[ORM\Column(nullable: true)]
     private ?bool $toUpdate = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $anneeData = null;
+
     public function __construct()
     {
         $this->prdVariationPrixes = new ArrayCollection();
@@ -296,6 +299,18 @@ class Produit
     public function setToUpdate(?bool $toUpdate): self
     {
         $this->toUpdate = $toUpdate;
+
+        return $this;
+    }
+
+    public function getAnneeData(): ?int
+    {
+        return $this->anneeData;
+    }
+
+    public function setAnneeData(?int $anneeData): self
+    {
+        $this->anneeData = $anneeData;
 
         return $this;
     }
