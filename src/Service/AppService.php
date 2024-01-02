@@ -3665,12 +3665,43 @@ class AppService extends AbstractController
 
     public function updateAnneeData()
     {
-        $donnees = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-            "agence" => $this->agence
+        $factures = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+            "agence" => $this->agence,
+            "anneeData" => NULL,
         ]) ; 
 
-        foreach ($donnees as $donnee) {
-            $donnee->setAnneeData($donnee->getCreatedAt()->format('Y')) ;
+        foreach ($factures as $facture) {
+            $facture->setAnneeData($facture->getDate()->format('Y')) ;
+            $this->entityManager->flush() ;
+        }
+
+        $annulations = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+            "agence" => $this->agence,
+            "anneeData" => NULL,
+        ]) ; 
+
+        foreach ($annulations as $annulation) {
+            $annulation->setAnneeData($annulation->getDate()->format('Y')) ;
+            $this->entityManager->flush() ;
+        }
+
+        $produits = $this->entityManager->getRepository(Produit::class)->findBy([
+            "agence" => $this->agence,
+            "anneeData" => NULL,
+        ]) ; 
+
+        foreach ($produits as $produit) {
+            $produit->setAnneeData($produit->getCreatedAt()->format('Y')) ;
+            $this->entityManager->flush() ;
+        }
+
+        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            "agence" => $this->agence,
+            "anneeData" => NULL,
+        ]) ; 
+
+        foreach ($histoEntrepots as $histoEntrepot) {
+            $histoEntrepot->setAnneeData($histoEntrepot->getCreatedAt()->format('Y')) ;
             $this->entityManager->flush() ;
         }
     }
@@ -3683,8 +3714,7 @@ class AppService extends AbstractController
             "isUpdated" => True
         ],[
             "id" => "DESC"
-            ]
-        ) ; 
+        ]) ; 
 
         foreach ($factures as $facture) {
             $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
