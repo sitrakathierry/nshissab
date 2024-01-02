@@ -3716,6 +3716,15 @@ class AppService extends AbstractController
             $this->entityManager->flush() ;
         }
 
+        $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
+            "agence" => $this->agence,
+            "anneeData" => NULL,
+        ]) ; 
+
+        foreach ($finances as $finance) {
+            $finance->setAnneeData($finance->getCreatedAt()->format('Y')) ;
+            $this->entityManager->flush() ;
+        }
     }
 
     public function synchronisationFacture($agence)

@@ -468,6 +468,8 @@ class CreditController extends AbstractController
     #[Route('/credit/acompte/consultation', name: 'crd_consultation_acompte')]
     public function crdAcompteConsultation(): Response
     {
+        $this->appService->updateAnneeData() ;
+        
         $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateCltClient($filename, $this->agence) ;

@@ -45,6 +45,9 @@ class CrdFinance
     #[ORM\OneToMany(mappedBy: 'acompte', targetEntity: AgdAcompte::class)]
     private Collection $agdAcomptes;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $anneeData = null;
+
     public function __construct()
     {
         $this->crdDetails = new ArrayCollection();
@@ -227,6 +230,18 @@ class CrdFinance
                 $agdAcompte->setAcompte(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAnneeData(): ?int
+    {
+        return $this->anneeData;
+    }
+
+    public function setAnneeData(?int $anneeData): self
+    {
+        $this->anneeData = $anneeData;
 
         return $this;
     }
