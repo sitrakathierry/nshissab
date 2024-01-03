@@ -1667,15 +1667,6 @@ class AppService extends AbstractController
 
         $elements = [] ;
         foreach ($finances as $finance) {
-
-            if($finance->getCreatedAt()->format('Y') != date('Y'))
-            {
-                if($finance->getStatut()->getReference() != 'ECR')
-                {
-                    continue;
-                }
-            }
-                
             $client = $this->getFactureClient($finance->getFacture())["client"] ;
             $facture = $finance->getFacture() ;
             $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;

@@ -215,6 +215,7 @@
                                     </tr>
                                     {% set totalPayee = totalPayee + financeDetail.montant %}
                                 {% endfor %}
+                                {% set totalCredit = 0 %}
                                 {% if refPaiement == "CR" %}
                                     {% for echeance in echeances %}
                                         {% if echeance.statut != "DNONE" %}
@@ -226,9 +227,11 @@
                                                 <td>{{ echeance.montant }}</td>
                                                 <td class="align-middle text-center">
                                                     <button value="{{echeance.id}}" class="btn btn-sm agd_btn_valid_check btn-purple font-smaller"><i class="fa fa-check"></i></button>
+                                                    <button data-value="{{echeance.id}}" class="btn btn-sm agd_btn_prints_ech ml-2 btn-dark font-smaller"><i class="fa fa-print"></i></button>
                                                     <button data-value="{{echeance.id}}" class="btn btn-sm agd_btn_delete_ech ml-2 btn-danger font-smaller"><i class="fa fa-times"></i></button>
                                                 </td>
                                             </tr>
+                                            {% set totalCredit = totalCredit + echeance.montant %}
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -239,8 +242,12 @@
                                     <th colspan="2" class="bg-success text-white">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
                                 </tr>
                                 <tr>
+                                    <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Echéance</th>
+                                    <th colspan="2" class="bg-primary text-white">{{ totalCredit == 0 ? "-" : totalCredit }}</th>
+                                </tr>
+                                <tr>
                                     <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Restant</th>
-                                    <th colspan="2" class="bg-primary text-white">{{ facture.totalTtc - totalPayee }}</th>
+                                    <th colspan="2" class="bg-primary text-white">{{ facture.totalTtc - totalPayee - totalCredit }}</th>
                                 </tr>
                             </tfoot>
                         </table>

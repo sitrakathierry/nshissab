@@ -460,4 +460,71 @@ $(document).ready(function(){
     })
     return false ;
   })
+
+  $(document).on('click',".agd_btn_prints_ech",function(){
+    var self = $(this)
+    var realinstance = instance.loading()
+    $.ajax({
+        url: routes.param_modele_pdf_get,
+        type:"post",
+        dataType:"html",
+        processData:false,
+        contentType:false,
+        success : function(response){
+            realinstance.close()
+            var formDescription = `
+            <div class="w-100 text-left">
+                <label for="nom" class="mt-2 font-weight-bold">Description échéance</label>
+                <textarea name="echeance_descri" id="echeance_descri" class="w-100 px-2" cols="10" rows="4" placeholder="Description . . ."></textarea>
+            </div>
+            `
+            $.confirm({
+                title: "Impression Facture",
+                content:response+formDescription,
+                type:"blue",
+                theme:"modern",
+                buttons:{
+                    btn1:{
+                        text: 'Annuler',
+                        action: function(){}
+                    },
+                    btn2:{
+                        text: 'Imprimer',
+                        btnClass: 'btn-blue',
+                        keys: ['enter', 'shift'],
+                        action: function(){
+                            $.ajax({
+                              url: routes.credit_echeance_update_description,
+                              type:'post',
+                              cache: false,
+                              data: {
+                                echeance_descri: $("#echeance_descri").text(),
+                                id_echeance: self.data("value")
+                              },
+                              dataType: 'json',
+                              processData: false,
+                              contentType: false,
+                              success: function(response){
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var idFinance = self.data("value") ;
+                                var url = routes.credit_echeance_unitaire_imprimer + '/' + idFinance + '/' + idModeleEntete + '/' + idModeleBas;
+                                window.open(url, '_blank');
+                              },
+                              error: function(resp){
+                                $.alert(JSON.stringify(resp)) ;
+                              }
+                            })
+                        }
+                    }
+                }
+            })
+        },
+        error: function(resp){
+            realinstance.close()
+            $.alert(JSON.stringify(resp)) ;
+        }
+    })
+    return false ;
+  })  
 })

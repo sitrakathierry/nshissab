@@ -213,7 +213,7 @@ class CreditController extends AbstractController
         {
             $unAgdAcompte = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
                 "acompte" => $finance
-            ]) ;
+            ]) ; 
 
             $unAgdAcompte = is_null($unAgdAcompte) ? "" : $unAgdAcompte ;
             $echeances = "" ;
@@ -630,6 +630,23 @@ class CreditController extends AbstractController
         
         $this->entityManager->persist($histoPaiement) ;
         $this->entityManager->flush() ;
+
+    }
+
+    
+    #[Route('/credit/echeance/description/update', name: 'credit_echeance_update_description')]
+    public function crdUpdateDescriptionEcheance(Request $request)
+    {
+        $id_echeance = $request->request->get('id_echeance') ;
+        $echeance_descri = $request->request->get('echeance_descri') ;
+
+        dd($echeance_descri) ;
+        
+    }
+
+    #[Route('/credit/echeance/unitaire/imprimer/{idEcheance}/{idModeleEntete}/{idModeleBas}', name: 'credit_echeance_unitaire_imprimer')]
+    public function crdEcheanceUnitaireImprime()
+    {
 
     }
 }
