@@ -597,7 +597,7 @@ class ParametresController extends AbstractController
 
         $service = $this->entityManager->getRepository(DepService::class)->find($idService) ;
 
-        $service->setStatut(True) ;
+        $service->setStatut(False) ;
         $this->entityManager->flush() ;
 
         return new JsonResponse([
