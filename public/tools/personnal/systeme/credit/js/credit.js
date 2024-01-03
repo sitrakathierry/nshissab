@@ -472,15 +472,14 @@ $(document).ready(function(){
         contentType:false,
         success : function(response){
             realinstance.close()
-            var formDescription = `
-            <div class="w-100 text-left">
-                <label for="nom" class="mt-2 font-weight-bold">Description échéance</label>
-                <textarea name="echeance_descri" id="echeance_descri" class="w-100 px-2" cols="10" rows="4" placeholder="Description . . ."></textarea>
-            </div>
-            `
             $.confirm({
                 title: "Impression Facture",
-                content:response+formDescription,
+                content:response+`
+                <div class="w-100 text-left">
+                    <label for="nom" class="mt-2 font-weight-bold">Description échéance</label>
+                    <textarea name="echeance_descri" id="echeance_descri" class="w-100 px-2" cols="10" rows="4" placeholder="Description . . ."></textarea>
+                </div>
+                `,
                 type:"blue",
                 theme:"modern",
                 buttons:{
@@ -498,17 +497,15 @@ $(document).ready(function(){
                               type:'post',
                               cache: false,
                               data: {
-                                echeance_descri: $("#echeance_descri").text(),
+                                echeance_descri: $("#echeance_descri").val(),
                                 id_echeance: self.data("value")
                               },
                               dataType: 'json',
-                              processData: false,
-                              contentType: false,
                               success: function(response){
                                 var idModeleEntete = $("#modele_pdf_entete").val() ;
                                 var idModeleBas = $("#modele_pdf_bas").val() ;
-                                var idFinance = self.data("value") ;
-                                var url = routes.credit_echeance_unitaire_imprimer + '/' + idFinance + '/' + idModeleEntete + '/' + idModeleBas;
+                                var idEcheance = self.data("value") ;
+                                var url = routes.credit_echeance_unitaire_imprimer + '/' + idEcheance + '/' + idModeleEntete + '/' + idModeleBas;
                                 window.open(url, '_blank');
                               },
                               error: function(resp){

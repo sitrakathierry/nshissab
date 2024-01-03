@@ -640,13 +640,96 @@ class CreditController extends AbstractController
         $id_echeance = $request->request->get('id_echeance') ;
         $echeance_descri = $request->request->get('echeance_descri') ;
 
-        dd($echeance_descri) ;
         
+        $echeance = $this->entityManager->getRepository(AgdEcheance::class)->find($id_echeance) ;
+
+        $echeance->setDescription($echeance_descri) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([""]) ;
     }
 
-    #[Route('/credit/echeance/unitaire/imprimer/{idEcheance}/{idModeleEntete}/{idModeleBas}', name: 'credit_echeance_unitaire_imprimer')]
-    public function crdEcheanceUnitaireImprime()
+    #[Route('/credit/echeance/unitaire/imprimer/{idEcheance}/{idModeleEntete}/{idModeleBas}', name: 'credit_echeance_unitaire_imprimer', defaults: ["idModeleEntete" => null,"idEcheance" => null, "idModeleBas" => null])]
+    public function crdEcheanceUnitaireImprime($idEcheance,$idModeleEntete,$idModeleBas)
     {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentBas = $modeleBas->getContenu() ;
+        }
 
+        $echeance = $this->entityManager->getRepository(AgdEcheance::class)->find($idEcheance) ;
+
+        // $finance = $this->entityManager->getRepository(CrdFinance::class)->find($idFinance) ;
+
+        $client = $echeance->getCatTable()->getFacture()->getClient() ;
+
+        $dataClient = [
+            "nom" => "",
+            "adresse" => "",   
+            "telephone" => "",   
+        ] ;
+
+        if(!is_null($client))
+        {
+            if(!is_null($client->getSociete()))
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getSociete()->getNom(),   
+                    "adresse" => $client->getSociete()->getAdresse(),   
+                    "telephone" => $client->getSociete()->getTelFixe(),   
+                ] ;
+            }
+            else
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getClient()->getNom(),   
+                    "adresse" => $client->getClient()->getAdresse(),   
+                    "telephone" => $client->getClient()->getTelephone(),   
+                ] ;
+            }
+        }
+
+
+
+        $contentIMpression = $this->renderView("credit/impressionFactureEcheance.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "echeanceDetails" => $echeance,
+            "client" => $dataClient,
+            "finance" => $echeance->getCatTable(),
+            "date" => date("d/m/Y"),
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
     }
 }

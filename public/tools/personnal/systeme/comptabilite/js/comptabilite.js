@@ -680,6 +680,7 @@ $(document).ready(function(){
                 "#dep_num_facture",
                 "#dep_mois_facture",
                 "#dep_annee_facture",
+                "#dep_date_declaration",
               ] ;
 
               for (let i = 0; i < tabElemDep.length; i++) {
