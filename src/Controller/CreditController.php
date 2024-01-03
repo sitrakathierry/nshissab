@@ -663,7 +663,6 @@ class CreditController extends AbstractController
                 "textContentEditor" => $modeleEntete->getContenu() ,
                 "imageContentRight" => $imageRight ,
             ]) ;
-            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
         }
         
         $contentBas = "" ;
@@ -677,12 +676,9 @@ class CreditController extends AbstractController
                 "textContentEditor" => $modeleBas->getContenu() ,
                 "imageContentRight" => $imageRight ,
             ]) ;
-            // $contentBas = $modeleBas->getContenu() ;
         }
 
         $echeance = $this->entityManager->getRepository(AgdEcheance::class)->find($idEcheance) ;
-
-        // $finance = $this->entityManager->getRepository(CrdFinance::class)->find($idFinance) ;
 
         $client = $echeance->getCatTable()->getFacture()->getClient() ;
 
@@ -713,8 +709,6 @@ class CreditController extends AbstractController
                 ] ;
             }
         }
-
-
 
         $contentIMpression = $this->renderView("credit/impressionFactureEcheance.html.twig",[
             "contentEntete" => $contentEntete,

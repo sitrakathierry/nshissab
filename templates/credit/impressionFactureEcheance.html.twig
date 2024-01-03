@@ -10046,7 +10046,7 @@ a.text-dark:hover, a.text-dark:focus {
 }
 .title_form_entete
 {
-  font-size: 1.15em;
+  font-size: 0.92em;
   font-weight: 600;
   letter-spacing: 1px;
   text-decoration: underline ;
@@ -10066,7 +10066,7 @@ a.text-dark:hover, a.text-dark:focus {
     justify-content: center ;
 }
 .table {
-  border: 0.5px solid #000000;
+  // border: 0.5px solid #000000;
 }
 .table-bordered > thead,
 .table-bordered > tbody,
@@ -10108,31 +10108,39 @@ footer {
   }
 }
 
+.sizePdf
+{
+  font-size: 0.85em !important ;
+}
+
+.familyRoman
+{
+  font-family: 'Times New Roman' !important ;
+}
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
         {{contentEntete|raw}}
     </div>
-    <div class="pt-2 mt-5">
+    <div class="">
         <div class="text-center">
-            <h5 class="title_form_entete text-black text-uppercase">Facture Echéance <br> Credit N° {{finance.numFnc}}</h5>
         </div>
-        <div class="mt-4 text-wrap" style="width: 380px; margin-left: 57%">
-            <ul class="list-unstyled" style="line-height: 20px ; font-size: 0.92em ">
-                <li><b>DOIT</b></li>
-                <li><span class="font-weight-bold">Statut</span>&nbsp;:&nbsp;<span>{{client.statut}}</span></li>
-                <li><span class="font-weight-bold">Nom</span>&nbsp;:&nbsp;<span>{{client.nom}}</span></li>
-                <li><span class="font-weight-bold">Adresse</span>&nbsp;:&nbsp;<span>{{client.adresse}}</span></li>
-                <li><span class="font-weight-bold">Téléphone</span>&nbsp;:&nbsp;<span>{{client.telephone}}</span></li>
+        <div class="mt-2 text-wrap" style="width: 380px; margin-left: 60%">
+            <h5 class="title_form_entete text-black familyRoman text-uppercase">Facture Echéance <br> Credit N° {{finance.numFnc}}</h5>
+            <ul class="list-unstyled sizePdf" style="line-height: 20px ;">
+                <li><span class="font-weight-bold familyRoman">Nom</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.nom}}</span></li>
+                <li><span class="font-weight-bold familyRoman">Adresse</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.adresse}}</span></li>
+                <li><span class="font-weight-bold familyRoman">Téléphone</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.telephone}}</span></li>
             </ul>
         </div>
-        {# {% if facture.description is not empty %}
-          <div class="px-3 pt-2">
-            {{ facture.description | raw}}
+        {% if echeanceDetails.description is not empty %}
+          <div class="px-3 sizePdf py-2">
+            {{ echeanceDetails.description}}
           </div>
-        {% endif %} #}
+        {% endif %}
         <div class="table-responsive">
-            <table class="table-sm table table-bordered">
+            <table class="table-sm sizePdf table">
                 <thead class="text-uppercase thead-dark">
                     <tr>
                         <th>Date</th>
@@ -10146,17 +10154,17 @@ footer {
                     </tr>
                 </tbody>
                 <tfoot class="text-uppercase">
-                    <tr>
-                        <th colspan="2">Total</th>
+                    <tr class="border-bottom">
+                        <th>Total</th>
                         <th class="bg-primary text-white">{{ echeanceDetails.montant }}</th>
                     </tr>
                 </tfoot>
             </table>
         </div>
-        <div class="w-100 text-right mt-3" style="font-size: 0.92em ">
+        <div class="w-100 text-right familyRoman sizePdf mt-3">
             <span>Aujourd'hui, le {{date}}</span>
         </div>
-        <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span>Le Client</span><span style="margin-left:390px !important;">Pour la société</span></h5>
+        <h5 class="title_form text-black text-uppercase text-left mt-3 familyRoman px-3"><span></span><span style="margin-left:440px !important;">Signature</span></h5>
     </div>
 </div>
 <footer>

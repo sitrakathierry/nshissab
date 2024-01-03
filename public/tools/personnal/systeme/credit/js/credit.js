@@ -492,6 +492,9 @@ $(document).ready(function(){
                         btnClass: 'btn-blue',
                         keys: ['enter', 'shift'],
                         action: function(){
+                            var idModeleEntete = $("#modele_pdf_entete").val() ;
+                            var idModeleBas = $("#modele_pdf_bas").val() ;
+                            var idEcheance = self.data("value") ;
                             $.ajax({
                               url: routes.credit_echeance_update_description,
                               type:'post',
@@ -502,9 +505,6 @@ $(document).ready(function(){
                               },
                               dataType: 'json',
                               success: function(response){
-                                var idModeleEntete = $("#modele_pdf_entete").val() ;
-                                var idModeleBas = $("#modele_pdf_bas").val() ;
-                                var idEcheance = self.data("value") ;
                                 var url = routes.credit_echeance_unitaire_imprimer + '/' + idEcheance + '/' + idModeleEntete + '/' + idModeleBas;
                                 window.open(url, '_blank');
                               },
