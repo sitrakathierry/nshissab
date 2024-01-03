@@ -538,8 +538,9 @@ class ParametresController extends AbstractController
     public function paramDeclatationService(Request $request)
     {
         $services = $this->entityManager->getRepository(DepService::class)->findBy([
-            "agence" => $this->agence    
-        ]) ;
+            "agence" => $this->agence,
+            "statut" => True 
+        ]) ; 
 
         return $this->render('parametres/service/configurationService.html.twig', [
             "filename" => "parametres",
@@ -547,6 +548,63 @@ class ParametresController extends AbstractController
             "with_foot" => true,
             "services" => $services,
         ]);
+    }
+
+    #[Route('/parametres/service/save', name: 'param_service_save')]
+    public function paramSaveService(Request $request)
+    {
+        $idService = $request->request->get('idService') ;
+        $param_srv_nom = $request->request->get('param_srv_nom') ;
+
+        $result = $this->appService->verificationElement([
+            $param_srv_nom
+        ],[
+            "Nom Service",
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        if(isset($idService))
+        {
+            $service = $this->entityManager->getRepository(DepService::class)->find($idService) ;
+            $message = "Modification effectué" ;
+        }
+        else
+        {
+            $service = new DepService() ;
+            $service->setAgence($this->agence) ;
+            $service->setStatut(True) ;
+            $message = "Enregistrement effectué" ;
+        }
+
+        $service->setNom($param_srv_nom) ;
+
+        if(!isset($idService))
+            $this->entityManager->persist($service) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => $message,
+        ]) ;
+    }
+
+    #[Route('/parametres/service/delete', name: 'param_service_delete')]
+    public function paramDeleteService(Request $request)
+    {
+        $idService = $request->request->get("idService") ;
+
+        $service = $this->entityManager->getRepository(DepService::class)->find($idService) ;
+
+        $service->setStatut(True) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectuée",
+        ]) ;
+
     }
 
     #[Route('/parametres/utilisateur/agent/creation', name: 'param_utilisateur_creation_agent')]

@@ -296,5 +296,191 @@ $(document).ready(function(){
         updateUserAgent("Activation","ACTIVER",$(this).data("value"))
     })
 
-    
+    $("#formService").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize()
+                        $.ajax({
+                            url: routes.param_service_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(".btn_srv_edit").click(function(){
+        var self = $(this)
+        var nom_service = $(this).closest("tr").find(".nom_service").text()
+        $.confirm({
+            title: "Modification",
+            content:`
+            <div class="w-100 text-left">
+                <label for="modif_srv_nom" class="mt-2 font-weight-bold">Nom Service</label>
+                <input type="text" name="modif_srv_nom" oninput="this.value = this.value.toUpperCase();" id="modif_srv_nom" class="form-control" value="`+nom_service+`">
+            </div>
+            `,
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Valider',
+                    btnClass: 'btn-orange',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var param_srv_nom = $("#modif_srv_nom").val()
+                        $.confirm({
+                            title: "Validation",
+                            content:"Êtes-vous sûre ?",
+                            type:"blue",
+                            theme:"modern",
+                            buttons:{
+                                btn1:{
+                                    text: 'Non',
+                                    action: function(){}
+                                },
+                                btn2:{
+                                    text: 'Oui',
+                                    btnClass: 'btn-blue',
+                                    keys: ['enter', 'shift'],
+                                    action: function(){
+                                        var realinstance = instance.loading()
+                                        $.ajax({
+                                            url: routes.param_service_save,
+                                            type:'post',
+                                            cache: false,
+                                            data:{
+                                                idService:self.data("value"),
+                                                param_srv_nom:param_srv_nom
+                                            },
+                                            dataType: 'json', 
+                                            success: function(json){
+                                                realinstance.close()
+                                                $.alert({
+                                                    title: 'Message',
+                                                    content: json.message,
+                                                    type: json.type,
+                                                    buttons: {
+                                                        OK: function(){
+                                                            if(json.type == "green")
+                                                            {
+                                                                location.reload()
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            },
+                                            error: function(resp){
+                                                realinstance.close()
+                                                $.alert(JSON.stringify(resp)) ;
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
+
+    $(".btn_srv_delete").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.param_service_delete,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                idService:self.data("value")
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    })
 })
