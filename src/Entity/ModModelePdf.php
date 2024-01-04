@@ -44,6 +44,9 @@ class ModModelePdf
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $formeModele = null;
 
+    #[ORM\ManyToOne(inversedBy: 'modModelePdfs')]
+    private ?Agence $agence = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -165,6 +168,18 @@ class ModModelePdf
     public function setFormeModele(?string $formeModele): self
     {
         $this->formeModele = $formeModele;
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agence
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agence $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }

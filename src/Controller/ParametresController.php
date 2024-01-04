@@ -417,9 +417,12 @@ class ParametresController extends AbstractController
     #[Route('/parametres/modele/pdf/consultation', name: 'param_modele_pdf_consultation')]
     public function paramConsultationModelePdf()
     {
-        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;    
+        $this->appService->synchroModelePdf() ;
+
+        $filename = $this->filename."modelePdf(user)/".$this->nameAgence."_".$this->agence->getId().".json" ;   
+        
         if(!file_exists($filename))
-            $this->appService->generateModModelePdf($filename,$this->userObj) ;
+            $this->appService->generateModModelePdf($filename,$this->agence) ;
         
         $modelePdfs = json_decode(file_get_contents($filename)) ;
         
@@ -435,9 +438,11 @@ class ParametresController extends AbstractController
     #[Route('/parametres/modele/pdf/get', name: 'param_modele_pdf_get')]
     public function paramGetModelePdf()
     {
-        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;    
+        $this->appService->synchroModelePdf() ;
+
+        $filename = $this->filename."modelePdf(user)/".$this->nameAgence."_".$this->agence->getId().".json" ;    
         if(!file_exists($filename))
-            $this->appService->generateModModelePdf($filename,$this->userObj) ;
+            $this->appService->generateModModelePdf($filename,$this->agence) ;
         
         $modelePdfs = json_decode(file_get_contents($filename)) ;
 
@@ -504,6 +509,7 @@ class ParametresController extends AbstractController
             $modelePdf = new ModModelePdf() ;
             $modelePdf->setUpdatedAt(new \DateTimeImmutable) ;
             $modelePdf->setUser($this->userObj) ;
+            $modelePdf->setAgence($this->agence) ;
             $formeModele = "ModelePdf_".$forme_modele_pdf ;
         }
         
@@ -519,7 +525,7 @@ class ParametresController extends AbstractController
         $this->entityManager->persist($modelePdf) ;
         $this->entityManager->flush() ;
 
-        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ; 
+        $filename = $this->filename."modelePdf(user)/".$this->nameAgence."_".$this->agence->getId().".json" ; 
         if(file_exists($filename))
             unlink($filename) ;
         
@@ -971,7 +977,7 @@ class ParametresController extends AbstractController
         $modelePdf->setStatut(False) ;
         $this->entityManager->flush() ;
 
-        $filename = $this->filename."modelePdf(user)/".$this->nameUser."_".$this->userObj->getId().".json" ; 
+        $filename = $this->filename."modelePdf(user)/".$this->nameAgence."_".$this->agence->getId().".json" ;
         if(file_exists($filename))
             unlink($filename) ;
 

@@ -217,6 +217,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdDeduction::class)]
     private Collection $prdDeductions;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: ModModelePdf::class)]
+    private Collection $modModelePdfs;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -274,6 +277,7 @@ class Agence
         $this->cltSocietes = new ArrayCollection();
         $this->clients = new ArrayCollection();
         $this->prdDeductions = new ArrayCollection();
+        $this->modModelePdfs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2068,6 +2072,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($prdDeduction->getAgence() === $this) {
                 $prdDeduction->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ModModelePdf>
+     */
+    public function getModModelePdfs(): Collection
+    {
+        return $this->modModelePdfs;
+    }
+
+    public function addModModelePdf(ModModelePdf $modModelePdf): self
+    {
+        if (!$this->modModelePdfs->contains($modModelePdf)) {
+            $this->modModelePdfs->add($modModelePdf);
+            $modModelePdf->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeModModelePdf(ModModelePdf $modModelePdf): self
+    {
+        if ($this->modModelePdfs->removeElement($modModelePdf)) {
+            // set the owning side to null (unless already changed)
+            if ($modModelePdf->getAgence() === $this) {
+                $modModelePdf->setAgence(null);
             }
         }
 

@@ -1347,10 +1347,10 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
-    public function generateModModelePdf($filename,$user)
+    public function generateModModelePdf($filename,$agence)
     {
         $modelePdfs = $this->entityManager->getRepository(ModModelePdf::class)->findBy([
-            "user" => $user,
+            "agence" => $agence,
             "statut" => True,
         ],
         [ "id" => "DESC" ]) ;
@@ -1371,6 +1371,21 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($elements)) ;
     }
+
+    public function synchroModelePdf()
+    {
+        $modelePdfs = $this->entityManager->getRepository(ModModelePdf::class)->findBy([
+            "statut" => True,
+            "agence" => NULL
+        ]) ;
+
+        foreach ($modelePdfs as $modelePdf) {
+            $modelePdf->setAgence($modelePdf->getUser()->getAgence()) ;
+            $this->entityManager->flush() ;
+        }
+
+    }
+
 
     public function generateFacture($filename, $agence)
     {
