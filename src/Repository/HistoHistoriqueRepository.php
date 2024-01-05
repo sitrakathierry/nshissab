@@ -54,6 +54,7 @@ class HistoHistoriqueRepository extends ServiceEntityRepository
 
             $module->setNom($params["nomModule"]) ;
             $module->setReference($params["refModule"]) ;
+            $module->setStatut(True) ;
 
             $this->getEntityManager()->persist($module);
             $this->getEntityManager()->flush();
