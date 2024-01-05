@@ -120,6 +120,21 @@ var self = $(this)
 
         $relevePaiements = json_decode(file_get_contents($filename)) ;
 
+    // DEBUT SAUVEGARDE HISTORIQUE
+
+    $this->entityManager->getRepository(HistoHistorique::class)
+    ->insererHistorique([
+        "refModule" => "CSE",
+        "nomModule" => "CAISSE",
+        "refAction" => "CRT",
+        "user" => $this->userObj,
+        "agence" => $this->agence,
+        "nameAgence" => $this->nameAgence,
+        "description" => "Vente sur Caisse ; Bon de Caisse N° : ".$numCommande,
+    ]) ;
+
+    // FIN SAUVEGARDE HISTORIQUE
+
 
         #[Route('/prestation/location/paiement/search', name: 'prest_location_paiement_search')]
     public function prestSearchPaiementLocation(Request $request)

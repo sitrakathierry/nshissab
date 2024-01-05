@@ -9,6 +9,7 @@ use App\Entity\CltSociete;
 use App\Entity\CltTypes;
 use App\Entity\CltTypeSociete;
 use App\Entity\CltUrgence;
+use App\Entity\HistoHistorique;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -160,10 +161,14 @@ class ClientController extends AbstractController
             if(!isset($clt_identity))
             {
                 $societe = new CltSociete() ;
+                $histoDescription = "Création Client; Type : CLIENT ".$type->getReference()."; Nom Société : ".strtoupper($clt_soc_nom) ;
+                $histoAction = "CRT" ;
             }
             else
             {
                 $societe = $this->entityManager->getRepository(CltSociete::class)->find($clt_identity) ;
+                $histoDescription = "Modification Client; Type : CLIENT ".$type->getReference()."; Nom Société : ".strtoupper($clt_soc_nom)  ;
+                $histoAction = "MOD" ;
             }
 
             $societe->setAgence($this->agence) ;
@@ -211,10 +216,10 @@ class ClientController extends AbstractController
             }
 
             $client = NULL ;
+
         }
         else if($type->getReference() == "PHYSIQUE")
         {
-
             $clt_client_nom = $request->request->get("clt_client_nom") ;
             $clt_client_nin = $request->request->get("clt_client_nin") ;
             $clt_client_adresse = $request->request->get("clt_client_adresse") ;
@@ -250,10 +255,14 @@ class ClientController extends AbstractController
             if(!isset($clt_identity))
             {
                 $client = new Client() ;
+                $histoDescription = "Création Client; Type : CLIENT ".$type->getReference()."; Nom Client : ".strtoupper($clt_client_nom)  ;
+                $histoAction = "CRT" ;
             }
             else
             {
                 $client = $this->entityManager->getRepository(Client::class)->find($clt_identity) ;
+                $histoDescription = "Modification Client; Type : CLIENT ".$type->getReference()."; Nom Client : ".strtoupper($clt_client_nom)  ;
+                $histoAction = "MOD" ;
             }
 
             $client->setAgence($this->agence) ;
@@ -328,6 +337,22 @@ class ClientController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CLT",
+            "nomModule" => "CLIENT",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }

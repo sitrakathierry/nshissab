@@ -614,7 +614,7 @@ $(document).ready(function(){
                         var realinstance = instance.loading()
                         $.ajax({
                             url: routes.stock_delete_facture_activity,
-                            type:'post',
+                            type:'post', 
                             cache: false,
                             data:{idFacture:self.data("value")},
                             dataType: 'json',

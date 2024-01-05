@@ -2057,7 +2057,6 @@ class FactureController extends AbstractController
         $facture->setIsUpdated(True) ; 
         $facture->setDate(\DateTime::createFromFormat("d/m/Y",$cmd_date)) ; 
 
-
         $this->entityManager->flush() ; 
 
         if($fact_detail_modele == "PROD" || $fact_detail_modele == "PSTD") // Produit ou Prestation Standard
@@ -2163,6 +2162,23 @@ class FactureController extends AbstractController
         if(file_exists($filename))
             unlink($filename);
         
+        $modeleFacture = $this->entityManager->getRepository(FactModele::class)->find($fact_detail_modele) ; 
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Facture ; ".strtoupper($modeleFacture->getNom())." ; N° : ".$facture->getNumFact(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Mise à jour effectué",
@@ -2207,6 +2223,21 @@ class FactureController extends AbstractController
         if(file_exists($filename))
             unlink($filename);
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Facture ; ".strtoupper($facture->getModele()->getNom())." ; N° : ".$facture->getNumFact(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué",
