@@ -1108,6 +1108,21 @@ class FactureController extends AbstractController
             ]) ;
         }
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Facture ; ".strtoupper($facture->getModele()->getNom())." ; N° : ".$facture->getNumFact(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
 
         $pdfGenService = new PdfGenService() ;
 
