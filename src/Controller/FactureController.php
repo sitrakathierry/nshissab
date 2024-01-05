@@ -29,6 +29,7 @@ use App\Entity\FactRemiseType;
 use App\Entity\FactSupDetailsPbat;
 use App\Entity\FactType;
 use App\Entity\Facture;
+use App\Entity\HistoHistorique;
 use App\Entity\LctContrat;
 use App\Entity\LctPaiement;
 use App\Entity\LctRepartition;
@@ -1710,6 +1711,21 @@ class FactureController extends AbstractController
 
         $this->entityManager->persist($facture) ;
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Création Facture N° : ".$numFacture,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         $histoPaiement = new FactHistoPaiement() ;
         /*

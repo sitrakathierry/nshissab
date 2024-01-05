@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Agence;
+use App\Entity\HistoHistorique;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,6 +43,24 @@ class SecurityController extends AbstractController
      */
     public function logout(): void
     {
+        // $agence = $this->entityManager->getRepository(Agence::class)->find($this->session->get("user")["agence"]) ;
+        // $user = $this->entityManager->getRepository(User::class)->findBy([
+        //     "username" => strtoupper($this->session->get("user")["username"]),
+        //     "agence" => $agence
+        // ]) ;
+
+
+        // $this->entityManager->getRepository(HistoHistorique::class)
+        // ->insererHistorique([
+        //     "refModule" => "SHB",
+        //     "nomModule" => "SHISSAB",
+        //     "refAction" => "CON",
+        //     "user" => $user,
+        //     "agence" => $agence,
+        //     "nameAgence" => strtolower($agence->getNom())."-".$agence->getId().".json",
+        //     "description" => "Déconnexion au compte",
+        // ]) ;
+
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
@@ -161,6 +181,17 @@ class SecurityController extends AbstractController
             $deviseLettre = $devise->getLettre() ;
             $deviseSymbole = $devise->getSymbole() ;
         }
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "SHB",
+            "nomModule" => "SHISSAB",
+            "refAction" => "CON",
+            "user" => $userObject,
+            "agence" => $userObject->getAgence(),
+            "nameAgence" => strtolower($userObject->getAgence()->getNom())."-".$userObject->getAgence()->getId().".json",
+            "description" => "Connexion au compte",
+        ]) ;
 
         $data = [
             "username" => strtoupper($username),

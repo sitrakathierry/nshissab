@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Agence;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
+use App\Entity\HistoHistorique;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdMargeType;
 use App\Entity\PrdVariationPrix;
@@ -167,7 +168,22 @@ class CaisseController extends AbstractController
             $this->filename."panierCommande(agence)/".$this->nameAgence,
             $this->filename."commande(agence)/".$this->nameAgence ,
         ] ;
-            
+        
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CSE",
+            "nomModule" => "CAISSE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Vente sur Caisse ; Bon de Caisse N° : ".$numCommande,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         foreach ($dataFilenames as $dataFilename) {
             if(file_exists($dataFilename))
             unlink($dataFilename) ;

@@ -220,6 +220,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: ModModelePdf::class)]
     private Collection $modModelePdfs;
 
+    #[ORM\OneToMany(mappedBy: 'agence4', targetEntity: HistoHistorique::class)]
+    private Collection $histoHistoriques;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -278,6 +281,7 @@ class Agence
         $this->clients = new ArrayCollection();
         $this->prdDeductions = new ArrayCollection();
         $this->modModelePdfs = new ArrayCollection();
+        $this->histoHistoriques = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2102,6 +2106,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($modModelePdf->getAgence() === $this) {
                 $modModelePdf->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, HistoHistorique>
+     */
+    public function getHistoHistoriques(): Collection
+    {
+        return $this->histoHistoriques;
+    }
+
+    public function addHistoHistorique(HistoHistorique $histoHistorique): self
+    {
+        if (!$this->histoHistoriques->contains($histoHistorique)) {
+            $this->histoHistoriques->add($histoHistorique);
+            $histoHistorique->setAgence4($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistoHistorique(HistoHistorique $histoHistorique): self
+    {
+        if ($this->histoHistoriques->removeElement($histoHistorique)) {
+            // set the owning side to null (unless already changed)
+            if ($histoHistorique->getAgence4() === $this) {
+                $histoHistorique->setAgence4(null);
             }
         }
 

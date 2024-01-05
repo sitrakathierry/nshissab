@@ -24,19 +24,23 @@
                     <tr>
                         <th>Date</th>
                         <th>Heure</th>
+                        <th>Utilisateur</th>
                         <th>Action</th>
-                        <th>Module</th>
+                        <th>Filtre</th>
                         <th>Description</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
+                    {% for historique in historiques %}
+                        <tr>
+                            <td>{{historique.date}}</td>
+                            <td>{{historique.heure}}</td>
+                            <td>{{historique.utilisateur}}</td>
+                            <td>{{historique.action}}</td>
+                            <td>{{historique.module}}</td>
+                            <td>{{historique.description}}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

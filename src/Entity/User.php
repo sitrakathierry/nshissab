@@ -94,6 +94,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?bool $disabled = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: HistoHistorique::class)]
+    private Collection $histoHistoriques;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
@@ -106,6 +109,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->savAnnulations = new ArrayCollection();
         $this->usrAbonnements = new ArrayCollection();
         $this->modModelePdfs = new ArrayCollection();
+        $this->histoHistoriques = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -570,6 +574,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDisabled(?bool $disabled): self
     {
         $this->disabled = $disabled;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, HistoHistorique>
+     */
+    public function getHistoHistoriques(): Collection
+    {
+        return $this->histoHistoriques;
+    }
+
+    public function addHistoHistorique(HistoHistorique $histoHistorique): self
+    {
+        if (!$this->histoHistoriques->contains($histoHistorique)) {
+            $this->histoHistoriques->add($histoHistorique);
+            $histoHistorique->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistoHistorique(HistoHistorique $histoHistorique): self
+    {
+        if ($this->histoHistoriques->removeElement($histoHistorique)) {
+            // set the owning side to null (unless already changed)
+            if ($histoHistorique->getUser() === $this) {
+                $histoHistorique->setUser(null);
+            }
+        }
 
         return $this;
     }
