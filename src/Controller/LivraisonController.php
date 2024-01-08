@@ -9,6 +9,7 @@ use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
+use App\Entity\HistoHistorique;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
 use App\Entity\ModModelePdf;
@@ -394,6 +395,21 @@ class LivraisonController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateBonLivraison($filename,$this->agence) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "LVR",
+            "nomModule" => "BON DE LIVRAISON",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Bon de Livraison -> ". $numBonLivraison ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
     
@@ -446,6 +462,21 @@ class LivraisonController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "LVR",
+            "nomModule" => "BON DE LIVRAISON",
+            "refAction" => "VLD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Validation Bon de Livraison -> ". $bonLivraison->getNumLivraison() ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Bon de livraison validé avec succès"
@@ -533,7 +564,7 @@ class LivraisonController extends AbstractController
 
     }
 
-    #[Route('/livraison/bon/livraison/update/{idLivraison}/{idModeleEntete}/{idModeleBas}', name: 'lvr_bon_livraison_detail_imprimer',
+    #[Route('/livraison/bon/livraison/imprimer/{idLivraison}/{idModeleEntete}/{idModeleBas}', name: 'lvr_bon_livraison_detail_imprimer',
     defaults: [
         "idLivraison" => null,
         "idModeleEntete" => null,
@@ -677,6 +708,21 @@ class LivraisonController extends AbstractController
 
         $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "LVR",
+            "nomModule" => "BON DE LIVRAISON",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Bon de Livraison -> ". $bonLivraison->getNumLivraison() ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
     }

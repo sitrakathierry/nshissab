@@ -8,6 +8,7 @@ use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\BtpMesure;
 use App\Entity\BtpPrix;
+use App\Entity\HistoHistorique;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
 use App\Entity\LctContrat;
@@ -143,6 +144,21 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PSTD",
+            "nomModule" => "PRESTATION STANDARD",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Prestation -> ". strtoupper($service->getNom()) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué"
@@ -168,6 +184,21 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PSTD",
+            "nomModule" => "PRESTATION STANDARD",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Prestation -> ". strtoupper($service->getNom()) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Modification effectué"
@@ -184,6 +215,21 @@ class PrestationController extends AbstractController
         $tarif->setStatut(False) ;
         $this->entityManager->flush() ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PSTD",
+            "nomModule" => "PRESTATION STANDARD",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Prix de Prestation -> ". strtoupper($tarif->getService()->getNom()) ." ; ". $tarif->getNom() ." - Prix : ".$tarif->getPrix(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué"
@@ -198,8 +244,25 @@ class PrestationController extends AbstractController
 
         $tarif = $this->entityManager->getRepository(SrvTarif::class)->find($idTarif) ;
 
+        $oldTarif = $tarif->getPrix() ;
+
         $tarif->setPrix(floatval($prixMTarif)) ;
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PSTD",
+            "nomModule" => "PRESTATION STANDARD",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Prix de Prestation -> ". strtoupper($tarif->getService()->getNom()) ." ; ". $tarif->getNom() ." - Prix : ".$oldTarif." -> ".$tarif->getPrix(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
@@ -242,6 +305,21 @@ class PrestationController extends AbstractController
         $filename = $this->filename."service(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PSTD",
+            "nomModule" => "PRESTATION STANDARD",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle Prestation -> ". strtoupper($srv_nom) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -614,6 +692,21 @@ class PrestationController extends AbstractController
 
         $this->entityManager->persist($tarif) ;
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PSTD",
+            "nomModule" => "PRESTATION STANDARD",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Prix de Prestation -> ". $service->getNom() ." ; ". $nom ." - Prix : ".$srv_tarif_prix,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }

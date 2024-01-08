@@ -9,6 +9,7 @@ use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
+use App\Entity\HistoHistorique;
 use App\Entity\ModModelePdf;
 use App\Entity\User;
 use App\Service\AppService;
@@ -283,6 +284,21 @@ class CommandeController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateBonCommande($filename,$this->agence) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMD",
+            "nomModule" => "BON DE COMMANDE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Bon de Commande -> ". $numBonCommande." ; N° Facture : ".$facture->getNumFact() ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -323,6 +339,21 @@ class CommandeController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMD",
+            "nomModule" => "BON DE COMMANDE",
+            "refAction" => "VLD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Validation Bon de Commande -> ". $bonCommande->getNumBonCmd()." ; N° Facture : ".$bonCommande->getFacture()->getNumFact() ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Bon de commande validé avec succès"
@@ -472,6 +503,21 @@ class CommandeController extends AbstractController
 
         $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMD",
+            "nomModule" => "BON DE COMMANDE",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Bon de Commande -> ". $bonCommande->getNumBonCmd()." ; N° Facture : ".$bonCommande->getFacture()->getNumFact() ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
     }
