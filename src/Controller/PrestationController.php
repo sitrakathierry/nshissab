@@ -504,6 +504,21 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PBAT",
+            "nomModule" => "PRESTATION BATIMENT",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle Enoncée -> ". strtoupper($btn_enc_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -561,6 +576,21 @@ class PrestationController extends AbstractController
         $this->entityManager->persist($categorie) ;
         $this->entityManager->flush() ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PBAT",
+            "nomModule" => "PRESTATION BATIMENT",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle Catégorie -> ". strtoupper($btn_cat_nom)." Enoncée : ".$enonce->getNom(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 

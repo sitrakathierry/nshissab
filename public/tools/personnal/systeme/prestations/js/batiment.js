@@ -173,7 +173,7 @@ $(document).ready(function(){
             theme:"modern",
             buttons:{
                 btn1:{
-                    text: 'Non',
+                    text: 'Non', 
                     action: function(){}
                 },
                 btn2:{
