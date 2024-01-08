@@ -7,6 +7,7 @@ use App\Entity\CaissePanier;
 use App\Entity\FactDetails;
 use App\Entity\FactType;
 use App\Entity\Facture;
+use App\Entity\HistoHistorique;
 use App\Entity\IntLibelle;
 use App\Entity\IntMateriel;
 use App\Entity\IntMouvement;
@@ -363,6 +364,21 @@ class StockController extends AbstractController
             $this->filename."stockGEntrepot(agence)/".$this->nameAgence ,
         ] ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Produit ; Code Produit : ". $code_produit." ; Nom Produit : ".strtoupper($prod_nom) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         foreach ($dataFilenames as $dataFilename) {
             if(file_exists($dataFilename))
                 unlink($dataFilename) ;
@@ -450,6 +466,21 @@ class StockController extends AbstractController
             if(file_exists($dataFilename))
                 unlink($dataFilename) ;
         }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Produit ; Code Produit : ". $code_produit." ; Nom Produit : ".strtoupper($prod_nom) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -796,12 +827,16 @@ class StockController extends AbstractController
             $categorie = new PrdCategories() ;
             $reponse["message"] = "Catégorie ajoutée" ;
             $reponse["type"] = "green" ;
+            $histoAction = "CRT" ;
+            $histoDescription = "Nouvelle catégorie de produit ->  ".strtoupper($nom) ;
         }
         else
         {
             $categorie = $this->entityManager->getRepository(PrdCategories::class)->find($id) ; 
             $reponse["message"] = "Mise à jour terminée" ;
             $reponse["type"] = "dark" ;
+            $histoAction = "MOD" ;
+            $histoDescription = "Modification catégorie de produit : ".$categorie->getNom()."  -> ".strtoupper($nom) ;
         }
 
         $categorie->setAgence($agence) ;
@@ -816,6 +851,21 @@ class StockController extends AbstractController
 
         $filename = "files/systeme/stock/categorie(agence)/".strtolower($agence->getNom())."-".$agence->getId().".json" ;
         $this->appService->generateStockCategorie($filename, $agence) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($reponse) ;
     }
@@ -834,6 +884,21 @@ class StockController extends AbstractController
 
         $filename = "files/systeme/stock/categorie(agence)/".strtolower($agence->getNom())."-".$agence->getId().".json" ;
         $this->appService->generateStockCategorie($filename, $agence) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression catégorie de produit -> ".strtoupper($categorie->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse(["message" => "Catégorie supprimée", "type" => "green"]) ;
     }   
@@ -952,6 +1017,21 @@ class StockController extends AbstractController
                     $this->entityManager->persist($preference) ;
                     $this->entityManager->flush() ;
                 }
+
+                // DEBUT SAUVEGARDE HISTORIQUE
+
+                $this->entityManager->getRepository(HistoHistorique::class)
+                ->insererHistorique([
+                    "refModule" => "STOCK",
+                    "nomModule" => "GESTION DE STOCK",
+                    "refAction" => "CRT",
+                    "user" => $this->userObj,
+                    "agence" => $this->agence,
+                    "nameAgence" => $this->nameAgence,
+                    "description" => "Ajout Préférence -> ".strtoupper($preference->getCategorie()->getNom()),
+                ]) ;
+
+                // FIN SAUVEGARDE HISTORIQUE
             }
         }
 
@@ -1241,6 +1321,21 @@ class StockController extends AbstractController
         
         $this->appService->generateStockEntrepot($this->filename."entrepot(agence)/".$this->nameAgence,$this->agence) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle entrepôt -> ".strtoupper($nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
     
@@ -1275,6 +1370,21 @@ class StockController extends AbstractController
 
         $this->appService->generateStockEntrepot($this->filename."entrepot(agence)/".$this->nameAgence,$this->agence) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nom entrepôt : ".strtoupper($entrepot->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "message" => "Suppression effectuée",
             "type" => "green"
@@ -1377,6 +1487,21 @@ class StockController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FRS",
+            "nomModule" => "FOURNISSEUR",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nom Fournisseur : ".strtoupper($frns_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -1449,6 +1574,21 @@ class StockController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FRS",
+            "nomModule" => "FOURNISSEUR",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nom Fournisseur : ".strtoupper($frns_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",    
             "message" => "Modification effectué",    
@@ -1469,6 +1609,21 @@ class StockController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FRS",
+            "nomModule" => "FOURNISSEUR",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nom Fournisseur : ".strtoupper($fournisseur->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",    
@@ -1709,6 +1864,21 @@ class StockController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "INT",
+            "nomModule" => "STOCK INTERNE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Création Matériel ; Nom Matériel : ".strtoupper($int_materiel_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -1814,9 +1984,10 @@ class StockController extends AbstractController
             $mouvement = new IntMouvement() ;
             $mouvement->setAgence($this->agence) ;
 
+            $materiel = $this->entityManager->getRepository(IntMateriel::class)->find($int_enr_mvt_designation[$key]) ;
+            
             if($int_mouvement_type == "ENTREE")
             {
-                $materiel = $this->entityManager->getRepository(IntMateriel::class)->find($int_enr_mvt_designation[$key]) ;
                 $mouvement->setMateriel($materiel) ;
                 $mouvement->setType($type) ;
                 $mouvement->setDesignation($materiel->getNom()) ;
@@ -1826,7 +1997,6 @@ class StockController extends AbstractController
             }
             else
             {
-                $materiel = $this->entityManager->getRepository(IntMateriel::class)->find($int_enr_mvt_designation[$key]) ;
                 $mouvement->setMateriel($materiel) ;
                 $mouvement->setType($type) ;
                 $mouvement->setDesignation($materiel->getNom()) ;
@@ -1860,6 +2030,22 @@ class StockController extends AbstractController
         $filename = $this->filename."interne/materiel(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "INT",
+            "nomModule" => "STOCK INTERNE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Mouvement ; Type : ".strtoupper($int_mouvement_type)." ; Matériel : ".$materiel->getNom(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
 
         return new JsonResponse([
             "type" => "green",

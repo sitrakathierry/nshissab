@@ -83,7 +83,7 @@ $(document).ready(function(){
                         var id = $(".id_categorie").val()
                         var image = $(".image_categorie").attr("src")
                         $.ajax({
-                            url: routes.stock_save_categorie,
+                            url: routes.stock_save_categorie, 
                             cache: false,
                             type: 'post',
                             data:{image:image,nom:nom,id:id},
