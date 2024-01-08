@@ -3015,6 +3015,21 @@ class StockController extends AbstractController
 
         $this->appService->synchronisationGeneral() ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "STOCK",
+            "nomModule" => "GESTION DE STOCK",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Produit ; Code Produit : ". $produit->getCodeProduit()." ; Nom Produit : ".strtoupper($produit->getNom()) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué"
