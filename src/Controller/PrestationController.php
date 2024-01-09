@@ -836,7 +836,7 @@ class PrestationController extends AbstractController
         return $this->render('prestations/location/locataire.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Locataires",
-            "with_foot" => true,
+            "with_foot" => false,
             "locataires" => $locataires
         ]);
     }
@@ -889,6 +889,21 @@ class PrestationController extends AbstractController
         // $locataire->setStatut(True) ;
 
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Locataire -> " . strtoupper($lct_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
@@ -2173,6 +2188,21 @@ class PrestationController extends AbstractController
         
         $this->entityManager->flush() ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Contrat N° : " . $contrat->getNumContrat(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Modification effectué.".$plusMsg,
@@ -2197,6 +2227,21 @@ class PrestationController extends AbstractController
         $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Contrat N° : " . $contrat->getNumContrat(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
@@ -2413,7 +2458,7 @@ class PrestationController extends AbstractController
 
         $this->entityManager->getRepository(HistoHistorique::class)
         ->insererHistorique([
-            "refModule" => "PLOC",
+            "refModule" => "PLOC", 
             "nomModule" => "PRESTATION LOCATION",
             "refAction" => "IMP",
             "user" => $this->userObj,

@@ -1287,9 +1287,6 @@ class AppService extends AbstractController
         foreach ($panierCommandes as $panierCommande) {
             $element = [] ;
 
-            if($panierCommande->getCommande()->getDate()->format('Y') != date('Y'))
-                continue ;
-
             $element["id"] = $panierCommande->getCommande()->getId() ;
             $element["date"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
             $element["currentDate"] = $panierCommande->getCommande()->getDate()->format('d/m/Y') ;
