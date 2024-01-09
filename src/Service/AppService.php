@@ -595,6 +595,9 @@ class AppService extends AbstractController
     {
         $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
             "agence" => $agence
+        ],
+        [
+            "id" => "DESC"
         ]) ;
         
         $elements = [] ;
