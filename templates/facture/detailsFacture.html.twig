@@ -130,7 +130,7 @@
                                 {% if afficheElement %} 
                                     <tr class="{{background}}">
                                         <td class="align-middle">{{ factureDetail.type|upper }}</td>
-                                        <td class="align-middle">{{ factureDetail.designation }}</td>
+                                        <td class="align-middle">{{ factureDetail.designation | raw }}</td>
                                         <td class="align-middle">{{ factureDetail.quantite }}</td>
                                         <td class="align-middle">{{ factureDetail.format }}</td>
                                         <td class="align-middle">{{ factureDetail.prix }}</td>

@@ -2409,6 +2409,21 @@ class PrestationController extends AbstractController
 
         $pdfGenService->generatePdf($contentImpression,$this->nameUser) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Caution -  - Contrat N° : " . $contrat->getNumContrat(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
 
