@@ -10170,7 +10170,7 @@ footer {
                                 {% for itemDetail in detail2 %}
                                     <tr>
                                         <td>
-                                        {{itemDetail.designation}}
+                                        {{itemDetail.designation | raw}}
                                         </td>
                                         <td>{{itemDetail.mesure}}</td>
                                         <td>
