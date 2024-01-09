@@ -2183,6 +2183,10 @@ class StockController extends AbstractController
             $key++ ;
         }while($key < $lenSave) ;
 
+        $filename = $this->filename."approvisionnement(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+        
         return new JsonResponse([
             "type" => "green",
             "message" => "Approvisionnement effectué"
