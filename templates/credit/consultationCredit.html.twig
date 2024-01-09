@@ -104,7 +104,7 @@
                             <td rowspan="{{ligne + 6}}" class="align-middle">{{credit.client|upper}}</td>
                             {% set passe = false %}
                         {% endif %}
-                        <td>{{credit.designation}}</td>
+                        <td>{{credit.designation | raw}}</td>
                         <td>{{credit.qte}}</td>
                         <td>{{credit.prix}}</td>
                         <td>{{credit.tva}}</td>
