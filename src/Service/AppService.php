@@ -612,6 +612,7 @@ class AppService extends AbstractController
             
             $element["id"] = $appro->getId() ;
             $element["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
+            $element["annee"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("Y") : $appro->getDateAppro()->format("Y") ;
             $element["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
             $element["idEntrepot"] = $appro->getHistoEntrepot()->getId() ;
             $element["produit"] = $codeProduit." | ".$nomType." | ".$nomProduit ;

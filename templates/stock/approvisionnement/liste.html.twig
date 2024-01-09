@@ -96,39 +96,42 @@
                     {% set totalHT = 0 %}
                     {% set totalGeneral = 0 %}
                     {% for appro in appros %}
-                        {% if appro.date != premier %}
-                            {% set premier = appro.date %}
-                            {% set passe = true %}
-                            {% set compteur = 1 %}
-                            {% set totalHT = 0 %}
-                        {% endif %}
-                        <tr>
-                            {% set elements = appros|filter(o => o.date == premier) %}
-                            {% set ligne = elements|length %}
-                            
-                            {% if passe %}
-                                <td rowspan="{{ligne + 1}}" class="align-middle">{{appro.date}}</td>
-                                {% set passe = false %}
+                        {% set annee_actuel = 'now'|date('Y') %}
+                        {% if appro.annee == annee_actuel %}
+                            {% if appro.date != premier %}
+                                {% set premier = appro.date %}
+                                {% set passe = true %}
+                                {% set compteur = 1 %}
+                                {% set totalHT = 0 %}
                             {% endif %}
-                            <td>{{appro.entrepot}}</td>
-                            <td>{{appro.produit}}</td>
-                            <td>{{appro.quantite}}</td>
-                            <td>{{appro.prixVente}}</td>
-                            <td>{{appro.total}}</td>
-                            {% set totalHT = totalHT + appro.total %}
-                        </tr>
-                        {% if compteur == ligne %}
                             <tr>
-                                <th colspan="4">Total Partiel</th>
-                                <th class="bg-secondary text-right text-white">{{totalHT}}</th>
+                                {% set elements = appros|filter(o => o.date == premier) %}
+                                {% set ligne = elements|length %}
+                                
+                                {% if passe %}
+                                    <td rowspan="{{ligne + 1}}" class="align-middle">{{appro.date}}</td>
+                                    {% set passe = false %}
+                                {% endif %}
+                                <td>{{appro.entrepot}}</td>
+                                <td>{{appro.produit}}</td>
+                                <td>{{appro.quantite}}</td>
+                                <td>{{appro.prixVente}}</td>
+                                <td>{{appro.total}}</td>
+                                {% set totalHT = totalHT + appro.total %}
                             </tr>
-                            <tr class="bg-light border_dark">
-                                <td colspan="6"></td>
-                            </tr>
-                            {% set totalGeneral = totalGeneral + totalHT %}
-                        {% endif %}
-                        {% if appro.date == premier %}
-                            {% set compteur = compteur + 1 %}
+                            {% if compteur == ligne %}
+                                <tr>
+                                    <th colspan="4">Total Partiel</th>
+                                    <th class="bg-secondary text-right text-white">{{totalHT}}</th>
+                                </tr>
+                                <tr class="bg-light border_dark">
+                                    <td colspan="6"></td>
+                                </tr>
+                                {% set totalGeneral = totalGeneral + totalHT %}
+                            {% endif %}
+                            {% if appro.date == premier %}
+                                {% set compteur = compteur + 1 %}
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                 </tbody>
