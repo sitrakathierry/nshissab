@@ -400,6 +400,21 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PBAT",
+            "nomModule" => "PRESTATION BATIMENT",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Element -> ". strtoupper($btp_elem_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -637,6 +652,21 @@ class PrestationController extends AbstractController
         $this->entityManager->persist($mesure) ;
         $this->entityManager->flush() ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PBAT",
+            "nomModule" => "PRESTATION BATIMENT",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle Mésure -> ". strtoupper($btp_mes_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -649,10 +679,27 @@ class PrestationController extends AbstractController
 
         $mesure = $this->entityManager->getRepository(BtpMesure::class)->find($id) ;
         
+        $oldMesure = $mesure->getNom() ;
+
         $mesure->setNom($btp_mes_nom) ;
         $mesure->setNotation($btp_mes_notation) ;
 
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PBAT",
+            "nomModule" => "PRESTATION BATIMENT",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Mésure ; Nom : ". strtoupper($oldMesure)." -> ".strtoupper($btp_mes_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
@@ -863,6 +910,21 @@ class PrestationController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Bailleur -> ". $bailleur->getNom(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué",
@@ -903,6 +965,21 @@ class PrestationController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Bailleur -> ". strtoupper($prest_lct_prop_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -945,6 +1022,21 @@ class PrestationController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Bail ; Bail : ".strtoupper($prest_lct_bail_nom)." ; Bailleur : ".$bailleur->getNom(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -1491,6 +1583,22 @@ class PrestationController extends AbstractController
             unlink($filename) ;
 
         $indcCaution = !is_null($prest_ctr_bail_caution) ? "AVEC" : "SANS" ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Contrat N° : " . $numContrat,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Contrat enregistré",
@@ -2198,6 +2306,21 @@ class PrestationController extends AbstractController
         $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PLOC",
+            "nomModule" => "PRESTATION LOCATION",
+            "refAction" => "RNV",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Renouvellement Contrat N° : " . $contrat->getNumContrat(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",

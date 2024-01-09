@@ -2177,7 +2177,9 @@ class FactureController extends AbstractController
         if(file_exists($filename))
             unlink($filename);
         
-        $modeleFacture = $this->entityManager->getRepository(FactModele::class)->find($fact_detail_modele) ; 
+        $modeleFacture = $this->entityManager->getRepository(FactModele::class)->findOneBy([
+            "reference" => $fact_detail_modele
+        ]) ; 
 
         // DEBUT SAUVEGARDE HISTORIQUE
 
