@@ -87,7 +87,7 @@ $(document).ready(function(){
             content:"Voulez-vous vraiment enregistrer ?",
             type:"blue",
             theme:"modern",
-            buttons : {
+            buttons : { 
                 NON : function(){
                     $("#sav_motif_nom").val("")
                 },

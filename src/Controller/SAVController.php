@@ -8,6 +8,7 @@ use App\Entity\CaissePanier;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
+use App\Entity\HistoHistorique;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\SavMotif;
@@ -144,7 +145,7 @@ class SAVController extends AbstractController
             "annulations" => $annulations ,
             "avoirs" => $avoirs,
             "factures" => $factures, 
-        ]);
+        ]); 
     }
      
     #[Route('/sav/creation/motif', name: 'sav_creation_motif')]
@@ -197,6 +198,21 @@ class SAVController extends AbstractController
 
         $this->appService->genererSavMotif($this->filename."motif(agence)/".$this->nameAgence,$this->agence) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "SAV",
+            "nomModule" => "SERVICE APRES VENTE (SAV)",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Motif -> " . strtoupper($motif->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "message" => "Suppression effectuée",
             "type" => "green"
@@ -225,10 +241,14 @@ class SAVController extends AbstractController
         if(!isset($id))
         {
             $motif = new SavMotif() ;
+            $histoAction = "CRT" ;
+            $histoDescription = "Nouveau Motif -> " . strtoupper($sav_motif_nom) ;
         }
         else
         {
             $motif = $this->entityManager->getRepository(SavMotif::class)->find($id) ;
+            $histoAction = "MOD" ;
+            $histoDescription = "Modification Motif : " . strtoupper($motif->getNom()) ." -> ". strtoupper($sav_motif_nom) ;
         }
 
         $motif->setNom($sav_motif_nom) ;
@@ -240,6 +260,21 @@ class SAVController extends AbstractController
 
         $filename = $this->filename."motif(agence)/".$this->nameAgence ;
         $this->appService->genererSavMotif($filename,$this->agence) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "SAV",
+            "nomModule" => "SERVICE APRES VENTE (SAV)",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -703,6 +738,21 @@ class SAVController extends AbstractController
                 unlink($dataFilename) ;
         }
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "SAV",
+            "nomModule" => "SERVICE APRES VENTE (SAV)",
+            "refAction" => "ANL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Annulation ".$sav_type." ; N° : ".$numAnnulation ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
