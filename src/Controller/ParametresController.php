@@ -578,6 +578,19 @@ class ParametresController extends AbstractController
         }
         else
         {
+            $verifService = $this->entityManager->getRepository(DepService::class)->findOneBy([
+                "agence" => $this->agence,
+                "nom" => $param_srv_nom
+            ]) ;
+
+            if(!is_null($verifService))
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Désolé, ce service exite déjà. Entrer un autre service",
+                ]) ;
+            }
+
             $service = new DepService() ;
             $service->setAgence($this->agence) ;
             $service->setStatut(True) ;
