@@ -585,11 +585,11 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
-    public static function comparaisonDates($a, $b) {
-        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
-        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
-        return $dateB <=> $dateA;
-    }
+    // public static function comparaisonDates($a, $b) {
+    //     $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+    //     $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+    //     return $dateB <=> $dateA;
+    // }
 
     public function generatePrdListeApprovisionnement($filename, $agence)
     {
@@ -629,7 +629,7 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         } 
 
-        usort($elements, [self::class, 'comparaisonDates']);
+        // usort($elements, [self::class, 'comparaisonDates']);
 
         file_put_contents($filename,json_encode($elements)) ;
     }
