@@ -1177,6 +1177,8 @@ class FactureController extends AbstractController
     #[Route('/facture/activite/details/{id}/{nature}', name: 'ftr_details_activite' , defaults : ["id" => null,"nature" => "FACTURE"])]
     public function factureDetailsActivites($id,$nature)
     {
+        $this->appService->synchronisationFacture($this->agence) ;
+
         if ($nature == "ANL")
         {
             $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
