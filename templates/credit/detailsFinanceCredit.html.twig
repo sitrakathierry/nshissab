@@ -72,7 +72,7 @@
                     {% for factureDetail in factureDetails %}
                         <tr {{ facture.refStatut == "TRM" ? 'class="bg-secondary text-white"' : "" }}>
                             <td>{{ factureDetail.type|upper }}</td>
-                            <td>{{ factureDetail.designation }}</td>
+                            <td>{{ factureDetail.designation | raw }}</td>
                             <td>{{ factureDetail.quantite }}</td>
                             <td>{{ factureDetail.format }}</td>
                             <td>{{ factureDetail.prix }}</td>

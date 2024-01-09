@@ -2419,7 +2419,7 @@ class PrestationController extends AbstractController
             "user" => $this->userObj,
             "agence" => $this->agence,
             "nameAgence" => $this->nameAgence,
-            "description" => "Impression Caution -  - Contrat N° : " . $contrat->getNumContrat(),
+            "description" => "Impression Caution  - Contrat N° : " . $contrat->getNumContrat(),
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE

@@ -10136,7 +10136,7 @@ footer {
         </div>
         {% if echeanceDetails.description is not empty %}
           <div class="px-3 sizePdf py-2">
-            {{ echeanceDetails.description}}
+            {{ echeanceDetails.description | raw}}
           </div>
         {% endif %}
         <div class="table-responsive">
