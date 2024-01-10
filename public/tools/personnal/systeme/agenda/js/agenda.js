@@ -23,7 +23,7 @@ $(document).ready(function(){
             },
             btn2: {
               text: "Oui",
-              btnClass: "btn-blue",
+              btnClass: "btn-blue", 
               keys: ["enter", "shift"],
               action: function () {
                 var data = self.serialize();

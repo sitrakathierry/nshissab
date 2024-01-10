@@ -12,6 +12,7 @@ use App\Entity\Agence;
 use App\Entity\Agenda;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
+use App\Entity\HistoHistorique;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -210,9 +211,22 @@ class AgendaController extends AbstractController
         
         $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
         if(file_exists($filename))
-        {
             unlink($filename) ;
-        }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle Agenda ; Type -> ". $type->getNom() ." ; ".$type->getDesignation()." -> ".strtoupper($agd_client),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -377,7 +391,7 @@ class AgendaController extends AbstractController
         $date = $echeance->getDate() ;
         $montant = $echeance->getMontant() ;
 
-        $dateEcheance = $date->format('d/m/Y') ;
+        $dateEcheance = $date->format('d/m/Y') ; 
         $dateActuel = date('d/m/Y') ;
 
         $compareInf = $this->appService->compareDates($dateEcheance,$dateActuel,"P") ;

@@ -375,7 +375,7 @@ $(document).ready(function(){
                     text: 'Non',
                     action: function(){}
                 },
-                btn2:{
+                btn2:{ 
                     text: 'Oui',
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],

@@ -16,7 +16,7 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}} N° : <span class="text-white px-2 py-1 rounded badge-warning">{{depense.numFacture}}</span></h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 mb-5 pb-5 pt-3">
         <form id="formDepModif">
             <input type="hidden" name="depense_type" value="MODIF_DEP">
             <input type="hidden" name="id_depense_modif" value="{{depense.id}}">
@@ -158,7 +158,7 @@
             {% if with_foot %}
                 <div class="foot_action p-3 mt-4 mb-5 pb-5 text-right w-100 barre_dashed">
                     <button type="button" class="btn btn-sm btn_dep_modif ml-3 btn-warning px-3"><i class="fa fa-edit"></i>&nbsp;Modifier</button>
-                    <button type="button" class="btn btn-sm ml-3 btn-primary px-3 mb-5 pb-5"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                    <button type="button" class="btn btn-sm ml-3 btn-primary px-3"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
                 </div>
             {% endif %} 
         </form>

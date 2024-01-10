@@ -18,6 +18,7 @@ use App\Entity\DepModePaiement;
 use App\Entity\DepMotif;
 use App\Entity\DepService;
 use App\Entity\DepStatut;
+use App\Entity\HistoHistorique;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -174,6 +175,8 @@ class ComptabiliteController extends AbstractController
             return new JsonResponse($result) ;
         }
 
+        $oldNom = $banque->getNom() ;
+
         $banque->setNom($nomBanque) ;
         $this->entityManager->flush() ;
 
@@ -183,6 +186,21 @@ class ComptabiliteController extends AbstractController
 
         $result["message"] = "Modification effectué" ;
         $result["type"] = "green" ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Banque ; Nom : " . strtoupper($oldNom)." -> ".strtoupper($nomBanque),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -203,6 +221,21 @@ class ComptabiliteController extends AbstractController
 
         $result["message"] = "Suppression effectué" ;
         $result["type"] = "green" ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Banque -> ".$banque->getNom(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -237,6 +270,21 @@ class ComptabiliteController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouvelle Banque -> " . strtoupper($cmp_banque_nom),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
         
         
@@ -327,6 +375,32 @@ class ComptabiliteController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Compte ; N° : ".$cmp_compte_numero,
+        ]) ;
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "DEP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Dépôt de Compte N° : ".$cmp_compte_numero." ; Montant : ".$cmp_compte_solde,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ; 
         
     }
@@ -395,6 +469,21 @@ class ComptabiliteController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Compte ; N° : ".$cmp_compte_numero,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
         
         return new JsonResponse([
             "type" => "green",
@@ -416,6 +505,21 @@ class ComptabiliteController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Compte ; N° : ".$compte->getNumero(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué",
@@ -895,6 +999,8 @@ class ComptabiliteController extends AbstractController
         if(isset($depense_type) && !empty($depense_type))
         {
             $depense = $this->entityManager->getRepository(Depense::class)->find($id_depense_modif) ;
+            $histoAction = "MOD" ; 
+            $histoDescription = "Modification Dépense ; Nom concerné : ".$dep_nom_concerne." ; Elément : ".$dep_element." ; Montant : ".$dep_montant ;
         }
         else
         {
@@ -902,6 +1008,8 @@ class ComptabiliteController extends AbstractController
             $depense->setStatutGen(True) ;
             $depense->setCreatedAt(new \DateTimeImmutable) ;
             $depense->setUpdatedAt(new \DateTimeImmutable) ;
+            $histoAction = "CRT" ; 
+            $histoDescription = "Déclaration Dépense ; Nom concerné : ".$dep_nom_concerne." ; Elément : ".$dep_element." ; Montant : ".$dep_montant ;
         }
 
         $depense->setAgence($this->agence) ;
@@ -952,6 +1060,21 @@ class ComptabiliteController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
         
     }
@@ -1832,6 +1955,21 @@ class ComptabiliteController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Chèque ; CHEQUE ".strtoupper($type->getReference())." ; Nom Chèquier : ".strtoupper($chk_nom_chequier)." ; Montant : ".$chk_montant,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -1883,6 +2021,21 @@ class ComptabiliteController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "VLD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Validation Chèque ; CHEQUE ".strtoupper($cheque->getType()->getReference())." ; Nom Chèquier : ".strtoupper($cheque->getNomChequier())." ; Montant : ".$cheque->getMontant(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+        
         return new JsonResponse([
             "type" => "green",
             "message" => "Validation effectué",

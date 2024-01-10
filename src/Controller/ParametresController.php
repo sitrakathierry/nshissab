@@ -6,6 +6,7 @@ use App\Entity\AgcDevise;
 use App\Entity\Agence;
 use App\Entity\DepService;
 use App\Entity\Devise;
+use App\Entity\HistoHistorique;
 use App\Entity\Menu;
 use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
@@ -196,7 +197,11 @@ class ParametresController extends AbstractController
             "statut" => True
         ]) ;
         
-        $filename = "files/systeme/stock/preference(user)/".$this->nameUser.".json" ;
+        $filename = "files/systeme/stock/preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
+
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename, $this->agence) ;
+
         $preferences = json_decode(file_get_contents($filename)) ;
         
         $path = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ; 
@@ -308,6 +313,7 @@ class ParametresController extends AbstractController
             $idType = $info['idType'] ;
 
             $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
+
             if(!empty($idType))
             {   
                 $paramTvaType = $this->entityManager->getRepository(ParamTvaType::class)->find($idType) ;
@@ -316,6 +322,8 @@ class ParametresController extends AbstractController
                     "type" => "green",
                     "message" => "Type ajoutée"
                 ] ;
+                $histoAction = "CRT" ;
+                $histoDescription = "Ajout TVA sur Produit -> ".$produit->getNom().", Type -> ". $paramTvaType->getDesignation().", Valeur -> ".$paramTvaType->getValeur() ;
             }
             else
             {
@@ -324,6 +332,8 @@ class ParametresController extends AbstractController
                     "type" => "dark",
                     "message" => "Type supprimée"
                 ] ;
+                $histoAction = "DEL" ;
+                $histoDescription = "Suppression TVA sur Produit -> ".$produit->getNom() ;
             }
             
             $this->entityManager->flush() ;
@@ -334,6 +344,21 @@ class ParametresController extends AbstractController
         unlink($filename) ;
         if(!file_exists($filename))
             $this->appService->generateProduitParamTypeTva($path,$filename,$this->agence) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
 
@@ -372,6 +397,21 @@ class ParametresController extends AbstractController
         $this->entityManager->persist($paramTvaType) ;
         $this->entityManager->flush() ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Type TVA : Type -> ". $tva_designation.", Valeur -> ".$tva_valeur,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+        
         return new JsonResponse($result) ;
     }
  
@@ -503,6 +543,8 @@ class ParametresController extends AbstractController
         {
             $modelePdf = $this->entityManager->getRepository(ModModelePdf::class)->find($mod_id_modele) ;
             $formeModele = $forme_modele_pdf ;
+            $histoAction = "MOD" ;
+            $histoDescription = "Modification Modèle : ".strtoupper($modele_nom)." ; Type : ".$modele_value." DE PAGE"  ;
         }
         else
         {
@@ -511,6 +553,8 @@ class ParametresController extends AbstractController
             $modelePdf->setUser($this->userObj) ;
             $modelePdf->setAgence($this->agence) ;
             $formeModele = "ModelePdf_".$forme_modele_pdf ;
+            $histoAction = "CRT" ;
+            $histoDescription = "Nouveau Modèle -> ".strtoupper($modele_nom)." ; Type : ".$modele_value." DE PAGE"  ;
         }
         
         $modelePdf->setNom($modele_nom) ;
@@ -536,6 +580,21 @@ class ParametresController extends AbstractController
                 "message" => "Modification effectué",    
             ] ;
         }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -575,6 +634,8 @@ class ParametresController extends AbstractController
         {
             $service = $this->entityManager->getRepository(DepService::class)->find($idService) ;
             $message = "Modification effectué" ;
+            $histoAction = "MOD" ;
+            $histoDescription = "Modification Service -> ".$param_srv_nom ;
         }
         else
         {
@@ -595,6 +656,8 @@ class ParametresController extends AbstractController
             $service->setAgence($this->agence) ;
             $service->setStatut(True) ;
             $message = "Enregistrement effectué" ;
+            $histoAction = "CRT" ;
+            $histoDescription = "Nouveau Service -> ".$param_srv_nom ;
         }
 
         $service->setNom($param_srv_nom) ;
@@ -602,6 +665,21 @@ class ParametresController extends AbstractController
         if(!isset($idService))
             $this->entityManager->persist($service) ;
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
@@ -618,6 +696,21 @@ class ParametresController extends AbstractController
 
         $service->setStatut(False) ;
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Service -> ". $service->getNom(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
@@ -657,7 +750,6 @@ class ParametresController extends AbstractController
             ]) ;
         }
         
-
         $username = $request->request->get('username') ;
         $password = $request->request->get('password') ;
         $email = $request->request->get('email') ;
@@ -753,6 +845,21 @@ class ParametresController extends AbstractController
         $dataUser = [] ;
         if(!file_exists($filename))
             file_put_contents($filename,json_encode($dataUser)) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Création agent -> ".strtoupper($username),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse(["message"=>$message, "type"=>$type]) ;
     }
@@ -924,6 +1031,22 @@ class ParametresController extends AbstractController
                     unlink($filename) ;
 
                 $this->regenerateUserMenu($dataUser) ;
+
+                // DEBUT SAUVEGARDE HISTORIQUE
+
+                $this->entityManager->getRepository(HistoHistorique::class)
+                ->insererHistorique([
+                    "refModule" => "PARAM",
+                    "nomModule" => "PARAMETRES",
+                    "refAction" => "CRT",
+                    "user" => $this->userObj,
+                    "agence" => $this->agence,
+                    "nameAgence" => $this->nameAgence,
+                    "description" => "Attribution Menu Agent -> ".strtoupper($userAgent->getUsername()),
+                ]) ;
+
+                // FIN SAUVEGARDE HISTORIQUE
+
                 $type = 'green' ;
                 $message = "Information enregistré avec succès" ;
             }
@@ -993,6 +1116,21 @@ class ParametresController extends AbstractController
         $filename = $this->filename."modelePdf(user)/".$this->nameAgence."_".$this->agence->getId().".json" ;
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Modèle -> ".$modelePdf->getNom()." ; Type : ".$modelePdf->getType()." DE PAGE",
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",    
@@ -1096,6 +1234,21 @@ class ParametresController extends AbstractController
         $encodedPass = $this->appService->hashPassword($user,$newPass) ;
         $user->setPassword($encodedPass) ;
         $this->entityManager->flush();
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "PARAM",
+            "nomModule" => "PARAMETRES",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Mot de passe Agent -> ".strtoupper($user->getUsername()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",    
