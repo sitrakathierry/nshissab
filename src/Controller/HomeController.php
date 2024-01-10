@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\CaissePanier;
+use App\Entity\HistoHistorique;
 use App\Entity\ModModelePdf;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdVariationPrix;
@@ -32,6 +33,7 @@ class HomeController extends AbstractController
     private $agence ;
     private $userObj ; 
     private $user ; 
+    private $nameAgence ; 
 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
@@ -46,6 +48,7 @@ class HomeController extends AbstractController
             "username" => $this->user["username"],
             "agence" => $this->agence 
         ]) ;
+        $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
     }
 
     /**
@@ -340,6 +343,21 @@ class HomeController extends AbstractController
         $this->session->set("user", $data) ;
 
         $this->entityManager->flush() ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "COMPTE",
+            "nomModule" => "COMPTE",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Profil Utilisateur -> ". strtoupper($home_user_nom) ,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",
