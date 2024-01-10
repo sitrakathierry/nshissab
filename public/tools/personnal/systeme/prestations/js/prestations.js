@@ -645,7 +645,7 @@ $(document).ready(function(){
         btn1: {
           text: "Non",
           action: function () {
-          },
+          }, 
         },
         btn2: {
           text: "Oui",

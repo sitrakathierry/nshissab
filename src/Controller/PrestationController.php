@@ -890,6 +890,10 @@ class PrestationController extends AbstractController
 
         $this->entityManager->flush() ;
 
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
         // DEBUT SAUVEGARDE HISTORIQUE
 
         $this->entityManager->getRepository(HistoHistorique::class)
@@ -904,6 +908,8 @@ class PrestationController extends AbstractController
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
+
+
 
         return new JsonResponse([
             "type" => "green",
