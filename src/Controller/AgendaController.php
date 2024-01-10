@@ -217,8 +217,8 @@ class AgendaController extends AbstractController
 
         $this->entityManager->getRepository(HistoHistorique::class)
         ->insererHistorique([
-            "refModule" => "PARAM",
-            "nomModule" => "PARAMETRES",
+            "refModule" => "AGD",
+            "nomModule" => "AGENDA",
             "refAction" => "CRT",
             "user" => $this->userObj,
             "agence" => $this->agence,

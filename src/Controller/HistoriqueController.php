@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\HistoAction;
 use App\Entity\HistoHistorique;
+use App\Entity\HistoModule;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,11 +53,27 @@ class HistoriqueController extends AbstractController
         
         $historiques = json_decode(file_get_contents($filename)) ;
 
+        $utilisateurs = $this->entityManager->getRepository(User::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ;
+
+        $actions = $this->entityManager->getRepository(HistoAction::class)->findBy([
+            "statut" => True
+        ]) ;
+
+        $modules = $this->entityManager->getRepository(HistoModule::class)->findBy([
+            "statut" => True
+        ]) ;
+
         return $this->render('historique/consultation.html.twig', [
             "filename" => "historique",
             "titlePage" => "Historique des actions",
             "with_foot" => false,
             "historiques" => $historiques,
+            "utilisateurs" => $utilisateurs,
+            "actions" => $actions,
+            "modules" => $modules,
         ]);
     }
 
