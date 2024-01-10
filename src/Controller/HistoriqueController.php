@@ -11,6 +11,7 @@ use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -82,6 +83,10 @@ class HistoriqueController extends AbstractController
     {
         $heureLocal = $request->request->get('heureLocal');
         $this->session->set("shissabHeure",$heureLocal) ;
+
+        return new JsonResponse([
+            "message" => "Ok"
+        ]) ;
     }
 
 }
