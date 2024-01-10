@@ -21,5 +21,27 @@
         {% block javascripts %}
             {# {{ encore_entry_script_tags('app') }} #}
             <script src="{{asset('tools/cdn/js/jquery.js')}}"></script>
+            <script>
+                // const routes = {
+                //     histo_heure_recup:"{{path('histo_heure_recup')}}",
+                // }
+                // // Récupérer l'heure actuelle
+				// var dateActuelle = new Date();
+				// var heureActuelle = dateActuelle.getHours() + ':' + dateActuelle.getMinutes() ;
+
+				// $.ajax({
+				// 	url: routes.histo_heure_recup, 
+				// 	type: 'POST',
+				// 	data: {
+				// 		heureLocal:heureActuelle
+				// 	},
+				// 	success: function(response) {
+                //         console.log(heureActuelle) ;
+				// 	},
+				// 	error: function(error) {
+				// 		console.log("Heure : "+error) ;
+				// 	}
+				// });
+            </script>
         {% endblock %}
 </html>

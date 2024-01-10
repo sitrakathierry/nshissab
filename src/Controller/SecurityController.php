@@ -72,6 +72,9 @@ class SecurityController extends AbstractController
         $error = null ;
         $type = "success" ;
 
+        $heureLocal = $request->request->get("heureLocal") ;
+        $this->session->set("shissabHeure",$heureLocal) ;
+
         $csrfToken = $request->request->get('_csrf_token');
         if (!$this->isCsrfTokenValid('authenticate', $csrfToken)) {
             $error = 'CSRF token invalide';

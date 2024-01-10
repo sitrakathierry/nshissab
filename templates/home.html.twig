@@ -367,6 +367,7 @@
 					param_service_save:"{{path('param_service_save')}}",
 					param_service_delete:"{{path('param_service_delete')}}",
 					histo_element_consultation:"{{path('histo_element_consultation')}}",
+					histo_heure_recup:"{{path('histo_heure_recup')}}",
 				}; 
 
 				const files = { 
@@ -374,6 +375,23 @@
 					search : "{{asset('data/images/search.svg')}}",
 					imageDefault: "{{asset('data/images/default.jpg')}}",
 				}	
+
+				// Récupérer l'heure actuelle
+				var dateActuelle = new Date();
+				var heureActuelle = dateActuelle.getHours() + ':' + dateActuelle.getMinutes() ;
+
+				$.ajax({
+					url: routes.histo_heure_recup, 
+					type: 'POST',
+					data: {
+						heureLocal:heureActuelle
+					},
+					success: function(response) {
+					},
+					error: function(error) {
+						console.log("Heure : "+error) ;
+					}
+				});
 			</script>
 			
 			<script src="{{asset('tools/personnal/js/main.js')}}"></script>

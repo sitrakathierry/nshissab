@@ -32,6 +32,7 @@
                 <span class="font-smaller ml-2" id="labelToggle">Afficher le mot de passe</span>
             </div>
             
+            <input type="hidden" name="heureLocal" id="heureLocal" >
 
             <input type="hidden" name="_csrf_token"
                 value="{{ csrf_token('authenticate') }}"
@@ -42,6 +43,11 @@
             <div class="w-100 text-center mt-3">
                 <label for="" class="copyright_login text-secondary" >Hikamsocietemultiple &copy; {{"now"|date('Y')}}</label>
             </div>
+            <script>
+                var dateActuelle = new Date();
+				var heureActuelle = dateActuelle.getHours() + ':' + dateActuelle.getMinutes() ;
+                document.querySelector("#heureLocal").value = heureActuelle
+            </script>
         </form>
     </div>
 </div>

@@ -7,6 +7,7 @@ use App\Entity\HistoHistorique;
 use App\Entity\HistoModule;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @extends ServiceEntityRepository<HistoHistorique>
@@ -18,9 +19,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class HistoHistoriqueRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $session ; 
+
+    public function __construct(ManagerRegistry $registry,SessionInterface $session)
     {
         parent::__construct($registry, HistoHistorique::class);
+        $this->session = (object)$session ;
     }
 
     public function save(HistoHistorique $entity, bool $flush = false): void
@@ -43,6 +47,7 @@ class HistoHistoriqueRepository extends ServiceEntityRepository
 
     public function insererHistorique($params = [])
     {
+
         $module = $this->getEntityManager()->getRepository(HistoModule::class)->findOneBy([
             "reference" => $params["refModule"],
             "statut" => True
@@ -71,7 +76,7 @@ class HistoHistoriqueRepository extends ServiceEntityRepository
         $historique->setModule($module) ;
         $historique->setUser($params["user"]) ;
         $historique->setAgence4($params["agence"]) ;
-        $historique->setDateHeure(new \DateTime) ;
+        $historique->setDateHeure(\DateTime::createFromFormat("d/m/Y H:i",date("d/m/Y")." ".$this->session->get("shissabHeure"))) ;
         $historique->setDescription($params["description"]) ;
         $historique->setStatut(True) ;
         $historique->setCreatedAt(new \DateTimeImmutable) ;

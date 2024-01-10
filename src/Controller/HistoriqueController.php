@@ -8,6 +8,8 @@ use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -56,4 +58,12 @@ class HistoriqueController extends AbstractController
             "historiques" => $historiques,
         ]);
     }
+
+    #[Route('/historique/recuperer/heure', name: 'histo_heure_recup')]
+    public function recevoirDateDepuisJavascript(Request $request)
+    {
+        $heureLocal = $request->request->get('heureLocal');
+        $this->session->set("shissabHeure",$heureLocal) ;
+    }
+
 }
