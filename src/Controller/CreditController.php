@@ -14,6 +14,7 @@ use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
+use App\Entity\HistoHistorique;
 use App\Entity\ModModelePdf;
 use App\Entity\User;
 use App\Service\AppService;
@@ -343,6 +344,34 @@ class CreditController extends AbstractController
 
         $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
         
+        if($refPaiement == "CR")
+        {
+            $typePaiement = "CRD" ;
+            $nomPaiement = "CREDIT" ;
+            $histoMessage = "Fiche de paiement credit N° : ".$finance->getNumFnc() ;
+        }
+        else
+        {
+            $typePaiement = "ACP" ;
+            $nomPaiement = "ACOMPTE" ;
+            $histoMessage = "Fiche de dépôt d'acompte N° : ".$finance->getNumFnc() ;
+        }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => $typePaiement,
+            "nomModule" => $nomPaiement,
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression ".$histoMessage,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
     }
@@ -457,10 +486,34 @@ class CreditController extends AbstractController
             
         if(file_exists($filename))
             unlink($filename) ;
-        if(!file_exists($filename))
+
+        if($refPaiement == "CR")
         {
-            $this->appService->generateCredit($filename,$this->agence,$refPaiement) ;
+            $typePaiement = "CRD" ;
+            $nomPaiement = "CREDIT" ;
+            $histoMessage = "Paiement credit N° : ".$finance->getNumFnc() ;
         }
+        else
+        {
+            $typePaiement = "ACP" ;
+            $nomPaiement = "ACOMPTE" ;
+            $histoMessage = "Dépôt d'acompte N° : ".$finance->getNumFnc() ;
+        }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => $typePaiement,
+            "nomModule" => $nomPaiement,
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoMessage,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -723,6 +776,21 @@ class CreditController extends AbstractController
 
         $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CRD",
+            "nomModule" => "CREDIT",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Facture Echeance ; Credit N° ".$echeance->getCatTable()->getNumFnc()." ; Date : ".$echeance->getDate()->format("d/m/Y")." ; Montant : ".$echeance->getMontant(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
     }

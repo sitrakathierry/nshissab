@@ -84,6 +84,8 @@ class HistoriqueController extends AbstractController
         $heureLocal = $request->request->get('heureLocal');
         $this->session->set("shissabHeure",$heureLocal) ;
 
+        // dd($this->session->get("shissabHeure")) ;
+
         return new JsonResponse([
             "message" => "Ok"
         ]) ;

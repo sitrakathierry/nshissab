@@ -457,9 +457,23 @@ class AgendaController extends AbstractController
 
         $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
         if(file_exists($filename))
-        {
             unlink($filename) ;
-        }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CRD",
+            "nomModule" => "CREDIT",
+            "refAction" => "VLD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Validation Echéance ; Date : ".$dateActuel." ; Montant : ".$crd_paiement_montant,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -526,6 +540,21 @@ class AgendaController extends AbstractController
             unlink($filename) ;
         }
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "AGD",
+            "nomModule" => "AGENDA",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Sauvegarde Acompte sur Agenda ; Date : ".$agd_acp_date." ; Objet : ".$agd_acp_objet,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -543,6 +572,21 @@ class AgendaController extends AbstractController
         {
             unlink($filename) ;
         }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CRD",
+            "nomModule" => "CREDIT",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Echéance ; Date : ".$echeance->getDate()->format("d/m/Y")." ; Montant : ".$echeance->getMontant(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",

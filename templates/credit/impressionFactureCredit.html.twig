@@ -10046,7 +10046,7 @@ a.text-dark:hover, a.text-dark:focus {
 }
 .title_form_entete
 {
-  font-size: 1.15em;
+  font-size: 0.95em;
   font-weight: 600;
   letter-spacing: 1px;
   text-decoration: underline ;
@@ -10108,22 +10108,30 @@ footer {
   }
 }
 
+.sizeData
+{
+    font-size: 0.85em ; 
+    font-family: 'Times New Roman' ;
+}
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
         {{contentEntete|raw}}
     </div>
-    <div class="pt-2 mt-5">
-        <div class="text-center">
-            <h5 class="title_form_entete text-black text-uppercase">Relevé de paiement par échéance N° {{finance.numFnc}}</h5>
-        </div>
-        <div class="mt-4 text-wrap" style="width: 380px; margin-left: 57%">
-            <ul class="list-unstyled" style="line-height: 20px ; font-size: 0.92em ">
-                <li><b>DOIT</b></li>
-                <li><span class="font-weight-bold">Statut</span>&nbsp;:&nbsp;<span>{{client.statut}}</span></li>
-                <li><span class="font-weight-bold">Nom</span>&nbsp;:&nbsp;<span>{{client.nom}}</span></li>
-                <li><span class="font-weight-bold">Adresse</span>&nbsp;:&nbsp;<span>{{client.adresse}}</span></li>
-                <li><span class="font-weight-bold">Téléphone</span>&nbsp;:&nbsp;<span>{{client.telephone}}</span></li>
+    <div class="pt-2 ">
+        <div class="text-wrap" style="width: 380px; margin-left: 50%">
+            <ul class="list-unstyled" style="line-height: 20px ;">
+                <h5 class="title_form_entete text-black text-uppercase">
+                {% if refPaiement == "CR" %}
+                    Fiche de Paiement de Crédit N° {{finance.numFnc}}
+                {% else %}
+                    Fiche de dépôt d'acompte N° {{finance.numFnc}}
+                {% endif %}
+                </h5>
+                <li><span class="font-weight-bold sizeData">Nom Client</span>&nbsp;:&nbsp;<span class="sizeData">{{client.nom}}</span></li>
+                <li><span class="font-weight-bold sizeData">Adresse</span>&nbsp;:&nbsp;<span class="sizeData">{{client.adresse}}</span></li>
+                <li><span class="font-weight-bold sizeData">Téléphone</span>&nbsp;:&nbsp;<span class="sizeData">{{client.telephone}}</span></li>
             </ul>
         </div>
         {# {% if facture.description is not empty %}
@@ -10131,7 +10139,7 @@ footer {
             {{ facture.description | raw}}
           </div>
         {% endif %} #}
-        <div class="table-responsive {{ refPaiement == "CR" ? "w-100" : "w-75"}}">
+        <div class="table-responsive w-100">
             <table class="table-sm table table-bordered">
                 <thead class="text-uppercase thead-dark">
                     <tr>
@@ -10140,9 +10148,9 @@ footer {
                             <th class="text-center">Type</th>
                         {% endif %}
                         <th>Montant {{ refPaiement == "CR" ? "Payé" : "Déposé"}}</th>
-                        {% if refPaiement == "CR" %}
+                        {# {% if refPaiement == "CR" %}
                             <th></th>
-                        {% endif %}
+                        {% endif %} #}
                     </tr>
                 </thead>
                 <tbody>
@@ -10156,11 +10164,11 @@ footer {
                                 </td>
                             {% endif %}
                             <td>{{ financeDetail.montant }}</td>
-                            {% if refPaiement == "CR" %}
+                            {# {% if refPaiement == "CR" %}
                                 <td class="align-middle text-center">
                                     <label for="" class="font-weight-bold text-success text-uppercase">OK</label>
                                 </td>
-                            {% endif %}
+                            {% endif %} #}
                         </tr>
                         {% set totalPayee = totalPayee + financeDetail.montant %}
                     {% endfor %}
@@ -10184,19 +10192,19 @@ footer {
                 <tfoot class="text-uppercase">
                     <tr>
                         <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Payée</th>
-                        <th colspan="2" class="bg-success text-white">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
+                        <th class="bg-secondary text-light">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
                     </tr>
                     <tr>
                         <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Restant</th>
-                        <th colspan="2" class="bg-primary text-white">{{ facture.totalTtc - totalPayee }}</th>
+                        <th class="bg-dark text-light">{{ facture.totalTtc - totalPayee }}</th>
                     </tr>
                 </tfoot>
             </table>
         </div>
-        <div class="w-100 text-right mt-3" style="font-size: 0.92em ">
-            <span>Aujourd'hui, le {{date}}</span>
+        <div class="w-100 text-right mt-3" style="">
+            <span class="sizeData">Aujourd'hui, le {{date}}</span>
         </div>
-        <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span>Le Client</span><span style="margin-left:390px !important;">Pour la société</span></h5>
+        <h5 class="title_form text-black text-uppercase sizeData text-left mt-3 px-3"><span style="margin-left:490px !important;">Signature</span></h5>
     </div>
 </div>
 <footer>

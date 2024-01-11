@@ -378,7 +378,9 @@
 
 				// Récupérer l'heure actuelle
 				var dateActuelle = new Date();
-				var heureActuelle = dateActuelle.getHours() + ':' + dateActuelle.getMinutes() ;
+				var nowHour = (dateActuelle.getHours() < 10) ? "0" + dateActuelle.getHours() : dateActuelle.getHours().toString();
+				var nowMinute = (dateActuelle.getMinutes() < 10) ? "0" + dateActuelle.getMinutes() : dateActuelle.getMinutes().toString();
+				var heureActuelle = nowHour + ':' + nowMinute ;
 
 				$.ajax({
 					url: routes.histo_heure_recup, 
