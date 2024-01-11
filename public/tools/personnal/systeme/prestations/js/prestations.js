@@ -173,7 +173,7 @@ $(document).ready(function(){
                           prest_ctr_pourcentage:$("#prest_ctr_pourcentage").val(),
                           prest_ctr_renouvellement:$("#prest_ctr_renouvellement").val(),
                           prest_ctr_caution:$("#prest_ctr_caution").val(),
-                          prest_ctr_changement:$("#prest_ctr_changement").val()
+                          prest_ctr_changement:$("#prest_ctr_changement").val(),
                       }
                       $.ajax({
                           url: routes.prest_location_edit_contrat_valid,
@@ -687,14 +687,20 @@ $(document).ready(function(){
   });
 
   $(".lct_btn_modifier").click(function(){
-    $("#lct_nom").removeAttr("readonly") ;
-    $("#lct_tel").removeAttr("readonly") ;
-    $("#lct_adresse").removeAttr("readonly") ;
-    $("#lct_email").removeAttr("readonly") ;
+
+    var arrayInput = [
+      "#lct_nom",
+      "#lct_tel",
+      "#lct_adresse",
+      "#lct_email",
+    ] ;
+
+    for (let i = 0; i < arrayInput.length; i++) {
+      const element = arrayInput[i];
+      $(element).removeAttr("readonly") ;
+      $(element).removeClass("text-primary") ;
+      $(element).addClass("text-success") ;
+    }
     $(this).parent().html('<button type="submit" class="btn btn-purple btn-sm"><i class="fa fa-database"></i>&nbsp;Mettre à jour</button>')
-    $.alert({
-        title: 'Modification',
-        content: 'Les champs sont maintenant active',
-    })
   })
 })

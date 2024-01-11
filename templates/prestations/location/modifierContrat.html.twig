@@ -21,15 +21,15 @@
             <div class="col-md-6">
                 <div class="w-100 box_content p-3">
                     <h5 class="title_form text-black text-uppercase">Le Bailleur</h5>
-                    <label for="nom" class="font-weight-bold">Nom</label>
-                    <input type="text" name="nom" readonly value="{{ contrat.bailleur | upper }}" id="nom" class="form-control" placeholder=". . .">
+                    <label for="prest_ctr_bailleur" class="font-weight-bold">Nom</label>
+                    <input type="text" name="prest_ctr_bailleur" value="{{ contrat.bailleur | upper }}" id="prest_ctr_bailleur" class="form-control text-success font-weight-bold" placeholder=". . .">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="w-100 box_content p-3">
                     <h5 class="title_form text-black text-uppercase">Le Locataire</h5>
-                    <label for="nom" class="font-weight-bold">Nom</label>
-                    <input type="text" name="prest_ctr_locataire" readonly value="{{ contrat.locataire | upper }}" id="nom" class="form-control" placeholder=". . .">
+                    <label for="prest_ctr_locataire" class="font-weight-bold">Nom</label>
+                    <input type="text" name="prest_ctr_locataire" value="{{ contrat.locataire | upper }}" id="prest_ctr_locataire" class="form-control text-success font-weight-bold" placeholder=". . .">
                     <input type="hidden" name="prest_ctr_id" value="{{contrat.id}}" id="prest_ctr_id" >
                 </div>
             </div>
@@ -47,16 +47,16 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Nom</label>
-                    <input type="text" readonly name="nom" id="nom" value="{{ bail.nom | upper }}" class="form-control" placeholder=". . .">
+                    <label for="prest_ctr_bail_nom" class="font-weight-bold">Nom</label>
+                    <input type="text" name="prest_ctr_bail_nom" id="prest_ctr_bail_nom" value="{{ bail.nom | upper }}" class="form-control text-success font-weight-bold" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Adresse</label>
-                    <input type="text" readonly name="nom" id="nom" value="{{ bail.adresse|upper }}" class="form-control" placeholder=". . .">
+                    <label for="prest_ctr_bail_adresse" class="font-weight-bold">Adresse</label>
+                    <input type="text" name="prest_ctr_bail_adresse" id="prest_ctr_bail_adresse" value="{{ bail.adresse|upper }}" class="form-control text-success font-weight-bold" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
-                    <label for="nom" class="font-weight-bold">Dimension</label>
-                    <input type="text" readonly name="nom" id="nom" value="{{ bail.dimension }}" class="form-control" placeholder=". . .">
+                    <label for="prest_ctr_bail_dimension" class="font-weight-bold">Dimension</label>
+                    <input type="text" name="prest_ctr_bail_dimension" id="prest_ctr_bail_dimension" value="{{ bail.dimension }}" class="form-control text-success font-weight-bold" placeholder=". . .">
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@
             <div class="row">
                 <div class="col-md-2">
                     <label class="font-weight-bold">Cycle</label>
-                    <input type="text" class="form-control" readonly id="recap_ctr_cycle" value="{{contrat.cycle|upper}}" >
+                    <input type="text" class="form-control" name="recap_ctr_cycle" readonly id="recap_ctr_cycle" value="{{contrat.cycle|upper}}" >
                 </div>
                 <div class="col-md-2">
                     <label class="font-weight-bold">Type de paiement</label>
@@ -93,7 +93,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="font-weight-bold mt-3">Pourcentage à retenir(%)</label>
-                    <input type="number" class="form-control" id="prest_ctr_pourcentage" value="{{contrat.retenu}}" >
+                    <input type="number" class="form-control text-success font-weight-bold" id="prest_ctr_pourcentage" value="{{contrat.retenu}}" >
                 </div>
                 <div class="col-md-3">
                     <label class="font-weight-bold mt-3">Renouvellement</label>
@@ -116,17 +116,17 @@
                 {% endif %}
                 <div class="col-md-3">
                     <label class="font-weight-bold mt-3">Caution</label>
-                    <input type="number" class="form-control" id="prest_ctr_caution" value="{{contrat.caution}}" >
+                    <input type="number" class="form-control text-success font-weight-bold" id="prest_ctr_caution" value="{{contrat.caution}}" >
                 </div>
                 <div class="col-md-3">
                     <label class="font-weight-bold mt-3">Montant Contrat</label>
                     <input type="text" class="form-control" readonly id="recap_ctr_montant_contrat" value="{{contrat.montantContrat}}" >
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <label class="font-weight-bold mt-3">Changement avant fin du contrat</label>
                     <div class="row">
-                        <div class="col-md-3">
-                            <input type="number" class="form-control" id="prest_ctr_changement" value="{{contrat.changement}}" >
+                        <div class="col-md-4">
+                            <input type="number" class="form-control text-success font-weight-bold" id="prest_ctr_changement" value="{{contrat.changement}}" >
                         </div>
                         <div class="col-md-6 pt-2">
                             <b>Jours(s)</b>

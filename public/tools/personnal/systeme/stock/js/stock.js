@@ -733,7 +733,7 @@ $(document).ready(function(){
                     var realinstance = instance.loading()
                     var data = self.serialize()
                     $.ajax({
-                        url: routes.stock_save_fournisseur,
+                        url: routes.stock_save_fournisseur, 
                         type:"post",
                         data:data,
                         dataType:"json",
