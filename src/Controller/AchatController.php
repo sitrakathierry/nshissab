@@ -10,6 +10,7 @@ use App\Entity\AchStatut;
 use App\Entity\AchStatutBon;
 use App\Entity\AchType;
 use App\Entity\Agence;
+use App\Entity\HistoHistorique;
 use App\Entity\PrdFournisseur;
 use App\Entity\User;
 use App\Service\AppService;
@@ -27,7 +28,7 @@ class AchatController extends AbstractController
     private $session ;
     private $appService ;
     private $agence ;
-    private $user ;
+    private $user ; 
     private $filename ; 
     private $nameAgence ; 
     private $nameUser ; 
@@ -192,6 +193,8 @@ class AchatController extends AbstractController
         if(isset($idM))
         {
             $marchandise = $this->entityManager->getRepository(AchMarchandise::class)->find($idM) ;
+            $histoAction = "MOD"  ;
+            $histoDescription = "Modification Marchandise : ".$marchandise->getDesignation()." -> ".$designation ;
         }
         else
         {
@@ -200,6 +203,8 @@ class AchatController extends AbstractController
             $marchandise->setAgence($this->agence) ;
             $marchandise->setStatutGen(True) ;
             $marchandise->setCreatedAt(new \DateTimeImmutable) ;
+            $histoAction = "CRT"  ;
+            $histoDescription = "Nouveau Marchandise -> ".$designation ;
         }
 
         $marchandise->setDesignation($designation) ;
@@ -217,6 +222,21 @@ class AchatController extends AbstractController
         $result["id"] = $marchandise->getId() ;
         if(isset($idM))
             $result["message"] = "Modification effectué" ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => $histoAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoDescription,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     } 
@@ -240,6 +260,21 @@ class AchatController extends AbstractController
         $result["message"] = "Suppression effectué" ;
         $result["type"] = "green" ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Marchandise : ".$marchandise->getDesignation(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -259,6 +294,21 @@ class AchatController extends AbstractController
         
         $result["message"] = "Suppression effectué" ;
         $result["type"] = "green" ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "SUppression Marchandise -> ".$detailBon->getMarchandise()->getDesignation()." ; Bon De Commande N° : ".$detailBon->getBonCommande()->getNumero()." ; ".strtoupper($detailBon->getBonCommande()->getType()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -310,6 +360,21 @@ class AchatController extends AbstractController
         
         $result["message"] = "Modification effectué" ;
         $result["type"] = "green" ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Mise à jour Marchandise -> ".$marchandise->getDesignation()." ; Bon De Commande N° : ".$detailBon->getBonCommande()->getNumero()." ; ".strtoupper($detailBon->getBonCommande()->getType()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse($result) ;
     }
@@ -401,6 +466,21 @@ class AchatController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Nouveau Bon De Commande N° : ".$numBonCmd." ; ".strtoupper($type->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse($result) ;
     }
 
@@ -450,11 +530,25 @@ class AchatController extends AbstractController
         }
 
         
-
         $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Modification Bon De Commande N° : ".$bonCommande->getNumero()." ; ".strtoupper($bonCommande->getType()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",    
@@ -608,6 +702,21 @@ class AchatController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "VLD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Validation Bon de Commande ; ".strtoupper($statutBon->getNom())." ; Bon De Commande N° : ".$bonCommande->getNumero()." ; ".strtoupper($bonCommande->getType()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",    
             "message" => "Information enregistré avec succès",    
@@ -630,6 +739,21 @@ class AchatController extends AbstractController
         $filename = $this->filename."listBonCommande(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "VLD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Validation Livraison Detail -> ".$achatDetail->getDesignation()." ; Bon De Commande N° : ".$achatDetail->getBonCommande()->getNumero()." ; ".strtoupper($achatDetail->getBonCommande()->getType()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new Response('<span class="text-success font-weight-bold text-uppercase">Livré</span>') ;
     }
@@ -693,6 +817,20 @@ class AchatController extends AbstractController
                 "achat" => $achat,
             ]) ;
 
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACH",
+            "nomModule" => "ACHAT",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Bon De Commande N° : ".$bonCommande->getNumero()." ; ".strtoupper($bonCommande->getType()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return $homeController->validerImpressionFichier($idModeleEntete,$idModeleBas,$contenu) ;
     }

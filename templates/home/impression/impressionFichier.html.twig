@@ -10040,13 +10040,13 @@ a.text-dark:hover, a.text-dark:focus {
 
 .title_form
 {
-    font-size: 0.95em;
+    /* font-size: 0.95em; */
     font-weight: 600;
     letter-spacing: 1px;
 }
 .title_form_entete
 {
-  font-size: 1.15em;
+  font-size: 0.95em;
   font-weight: 600;
   letter-spacing: 1px;
   text-decoration: underline ;
@@ -10066,7 +10066,7 @@ a.text-dark:hover, a.text-dark:focus {
     justify-content: center ;
 }
 .table {
-  border: 0.5px solid #000000;
+  /* border: 0.5px solid #000000; */
 }
 .table-bordered > thead,
 .table-bordered > tbody,
@@ -10108,12 +10108,18 @@ footer {
   }
 }
 
+.sizeData
+{
+  font-size: 0.85em !important ;
+  font-family: 'Times New Roman' ;
+}
+
 </style>
 <div style="width: 100% !important">
     <div class="modelePdf">
         {{contentEntete|raw}}
     </div>
-    <div class="pt-2 mt-5">
+    <div class="pt-2">
         {{contenu|raw}}
     </div>
 </div>

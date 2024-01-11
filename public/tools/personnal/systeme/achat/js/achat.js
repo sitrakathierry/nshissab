@@ -372,7 +372,7 @@ $(document).ready(function(){
                     text: 'Oui',
                     btnClass: 'btn-blue',
                     keys: ['enter', 'shift'],
-                    action: function(){
+                    action: function(){ 
                         var realinstance = instance.loading()
                         var data = self.serialize()
                         $.ajax({
@@ -689,7 +689,7 @@ $(document).ready(function(){
                         var realinstance = instance.loading()
                         var data = self.serialize()
                         $.ajax({
-                            url: routes.achat_bon_commande_addition_save,
+                            url: routes.,
                             type:'post',
                             cache: false,
                             data:data,

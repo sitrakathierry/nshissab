@@ -72,7 +72,7 @@
                             <td>{{historique.utilisateur}}</td>
                             <td>{{historique.action}}</td>
                             <td>{{historique.module}}</td>
-                            <td>{{historique.description}}</td>
+                            <td>{{historique.description | raw}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
