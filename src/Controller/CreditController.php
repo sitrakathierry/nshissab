@@ -575,6 +575,21 @@ class CreditController extends AbstractController
         if(file_exists($filename))
             unlink($filename);
         
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "ACP",
+            "nomModule" => "ACOMPTE",
+            "refAction" => "ANL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Annulation Acompte N° : ".$finance->getNumFnc(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Annulation effectué"

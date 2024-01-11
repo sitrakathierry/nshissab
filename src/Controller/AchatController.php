@@ -816,7 +816,7 @@ class AchatController extends AbstractController
                 "listBonCommandes" => $listBonCommandes,
                 "achat" => $achat,
             ]) ;
-
+ 
         // DEBUT SAUVEGARDE HISTORIQUE
 
         $this->entityManager->getRepository(HistoHistorique::class)

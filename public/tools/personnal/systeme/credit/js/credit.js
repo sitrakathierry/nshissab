@@ -78,7 +78,7 @@ $(document).ready(function(){
         btn2: {
           text: "Oui",
           btnClass: "btn-dark",
-          keys: ["enter", "shift"],
+          keys: ["enter", "shift"], 
           action: function () {
             var realinstance = instance.loading();
             var formData = new FormData();

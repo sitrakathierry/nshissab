@@ -689,7 +689,7 @@ $(document).ready(function(){
                         var realinstance = instance.loading()
                         var data = self.serialize()
                         $.ajax({
-                            url: routes.,
+                            url: routes.achat_bon_commande_addition_save,
                             type:'post',
                             cache: false,
                             data:data,
