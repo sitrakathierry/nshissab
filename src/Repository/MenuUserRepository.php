@@ -22,7 +22,7 @@ class MenuUserRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry, SessionInterface $session)
     {
         parent::__construct($registry, MenuUser::class) ;
-        $this->session = $session ;
+        $this->session = (object)$session ;
     }
 
     public function save(MenuUser $entity, bool $flush = false): void

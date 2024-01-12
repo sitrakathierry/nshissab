@@ -448,7 +448,7 @@ $(document).ready(function(){
                     keys: ['enter', 'shift'],
                     action: function(){
                         var preferences = $("#list_preferences").val()
-                        $(".content_prefs").html(instance.search(2))
+                        $(".content_prefs").html(instance.search(2)) 
                         var dataPrefs = new FormData() ;
                         dataPrefs.append("preferences[]",preferences) ;
                         $.ajax({

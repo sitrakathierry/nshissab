@@ -584,4 +584,17 @@ class AdminController extends AbstractController
         return new JsonResponse($response) ;
     }
 
+
+    #[Route('admin/data/import', name:'admin_import_data')]
+    public function adminImportData()
+    {
+
+
+
+        return $this->render('admin/importData.html.twig', [
+            "filename" => "admin",
+            "titlePage" => "Importation de Donnée",
+            "with_foot" => true,
+        ]);
+    }
 }
