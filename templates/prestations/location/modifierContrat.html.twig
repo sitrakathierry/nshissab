@@ -10,6 +10,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js//location.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -20,16 +21,28 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="w-100 box_content p-3">
-                    <h5 class="title_form text-black text-uppercase">Le Bailleur</h5>
+                    <h5 class="title_form text-black text-uppercase">Le Bailleur {{contrat.idBailleur}} </h5>
                     <label for="prest_ctr_bailleur" class="font-weight-bold">Nom</label>
-                    <input type="text" name="prest_ctr_bailleur" value="{{ contrat.bailleur | upper }}" id="prest_ctr_bailleur" class="form-control text-success font-weight-bold" placeholder=". . .">
+                    <select name="prest_ctr_bailleur" class="custom-select chosen_select custom-select-sm" id="prest_ctr_bailleur">
+                        <option value="">-</option>
+                        {% for bailleur in bailleurs %}
+                            <option value="{{bailleur.id}}" {{contrat.idBailleur == bailleur.id ? "selected" : "" }} >{{bailleur.nom|upper}}</option>
+                        {% endfor %} 
+                    </select>
+                    {# <input type="text" name="prest_ctr_bailleur" value="{{ contrat.bailleur | upper }}" id="prest_ctr_bailleur" class="form-control text-success font-weight-bold" placeholder=". . ."> #}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="w-100 box_content p-3">
                     <h5 class="title_form text-black text-uppercase">Le Locataire</h5>
                     <label for="prest_ctr_locataire" class="font-weight-bold">Nom</label>
-                    <input type="text" name="prest_ctr_locataire" value="{{ contrat.locataire | upper }}" id="prest_ctr_locataire" class="form-control text-success font-weight-bold" placeholder=". . .">
+                    <select name="prest_ctr_locataire" class="custom-select chosen_select custom-select-sm" id="prest_ctr_locataire">
+                        <option value="">-</option>
+                        {% for locataire in locataires %}
+                            <option value="{{locataire.id}}" {{contrat.idLocataire == locataire.id ? "selected" : "" }} >{{locataire.nom|upper}}</option>
+                        {% endfor %} 
+                    </select>
+                    {# <input type="text" name="prest_ctr_locataire" value="{{ contrat.locataire | upper }}" id="prest_ctr_locataire" class="form-control text-success font-weight-bold" placeholder=". . ."> #}
                     <input type="hidden" name="prest_ctr_id" value="{{contrat.id}}" id="prest_ctr_id" >
                 </div>
             </div>
@@ -47,16 +60,22 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="prest_ctr_bail_nom" class="font-weight-bold">Nom</label>
-                    <input type="text" name="prest_ctr_bail_nom" id="prest_ctr_bail_nom" value="{{ bail.nom | upper }}" class="form-control text-success font-weight-bold" placeholder=". . .">
+                    <label for="prest_ctr_bail_location" class="font-weight-bold">Nom</label>
+                    <select name="prest_ctr_bail_location" class="custom-select chosen_select custom-select-sm" id="prest_ctr_bail_location">
+                        <option value="">-</option>
+                        {% for tabBail in tabBails %}
+                            <option value="{{tabBail.id}}" {{bail.id == tabBail.id ? "selected" : "" }} >{{tabBail.nom|upper}}</option>
+                        {% endfor %} 
+                    </select>
+                    {# <input type="text" name="prest_ctr_bail_nom" id="prest_ctr_bail_nom" value="{{ bail.nom | upper }}" class="form-control text-success font-weight-bold" placeholder=". . ."> #}
                 </div>
                 <div class="col-md-3">
                     <label for="prest_ctr_bail_adresse" class="font-weight-bold">Adresse</label>
-                    <input type="text" name="prest_ctr_bail_adresse" id="prest_ctr_bail_adresse" value="{{ bail.adresse|upper }}" class="form-control text-success font-weight-bold" placeholder=". . .">
+                    <input type="text" readonly name="prest_ctr_bail_adresse" id="prest_ctr_bail_adresse" value="{{ bail.adresse|upper }}" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-md-3">
                     <label for="prest_ctr_bail_dimension" class="font-weight-bold">Dimension</label>
-                    <input type="text" name="prest_ctr_bail_dimension" id="prest_ctr_bail_dimension" value="{{ bail.dimension }}" class="form-control text-success font-weight-bold" placeholder=". . .">
+                    <input type="text" readonly name="prest_ctr_bail_dimension" id="prest_ctr_bail_dimension" value="{{ bail.dimension }}" class="form-control" placeholder=". . .">
                 </div>
             </div>
         </div>
@@ -141,7 +160,7 @@
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm ml-3 btn-perso-one btn_edit_contrat"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                <button type="button" class="btn btn-sm ml-3 btn-perso-one btn_edit_contrat"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
             </div>
         {% endif %} 
     </div>

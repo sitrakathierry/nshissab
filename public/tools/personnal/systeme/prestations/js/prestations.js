@@ -174,6 +174,9 @@ $(document).ready(function(){
                           prest_ctr_renouvellement:$("#prest_ctr_renouvellement").val(),
                           prest_ctr_caution:$("#prest_ctr_caution").val(),
                           prest_ctr_changement:$("#prest_ctr_changement").val(),
+                          prest_ctr_bailleur:$("#prest_ctr_bailleur").val(),
+                          prest_ctr_locataire:$("#prest_ctr_locataire").val(),
+                          prest_ctr_bail_nom:$("#prest_ctr_bail_location").val(),
                       }
                       $.ajax({
                           url: routes.prest_location_edit_contrat_valid,

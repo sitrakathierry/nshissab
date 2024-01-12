@@ -2106,6 +2106,7 @@ class PrestationController extends AbstractController
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
 
         $bail = [
+            "id" => $contrat->getBail()->getId(),
             "nom" => $contrat->getBail()->getNom(),
             "adresse" => $contrat->getBail()->getLieux(),
             "dimension" => $contrat->getBail()->getDimension(),
@@ -2114,7 +2115,9 @@ class PrestationController extends AbstractController
         $parent = [
             "id" => $contrat->getId(),
             "bailleur" => $contrat->getBailleur()->getNom(),
+            "idBailleur" => $contrat->getBailleur()->getId(),
             "locataire" => $contrat->getLocataire()->getNom(),
+            "idLocataire" => $contrat->getLocataire()->getId(),
             "codeTypeLocation" => $contrat->getTypeLocation()->getId(),
             "typeLocation" => $contrat->getTypeLocation()->getNom(),
             "cycle" => $contrat->getCycle()->getNom(),
@@ -2142,6 +2145,27 @@ class PrestationController extends AbstractController
         $type_locs = $this->entityManager->getRepository(LctTypeLocation::class)->findAll() ;
         $renouvs = $this->entityManager->getRepository(LctRenouvellement::class)->findAll() ;
 
+        $filename = $this->filename."location/bailleur(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationBailleur($filename, $this->agence) ; 
+
+        $bailleurs = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."location/locataire(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationLocataire($filename, $this->agence) ; 
+
+        $locataires = json_decode(file_get_contents($filename)) ;
+
+        $filename = $this->filename."location/bail(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationBails($filename, $this->agence) ; 
+
+        $tabBails = json_decode(file_get_contents($filename)) ;
+
         return $this->render('prestations/location/modifierContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Modification contrat ",
@@ -2150,6 +2174,9 @@ class PrestationController extends AbstractController
             "contrat" => $parent,
             "bail" => $bail,
             "renouvs" => $renouvs, 
+            "bailleurs" => $bailleurs, 
+            "locataires" => $locataires, 
+            "tabBails" => $tabBails, 
         ]);
     }
 
@@ -2162,6 +2189,13 @@ class PrestationController extends AbstractController
         $prest_ctr_renouvellement = $request->request->get("prest_ctr_renouvellement") ;
         $prest_ctr_caution = $request->request->get("prest_ctr_caution") ;
         $prest_ctr_changement = $request->request->get("prest_ctr_changement") ;
+        $prest_ctr_bailleur = $request->request->get("prest_ctr_bailleur") ;
+        $prest_ctr_locataire = $request->request->get("prest_ctr_locataire") ;
+        $prest_ctr_bail_nom = $request->request->get("prest_ctr_bail_nom") ;
+
+        $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($prest_ctr_bailleur) ;
+        $locataire = $this->entityManager->getRepository(LctLocataire::class)->find($prest_ctr_locataire) ;
+        $bail = $this->entityManager->getRepository(LctBail::class)->find($prest_ctr_bail_nom) ;
 
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($prest_ctr_id) ;
 
@@ -2177,6 +2211,9 @@ class PrestationController extends AbstractController
             "statut" => $statutLoyer
         ]) ;
 
+        $contrat->setBailleur($bailleur) ;
+        $contrat->setLocataire($locataire) ;
+        $contrat->setBail($bail) ;
         $contrat->setTypeLocation($type_loc) ;
         $contrat->setRenouvellement($renouv) ;
         $contrat->setPourcentage(empty($prest_ctr_pourcentage) ? null : $prest_ctr_pourcentage) ;
@@ -2193,6 +2230,11 @@ class PrestationController extends AbstractController
         }
         
         $this->entityManager->flush() ;
+
+        $filename = $this->filename."location/contrat(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
 
         // DEBUT SAUVEGARDE HISTORIQUE
 
