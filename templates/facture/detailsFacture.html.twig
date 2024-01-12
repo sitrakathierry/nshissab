@@ -36,16 +36,6 @@
             {% endif %}
         {% endif %}
         </h4>
-        <div id="contentTypePaiement" style="display:none;">
-            <label for="cmd_facture" class="font-weight-bold">Facture</label>
-            <select name="fact_type_paiement" class="custom-select custom-select-sm" id="fact_type_paiement">
-                {% for paiement in paiements %}
-                    {% if paiement.reference != "AC" %}
-                        <option value="{{paiement.id}}" {{ paiement.reference == "ES" ? "selected" : "" }}>{{paiement.nom|upper}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
     </div>
     <div class="container-fluid px-3">
         <form id="formModifFacture">

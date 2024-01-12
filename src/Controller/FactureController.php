@@ -470,6 +470,8 @@ class FactureController extends AbstractController
         $idFacture = $request->request->get("idFacture") ;
         $fact_type_paiement = $request->request->get("fact_type_paiement") ;
 
+        $paiement = $this->entityManager->getRepository(FactPaiement::class)->find($fact_type_paiement) ; 
+
         $facture = $this->entityManager->getRepository(Facture::class)->find($idFacture) ;
 
         $numFact = explode("-",$facture->getNumFact()) ;
@@ -510,10 +512,9 @@ class FactureController extends AbstractController
         $histoOldPaiement = $this->entityManager->getRepository(FactHistoPaiement::class)->findOneBy([
             "facture" => $facture  
         ]) ; 
-        
-        $paiement = $this->entityManager->getRepository(FactPaiement::class)->find($fact_type_paiement) ; 
 
         $histoPaiement = new FactHistoPaiement() ;
+
         $histoPaiement->setLibelle($histoOldPaiement->getLibelle()) ;
         $histoPaiement->setNumero($histoOldPaiement->getNumero()) ;
         $histoPaiement->setPaiement($paiement) ;
@@ -627,6 +628,18 @@ class FactureController extends AbstractController
             "idNewFacture" => $newFacture->getId(),    
         ]) ;
         
+    }
+
+    #[Route('/facture/type/paiement/get', name: 'fact_type_paiement_get')]
+    public function factureGetTypeDePaiement()
+    {
+        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findAll() ; 
+
+        $response = $this->renderView("facture/templateTypePaiement.html.twig",[
+            "paiements" => $paiements
+        ]) ;
+
+        return new Response($response) ;
     }
 
     #[Route('/facture/retenu/consultation', name: 'ftr_retenu_consultation')]

@@ -1,0 +1,10 @@
+<div id="contentTypePaiement">
+    <label for="cmd_facture" class="font-weight-bold">Paiement Facture</label>
+    <select name="fact_type_paiement" class="custom-select custom-select-sm" id="fact_type_paiement">
+        {% for paiement in paiements %}
+            {% if paiement.reference != "AC" %}
+                <option value="{{paiement.id}}">{{paiement.nom|upper}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
