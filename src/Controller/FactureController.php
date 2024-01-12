@@ -598,15 +598,28 @@ class FactureController extends AbstractController
         if(file_exists($filename))
             unlink($filename);
 
-        if(!is_null($paiement))
-        {
-            if($paiement->getReference() == "CR")
-            {
-                $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
-                if(file_exists($filename))
-                    unlink($filename);
-            }
-        }
+        $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename);
+
+        $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename);
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Créaction Facture Définitive N° ".$newNumFact." à partir d'une facture Proforma/Devis N° ".$facture->getNumFact()." ; ".strtoupper($facture->getModele()->getNom()),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
             "type" => "green",    
