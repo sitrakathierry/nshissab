@@ -445,6 +445,32 @@ class AppService extends AbstractController
         file_put_contents($pathListeMenu, json_encode($listeMenu)) ;
     }
 
+    public function generateAllAgence($filename)
+    {
+        $agences = $this->entityManager->getRepository(Agence::class)->findBy([
+            "statut" => True
+        ]) ;
+
+        $items = [] ;
+        foreach ($agences as $agence) {
+            $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                "agence" => $agence,
+            ]) ;
+
+            if($user->getRoles()[0] == "ADMIN")
+                continue ;
+            
+            $item = [
+                "id" => $agence->getId(),
+                "nom" => $agence->getNom(),
+            ] ;
+
+            array_push($items,$item) ;
+        }
+
+        file_put_contents($filename, json_encode($items)) ;
+    }
+
     public function sendSms($numero,$entete, $contenu)
     {
         $basic  = new Basic("4c66ffd6", "XCiCWpI9qBqffTNA");

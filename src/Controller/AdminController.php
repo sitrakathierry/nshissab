@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Agence;
+use App\Entity\Agenda;
+use App\Entity\ImportModule;
 use App\Entity\Menu;
 use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
@@ -588,13 +590,25 @@ class AdminController extends AbstractController
     #[Route('admin/data/import', name:'admin_import_data')]
     public function adminImportData()
     {
+        $filename = "files/systeme/admin/agence/allAgence.json" ;
 
+        if(!file_exists($filename))
+            $this->appService->generateAllAgence($filename) ;
 
+        $agences = json_decode(file_get_contents($filename)) ;
+
+        $modules = $this->entityManager->getRepository(ImportModule::class)->findBy([
+            "statut" => True
+        ],[
+            "rang" => "ASC"
+        ]) ;
 
         return $this->render('admin/importData.html.twig', [
             "filename" => "admin",
             "titlePage" => "Importation de Donnée",
             "with_foot" => true,
+            "agences" => $agences,
+            "modules" => $modules,
         ]);
     }
 }
