@@ -12,6 +12,7 @@ use App\Entity\User;
 use App\Entity\UsrAbonnement;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -610,5 +611,104 @@ class AdminController extends AbstractController
             "agences" => $agences,
             "modules" => $modules,
         ]);
+    }
+
+    #[Route('admin/data/import/display', name:'admin_import_data_display')]
+    public function adminDisplayDataToImport(Request $request)
+    {
+        try {
+            $base64Data = $request->request->get("base64Data") ;
+    
+            // Décoder la chaîne base64 en binaire
+            $binaryData = base64_decode($base64Data);
+            
+            // Chemin vers le fichier Excel
+            $filename = "files/dataToImport.xslx" ;
+    
+            if(file_exists($filename))
+                unlink($filename) ;
+    
+            file_put_contents($filename,$binaryData) ;
+            //code...
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        finally{
+            try {
+                // Charger le fichier Excel
+                $spreadsheet = IOFactory::load($filename);
+        
+                // Récupérer tous les noms de feuilles
+                $nomsFeuilles = $spreadsheet->getSheetNames();
+        
+                // dd($nomsFeuilles) ;
+                // Récupérer les données de chaque feuille
+        
+                $allData = [] ;
+        
+                foreach ($nomsFeuilles as $nomFeuille) {
+                    $feuille = $spreadsheet->getSheetByName($nomFeuille);
+        
+                    // Vérifier si la feuille existe
+                    if ($feuille) {
+                        $donnees = [];
+                        foreach ($feuille->getRowIterator() as $ligne) {
+                            $ligneData = [];
+                            foreach ($ligne->getCellIterator() as $cellule) {
+                                $ligneData[] = $cellule->getValue();
+                            }
+                            $donnees[$nomFeuille][] = $ligneData;
+                        }
+        
+                        // Faire quelque chose avec les données de la feuille (par exemple, les afficher)
+                        
+                        $allData[] = $donnees ;
+                    } 
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+            finally {
+                $variations = $allData[1]["Variation_Produit"] ;
+                $produits = $allData[0]["Produit"] ;
+                
+                $allDatas = [] ;
+                for ($i=0; $i < count($variations); $i++) { 
+                    if($i == 0)
+                        continue ;
+        
+                    $variation = $variations[$i] ;
+                    for ($j=0; $j < count($produits); $j++) { 
+                        if($j == 0)
+                            continue ;
+        
+                        $produit = $produits[$j] ;
+                        if($variation[0] == $produit[1])
+                        {
+                            if(!isset($allDatas[$variation[0]]))
+                                $allDatas[$variation[0]] = $produit ;
+        
+                            $allDatas[$variation[0]]["variation"][] = $variation ;
+
+                            break ;
+                        }
+                    }
+                }
+            }
+        }
+
+        // dd($allDatas) ;
+
+        $response = $this->renderView("admin/templateDisplayData.html.twig",[
+            "dataToImports" => $allDatas
+        ]) ;
+
+        return new Response($response);
+    }
+
+    #[Route('admin/data/import/valider', name:'admin_import_data_valider')]
+    public function adminValiderDataToImport(Request $request)
+    {
+
     }
 }

@@ -38,44 +38,14 @@
                     </select>
                 </div>
             </div>
-            <h5 class="title_form mt-3 mb-2 text-black text-uppercase">Produits (Gestion de Stock)</h5>
-            <div class="w-100">
-                <ul class="list-unstyled list-inline">
-                    <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Catégorie</span> : </li>
-                    <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Code Produit</span> : </li>
-                    <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Unité</span> : </li>
-                    <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Nom</span> : </li>
-                    <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Désignation</span> : </li>
-                </ul>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Indice</th>
-                            <th>Entrepôt</th>
-                            <th>Fournisseur</th>
-                            <th>Prix Achat</th>
-                            <th>Charge</th>
-                            <th>Prix revient</th>
-                            <th>Marge</th>
-                            <th>Stock</th>
-                            <th>Stock Alert</th>
-                            <th>Prix de vente</th>
-                            <th>Expirée le</th>
-                        </tr>
-                    </thead>    
-                </table>
-            </div>
-    
+            <div class="contentData"></div>
+            <input type="file" name="file_to_import" id="file_to_import" class="d-none" > 
             {% if with_foot %}
-                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                    <button type="submit" class="btn px-4 btn-sm ml-3 btn-success"><i class="fa fa-download"></i>&nbsp;Importer les données (format Excel : "nomFichier".xlsx)</button>
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="button" class="btn btn_import_data px-4 btn-sm ml-3 btn-success"><i class="fa fa-download"></i>&nbsp;Importer les données (format Excel : "nomFichier".xlsx)</button>
                 </div>
             {% endif %} 
         </form>
     </div>
 </div>
 {% endblock %}
-
-
