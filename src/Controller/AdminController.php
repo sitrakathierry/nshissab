@@ -29,6 +29,9 @@ class AdminController extends AbstractController
     private $session ;
     private $appService ;
     private $nameUser ;
+    private $agence ;
+    private $nameAgence ;
+
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
 
@@ -37,6 +40,8 @@ class AdminController extends AbstractController
         $this->appService = $appService ;
         $this->appService->checkUrl() ;
         $this->nameUser = strtolower($this->session->get("user")["username"]) ;
+        $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->session->get("user")["agence"]) ; 
+        $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
     }
 
     #[Route('/admin', name: 'app_admin')]
@@ -444,7 +449,6 @@ class AdminController extends AbstractController
                 $this->regenerateUserMenu() ;
             }
                 
-
             return new JsonResponse(["type" => "green", "message" => "Suppression effectué"]) ;
         }
         
@@ -697,6 +701,10 @@ class AdminController extends AbstractController
             }
         }
 
+        $filename = "files/admin/import/".$this->nameAgence ;
+
+
+
         // dd($allDatas) ;
 
         $response = $this->renderView("admin/templateDisplayData.html.twig",[
@@ -706,9 +714,10 @@ class AdminController extends AbstractController
         return new Response($response);
     }
 
-    #[Route('admin/data/import/valider', name:'admin_import_data_valider')]
-    public function adminValiderDataToImport(Request $request)
+    #[Route('admin/data/import/save', name:'admin_import_data_save')]
+    public function adminSaveDataToImport()
     {
-
+        // Générer une exception délibérée
+        dd(throw new \Exception('-------------------------------------------')) ;
     }
 }

@@ -1,53 +1,53 @@
 $(document).ready(function(){
+    var instance = new Loading(files.loading)
     $("#formDataImport").submit(function(){
         var self = $(this)
-        // $.confirm({
-        //     title: "Importation",
-        //     content:"Êtes-vous sûre ?",
-        //     type:"blue",
-        //     theme:"modern",
-        //     buttons:{
-        //         btn1:{
-        //             text: 'Non',
-        //             action: function(){}
-        //         },
-        //         btn2:{
-        //             text: 'Oui',
-        //             btnClass: 'btn-blue',
-        //             keys: ['enter', 'shift'],
-        //             action: function(){
-        //                 var realinstance = instance.loading()
-        //                 $.ajax({
-        //                     url: routes.stock_delete_fournisseur,
-        //                     type:'post',
-        //                     cache: false,
-        //                     data:{:self.data("value")},
-        //                     dataType: 'json',
-        //                     success: function(json){
-        //                         realinstance.close()
-        //                         $.alert({
-        //                             title: 'Message',
-        //                             content: json.message,
-        //                             type: json.type,
-        //                             buttons: {
-        //                                 OK: function(){
-        //                                     if(json.type == "green")
-        //                                     {
-        //                                         location.reload()
-        //                                     }
-        //                                 }
-        //                             }
-        //                         });
-        //                     },
-        //                     error: function(resp){
-        //                         realinstance.close()
-        //                         $.alert(JSON.stringify(resp)) ;
-        //                     }
-        //                 })
-        //             }
-        //         }
-        //     }
-        // })
+        $.confirm({
+            title: "Importation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter', 'shift'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.stock_delete_fournisseur,
+                            type:'post',
+                            cache: false,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
         return false ;
     }) ;
 
@@ -92,4 +92,7 @@ $(document).ready(function(){
         location.reload() ;
     })
 
+    $(document).on("click",".btn_close_elem",function(){
+        $(this).parent().remove() ;
+    })
 })

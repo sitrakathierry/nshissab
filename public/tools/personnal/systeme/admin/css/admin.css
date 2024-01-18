@@ -1,0 +1,10 @@
+.parent_bloc_elem
+{
+    position: relative;
+}
+.btn_close_elem
+{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
