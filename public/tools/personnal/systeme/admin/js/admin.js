@@ -18,10 +18,12 @@ $(document).ready(function(){
                     keys: ['enter', 'shift'],
                     action: function(){
                         var realinstance = instance.loading()
+                        var data = self.serialize() ;
                         $.ajax({
-                            url: routes.stock_delete_fournisseur,
+                            url: routes.admin_import_data_save,
                             type:'post',
                             cache: false,
+                            data: data,
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()

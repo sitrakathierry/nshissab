@@ -20,8 +20,8 @@
         <form id="formDataImport">
             <div class="row">
                 <div class="col-4">
-                    <label for="nom" class="mt-2 font-weight-bold">Agence</label>
-                    <select name="prod_categorie" class="custom-select chosen_select custom-select-sm" id="prod_categorie">
+                    <label for="import_agence" class="mt-2 font-weight-bold">Agence</label>
+                    <select name="import_agence" class="custom-select chosen_select custom-select-sm" id="import_agence">
                         <option value="">-</option> 
                         {% for agence in agences %}
                             <option value="{{agence.id}}" >{{agence.nom|upper}}</option>
@@ -29,8 +29,8 @@
                     </select>
                 </div>
                 <div class="col-4">
-                    <label for="nom" class="mt-2 font-weight-bold">Module</label>
-                    <select name="prod_categorie" class="custom-select chosen_select custom-select-sm" id="prod_categorie">
+                    <label for="import_module" class="mt-2 font-weight-bold">Module</label>
+                    <select name="import_module" class="custom-select chosen_select custom-select-sm" id="import_module">
                         <option value="">-</option>
                         {% for module in modules %}
                             <option value="{{module.id}}" >{{module.nom|upper}}</option>
@@ -38,6 +38,7 @@
                     </select>
                 </div>
             </div>
+            <input type="hidden" name="import_produit_annulee" id="import_produit_annulee">
             <div class="contentData"></div>
             <input type="file" name="file_to_import" id="file_to_import" class="d-none" > 
             {% if with_foot %}
