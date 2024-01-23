@@ -208,10 +208,12 @@ class StockController extends AbstractController
         $doublons = $this->appService->detecter_doublons($tableau) ;
 
         if(!empty($doublons))
+        {
             return new JsonResponse([
                 "message" => "Veuiller vérifier vos variations de produit car il y a des doublons (Entrepot, Indice et Prix de Vente)" ,
                 "type" => "orange"
             ]) ;
+        }
 
         $add_new_type = $request->request->get("add_new_type") ;
         if($add_new_type == "NON")

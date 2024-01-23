@@ -4,14 +4,30 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\Agenda;
+use App\Entity\HistoHistorique;
 use App\Entity\ImportModule;
 use App\Entity\Menu;
 use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
+use App\Entity\PrdApprovisionnement;
+use App\Entity\PrdCategories;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdFournisseur;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdHistoFournisseur;
+use App\Entity\PrdMargeType;
+use App\Entity\PrdPreferences;
+use App\Entity\PrdType;
+use App\Entity\PrdVariationPrix;
+use App\Entity\Produit;
 use App\Entity\User;
 use App\Entity\UsrAbonnement;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,6 +47,7 @@ class AdminController extends AbstractController
     private $nameUser ;
     private $agence ;
     private $nameAgence ;
+    private $userObj ;
 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
@@ -621,8 +638,10 @@ class AdminController extends AbstractController
     public function adminDisplayDataToImport(Request $request)
     {
         try {
+            $import_agence = $request->request->get("import_agence") ;
+            $import_module = $request->request->get("import_module") ;
             $base64Data = $request->request->get("base64Data") ;
-    
+
             // Décoder la chaîne base64 en binaire
             $binaryData = base64_decode($base64Data);
             
@@ -673,38 +692,76 @@ class AdminController extends AbstractController
                 //throw $th;
             }
             finally {
-                $variations = $allData[1]["Variation_Produit"] ;
-                $produits = $allData[0]["Produit"] ;
-                
-                $allDatas = [] ;
-                for ($i=0; $i < count($variations); $i++) { 
-                    if($i == 0)
-                        continue ;
-        
-                    $variation = $variations[$i] ;
-                    for ($j=0; $j < count($produits); $j++) { 
-                        if($j == 0)
+                $module = $this->entityManager->getRepository(ImportModule::class)->find($import_module) ;
+                if($module->getReference() == "STOCK")
+                {
+                    $variations = $allData[1]["Variation_Produit"] ;
+                    $produits = $allData[0]["Produit"] ;
+                    
+                    $allDatas = [] ;
+                    for ($i=0; $i < count($variations); $i++) { 
+                        if($i == 0)
                             continue ;
-        
-                        $produit = $produits[$j] ;
-                        if($variation[0] == $produit[1])
-                        {
-                            if(!isset($allDatas[$variation[0]]))
-                                $allDatas[$variation[0]] = $produit ;
-        
-                            $allDatas[$variation[0]]["variation"][] = $variation ;
-
-                            break ;
+            
+                        $variation = $variations[$i] ;
+                        for ($j=0; $j < count($produits); $j++) { 
+                            if($j == 0)
+                                continue ;
+            
+                            $produit = $produits[$j] ;
+                            if($variation[0] == $produit[1])
+                            {
+                                if(!isset($allDatas[$variation[0]]))
+                                {
+                                    $allDatas[$variation[0]] = [
+                                        "categorie" => $produit[0],
+                                        "code_produit" => $produit[1],
+                                        "unite" => $produit[2],
+                                        "nom_produit" => $produit[3],
+                                        "designation" => $produit[4],
+                                        "description" => $produit[5],
+                                    ] ;
+                                }
+            
+                                $allDatas[$variation[0]]["variations"][] = [
+                                    "code_produit" => $variation[0],
+                                    "indice" => $variation[1],
+                                    "entrepot" => $variation[2],
+                                    "fournisseur" => $variation[3],
+                                    "expiree_le" => $variation[4],
+                                    "prix_achat" => $variation[5],
+                                    "charge" => $variation[6],
+                                    "prix_revient" => $variation[7],
+                                    "marge" => $variation[8],
+                                    "stock" => $variation[9],
+                                    "stock_alert" => $variation[10],
+                                    "prix_vente" => $variation[11],
+                                ] ;
+    
+                                break ;
+                            }
                         }
                     }
+
+                }
+                else 
+                {
+                    // suite enregistrement information si ce n'est pas un enregistrement de produit
                 }
             }
         }
 
-        $filename = "files/admin/import/".$this->nameAgence ;
+        $agence = $this->entityManager->getRepository(Agence::class)->find($import_agence) ;
 
+        $nameFile = strtolower($agence->getNom())."-".$agence->getId().".json" ;
 
+        $filename = "files/systeme/admin/import/".$nameFile ;
 
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        file_put_contents($filename, json_encode($allDatas)) ;
+        
         // dd($allDatas) ;
 
         $response = $this->renderView("admin/templateDisplayData.html.twig",[
@@ -715,9 +772,434 @@ class AdminController extends AbstractController
     }
 
     #[Route('admin/data/import/save', name:'admin_import_data_save')]
-    public function adminSaveDataToImport()
+    public function adminSaveDataToImport(Request $request)
     {
-        // Générer une exception délibérée
-        dd(throw new \Exception('-------------------------------------------')) ;
+        $import_module = $request->request->get("import_module") ;
+        $import_agence = $request->request->get("import_agence") ;
+        $import_produit_annulee = $request->request->get("import_produit_annulee") ;
+
+        $module = $this->entityManager->getRepository(ImportModule::class)->find($import_module) ;
+        $agence = $this->entityManager->getRepository(Agence::class)->find($import_agence) ;
+
+        $nameFile = strtolower($agence->getNom())."-".$agence->getId().".json" ;
+
+        $filename = "files/systeme/admin/import/".$nameFile ;
+
+        $users = $this->entityManager->getRepository(User::class)->findBy([
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+        
+        $user = null;
+
+        foreach ($users as $membre) {
+            if($membre->getRoles()[0] == "MANAGER")
+            {
+                $user = $membre ;
+                break ;
+            }
+        }
+    
+        if($module->getReference() =="STOCK")
+        {
+            $produits = json_decode(file_get_contents($filename)) ;
+
+            $produits = $this->appService->objectToArray($produits) ;
+
+            // DEBUT ENLEVER DANS LE TABLEAU LES PRODUITS ANNULEE 
+
+            // ...
+
+            // FIN ENLEVER DANS LE TABLEAU LES PRODUITS ANNULEE 
+
+
+            // DEBUT ENREGISTREMENT
+            foreach ($produits as $produit) {
+                $codeProduit = $produit["code_produit"] ;
+
+                $produitcChk = $this->entityManager->getRepository(Produit::class)->findOneBy([
+                    "codeProduit" => $codeProduit,
+                    "agence" => $agence,
+                    "statut" => True
+                ]) ;
+        
+                if(!empty($codeProduit) && !is_null($produitcChk))
+                {
+                    return new JsonResponse([
+                        "title" => "Code existant",
+                        "message" => "Veuillez supprimer le code ".$codeProduit." car elle existe déjà",
+                        "type" => "orange"
+                    ]) ;
+                }
+
+                $prod_nom_categorie = $produit["categorie"] ;
+                $prod_categorie = $produit["categorie"] ;
+                $code_produit = $produit["code_produit"] ;
+                $prod_nom = $produit["designation"] ;
+                $prod_type = $produit["nom_produit"] ;
+                $unite_produit = $produit["unite"] ;
+                $produit_editor = $produit["description"] ;
+                $prod_image = null ;
+
+                $data = [
+                    $prod_categorie,
+                    $code_produit,
+                    $prod_type,
+                    $prod_nom,
+                    $unite_produit,
+                ];
+
+                $dataMessage = [
+                    "Catégorie",
+                    "Code Produit",
+                    "Nom du Produit",
+                    "Désignation du Produit",
+                    "Unité"
+                ] ;
+
+                $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+                if(!$result["allow"])
+                    return new JsonResponse($result) ;
+
+                $writer = new PngWriter();
+                $qrCode = QrCode::create($codeProduit)
+                    ->setEncoding(new Encoding('UTF-8'))
+                    ->setSize(2400)
+                    ->setMargin(0)
+                    ->setForegroundColor(new Color(0, 0, 0))
+                    ->setBackgroundColor(new Color(255, 255, 255));
+
+                $base64Data = $writer->write($qrCode, null)->getDataUri();
+
+                $variations = $this->appService->objectToArray($produit["variations"]) ;
+
+                $tableau = [] ;
+                foreach ($variations as $variation) {
+                    $data = [
+                        $variation["entrepot"],
+                        $variation["prix_vente"],
+                        $variation["stock_alert"],
+                        $variation["stock"],
+                    ];
+            
+                    $dataMessage = [
+                        "Entrepot",
+                        "Prix Vente",
+                        "Stock Alert",
+                        "Stock",
+                    ] ;
+
+                    $result = $this->appService->verificationElement($data,$dataMessage) ;
+
+                    if(!$result["allow"])
+                        return new JsonResponse($result) ;
+                    
+                    $uniteTableau = [] ;
+                    
+                    $uniteTableau["entrepot"] = $variation["entrepot"] ;
+                    $uniteTableau["indice"] = $variation["indice"] ;
+                    $uniteTableau["prix_vente"] = $variation["prix_vente"] ;
+
+                    array_push($tableau,$uniteTableau) ;
+                }
+
+                $doublons = $this->appService->detecter_doublons($tableau) ;
+
+                if(!empty($doublons))
+                {
+                    return new JsonResponse([
+                        "message" => "Veuiller vérifier vos variations de produit car il y a des doublons (Entrepot, Indice et Prix de Vente); Code Produit -> ".$codeProduit ,
+                        "type" => "orange",
+                        "error" => "DOUBLON",
+                        "doublons" => $doublons,
+                    ]) ; 
+                }
+
+                // C'est le nom Produit pour le filtre mais ici c'est Prd Type : Enregitrement
+
+                $type = $this->entityManager->getRepository(PrdType::class)->findOneBy([
+                    "agence" => $agence,
+                    "nom" => strtoupper($produit["nom_produit"]),
+                    "statut" => True
+                ]) ; 
+
+                if(is_null($type))
+                {
+                    $type = new PrdType() ;
+
+                    $type->setAgence($agence) ;
+                    $type->setNom(strtoupper($produit["nom_produit"])) ;
+                    $type->setStatut(True) ;
+
+                    $this->entityManager->persist($type) ;
+                    $this->entityManager->flush() ;
+                }
+
+                $categorie = $this->entityManager->getRepository(PrdCategories::class)->findOneBy([
+                    "agence" => $agence,
+                    "nom" => strtoupper($prod_categorie),
+                    "statut" => True
+                ]) ; 
+
+
+                if(is_null($categorie))
+                {
+                    $categorie = new PrdCategories() ;
+                    $categorie->setAgence($agence) ;
+                    $categorie->setImages("") ;
+                    $categorie->setNom(strtoupper($prod_categorie)) ;
+                    $categorie->setStatut(True) ;
+                    $categorie->setCreatedAt(new \DateTimeImmutable) ;
+                    $categorie->setUpdatedAt(new \DateTimeImmutable) ;
+
+                    $this->entityManager->persist($categorie);
+                    $this->entityManager->flush();
+
+                    $preference = new PrdPreferences() ;
+
+                    $preference->setCategorie($categorie) ;
+                    $preference->setUser($user) ;
+                    $preference->setStatut(True) ;
+                    $preference->setCreatedAt(new \DateTimeImmutable) ;
+                    $preference->setUpdatedAt(new \DateTimeImmutable) ;
+        
+                    $this->entityManager->persist($preference) ;
+                    $this->entityManager->flush() ;
+                }
+                else
+                {
+                    $preference = $this->entityManager->getRepository(PrdPreferences::class)->findOneBy([
+                        "categorie" => $categorie,
+                        "user" => $user,
+                        "statut" => True
+                    ]) ; 
+
+                    if(is_null($preference))
+                    {
+                        $preference = new PrdPreferences() ;
+
+                        $preference->setCategorie($categorie) ;
+                        $preference->setUser($user) ;
+                        $preference->setStatut(True) ;
+                        $preference->setCreatedAt(new \DateTimeImmutable) ;
+                        $preference->setUpdatedAt(new \DateTimeImmutable) ;
+            
+                        $this->entityManager->persist($preference) ;
+                        $this->entityManager->flush() ;
+                    }
+                }
+
+                $produit = new Produit() ;
+
+                $produit->setAgence($agence) ;
+                $produit->setPreference($preference) ;
+                $produit->setUser($user) ;
+                $produit->setType($type) ;
+                $produit->setCodeProduit($code_produit) ;
+                $produit->setQrCode($base64Data) ;
+                $produit->setImages(null) ;
+                $produit->setNom($prod_nom) ;
+                $produit->setDescription($produit_editor) ;
+                $produit->setUnite($unite_produit) ;
+                $produit->setStock(null) ;
+                $produit->setStatut(True) ;
+                $produit->setAnneeData(date('Y')) ;
+                $produit->setToUpdate(True) ;
+                $produit->setCreatedAt(new \DateTimeImmutable) ;
+                $produit->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->entityManager->persist($produit) ;
+                $this->entityManager->flush() ;
+
+                $stockProduit = 0 ;
+                $indice = 0 ;
+                foreach ($variations  as $variation) {
+                    $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->findOneBy([
+                        "produit" => $produit,
+                        "prixVente" => $variation["prix_vente"],
+                        "indice" => empty($variation["indice"]) ? null : $variation["indice"],
+                        "statut" => True
+                    ]) ; 
+
+                    if(!is_null($variationPrix))
+                    {
+                        $variationPrix->setStock($variationPrix->getStock() + floatval($variation["stock"])) ;
+                        $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
+                        $this->entityManager->flush() ;
+                    }
+                    else
+                    {
+                        $variationPrix = new PrdVariationPrix() ;
+            
+                        $variationPrix->setProduit($produit) ;
+                        $variationPrix->setPrixVente($variation["prix_vente"]) ;
+                        $variationPrix->setIndice(empty($variation["indice"]) ? null : $variation["indice"]) ;
+                        $variationPrix->setStock(floatval($variation["stock"])) ;
+                        $variationPrix->setStockAlert(floatval($variation["stock_alert"])) ;
+                        $variationPrix->setStatut(True) ;
+                        $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
+                        $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
+            
+                        $this->entityManager->persist($variationPrix) ;
+                        $this->entityManager->flush() ;
+                    }
+
+                    $histoEntrepot = new PrdHistoEntrepot() ;
+
+                    $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+                        "agence" => $agence,
+                        "nom" => strtoupper($variation["entrepot"]),
+                        "statut" => True
+                    ]) ; 
+
+                    if(is_null($entrepot))
+                    {
+                        $entrepot = new PrdEntrepot() ;
+
+                        $entrepot->setNom(strtoupper($variation["entrepot"])) ;
+                        $entrepot->setAdresse(null) ;
+                        $entrepot->setTelephone(null) ;
+                        $entrepot->setAgence($agence) ;
+                        $entrepot->setStatut(True) ;
+                        $entrepot->setCreatedAt(new \DateTimeImmutable) ;
+                        $entrepot->setUpdatedAt(new \DateTimeImmutable) ;
+
+                        $this->entityManager->persist($entrepot) ;
+                        $this->entityManager->flush() ;
+                    }
+
+
+                    if(empty($variation["expiree_le"]))
+                    {
+                        $expirer = null;
+                    }
+                    else
+                    {
+                        $expirer = date('Y-m-d', strtotime('1899-12-30 +' . $variation["expiree_le"] . ' days'));
+                        $expirer = \DateTime::createFromFormat('Y-m-d', $expirer) ;
+                    }
+
+                    $histoEntrepot->setEntrepot($entrepot) ;
+                    $histoEntrepot->setVariationPrix($variationPrix) ;
+                    // $histoEntrepot->setIndice(empty($crt_indice[$key]) ? null : $crt_indice[$key]) ;
+                    $histoEntrepot->setStock($variation["stock"]) ;
+                    $histoEntrepot->setStatut(True) ;
+                    $histoEntrepot->setAgence($agence) ;
+                    $histoEntrepot->setAnneeData(date('Y')) ;
+                    $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+                    $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+
+                    $this->entityManager->persist($histoEntrepot) ;
+                    $this->entityManager->flush() ;
+
+                    $approvisionnement = new PrdApprovisionnement() ;
+
+                    $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ;
+
+                    $approvisionnement->setAgence($agence) ;
+                    $approvisionnement->setUser($user) ;
+                    $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                    $approvisionnement->setVariationPrix($variationPrix) ;
+                    $approvisionnement->setMargeType($margeType) ;
+                    $approvisionnement->setQuantite($variation["stock"]) ;
+                    $approvisionnement->setPrixAchat(empty($variation["prix_achat"]) ? null : floatval($variation["prix_achat"])) ;
+                    $approvisionnement->setCharge(empty($variation["charge"]) ? null : floatval($variation["charge"])) ;
+                    $approvisionnement->setMargeValeur(empty($variation["marge"]) ? null : floatval($variation["marge"])) ;
+                    $approvisionnement->setPrixRevient(empty($variation["prix_revient"]) ? null : floatval($variation["prix_revient"])) ;
+                    $approvisionnement->setPrixVente(floatval($variation["prix_vente"])) ;
+                    $approvisionnement->setExpireeLe($expirer) ;
+                    $approvisionnement->setDateAppro(null) ;
+                    $approvisionnement->setDescription("Création de Produit Code : ".$variation["code_produit"]) ;
+                    $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                    $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+                    $this->entityManager->persist($approvisionnement) ;
+                    $this->entityManager->flush() ;
+
+                    $fournisseur = $this->entityManager->getRepository(PrdFournisseur::class)->findOneBy([
+                        "agence" => $agence,
+                        "nom" => strtoupper($variation["fournisseur"]),
+                        "statut" => True,
+                    ]) ;
+                    
+                    if(is_null($fournisseur))
+                    {
+                        $fournisseur = new PrdFournisseur() ;
+
+                        $fournisseur->setAgence($agence) ;
+                        $fournisseur->setNom(strtoupper($variation["fournisseur"])) ;
+                        $fournisseur->setTelBureau(null) ;
+                        $fournisseur->setAdresse(null) ;
+                        $fournisseur->setNomContact(null) ;
+                        $fournisseur->setTelMobile(null) ;
+                        $fournisseur->setEmail(null) ;
+                        $fournisseur->setStatut(True) ;
+                        $fournisseur->setCreatedAt(new \DateTimeImmutable) ;
+                        $fournisseur->setUpdatedAt(new \DateTimeImmutable) ;
+
+                        $this->entityManager->persist($fournisseur) ;
+                        $this->entityManager->flush() ;
+                    }
+
+                    $histoFournisseur = new PrdHistoFournisseur() ;
+                    
+                    $histoFournisseur->setFournisseur($fournisseur) ;
+                    $histoFournisseur->setApprovisionnement($approvisionnement) ;
+                    $histoFournisseur->setCreatedAt(new \DateTimeImmutable) ;
+                    $histoFournisseur->setUpdatedAt(new \DateTimeImmutable) ;
+
+                    $this->entityManager->persist($histoFournisseur) ;
+                    $this->entityManager->flush() ;
+
+                    $stockProduit += $variation["stock"] ;
+                }
+
+                $produit->setStock($stockProduit) ;
+                $this->entityManager->flush() ;
+
+                // DEBUT SAUVEGARDE HISTORIQUE
+
+                $this->entityManager->getRepository(HistoHistorique::class)
+                ->insererHistorique([
+                    "refModule" => "STOCK",
+                    "nomModule" => "GESTION DE STOCK",
+                    "refAction" => "CRT",
+                    "user" => $user,
+                    "agence" => $agence,
+                    "nameAgence" => $nameFile,
+                    "description" => "Nouveau Produit ; Code Produit : ". $code_produit." ; Nom Produit : ".strtoupper($prod_nom) ,
+                ]) ;
+
+                // FIN SAUVEGARDE HISTORIQUE
+
+            }
+
+            // FIN ENREGISTREMENT
+            
+            
+
+            $dataFilenames = [
+                "files/systeme/stock/categorie(agence)/".$nameFile,
+                "files/systeme/stock/preference(user)/".strtolower($user->getUsername())."_".$user->getId().".json",
+                "files/systeme/stock/entrepot(agence)/".$nameFile,
+                "files/systeme/stock/fournisseur(agence)/".$nameFile ,
+                "files/systeme/stock/stock_general(agence)/".$nameFile,
+                "files/systeme/stock/stock_entrepot(agence)/".$nameFile,
+                "files/systeme/stock/type(agence)/".$nameFile,
+                "files/systeme/stock/stockType(agence)/".$nameFile ,
+                "files/systeme/stock/stockGEntrepot(agence)/".$nameFile ,
+            ] ;
+
+            foreach ($dataFilenames as $dataFilename) {
+                if(file_exists($dataFilename))
+                    unlink($dataFilename) ;
+            }
+        }
+
+        return new JsonResponse([
+            "message" => "Importation effectuée",
+            "type" => "green"
+        ]) ;
     }
 }

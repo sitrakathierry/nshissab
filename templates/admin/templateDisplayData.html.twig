@@ -1,15 +1,15 @@
 
 {% for dataToImport in dataToImports %}
     <div class="border rounded parent_bloc_elem mt-3 p-3">
-        <button class="btn btn-outline-danger btn-sm btn_close_elem"><i class="fa fa-times"></i></button>
-        <h5 class="title_form mt-3 mb-2 text-black text-uppercase">Produits {{dataToImport[1]}}</h5>
+        <button data-value="{{dataToImport.code_produit}}" class="btn btn-outline-danger btn-sm btn_close_elem"><i class="fa fa-times"></i></button>
+        <h5 class="title_form mt-3 mb-2 text-black text-uppercase">Produits {{dataToImport.code_produit}}</h5>
         <div class="w-100">
             <ul class="list-unstyled list-inline">
-                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Catégorie</span> : {{dataToImport[0]}}</li>
-                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Code Produit</span> : {{dataToImport[1]}}</li>
-                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Unité</span> : {{dataToImport[2]}}</li>
-                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Nom</span> : {{dataToImport[3]}}</li>
-                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Désignation</span> : {{dataToImport[4]}}</li>
+                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Catégorie</span> : {{dataToImport.categorie}}</li>
+                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Code Produit</span> : {{dataToImport.code_produit}}</li>
+                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Unité</span> : {{dataToImport.unite}}</li>
+                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Nom</span> : {{dataToImport.nom_produit}}</li>
+                <li class="text-success mx-4 list-inline-item text-uppercase"><span class="font-weight-bold">Désignation</span> : {{dataToImport.designation}}</li>
             </ul>
         </div>
         <h5 class="title_form mt-2 mb-2 text-black text-uppercase">Variation de Produit</h5>
@@ -32,20 +32,20 @@
                     </tr>
                 </thead>  
                 <tbody>
-                    {% for variation in dataToImport.variation %}
+                    {% for variation in dataToImport.variations %}
                         <tr>
-                            <td>{{variation[0]}}</td>
-                            <td>{{variation[1]}}</td>
-                            <td>{{variation[2]}}</td>
-                            <td>{{variation[3]}}</td>
-                            <td>{{variation[5]}}</td>
-                            <td>{{variation[6]}}</td>
-                            <td>{{variation[7]}}</td>
-                            <td>{{variation[8]}}</td>
-                            <td>{{variation[9]}}</td>
-                            <td>{{variation[10]}}</td>
-                            <td>{{variation[11]}}</td>
-                            <td>{{variation[4]}}</td>
+                            <td>{{variation.code_produit}}</td>
+                            <td>{{variation.indice}}</td>
+                            <td>{{variation.entrepot}}</td>
+                            <td>{{variation.fournisseur}}</td>
+                            <td>{{variation.prix_achat}}</td>
+                            <td>{{variation.charge}}</td>
+                            <td>{{variation.prix_revient}}</td>
+                            <td>{{variation.marge}}</td>
+                            <td>{{variation.stock}}</td>
+                            <td>{{variation.stock_alert}}</td>
+                            <td>{{variation.prix_vente}}</td>
+                            <td>{{variation.expiree_le}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>  

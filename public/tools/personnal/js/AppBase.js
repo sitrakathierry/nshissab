@@ -153,7 +153,7 @@ class AppBase
               type = "orange";
               message = dataMessage[i] + " vide";
               break;
-            } else if (parseInt(data[i]) <= 0) {
+            } else if (parseInt(data[i]) < 0) {
               allow = false;
               type = "red";
               message = dataMessage[i] + " doit être supérieur à 0";
@@ -278,4 +278,6 @@ class AppBase
     //       pdf.save();
     //   });
     // }
-}
+
+  }
+  window.dataAppBase = new AppBase() ; 
