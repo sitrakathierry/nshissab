@@ -21,12 +21,17 @@
             <div class="row">
                 <div class="col-4">
                     <label for="import_agence" class="mt-2 font-weight-bold">Agence</label>
-                    <select name="import_agence" class="custom-select chosen_select custom-select-sm" id="import_agence">
-                        <option value="">-</option> 
-                        {% for agence in agences %}
-                            <option value="{{agence.id}}" >{{agence.nom|upper}}</option>
-                        {% endfor %}
-                    </select>
+                    {% if dispAgence %}
+                        <select name="import_agence" class="custom-select chosen_select custom-select-sm" id="import_agence">
+                            <option value="">-</option> 
+                            {% for agence in agences %}
+                                <option value="{{agence.id}}" >{{agence.nom|upper}}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="hidden" name="import_agence" id="import_agence" value="{{app.session.get('user')["agence"]}}">
+                        <input type="text" name="nom_agence" readonly id="nom_agence" class="form-control text-success font-weight-bold" value="{{nomAgence|upper}}">
+                    {% endif %}
                 </div>
                 <div class="col-4">
                     <label for="import_module" class="mt-2 font-weight-bold">Module</label>
@@ -39,7 +44,9 @@
                 </div>
             </div>
             <input type="hidden" name="import_produit_annulee" id="import_produit_annulee">
-            <div class="contentData"></div>
+            <div class="contentData">
+                
+            </div>
             <input type="file" name="file_to_import" id="file_to_import" class="d-none" > 
             {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

@@ -1,0 +1,1 @@
+[{"parent":null,"id":18,"route":"app_home","nom":"SOCI\u00c9T\u00c9","icone":"fa-building","rang":1,"submenu":[{"parent":18,"id":19,"route":"soc_details","nom":"DETAILS","icone":"fa-info-circle","rang":1}]}]

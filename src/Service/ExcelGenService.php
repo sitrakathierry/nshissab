@@ -81,7 +81,7 @@ class ExcelGenService extends AbstractController
         // Set the document properties
         $spreadsheet->getProperties()->setTitle('Fichier Excel')
             ->setSubject('Fichier Excel')
-            ->setCreator('Sitraka Thierry')
+            ->setCreator('RANDRIANIRINARISOA Sitraka Thierry')
             ->setLastModifiedBy('Your Last Modified By : Sitraka Thierry');
 
         // Add some data to the spreadsheet
@@ -98,50 +98,8 @@ class ExcelGenService extends AbstractController
             $row++;
         }
 
-        // // Create a StreamedResponse
-        // $response = new StreamedResponse(function () use ($spreadsheet) {
-        //     $writer = new Xlsx($spreadsheet);
-        //     $writer->save('php://output');
-        // });
-
-        // // Set up the response
-        // $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // $response->headers->set('Content-Disposition', 'attachment; filename='.$nameFilename);
-
-        // return $response;
-
-        // Create a temporary file to store the spreadsheet
-        // $filename = tempnam(sys_get_temp_dir(), 'excel');
         $writer = new Xlsx($spreadsheet);
         $writer->save($nameFilename);
-
-        // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // header('Content-Disposition: attachment; filename="'.$nameFilename.'"');
-        // header('Cache-Control', 'private');
-        // header('Cache-Control: private, max-age=0, must-revalidate');
-        // header('Pragma: public');
-
-        // // Set up the response
-        // $response = new BinaryFileResponse($nameFilename);
-        // $response->setContentDisposition(
-        //     ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-        //     $nameFilename
-        // );
-        // // Set up the response headers
-        // $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // // $response->headers->set('Content-Disposition', 'attachment; filename=your_filename.xlsx');
-        // $response->headers->set('Cache-Control', 'private');
-        // $response->headers->set('Pragma', 'public');
-        // $response->headers->addCacheControlDirective('must-revalidate', true);
-        // $response->headers->addCacheControlDirective('max-age', 0);
-        // $response->headers->addCacheControlDirective('s-maxage', 0);
-        // // Delete the temporary file when the response is finished
-        // $response->deleteFileAfterSend(true);
-
-        // return $response;
-        // readfile($nameFilename);
-
-        // unlink($nameFilename) ;
 
         if (file_exists($nameFilename)) {
             header('Content-Description: File Transfer');

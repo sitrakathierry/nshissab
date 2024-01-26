@@ -39,6 +39,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
+use function PHPSTORM_META\type;
+
 class AdminController extends AbstractController
 {
     private $entityManager;
@@ -48,6 +50,7 @@ class AdminController extends AbstractController
     private $agence ;
     private $nameAgence ;
     private $userObj ;
+    private $user ;
 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
@@ -59,6 +62,11 @@ class AdminController extends AbstractController
         $this->nameUser = strtolower($this->session->get("user")["username"]) ;
         $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->session->get("user")["agence"]) ; 
         $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
+        $this->user = $this->session->get("user") ;
+        $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
+            "username" => $this->user["username"],
+            "agence" => $this->agence
+        ]) ;
     }
 
     #[Route('/admin', name: 'app_admin')]
@@ -625,12 +633,23 @@ class AdminController extends AbstractController
             "rang" => "ASC"
         ]) ;
 
+        $dispAgence = True ;
+
+        if($this->userObj->getRoles()[0] != "ADMIN")
+        {
+            $dispAgence = False ;
+        }
+
+        $nomAgence = $this->agence->getNom() ;
+
         return $this->render('admin/importData.html.twig', [
             "filename" => "admin",
-            "titlePage" => "Importation de Donnée",
+            "titlePage" => "Importation de Données",
             "with_foot" => true,
             "agences" => $agences,
             "modules" => $modules,
+            "dispAgence" => $dispAgence,
+            "nomAgence" => $nomAgence,
         ]);
     }
 
@@ -693,12 +712,12 @@ class AdminController extends AbstractController
             }
             finally {
                 $module = $this->entityManager->getRepository(ImportModule::class)->find($import_module) ;
+                $allDatas = [] ;
                 if($module->getReference() == "STOCK")
                 {
                     $variations = $allData[1]["Variation_Produit"] ;
                     $produits = $allData[0]["Produit"] ;
                     
-                    $allDatas = [] ;
                     for ($i=0; $i < count($variations); $i++) { 
                         if($i == 0)
                             continue ;
@@ -744,9 +763,76 @@ class AdminController extends AbstractController
                     }
 
                 }
-                else 
+                else if($module->getReference() == "FACT")
                 {
                     // suite enregistrement information si ce n'est pas un enregistrement de produit
+                    $factures = $allData[0]["factures"] ;
+                    $details_produit = $allData[1]["details_produit"] ;
+                    $details_prest_standard = $allData[2]["details_prest_standard"] ;
+
+                    foreach ($factures as $key => $value) {
+                        if($key == 0)
+                            continue ;
+
+                        $elementFacture = $factures[$key] ;
+
+                        $allDatas["TEST"] = [
+                            "num_fact" => $elementFacture[0] ,
+                            "type_fact" => $elementFacture[1] ,
+                            "modele_fact" => $elementFacture[2] ,
+                            "mode_paiement" => $elementFacture[3] ,
+                            "info1_paiement" => $elementFacture[4] ,
+                            "info2_paiement" => $elementFacture[5] ,
+                            "nom_client" => $elementFacture[6] ,
+                            "type_client" => $elementFacture[7] ,
+                            "date_fact" => $elementFacture[8] ,
+                            "lieu_fact" => $elementFacture[9] ,
+                            "type_remise" => $elementFacture[10] ,
+                            "val_remise" => $elementFacture[11] ,
+                            "montant_tva" => $elementFacture[12] ,
+                            "total_ht" => $elementFacture[13] ,
+                            "description" => $elementFacture[14] ,
+                        ] ;
+                    }
+
+                    foreach ($details_prest_standard as $key => $value) {
+                        // if($key == 0)
+                        //     continue ;
+
+                        $detailStandard = $details_prest_standard[$key] ;
+
+                        $allDatas["TEST"]["details"][] = [
+                            "type_detail" => $detailStandard[1] ,
+                            "designation" => $detailStandard[2] ,
+                            "quantite" => $detailStandard[3] ,
+                            "tarif" => $detailStandard[4] ,
+                            "prix_unitaire" => $detailStandard[5] ,
+                            "montant_tva" => $detailStandard[6] ,
+                            "type_remise" => $detailStandard[7] ,
+                            "val_remise" => $detailStandard[8] ,
+                            "montant_total" => $detailStandard[9] ,
+                        ] ;
+                    }
+    
+                    foreach ($details_produit as $key => $value) {
+
+                        // if($key == 0)
+                        //     continue ;
+
+                        $detailProduit = $details_produit[$key] ;
+
+                        $allDatas["TEST"]["details"][] = [
+                            "type_detail" => $detailProduit[1],
+                            "code_produit" => $detailProduit[2],
+                            "designation" => $detailProduit[3],
+                            "quantite" => $detailProduit[4],
+                            "prix_unitaire" => $detailProduit[5],
+                            "montant_tva" => $detailProduit[6],
+                            "type_remise" => $detailProduit[7],
+                            "val_remise" => $detailProduit[8],
+                            "montant_total" => $detailProduit[9],
+                        ] ;
+                    }
                 }
             }
         }
@@ -764,9 +850,20 @@ class AdminController extends AbstractController
         
         // dd($allDatas) ;
 
-        $response = $this->renderView("admin/templateDisplayData.html.twig",[
-            "dataToImports" => $allDatas
-        ]) ;
+        // dd($allDatas) ;
+
+        if($module->getReference() == "STOCK")
+        {
+            $response = $this->renderView("admin/templateDisplayProduit.html.twig",[
+                "dataToImports" => $allDatas
+            ]) ;
+        }
+        else if($module->getReference() == "FACT")
+        {
+            $response = $this->renderView("admin/templateDisplayFacture.html.twig",[
+                "dataToImports" => $allDatas
+            ]) ;
+        }
 
         return new Response($response);
     }
@@ -784,20 +881,28 @@ class AdminController extends AbstractController
         $nameFile = strtolower($agence->getNom())."-".$agence->getId().".json" ;
 
         $filename = "files/systeme/admin/import/".$nameFile ;
-
-        $users = $this->entityManager->getRepository(User::class)->findBy([
-            "agence" => $agence,
-            "statut" => True
-        ]) ;
         
         $user = null;
-
-        foreach ($users as $membre) {
-            if($membre->getRoles()[0] == "MANAGER")
-            {
-                $user = $membre ;
-                break ;
+        if($this->userObj->getRoles()[0] != "ADMIN")
+        {
+            $user = $this->userObj ;
+        }
+        else
+        {
+            $users = $this->entityManager->getRepository(User::class)->findBy([
+                "agence" => $agence,
+                "statut" => True
+            ]) ;
+            
+    
+            foreach ($users as $membre) {
+                if($membre->getRoles()[0] == "MANAGER")
+                {
+                    $user = $membre ;
+                    break ;
+                }
             }
+
         }
     
         if($module->getReference() =="STOCK")
@@ -1177,11 +1282,20 @@ class AdminController extends AbstractController
 
             // FIN ENREGISTREMENT
             
-            
+            if(!is_null($user))
+            {
+                $username = strtolower($user->getUsername()) ;
+                $userId = $user->getId() ;
+            }
+            else
+            {
+                $username = "_" ;
+                $userId = "_" ;
+            }
 
             $dataFilenames = [
                 "files/systeme/stock/categorie(agence)/".$nameFile,
-                "files/systeme/stock/preference(user)/".strtolower($user->getUsername())."_".$user->getId().".json",
+                "files/systeme/stock/preference(user)/".$username."_".$userId.".json",
                 "files/systeme/stock/entrepot(agence)/".$nameFile,
                 "files/systeme/stock/fournisseur(agence)/".$nameFile ,
                 "files/systeme/stock/stock_general(agence)/".$nameFile,
