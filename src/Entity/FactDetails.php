@@ -57,6 +57,9 @@ class FactDetails
     #[ORM\OneToMany(mappedBy: 'detail', targetEntity: FactSupDetailsPbat::class)]
     private Collection $factSupDetailsPbats;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isForfait = null;
+
     public function __construct()
     {
         $this->lvrDetails = new ArrayCollection();
@@ -287,6 +290,18 @@ class FactDetails
                 $factSupDetailsPbat->setDetail(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsForfait(): ?bool
+    {
+        return $this->isForfait;
+    }
+
+    public function setIsForfait(?bool $isForfait): self
+    {
+        $this->isForfait = $isForfait;
 
         return $this;
     }

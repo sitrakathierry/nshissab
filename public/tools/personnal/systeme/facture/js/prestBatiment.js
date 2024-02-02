@@ -91,6 +91,7 @@ $(document).ready(function(){
         var infoSup = $("#fact_btp_info_sup").val()
         var prixText = $("#fact_btp_prix").find("option:selected").text() ;
         var prixMontant = prixText.split(' | ') ;
+        var labelQte = $("#fact_is_forfait").val() == "OUI" ? $("#fact_btp_label_qte").val() : $("#fact_btp_qte").val() ;
         var qte = $("#fact_btp_qte").val()
         var tva = $("#fact_btp_tva_val").val() == "" ? 0 : parseFloat($("#fact_btp_tva_val").val())
         var categorieId = $("#fact_btp_categorie").val()
@@ -115,8 +116,9 @@ $(document).ready(function(){
                 <input type="hidden" name="fact_enr_btp_prix[]" value="`+prixMontant[0]+`">
                 </td>
                 <td>
-                    `+qte+`
+                    `+labelQte+`
                     <input type="hidden" name="fact_enr_btp_quantite[]" value="`+qte+`">
+                    <input type="hidden" name="fact_enr_btp_forfait[]" value="`+$("#fact_is_forfait").val()+`">
                 </td>
                 <td>
                     `+totalTvaLigne+`(`+tva+`%)
@@ -251,6 +253,9 @@ $(document).ready(function(){
         $("#fact_btp_qte").val("")
         $("#fact_btp_tva_val").val("")
         $(".chosen_select").trigger("chosen:updated") ;
+
+        if($(".btn_std_forfait").hasClass("btn-info"))
+            $(".btn_std_forfait").click() ;
     })
 
     $(document).on('click',".supprLigneCat",function(){

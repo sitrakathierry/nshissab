@@ -404,6 +404,29 @@ $(document).ready(function(){
         })
     }
 
+    $(document).on("click",".btn_btp_forfait",function(){
+        if($(this).hasClass("btn-outline-info"))
+        {
+            $(this).removeClass("btn-outline-info")
+            $(this).addClass("btn-info")
+            $(this).html('<span class="font-weight-bold" ><i class="fa fa-check" ></i>&nbsp;FORFAIT</span>')
+            $("#fact_is_forfait").val("OUI")
+            $("#fact_btp_qte").hide()
+            $("#fact_btp_qte").val("1")
+            $("#fact_btp_label_qte").attr("type","text") 
+        }
+        else
+        {
+            $(this).removeClass("btn-info")
+            $(this).addClass("btn-outline-info")
+            $(this).html('<span class="font-weight-bold" ><i class="fa fa-cube" ></i>&nbsp;FORFAIT</span>')
+            $("#fact_is_forfait").val("NON")
+            $("#fact_btp_qte").show()
+            $("#fact_btp_qte").val("")
+            $("#fact_btp_label_qte").attr("type","hidden") 
+        }
+    })
+
     $(".fact_btn_modele").click(function(){
         var btnClass = $(this).data("class")
         var target = $(this).data("target")

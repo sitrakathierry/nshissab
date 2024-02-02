@@ -397,26 +397,26 @@ $(document).ready(function(){
     })
 
     $(document).on("change","#fact_devise",function(){
-            var option = $(this).find("option:selected") ;
-            var montantbase = option.attr("base") ;
-            var totalBase = $(".fact_enr_total_general").val()
-            var selectedText = option.text() ;  
+        var option = $(this).find("option:selected") ;
+        var montantbase = option.attr("base") ;
+        var totalBase = $(".fact_enr_total_general").val()
+        var selectedText = option.text() ;  
 
-            $("#fact_lettre_devise").text(selectedText.split(" | ")[1])
-            var montantDevise = parseFloat(totalBase) / parseFloat(montantbase)
-            montantDevise = montantDevise.toFixed(2)
-            montantDevise = montantDevise.endsWith('.00') ? montantDevise.slice(0, -3) : montantDevise ;
-            $("#fact_montant_devise").text(montantDevise+" "+selectedText.split(" | ")[0])
-            if($(this).val() == "")
-            {
-                $(".fact_enr_val_devise").val("")
-                $(".fact_disp_devise").addClass("d-none")
-            }
-            else
-            {
-                $(".fact_enr_val_devise").val($(this).val())
-                $(".fact_disp_devise").removeClass("d-none")
-            }
+        $("#fact_lettre_devise").text(selectedText.split(" | ")[1])
+        var montantDevise = parseFloat(totalBase) / parseFloat(montantbase)
+        montantDevise = montantDevise.toFixed(2)
+        montantDevise = montantDevise.endsWith('.00') ? montantDevise.slice(0, -3) : montantDevise ;
+        $("#fact_montant_devise").text(montantDevise+" "+selectedText.split(" | ")[0])
+        if($(this).val() == "")
+        {
+            $(".fact_enr_val_devise").val("")
+            $(".fact_disp_devise").addClass("d-none")
+        }
+        else
+        {
+            $(".fact_enr_val_devise").val($(this).val())
+            $(".fact_disp_devise").removeClass("d-none")
+        }
     })
 
     $(document).on("change","#fact_type_remise_prod_general",function(){

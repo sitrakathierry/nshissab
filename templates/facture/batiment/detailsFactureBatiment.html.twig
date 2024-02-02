@@ -185,7 +185,11 @@
                                                 <input type="hidden" name="fact_enr_btp_prix[]" value="{{itemDetail.prix}}">
                                                 </td>
                                                 <td>
-                                                {{itemDetail.quantite}}
+                                                    {% if itemDetail.isForfait %}
+                                                        U
+                                                    {% else %}
+                                                        {{itemDetail.quantite}}
+                                                    {% endif %}
                                                 <input type="hidden" name="fact_enr_btp_quantite[]" value="{{itemDetail.quantite}}">
                                                 </td>
                                                 <td>

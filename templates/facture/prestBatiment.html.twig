@@ -47,7 +47,13 @@
                 <input type="hidden" id="fact_text_prix">
             </div>
             <div class="col-md-2">
+                <label for="fact_btp_forfait" class="mt-2 font-weight-bold">&nbsp;</label>
+                <button type="button" class="btn btn-outline-info btn_btp_forfait btn-sm btn-block"><i class="fa fa-cube"></i>&nbsp;FORFAIT</button>
+                <input type="hidden" name="fact_is_forfait" id="fact_is_forfait" value="NON">
+            </div>
+            <div class="col-md-2">
                 <label for="fact_btp_qte" class="mt-2 font-weight-bold">Quantité</label>
+                <input type="hidden" readonly name="fact_btp_label_qte" class="form-control" id="fact_btp_label_qte" value="U">
                 <input type="number" step="any" name="fact_btp_qte" class="form-control" id="fact_btp_qte" placeholder=". . .">
             </div>
             <div class="col-md-2">

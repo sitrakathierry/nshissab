@@ -191,7 +191,6 @@ class FactureController extends AbstractController
         ]) ;
 
         return new Response($response) ;
-
     }
 
     #[Route('/facture/client/get', name: 'ftr_client_information_get')]
@@ -1041,6 +1040,7 @@ class FactureController extends AbstractController
             $element["id"] = $detail->getId() ;
             $element["type"] = $detail->getActivite() ;
             $element["designation"] = $detail->getDesignation() ;
+            $element["isForfait"] = $detail->isIsForfait() ;
             $element["quantite"] = $detail->getQuantite() ;
             $element["format"] = "-" ;
             $element["prix"] = $detail->getPrix() ; 
@@ -1305,6 +1305,7 @@ class FactureController extends AbstractController
             $element["id"] = $factureDetail->getId() ;
             $element["type"] = $factureDetail->getActivite() ;
             $element["designation"] = $factureDetail->getDesignation() ;
+            $element["isForfait"] = $factureDetail->isIsForfait() ;
             $element["quantite"] = $factureDetail->getQuantite() ;
             $element["format"] = "-" ;
             $element["prix"] = $factureDetail->getPrix() ;
@@ -1705,7 +1706,6 @@ class FactureController extends AbstractController
         $fact_enr_val_devise = $request->request->get('fact_enr_val_devise') ; 
         $fact_enr_val_devise = empty($fact_enr_val_devise) ? null : $this->entityManager->getRepository(Devise::class)->find($fact_enr_val_devise) ;
 
-        
         $facture = new Facture() ;
         
         
@@ -1897,15 +1897,18 @@ class FactureController extends AbstractController
             $fact_enr_btp_quantite = $request->request->get('fact_enr_btp_quantite') ;
             $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
             $fact_enr_btp_info_sup = $request->request->get('fact_enr_btp_info_sup') ;
+            $fact_enr_btp_forfait = $request->request->get('fact_enr_btp_forfait') ;
             
             foreach ($fact_enr_btp_enonce_id as $key => $value) {
                 $dtlsTvaVal = empty($fact_enr_btp_tva[$key]) ? null : $fact_enr_btp_tva[$key] ;
+                $forfait = $fact_enr_btp_forfait[$key] == "OUI" ? True : NULL ;
 
                 $factDetail = new FactDetails() ;
 
                 $factDetail->setActivite("BtpElement") ;
                 $factDetail->setEntite($fact_enr_btp_element_id[$key]) ;
                 $factDetail->setFacture($facture) ; 
+                $factDetail->setIsForfait($forfait) ; 
                 $factDetail->setDesignation($fact_enr_btp_designation[$key]) ;
                 $factDetail->setQuantite($fact_enr_btp_quantite[$key]) ;
                 $factDetail->setPrix($fact_enr_btp_prix[$key]) ;
