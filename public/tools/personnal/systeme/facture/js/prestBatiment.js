@@ -89,15 +89,18 @@ $(document).ready(function(){
         var mesure = $("#fact_btp_mesure").val()
         var prix = $("#fact_btp_prix").val()
         var infoSup = $("#fact_btp_info_sup").val()
+        var forfait = $("#fact_is_forfait").val() ;
+        var labelQte = forfait == "OUI" ? $("#fact_btp_label_qte").val() : $("#fact_btp_qte").val() ;
         var prixText = $("#fact_btp_prix").find("option:selected").text() ;
+        var labelPrix = forfait == "OUI" ? prix : prixText ;
         var prixMontant = prixText.split(' | ') ;
-        var labelQte = $("#fact_is_forfait").val() == "OUI" ? $("#fact_btp_label_qte").val() : $("#fact_btp_qte").val() ;
+        var valPrix = forfait == "OUI" ? prix : prixMontant[0] ;
         var qte = $("#fact_btp_qte").val()
         var tva = $("#fact_btp_tva_val").val() == "" ? 0 : parseFloat($("#fact_btp_tva_val").val())
         var categorieId = $("#fact_btp_categorie").val()
         var categorieText = $("#fact_btp_categorie").find("option:selected").text();   
-        var total = (parseFloat(prixMontant[0]) * parseInt(qte))
-        var totalTvaLigne = ((parseFloat(prixMontant[0]) * parseFloat(tva)) / 100) * parseInt(qte)
+        var total = (parseFloat(valPrix) * parseInt(qte))
+        var totalTvaLigne = ((parseFloat(valPrix) * parseFloat(tva)) / 100) * parseInt(qte)
         totalTvaLigne = parseFloat(totalTvaLigne.toFixed(2)) ;
 
         var itemElem = `
@@ -112,8 +115,8 @@ $(document).ready(function(){
                 </td>
                 <td>`+mesure+`</td>
                 <td>
-                `+prixText+`
-                <input type="hidden" name="fact_enr_btp_prix[]" value="`+prixMontant[0]+`">
+                `+labelPrix+`
+                <input type="hidden" name="fact_enr_btp_prix[]" value="`+valPrix+`">
                 </td>
                 <td>
                     `+labelQte+`

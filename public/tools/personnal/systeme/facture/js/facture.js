@@ -414,6 +414,7 @@ $(document).ready(function(){
             $("#fact_btp_qte").hide()
             $("#fact_btp_qte").val("1")
             $("#fact_btp_label_qte").attr("type","text") 
+            $(".content_fact_prix").html('<input type="number" name="fact_btp_prix" id="fact_btp_prix" class="form-control" placeholder=". . .">') ;
         }
         else
         {
@@ -424,6 +425,13 @@ $(document).ready(function(){
             $("#fact_btp_qte").show()
             $("#fact_btp_qte").val("")
             $("#fact_btp_label_qte").attr("type","hidden") 
+            $(".content_fact_prix").html(`
+                <select class="custom-select custom-select-sm chosen_select" name="fact_btp_prix" id="fact_btp_prix" >
+                    <option value=""></option> 
+                </select>
+                `) ;
+            $("#fact_btp_designation").change() ;
+
         }
     })
 
