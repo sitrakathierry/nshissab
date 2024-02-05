@@ -100,6 +100,9 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?int $anneeData = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isImported = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -555,6 +558,18 @@ class Facture
     public function setAnneeData(?int $anneeData): self
     {
         $this->anneeData = $anneeData;
+
+        return $this;
+    }
+
+    public function isIsImported(): ?bool
+    {
+        return $this->isImported;
+    }
+
+    public function setIsImported(?bool $isImported): self
+    {
+        $this->isImported = $isImported;
 
         return $this;
     }

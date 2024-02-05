@@ -3766,6 +3766,21 @@ class AppService extends AbstractController
         }
     }
 
+    public function timeToDate($timestamp)
+    {
+        if(empty($timestamp))
+        {
+            $dateTime = null;
+        }
+        else
+        {
+            $dateTime = date('Y-m-d', strtotime('1899-12-30 +' . $timestamp . ' days'));
+            $dateTime = \DateTime::createFromFormat('Y-m-d', $dateTime) ;
+        }
+
+        return $dateTime ;
+    }
+
     public function synchronisationFacture($agence)
     {
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([

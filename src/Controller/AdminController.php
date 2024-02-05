@@ -2,8 +2,24 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdCategorie;
+use App\Entity\AgdEcheance;
 use App\Entity\Agence;
 use App\Entity\Agenda;
+use App\Entity\Client;
+use App\Entity\CltHistoClient;
+use App\Entity\CltSociete;
+use App\Entity\CltTypes;
+use App\Entity\CrdDetails;
+use App\Entity\CrdFinance;
+use App\Entity\CrdStatut;
+use App\Entity\FactDetails;
+use App\Entity\FactHistoPaiement;
+use App\Entity\FactModele;
+use App\Entity\FactPaiement;
+use App\Entity\FactRemiseType;
+use App\Entity\FactType;
+use App\Entity\Facture;
 use App\Entity\HistoHistorique;
 use App\Entity\ImportModule;
 use App\Entity\Menu;
@@ -767,8 +783,7 @@ class AdminController extends AbstractController
                 {
                     // suite enregistrement information si ce n'est pas un enregistrement de produit
                     $factures = $allData[0]["factures"] ;
-                    $details_produit = $allData[1]["details_produit"] ;
-                    $details_prest_standard = $allData[2]["details_prest_standard"] ;
+                    $details = $allData[1]["details"] ;
 
                     foreach ($factures as $key => $value) {
                         if($key == 0)
@@ -776,7 +791,18 @@ class AdminController extends AbstractController
 
                         $elementFacture = $factures[$key] ;
 
-                        $allDatas["TEST"] = [
+                        if($elementFacture[10] == "%")
+                        {
+                            $remiseGen = ($elementFacture[13] * $elementFacture[11]) / 100 ; 
+                        }
+                        else
+                        {
+                            $remiseGen = $elementFacture[11] ;
+                        }
+
+                        $keyTab = $elementFacture[0].''.strtoupper($elementFacture[6]) ;
+
+                        $allDatas[$keyTab] = [
                             "num_fact" => $elementFacture[0] ,
                             "type_fact" => $elementFacture[1] ,
                             "modele_fact" => $elementFacture[2] ,
@@ -785,55 +811,60 @@ class AdminController extends AbstractController
                             "info2_paiement" => $elementFacture[5] ,
                             "nom_client" => $elementFacture[6] ,
                             "type_client" => $elementFacture[7] ,
-                            "date_fact" => $elementFacture[8] ,
-                            "lieu_fact" => $elementFacture[9] ,
+                            "date_fact" => $elementFacture[9] ,
+                            "label_date_fact" => $this->appService->timeToDate($elementFacture[9])->format("d/m/Y") ,
+                            "lieu_fact" => $elementFacture[8] ,
                             "type_remise" => $elementFacture[10] ,
                             "val_remise" => $elementFacture[11] ,
                             "montant_tva" => $elementFacture[12] ,
                             "total_ht" => $elementFacture[13] ,
                             "description" => $elementFacture[14] ,
+                            "date_creation" => $elementFacture[15] ,
+                            "totalTva" => 0,
+                            "totalHt" => 0,
+                            "remiseGen" => $remiseGen ,
                         ] ;
                     }
 
-                    foreach ($details_prest_standard as $key => $value) {
-                        // if($key == 0)
-                        //     continue ;
+                    foreach ($details as $key => $value) {
+                        if($key == 0)
+                            continue ;
 
-                        $detailStandard = $details_prest_standard[$key] ;
+                        $detail = $details[$key] ;
 
-                        $allDatas["TEST"]["details"][] = [
-                            "type_detail" => $detailStandard[1] ,
-                            "designation" => $detailStandard[2] ,
-                            "quantite" => $detailStandard[3] ,
-                            "tarif" => $detailStandard[4] ,
-                            "prix_unitaire" => $detailStandard[5] ,
-                            "montant_tva" => $detailStandard[6] ,
-                            "type_remise" => $detailStandard[7] ,
-                            "val_remise" => $detailStandard[8] ,
-                            "montant_total" => $detailStandard[9] ,
+                        $keyDetailTab = $detail[0].''.strtoupper($detail[1]) ;
+
+                        $totalLigne = $detail[3] * $detail[4] ;
+
+                        if($detail[6] == "%")
+                        {
+                            $remiseVal = ($totalLigne * $detail[7]) / 100 ; 
+                        }
+                        else
+                        {
+                            $remiseVal = $detail[7] ;
+                        }
+
+                        $totalLigne = $totalLigne - $remiseVal ;
+
+                        $allDatas[$keyDetailTab]["details"][] = [
+                            "client" => $detail[1],
+                            "designation" => $detail[2],
+                            "quantite" => $detail[3],
+                            "prix_unitaire" => $detail[4],
+                            "montant_tva" => $detail[5],
+                            "type_remise" => $detail[6],
+                            "val_remise" => $detail[7],
+                            "montant_total" => $detail[8],
+                            "total_ligne" => $totalLigne,
                         ] ;
-                    }
-    
-                    foreach ($details_produit as $key => $value) {
 
-                        // if($key == 0)
-                        //     continue ;
-
-                        $detailProduit = $details_produit[$key] ;
-
-                        $allDatas["TEST"]["details"][] = [
-                            "type_detail" => $detailProduit[1],
-                            "code_produit" => $detailProduit[2],
-                            "designation" => $detailProduit[3],
-                            "quantite" => $detailProduit[4],
-                            "prix_unitaire" => $detailProduit[5],
-                            "montant_tva" => $detailProduit[6],
-                            "type_remise" => $detailProduit[7],
-                            "val_remise" => $detailProduit[8],
-                            "montant_total" => $detailProduit[9],
-                        ] ;
+                        $allDatas[$keyDetailTab]["totalTva"] += (($detail[4] * $detail[5]) / 100) * $detail[3] ;
+                        $allDatas[$keyDetailTab]["totalHt"] += $totalLigne ;
                     }
                 }
+
+                // dd($allDatas) ;
             }
         }
 
@@ -905,7 +936,7 @@ class AdminController extends AbstractController
 
         }
     
-        if($module->getReference() =="STOCK")
+        if($module->getReference() == "STOCK")
         {
             $produits = json_decode(file_get_contents($filename)) ;
 
@@ -1309,6 +1340,347 @@ class AdminController extends AbstractController
                 if(file_exists($dataFilename))
                     unlink($dataFilename) ;
             }
+        }
+        else if($module->getReference() == "FACT") // INSERTION FACTURE
+        { 
+            /*
+                num_fact
+                type_fact
+                modele_fact
+                mode_paiement
+                info1_paiement
+                info2_paiement
+                nom_client
+                type_client
+                date_fact
+                lieu_fact
+                type_remise
+                val_remise
+                montant_tva
+                total_ht
+                description
+                date_creation
+            */
+
+            $tabKeyRef = [
+                "DEFINITIVE" => "DF",
+                "ESPECE" => "ES",
+                "CREDIT" => "CR",
+                "PRODUIT" => "PROD",
+                "PRESTATION" => "PSTD",
+                "%" => 100,
+                "MONTANT" => 1,
+            ] ;
+
+            $factures = json_decode(file_get_contents($filename)) ;
+
+            $factures = $this->appService->objectToArray($factures) ;
+
+            foreach ($factures as $facture) {
+                
+                $facture["details"] = $this->appService->objectToArray($facture["details"]) ;
+
+                $type = $this->entityManager->getRepository(FactType::class)->findOneBy([
+                    "reference" =>  $tabKeyRef[$facture["type_fact"]]
+                ]) ; 
+    
+                $paiement = $this->entityManager->getRepository(FactPaiement::class)->findOneBy([
+                    "reference" => $tabKeyRef[$facture["mode_paiement"]]
+                ]) ; 
+        
+                $modele = $this->entityManager->getRepository(FactModele::class)->findOneBy([
+                    "reference" => $tabKeyRef[$facture["modele_fact"]]
+                ]) ; 
+        
+                // DEBUT D'INSERTION DE DONNEE
+        
+                if($facture["type_client"] == "PHYSIQUE")
+                {
+                    $testClient = $this->entityManager->getRepository(Client::class)->findOneBy([
+                        "agence" => $agence,
+                        "nom" => strtoupper($facture["nom_client"]),
+                    ]) ;
+                }
+                else
+                {
+                    $testClient = $this->entityManager->getRepository(CltSociete::class)->findOneBy([
+                        "agence" => $agence,
+                        "nom" => strtoupper($facture["nom_client"]),
+                    ]) ;
+                }
+    
+                if(is_null($testClient))
+                {
+                    $typeClient = $this->entityManager->getRepository(CltTypes::class)->findOneBy([
+                        "reference" => $facture["type_client"]
+                    ]) ;
+        
+                    if($typeClient->getReference() == "MORAL")
+                    {
+                        $societe = new CltSociete() ;
+        
+                        $societe->setAgence($agence) ;
+                        $societe->setNom(strtoupper($facture["nom_client"])) ;
+        
+                        $this->entityManager->persist($societe) ;
+                        $clientP = null ;
+                    }
+                    else
+                    {
+                        $clientP = new Client() ;
+        
+                        $clientP->setAgence($agence) ;
+                        $clientP->setNom(strtoupper($facture["nom_client"])) ;
+                        
+                        $this->entityManager->persist($clientP) ;
+                        
+                        $societe = null ;
+                    }
+
+                    $this->entityManager->flush() ;
+
+                    $client = new CltHistoClient() ;
+        
+                    $client->setAgence($agence) ;
+                    $client->setClient($clientP) ;
+                    $client->setSociete($societe) ;
+                    $client->setType($typeClient) ;
+                    $client->setUrgence(null) ;
+                    $client->setStatut(True) ;
+                    $client->setCreatedAt(new \DateTimeImmutable) ;
+                    $client->setUpdatedAt(new \DateTimeImmutable) ;
+        
+                    $this->entityManager->persist($client) ;
+                    $this->entityManager->flush() ;
+        
+                    $filename = "files/systeme/client/client(agence)/".$nameFile ;
+        
+                    if(file_exists($filename))
+                        unlink($filename) ;
+                }
+                else
+                {
+                    if($facture["type_client"] == "PHYSIQUE")
+                    {
+                        $client = $this->entityManager->getRepository(CltHistoClient::class)->findOneBy([
+                            "client" => $testClient
+                        ]) ; 
+                    }
+                    else
+                    {
+                        $client = $this->entityManager->getRepository(CltHistoClient::class)->findOneBy([
+                            "societe" => $testClient
+                        ]) ; 
+                    }
+                }
+                
+                $typeRemise = $this->entityManager->getRepository(FactRemiseType::class)->findOneBy([
+                    "calcul" => $tabKeyRef[$facture["type_remise"]]
+                ]) ;
+
+                if($tabKeyRef[$facture["type_remise"]] == 100)
+                {
+                    $remiseG = ($facture["total_ht"] * $facture["val_remise"]) / 100 ; 
+                }
+                else
+                {
+                    $remiseG = $facture["val_remise"] ;
+                }
+
+                $totalTtc = $facture["total_ht"] - $remiseG ;
+
+                $dateFacture = $this->appService->timeToDate($facture["date_fact"]) ;
+                $dateCreation = $this->appService->timeToDate($facture["date_creation"]) ;
+                $dateCreation = \DateTimeImmutable::createFromMutable($dateCreation);
+
+                $existFacture = $this->entityManager->getRepository(Facture::class)->findOneBy([
+                    "agence" => $agence,
+                    "client" => $client,
+                    "numFact" => $facture["num_fact"],
+                    "statut" => True,
+                ]) ;
+
+                if(!is_null($existFacture))
+                    continue ;
+
+                // DEBUT INSERTION
+
+                $newFacture = new Facture() ;
+
+                $newFacture->setAgence($agence) ;
+                $newFacture->setUser($user) ;
+                $newFacture->setClient($client) ;
+                $newFacture->setType($type);
+                $newFacture->setModele($modele) ;
+                $newFacture->setRemiseType($typeRemise) ;
+                $newFacture->setRemiseVal($facture["val_remise"]) ;
+                $newFacture->setNumFact($facture["num_fact"]) ;
+                $newFacture->setDescription($facture["description"]) ;
+                $newFacture->setTvaVal(floatval($facture["totalTva"])) ;
+                $newFacture->setLieu($facture["lieu_fact"]) ;
+                $newFacture->setDate($dateFacture) ;
+                $newFacture->setTotal(floatval($totalTtc)) ;
+                $newFacture->setDevise(NULL) ;
+                $newFacture->setStatut(True) ;
+                $newFacture->setIsUpdated(True) ;
+                $newFacture->setIsImported(True) ;
+                $newFacture->setAnneeData($dateFacture->format('Y')) ;
+                $newFacture->setCreatedAt($dateCreation) ;
+                $newFacture->setUpdatedAt(new \DateTimeImmutable) ;
+        
+                $this->entityManager->persist($newFacture) ;
+                $this->entityManager->flush() ;
+        
+                // DEBUT SAUVEGARDE HISTORIQUE
+        
+                $this->entityManager->getRepository(HistoHistorique::class)
+                ->insererHistorique([
+                    "refModule" => "FACT",
+                    "nomModule" => "FACTURE",
+                    "refAction" => "CRT",
+                    "user" => $user,
+                    "agence" => $agence,
+                    "nameAgence" => $nameFile,
+                    "description" => "Création Facture N° : ".$facture["num_fact"],
+                ]) ;
+        
+                // FIN SAUVEGARDE HISTORIQUE
+        
+                $histoPaiement = new FactHistoPaiement() ;
+                /*
+                    Statut : 
+                        - Payee
+                        - En_cours
+                */
+                $statutPaiement = "" ; 
+                switch ($type->getReference()) {
+                    case 'DF':
+                        $statutPaiement = "Payee" ;
+                        break;
+                    case 'PR':
+                        $statutPaiement = "En_cours" ;
+                        break;
+                    default:
+                        $statutPaiement = "En_attente" ;
+                        break;
+                }
+        
+                // $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
+                $fact_libelle = empty($facture["info1_paiement"]) ? null : $facture["info1_paiement"] ;
+                $fact_num = empty($facture["info2_paiement"]) ? null : $facture["info2_paiement"] ;
+                
+                $histoPaiement->setLibelle($fact_libelle) ;
+                $histoPaiement->setNumero($fact_num) ;
+                $histoPaiement->setPaiement($paiement) ;
+                $histoPaiement->setFacture($newFacture) ;
+                $histoPaiement->setStatutPaiement($statutPaiement) ;
+                
+                $this->entityManager->persist($histoPaiement) ;
+                $this->entityManager->flush() ;
+        
+                /*
+                    client
+                    designation
+                    quantite
+                    prix_unitaire
+                    montant_tva
+                    type_remise
+                    val_remise
+                    montant_total
+                */
+
+                // INSERTION DES DETAILS DE LA FACTURE 
+                // PAR RAPPORT AU MODELE 
+                // PORTANT DES REFERENCES SPECIFIQUES
+                $modeleRef = $modele->getReference() ;
+                if($modeleRef == "PROD" || $modeleRef == "PSTD") // Produit ou Prestation Standard
+                {
+                    foreach ($facture["details"] as $detail) {
+                        $factDetail = new FactDetails() ;
+
+                        $remiseVal = 0 ;
+                        
+                        $totalHt = $detail["quantite"] * $detail["prix_unitaire"] ;
+
+                        if(empty($detail["type_remise"]))
+                        {
+                            if($tabKeyRef[$detail["type_remise"]] == 100)
+                            {
+                                $remiseVal = ($totalHt * $detail["val_remise"]) / 100 ; 
+                            }
+                            else
+                            {
+                                $remiseVal = $detail["val_remise"] ;
+                            }
+                        }
+                        
+                        $factDetail->setFacture($newFacture) ; 
+                        $factDetail->setRemiseType($typeRemise) ;
+                        $factDetail->setRemiseVal($remiseVal) ;
+                        $factDetail->setDesignation($detail["designation"]) ;
+                        $factDetail->setQuantite($detail["quantite"]) ;
+                        $factDetail->setPrix($detail["prix_unitaire"]) ;
+                        $factDetail->setTvaVal($detail["montant_tva"]) ;
+                        $factDetail->setStatut(True) ;
+        
+                        $this->entityManager->persist($factDetail) ;
+                        $this->entityManager->flush() ; 
+                    }
+        
+                }
+
+                // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
+                if(!is_null($paiement))
+                {
+                    if($paiement->getReference() == "CR" || $paiement->getReference() == "AC")
+                    {
+                        $lastRecordFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([], ['id' => 'DESC']);
+                        $numFinance = !is_null($lastRecordFinance) ? ($lastRecordFinance->getId()+1) : 1 ;
+                        $numFinance = str_pad($numFinance, 5, "0", STR_PAD_LEFT);
+                        $refFncStatut = "ECR" ; 
+                        
+                        $crdStatut = $this->entityManager->getRepository(CrdStatut::class)->findOneBy([
+                                "reference" => $refFncStatut
+                            ]) ;
+        
+                        $finance = new CrdFinance() ;
+        
+                        $finance->setAgence($agence) ;
+                        $finance->setFacture($newFacture) ;
+                        $finance->setPaiement($paiement) ;
+                        $finance->setNumFnc($numFinance) ;
+                        $finance->setStatut($crdStatut) ; 
+                        $finance->setCreatedAt(new \DateTimeImmutable) ; 
+                        $finance->setUpdatedAt(new \DateTimeImmutable) ; 
+        
+                        $this->entityManager->persist($finance) ;
+                        $this->entityManager->flush() ; 
+                    }
+                }
+                
+                if(!is_null($paiement))
+                {
+                    if($paiement->getReference() == "AC")
+                    {
+                        $filename = "files/systeme/credit/acompte(agence)/".$nameFile ;
+                        if(file_exists($filename))
+                        unlink($filename);
+                    }
+                    else if($paiement->getReference() == "CR")
+                    {
+                        $filename = "files/systeme/credit/credit(agence)/".$nameFile ;
+                        if(file_exists($filename))
+                        unlink($filename);
+                    }
+                }
+        
+                // gestion des fichiers 
+        
+                $filename = "files/systeme/facture/facture(agence)/".$nameFile ;
+                if(file_exists($filename))
+                    unlink($filename);
+            }
+                
         }
 
         return new JsonResponse([

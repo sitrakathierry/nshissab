@@ -431,7 +431,6 @@ $(document).ready(function(){
                 </select>
                 `) ;
             $("#fact_btp_designation").change() ;
-
         }
     })
 

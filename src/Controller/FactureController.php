@@ -1554,24 +1554,6 @@ class FactureController extends AbstractController
         
         $paiement = $this->entityManager->getRepository(FactPaiement::class)->find($fact_paiement) ; 
 
-        // if(!is_null($paiement))
-        // {
-        //     if($paiement->getReference() != "CR" && $paiement->getReference() != "AC")
-        //     {
-        //         if(!is_null($paiement->getLibelleCaption()))
-        //         {
-        //             array_push($data,$fact_libelle) ;
-        //             array_push($dataMessage,$paiement->getLibelleCaption()) ;
-        //         }
-    
-        //         if(!is_null($paiement->getNumCaption()))
-        //         {
-        //             array_push($data,$fact_num) ;
-        //             array_push($dataMessage,$paiement->getNumCaption()) ;
-        //         }
-        //     }
-        // }
-
         $result = $this->appService->verificationElement($data, $dataMessage) ;
 
         if(!$result["allow"])
@@ -1748,6 +1730,7 @@ class FactureController extends AbstractController
         $facture->setTotal(floatval($fact_enr_total_general)) ;
         $facture->setDevise($fact_enr_val_devise) ;
         $facture->setStatut(True) ;
+        $facture->setIsUpdated(True) ;
         $facture->setAnneeData($dateTime->format('Y')) ;
         $facture->setCreatedAt(new \DateTimeImmutable) ;
         $facture->setUpdatedAt(new \DateTimeImmutable) ;
@@ -2055,8 +2038,8 @@ class FactureController extends AbstractController
         if(file_exists($filename))
             unlink($filename);
 
-        if(!file_exists($filename))
-            $this->appService->generateFacture($filename, $this->agence) ;
+        // if(!file_exists($filename))
+        //     $this->appService->generateFacture($filename, $this->agence) ;
         
         if(!is_null($paiement))
         {
@@ -2074,8 +2057,6 @@ class FactureController extends AbstractController
             }
         }
 
-        
-        
         return new JsonResponse($result) ;
     }
 

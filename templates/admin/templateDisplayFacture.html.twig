@@ -6,13 +6,15 @@
         <div class="w-100">
             <ul class="list-unstyled list-inline">
                 <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">N° Facture</span> : <span class="font-weight-bold">{{dataToImport.num_fact}}</span></li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Type</span> : <span class="font-weight-bold"></span>{{dataToImport.type_fact}}</li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Mode de Paiement</span> : <span class="font-weight-bold"></span>{{dataToImport.mode_paiement}}</li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Client</span> : <span class="font-weight-bold"></span>{{dataToImport.nom_client}}</li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">-</span> : <span class="font-weight-bold"></span>{{"dataToImport.info1_paiement"}}</li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">-</span> : <span class="font-weight-bold"></span>{{"dataToImport.info2_paiement"}}</li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Date Facture</span> : <span class="font-weight-bold"></span>{{dataToImport.date_fact}}</li>
-                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Lieu Facture</span> : <span class="font-weight-bold"></span>{{dataToImport.lieu_fact}}</li>
+                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Type</span> : <span class="font-weight-bold">{{dataToImport.type_fact}}</span></li>
+                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Mode de Paiement</span> : <span class="font-weight-bold">{{dataToImport.mode_paiement}}</span></li>
+                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Client</span> : <span class="font-weight-bold">{{dataToImport.nom_client}}</span></li>
+                {% if dataToImport.mode_paiement == "CREDIT" %}
+                    <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">-</span> : <span class="font-weight-bold">{{dataToImport.info1_paiement}}</span></li>
+                    <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">-</span> : <span class="font-weight-bold">{{dataToImport.info2_paiement}}</span></li>
+                {% endif %}
+                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Date Facture</span> : <span class="font-weight-bold">{{dataToImport.label_date_fact}}</span></li>
+                <li class="text-primary mx-3 list-inline-item text-uppercase"><span class="text-decoration-underline">Lieu Facture</span> : <span class="font-weight-bold">{{dataToImport.lieu_fact}}</span></li>
             </ul>
         </div>
         <h5 class="title_form mt-2 mb-2 text-black text-uppercase">Détails (Modèle)</h5>
@@ -20,7 +22,6 @@
             <table class="table table-sm table-bordered">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Type</th>
                         <th>Désignation</th>
                         <th>Quantite</th>
                         <th>Prix Unitaire HT</th>
@@ -33,37 +34,36 @@
                 <tbody>
                     {% for detail in dataToImport.details %}
                         <tr>
-                            <td>{{detail.type_detail}}</td>
                             <td>{{detail.designation}}</td>
                             <td>{{detail.quantite}}</td>
                             <td>{{detail.prix_unitaire}}</td>
                             <td>{{detail.montant_tva}}</td>
                             <td>{{detail.type_remise}}</td>
                             <td>{{detail.val_remise}}</td>
-                            <td>{{detail.montant_total}}</td>
+                            <td>{{detail.total_ligne}}</td>
                         </tr>
                     {% endfor %}
                 </tbody> 
                 <tfoot>
                     <tr>
-                        <th colspan="7">Total HT</th>
-                        <th class="bg-light">{{dataToImport.total_ht}}</th>
+                        <th colspan="6">Total HT</th>
+                        <th class="bg-light">{{dataToImport.totalHt}}</th>
                     </tr>
                     <tr>
-                        <th colspan="7">Remise</th>
-                        <th class="bg-light">{{dataToImport.val_remise}} {{dataToImport.type_remise}}</th>
+                        <th colspan="6">Remise</th>
+                        <th class="bg-light">{{dataToImport.remiseGen}}</th>
                     </tr>
                     <tr>
-                        <th colspan="7">Total après déduction</th>
-                        <th class="bg-light">{{"-"}}</th>
+                        <th colspan="6">Total après déduction</th>
+                        <th class="bg-light">{{dataToImport.totalHt - dataToImport.remiseGen}}</th>
                     </tr>
                     <tr>
-                        <th colspan="7">Total TVA</th>
-                        <th class="bg-light">{{dataToImport.montant_tva}}</th> 
+                        <th colspan="6">Total TVA</th>
+                        <th class="bg-light">{{dataToImport.totalTva}}</th> 
                     </tr>
                     <tr>
-                        <th colspan="7">Total TTC</th>
-                        <th class="bg-primary text-white">{{"totalTTC"}}</th>
+                        <th colspan="6">Total TTC</th>
+                        <th class="bg-primary text-white">{{dataToImport.totalHt + dataToImport.totalTva - dataToImport.remiseGen}}</th>
                     </tr>
                 </tfoot> 
             </table>

@@ -258,7 +258,10 @@ $(document).ready(function(){
         $(".chosen_select").trigger("chosen:updated") ;
 
         if($(".btn_std_forfait").hasClass("btn-info"))
+        {
             $(".btn_std_forfait").click() ;
+
+        }
     })
 
     $(document).on('click',".supprLigneCat",function(){
