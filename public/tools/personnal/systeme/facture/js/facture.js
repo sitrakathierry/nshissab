@@ -394,6 +394,7 @@ $(document).ready(function(){
                 else
                 {
                     $("#detailFacture").empty().html(response)
+                    sessionStorage.setItem('optionP',$(".fact_mod_prod_designation").html()) ;
                 }
                 
             },

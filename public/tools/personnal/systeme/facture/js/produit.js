@@ -73,56 +73,20 @@ $(document).ready(function(){
         $("#fact_text_prix").val(selectedText) ;
     })
 
-    var optionsP = $(".fact_mod_prod_designation").html()
+    
+    
     $(document).on("change","#fact_mod_prod_type",function(){
         var valType = $(this).val() ;
         var self = $(this)
         if(valType == "autre")
         {
-            var script = document.createElement('script');
-            script.innerHTML = 'var autre_editor = new LineEditor("#fact_mod_prod_autre");';
-            var content_autre = '<input type="text" name="fact_mod_prod_autre" class="form-control fact_mod_prod_autre" id="fact_mod_prod_autre" placeholder=". . .">'+script.outerHTML;
-            
-            $.alert({
-                title:"Designation Autre",
-                boxWidth: "500px",
-                useBootstrap: false,
-                content: content_autre,
-                type: "dark",
-                theme:"modern",
-                buttons: {
-                    Annuler: function(){
-                        $("#fact_mod_prod_type").val("PrdVariationPrix")
-                        $("#fact_mod_prod_type").trigger("chosen:updated"); 
-                    },
-                    OK: function(){
-                        if(autre_editor.getEditorText() == ""){
-                            $.alert({
-                                title: "Designation vide",
-                                content: "Veuiller remplir le champ ",
-                                type: "orange",
-                            });
-                            return false; 
-                        }
-
-                        var input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'fact_mod_prod_designation';
-                        input.className = 'form-control fact_mod_prod_designation';
-                        input.id = 'fact_mod_prod_designation';
-                        input.placeholder = '. . .';
-                        input.value = autre_editor.getEditorText()
-
-                        $(".content_fact_designation").html(autre_editor.getEditorText()+input.outerHTML)
-                        $(".content_fact_prix").html('<input type="number" name="fact_mod_prod_prix" class="form-control fact_mod_prod_prix" id="fact_mod_prod_prix" placeholder=". . .">')
-                        $("#fact_text_designation").val(autre_editor.getEditorText())
-                    }
-
-                }
-            })
+            var inputDesignation = '<textarea name="fact_mod_prod_autre" id="fact_mod_prod_autre" cols="30" rows="4" class="w-100 px-2 fact_mod_prod_autre" placeholder=". . ." ></textarea>' ;
+            $(".content_fact_designation").html(inputDesignation) ;
+            $(".content_fact_prix").html('<input type="number" name="fact_mod_prod_prix" class="form-control fact_mod_prod_prix" id="fact_mod_prod_prix" placeholder=". . .">')
         }
         else
         {
+            var optionsP = sessionStorage.getItem('optionP') ;
             $(".content_fact_designation").html('<select class="custom-select custom-select-sm chosen_select fact_mod_prod_designation" name="fact_mod_prod_designation" id="fact_mod_prod_designation" >'+optionsP+'</select>')
             $(".content_fact_prix").html('<select class="custom-select custom-select-sm chosen_select fact_mod_prod_prix" name="fact_mod_prod_prix" id="fact_mod_prod_prix" ><option value=""></option></select>')
             $(".chosen_select").chosen({
@@ -177,7 +141,7 @@ $(document).ready(function(){
         // }
 
         var fact_text_type = fact_mod_prod_type == "autre" ? "Autre" : fact_mod_prod_type
-        var fact_text_designation = $("#fact_text_designation").val()
+        var fact_text_designation = `<div class='text-center px-3 py-2'>`+$('#fact_mod_prod_autre').val()+`</div>`
         var fact_text_prix = fact_mod_prod_type == "autre" ? $("#fact_mod_prod_prix").val() : parseFloat($("#fact_text_prix").val().split(" | ")[0])
         
         var fact_mod_prod_designation = fact_mod_prod_type == "autre" ? fact_text_designation : $("#fact_mod_prod_designation").val()
@@ -207,7 +171,6 @@ $(document).ready(function(){
             {
                 fact_text_designation + $("#fact_text_designation").val()
             }
-
         }
 
         fact_text_prix = parseFloat(fact_text_prix) ;
@@ -284,8 +247,8 @@ $(document).ready(function(){
                 <td>
                     `+fact_text_designation+`
                     <input type="hidden" value="`+fact_text_designation+`" name="fact_enr_prod_designation[]" class="fact_enr_prod_designation"> 
-                </td>
-                <td>
+                    </td>
+                    <td>
                     `+fact_mod_prod_qte+`
                     <input type="hidden" value="`+fact_mod_prod_qte+`" name="fact_enr_prod_quantite[]" class="fact_enr_prod_quantite"> 
                 </td>
@@ -322,6 +285,7 @@ $(document).ready(function(){
         calculFacture()
 
         var emptyArray = [
+            "#fact_mod_prod_autre",
             "#fact_mod_prod_designation",
             "#fact_mod_prod_prix",
             "#fact_mod_prod_qte",

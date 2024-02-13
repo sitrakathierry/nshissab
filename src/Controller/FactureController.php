@@ -1582,7 +1582,13 @@ class FactureController extends AbstractController
             "Client"
         ];
 
-        $type = $this->entityManager->getRepository(FactType::class)->find($fact_type) ; 
+        $result = $this->appService->verificationElement($data, $dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $type = $this->entityManager->getRepository(FactType::class)->find($fact_type) ;
+
         if($type->getReference() == "DF")
         {
             array_push($data,$fact_paiement) ;
