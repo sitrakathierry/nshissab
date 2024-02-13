@@ -86,10 +86,10 @@ class StockController extends AbstractController
             $this->appService->generateStockFournisseur($filename, $this->agence) ;
         $fournisseurs = json_decode(file_get_contents($filename)) ;
         
-        // $filename = $this->filename."type(agence)/".$this->nameAgence ;
-        // if(!file_exists($filename))
-        //     $this->appService->generatePrdType($filename,$this->agence) ;
-        // $types = json_decode(file_get_contents($filename)) ;
+        $filename = $this->filename."type(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generatePrdType($filename,$this->agence) ;
+        $types = json_decode(file_get_contents($filename)) ;
 
         $marge_types = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
 
@@ -101,7 +101,7 @@ class StockController extends AbstractController
             "entrepots" => $entrepots,
             "fournisseurs" => $fournisseurs,
             "marge_types" => $marge_types,
-            // "types" => $types,
+            "types" => $types,
         ]);
     } 
 
