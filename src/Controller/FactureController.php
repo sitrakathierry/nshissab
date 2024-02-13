@@ -87,7 +87,7 @@ class FactureController extends AbstractController
         $modeles = $this->entityManager->getRepository(FactModele::class)->findBy([
             "parent" => NULL
         ],[
-            "rang" => "ASC"
+            "rang" => "ASC" 
         ]) ; 
         $types = $this->entityManager->getRepository(FactType::class)->findAll() ; 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
@@ -295,7 +295,7 @@ class FactureController extends AbstractController
             "devises" => $devises,
             "agcDevise" => $agcDevise,
             "enoncees" => $enoncees,
-            ]) ;
+        ]) ;
 
         return new Response($responses) ;
     }
@@ -356,12 +356,49 @@ class FactureController extends AbstractController
             "statut" => True
             ]) ; 
         
+        $dataPrixs = [] ;
+
+        foreach ($prixs as $prix) {
+            $dataPrixs[] = [
+                "id" => $prix->getId(),
+                "montant" => $prix->getMontant(),
+                "pays" => $prix->getPays(),
+            ] ;
+        }
+
+        $mesure = is_null($element->getMesure()) ? "-" : $element->getMesure()->getNotation() ;
+
         $responses = $this->renderView('facture/factBtpPrixElement.html.twig', [
-            "prixs" => $prixs,
-            "element" => $element
+            "prixs" => $dataPrixs,
+            "mesure" => $mesure
         ]) ;
 
         return new Response($responses) ;
+    }
+
+    #[Route('/facture/batiment/designation/get', name: 'ftr_batiment_designation_get')]
+    public function ftrBatimentGetDesignation(Request $request)
+    {
+        $type_designation = $request->request->get("type_designation") ;
+    
+        if($type_designation == "EXIST")
+        {
+            $filename = "files/systeme/prestations/batiment/element(agence)/".$this->nameAgence ;
+            if(!file_exists($filename))
+                $this->appService->generatePrestBatiment($filename, $this->agence) ;
+            
+            $elements = json_decode(file_get_contents($filename)) ;
+
+            $response = $this->renderView("facture/batiment/getExistDesignation.html.twig",[
+                "elements" => $elements
+            ]) ;
+        }
+        else if($type_designation == "NEW")
+        {
+            $response = $this->renderView("facture/batiment/getNewDesignation.html.twig") ;
+        }
+
+        return new Response($response) ;
     }
 
     public static function comparaisonDates($a, $b) {
@@ -2327,6 +2364,7 @@ class FactureController extends AbstractController
     public function factureSearchItems(Request $request)
     {
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
+        
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
 

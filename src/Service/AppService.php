@@ -77,6 +77,7 @@ use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Vonage\Client\Credentials\Basic;
 use Vonage\Client;
 use Vonage\SMS\Message\SMS ;
+
 class AppService extends AbstractController
 {
     private $router ;
@@ -1433,12 +1434,13 @@ class AppService extends AbstractController
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
             $element["idM"] = $facture->getModele()->getId() ;
-            $element["mois"] = $facture->getDate()->format('m') ;
-            $element["annee"] = $facture->getDate()->format('Y') ;
             $element["date"] = $facture->getDate()->format('d/m/Y') ;
             $element["currentDate"] = $facture->getDate()->format('d/m/Y') ;
+            $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
             $element["dateDebut"] = $facture->getDate()->format('d/m/Y') ;
             $element["dateFin"] = $facture->getDate()->format('d/m/Y') ;
+            $element["annee"] = $facture->getDate()->format('Y') ;
+            $element["mois"] = $facture->getDate()->format('m') ;
             $element["agence"] = $facture->getAgence()->getId() ;
             $element["user"] = $facture->getUser()->getId() ;
             $element["numFact"] = $facture->getNumFact() ;
@@ -1446,7 +1448,6 @@ class AppService extends AbstractController
             $element["type"] = $facture->getType()->getNom() ;
             $element["refType"] = $facture->getType()->getReference() ;
             $element["dateCreation"] = $facture->getCreatedAt()->format('d/m/Y')  ;
-            $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
             $element["client"] = $this->getFactureClient($facture)["client"] ;
             $element["total"] = $facture->getTotal() ;
             $element["specification"] = $specification ;
@@ -1944,7 +1945,7 @@ class AppService extends AbstractController
             $item["id"] = $element->getId() ;
             $item["agence"] = $element->getAgence()->getId() ;
             $item["designation"] = $element->getNom() ;
-            $item["mesure"] = $element->getMesure()->getNotation() ;
+            $item["mesure"] = is_null($element->getMesure()) ? "-" : $element->getMesure()->getNotation() ;
             array_push($items,$item) ;
         }
 

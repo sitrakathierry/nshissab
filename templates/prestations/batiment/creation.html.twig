@@ -69,7 +69,7 @@
                         {% for element in elements %}
                             <tr>
                                 <td>{{element.nom}}</td>
-                                <td>{{element.mesure.notation}}</td>
+                                <td>{{element.mesure}}</td>
                                 <td class="text-center align-middle">
                                     <a href="{{path('prest_bat_detail_element',{'id':element.id})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                                     <button class="btn btn-sm ml-1 btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>

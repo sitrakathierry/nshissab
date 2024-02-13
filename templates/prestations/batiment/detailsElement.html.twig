@@ -22,14 +22,19 @@
                 <label for="btp_elem_nom" class="font-weight-bold">Désignation</label>
                 <input type="text" readonly value="{{element.nom}}" name="btp_elem_nom" id="btp_elem_nom" class="form-control" placeholder=". . .">
             </div>
+            {% if element.mesure is empty %}
+                {% set mesure = "-" %}
+            {% else %}
+                {% set mesure = element.mesure.notation ~ " | " ~ element.mesure.nom|upper %}
+            {% endif %}
             <div class="col-md-3">
                 <label for="btp_elem_mesure" class="font-weight-bold">Mésure</label>
-                <input type="text" readonly value="{{element.mesure.notation}} | {{element.mesure.nom|upper}}" name="btp_elem_mesure" id="btp_elem_mesure" class="form-control" placeholder=". . .">
+                <input type="text" readonly value="{{mesure}}" name="btp_elem_mesure" id="btp_elem_mesure" class="form-control" placeholder=". . .">
             </div>
-            {# <div class="col-md-3">
+            <div class="col-md-3">
                 <label for="nom" class="font-weight-bold">&nbsp;</label>
                 <button class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
-            </div> #}
+            </div>
         </div>
         <div class="barre_dashed mt-3 py-3">
             <form id="formPrix" >

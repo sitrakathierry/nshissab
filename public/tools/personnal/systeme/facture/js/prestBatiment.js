@@ -26,6 +26,9 @@ $(document).ready(function(){
     })
 
     $(document).on('change',"#fact_btp_designation",function(){
+        if($(".btn_designation_plus").data("value") == "EXIST" || $(this).val() == "")
+            return false ;
+
         var realinstance = instance.loading()
         var data = new FormData()
         data.append('id',$(this).val())
@@ -52,40 +55,45 @@ $(document).ready(function(){
         })
     })
 
-    $(document).on('click',".ajout_fact_btp_element",function(){
+    function insertBatElementDesignation(designation)
+    {
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.prest_batiment_element_save,
+            type:'post',
+            cache: false,
+            data:{btp_elem_nom:designation},
+            dataType: 'json',
+            success: function(json){
+                realinstance.close()
+                sessionStorage.setItem('btpElemId', json.idD);
+                displayElementInTable() ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }
 
-        var result = appBase.verificationElement([
-            $("#fact_btp_enoncee").val(),
-            $("#fact_btp_categorie").val(),
-            $("#fact_btp_designation").val(),
-            $("#fact_btp_info_sup").val(),
-            $("#fact_btp_prix").val(),
-            $("#fact_btp_qte").val(),
-        ],[
-            "Enoncée",
-            "Catégorie",
-            "Désignation",
-            "Information Supplémentaire",
-            "Prix",
-            "Quantié",
-        ])
-
-        if(!result["allow"])
+    function displayElementInTable()
+    {
+        if($(".btn_designation_plus").data("value") == "EXIST")
         {
-            $.alert({
-                title: 'Message',
-                content: result["message"],
-                type: result["type"],
-            });
-
-            return result["allow"] ;
+            var designation = sessionStorage.getItem('btpElemId'); ;
+            var designationText = $("#fact_btp_designation").val() ;
         }
+        else if($(".btn_designation_plus").data("value") == "NEW")
+        {
+            var designation = $("#fact_btp_designation").val()
+            var designationText = $("#fact_btp_designation").find("option:selected").text();
+        }
+
+        console.log(designation) ;
 
         var enonceeText = $("#fact_btp_enoncee").find("option:selected").text();
         var enonceId = $("#fact_btp_enoncee").val()
         var enonceItem = $(document).find("#enoncee"+enonceId)
-        var designation = $("#fact_btp_designation").val()
-        var designationText = $("#fact_btp_designation").find("option:selected").text();
         var mesure = $("#fact_btp_mesure").val()
         var prix = $("#fact_btp_prix").val()
         var infoSup = $("#fact_btp_info_sup").val()
@@ -260,8 +268,43 @@ $(document).ready(function(){
         if($(".btn_std_forfait").hasClass("btn-info"))
         {
             $(".btn_std_forfait").click() ;
-
         }
+    }
+
+    $(document).on('click',".ajout_fact_btp_element",function(){
+
+        var result = appBase.verificationElement([
+            $("#fact_btp_enoncee").val(),
+            $("#fact_btp_categorie").val(),
+            $("#fact_btp_designation").val(),
+            $("#fact_btp_info_sup").val(),
+            $("#fact_btp_prix").val(),
+            $("#fact_btp_qte").val(),
+        ],[
+            "Enoncée",
+            "Catégorie",
+            "Désignation",
+            "Information Supplémentaire",
+            "Prix",
+            "Quantié",
+        ])
+
+        if(!result["allow"])
+        {
+            $.alert({
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            });
+
+            return result["allow"] ;
+        }
+        
+        if($(".btn_designation_plus").data("value") == "EXIST")
+            insertBatElementDesignation($("#fact_btp_designation").val()) ;
+        else if($(".btn_designation_plus").data("value") == "NEW")
+            displayElementInTable() ;
+        
     })
 
     $(document).on('click',".supprLigneCat",function(){
@@ -358,4 +401,42 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $(document).on("click",".btn_designation_plus",function(){
+        var self = $(this) ;
+        var realinstance = instance.loading()
+        var formData = new FormData() ;
+        formData.append("type_designation",self.data("value")) ;
+        $.ajax({
+            url: routes.ftr_batiment_designation_get,
+            type:'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $(".pbat_content_designation").html(response)
+                if(self.data("value") == "NEW")
+                {
+                    if($(".btn_btp_forfait").hasClass("btn-outline-info"))
+                    {
+                        $(".btn_btp_forfait").click()
+                    }
+                }
+                else
+                {
+                    if($(".btn_btp_forfait").hasClass("btn-info"))
+                    {
+                        $(".btn_btp_forfait").click()
+                    }
+                }
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }) ; 
 })

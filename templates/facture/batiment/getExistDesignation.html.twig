@@ -1,0 +1,15 @@
+<label for="fact_btp_designation" class="mt-2 font-weight-bold">Désignation Existant</label>
+<div class="w-100 d-flex flex-row">
+    <select class="custom-select custom-select-sm chosen_select" name="fact_btp_designation" id="fact_btp_designation" >
+        <option value="">-</option>
+        {% for element in elements %}
+            <option value="{{element.id}}">{{element.designation|upper}} | {{element.mesure}}</option>
+        {% endfor %}
+    </select>
+    <button type="button" data-value="NEW" class="btn font-weight-bold btn_designation_plus font-smaller btn-primary btn-sm ml-2" style="width: 50px; height: 33px;"><i class="fa fa-plus"></i></button>
+</div>
+<script>
+    $(".chosen_select").chosen({
+        no_results_text: "Aucun resultat trouvé : "
+    });
+</script>

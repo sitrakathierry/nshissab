@@ -358,12 +358,22 @@ class PrestationController extends AbstractController
             "statut" => True
         ]) ;
 
+        $dataElements = [] ;
+
+        foreach ($elements as $element) {
+            $dataElements[] = [
+                "id" => $element->getId(),
+                "nom" => $element->getNom(),
+                "mesure" => is_null($element->getMesure()) ? "-" : $element->getMesure()->getNotation(),
+            ] ;
+        }
+
         return $this->render('prestations/batiment/creation.html.twig', [
             "filename" => "prestations",
             "titlePage" => "élément Batiment",
             "with_foot" => false,
             "mesures" => $mesures,
-            "elements" => $elements
+            "elements" => $dataElements
         ]);
     }
 
@@ -375,16 +385,19 @@ class PrestationController extends AbstractController
 
         $result = $this->appService->verificationElement([
             $btp_elem_nom,
-            $btp_elem_mesure,
+            // $btp_elem_mesure,
         ], [
             "Désignation",
-            "Mésure"
+            // "Mésure"
         ]) ;
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
-        $mesure = $this->entityManager->getRepository(BtpMesure::class)->find($btp_elem_mesure) ;
+        if(isset($btp_elem_mesure))
+            $mesure = $this->entityManager->getRepository(BtpMesure::class)->find($btp_elem_mesure) ;
+        else
+            $mesure = null ;
 
         $element = new BtpElement() ;
 
@@ -414,6 +427,8 @@ class PrestationController extends AbstractController
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
+        
+        $result["idD"] = $element->getId() ;
 
         return new JsonResponse($result) ;
     }
