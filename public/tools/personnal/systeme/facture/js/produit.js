@@ -169,7 +169,7 @@ $(document).ready(function(){
             }
             else
             {
-                fact_text_designation + $("#fact_text_designation").val()
+                fact_text_designation = $("#fact_text_designation").val()
             }
         }
 
