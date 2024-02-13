@@ -103,7 +103,7 @@ class StockController extends AbstractController
             "marge_types" => $marge_types,
             // "types" => $types,
         ]);
-    }
+    } 
 
     #[Route('/stock/creationproduit/save', name: 'stock_save_creationProduit')]
     public function stockSaveCreationProduit(Request $request)

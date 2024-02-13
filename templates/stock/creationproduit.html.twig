@@ -10,7 +10,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
-    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/impression.js')}}" ></script>
+    {#<script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/impression.js')}}" ></script>#}
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/creation.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/detailStock.js')}}" ></script>
 {% endblock %}

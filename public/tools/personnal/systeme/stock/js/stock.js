@@ -1,6 +1,5 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
-    var appBase = new AppBase() ;
     $("#search_categorie_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#search_produit_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".chosen_select").chosen({
@@ -505,7 +504,6 @@ $(document).ready(function(){
                                     const element = resp.preferences[i];
                                     options += '<option value="'+element.id+'" >'+(element.nom).toUpperCase()+'</option>'
                                 }
-                                var self = $(this)
                                 $.confirm({
                                     title: "Déplacement Produit",
                                     content:`
@@ -574,7 +572,6 @@ $(document).ready(function(){
         if(!$(this).attr("disabled"))
         {
             var realinstance = instance.loading()
-            var self = $(this)
             $.ajax({
                 url: routes.stock_code_to_scan_generer,
                 type:'post',
@@ -601,7 +598,6 @@ $(document).ready(function(){
         if(!$(this).attr("disabled"))
         {
             var realinstance = instance.loading()
-            var self = $(this)
             $.ajax({
                 url: routes.stock_code_to_scan_nouveau,
                 type:'post',
@@ -990,10 +986,30 @@ $(document).ready(function(){
     {
         var achat = parent.find(prixProduit.achat).val() != "" ? parent.find(prixProduit.achat).val() : 0
         var charge = parent.find(prixProduit.charge).val() != "" ? parent.find(prixProduit.charge).val() : 0
-        var marge = parent.find(prixProduit.marge).val() != "" ? parent.find(prixProduit.marge).val() : 0
+        var marge = parent.find(prixProduit.marge).val() != "" ? parent.find(prixProduit.marge).val() : 0 ;
+        var prixRevient = 0 ;
+        var prixVente = 0 ;
 
-        parent.find(prixProduit.revient).val(parseFloat(achat) + parseFloat(charge))
-        parent.find(prixProduit.vente).val(parseFloat(achat) + parseFloat(charge) + parseFloat(marge))
+        prixRevient = parseFloat(achat) + parseFloat(charge) ;
+        
+        if(parent.find(prixProduit.typeMarge).val() == 1) 
+        {
+            prixVente = prixRevient + parseFloat(marge)
+        }
+        else if(parent.find(prixProduit.typeMarge).val() == 2)
+        {
+            prixVente = (prixRevient * (parseFloat(marge) + 100)) / 100 ;
+        }
+        else
+        {
+            prixVente = prixRevient * parseFloat(marge) ;
+        }
+
+        
+
+        
+        parent.find(prixProduit.revient).val(prixRevient)
+        parent.find(prixProduit.vente).val(prixVente)
     }
 
     var inputNumber = [
@@ -1009,6 +1025,7 @@ $(document).ready(function(){
         achat:".crt_prix_achat",
         charge:".crt_charge",
         revient:".crt_prix_revient",
+        typeMarge:".crt_calcul",
         marge:".crt_marge",
         vente:".crt_prix_vente",
     }
@@ -1024,6 +1041,11 @@ $(document).ready(function(){
             })
         })
     }
+
+    $(document).on("change",".crt_calcul",function(){
+        calculPrix($(this).closest(".content_product"),prixProduit) ;
+    })    
+
     checkInputPrix()
     countFournisseur()
     $(".add_product_variation").click(function()
