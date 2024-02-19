@@ -6,6 +6,18 @@ $(document).ready(function(){
   var instance = new Loading(files.loading)
   
   $("#formPaiementCredit").submit(function(){
+    var crd_paiement_montant = parseFloat($("#crd_paiement_montant").val())
+    var credit_total_restant = parseFloat($("#credit_total_restant").val())
+    if(crd_paiement_montant > credit_total_restant)
+    {
+      $.alert({
+        title: "Message",
+        content: "Le montant entré ne doit pas dépasser le montant restant",
+        type:"red"
+      }) ;
+
+      return false ;
+    }
     var self = $(this);
     $.confirm({
       title: "Confirmation",
@@ -524,4 +536,6 @@ $(document).ready(function(){
     })
     return false ;
   })  
+
+
 })

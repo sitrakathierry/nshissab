@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
+    {{ parent() }} 
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
@@ -152,6 +152,10 @@
                         <form id="formPaiementCredit">
                             <h5 class="title_form mt-3 text-black text-uppercase">Enregistrement {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</h5>
                             <div class="row mb-2">
+                                <div class="col-6">
+                                    <label for="crd_description" class="font-weight-bold">Description</label>
+                                    <input type="text" name="crd_description" id="crd_description" class="form-control" placeholder=". . .">
+                                </div>
                                 <div class="col-md-3">
                                     <label for="crd_paiement_date" class="font-weight-bold">Date</label>
                                     <input type="text" name="crd_paiement_date" id="crd_paiement_date" class="form-control crd_paiement_date" placeholder=". . .">
@@ -163,7 +167,7 @@
                                 </div>
                                 {% if refPaiement == "CR" %}
                                     <div class="col-md-3">
-                                        <label for="crd_type" class="font-weight-bold">Type</label>
+                                        <label for="crd_type" class="mt-2 font-weight-bold">Type</label>
                                         <select name="crd_type" id="crd_type" class="custom-select custom-select-sm chosen_select">
                                             <option value="">-</option>
                                             <option value="DIRECT">{{ refPaiement == "CR" ? "Paiement"|upper : "Dépot"|upper }}</option>
@@ -174,17 +178,18 @@
                                     <input type="hidden" name="crd_type" value="DIRECT">
                                 {% endif %}
                                 <div class="col-md-3">
-                                    <label for="nom" class="font-weight-bold">&nbsp;</label>
+                                    <label for="nom" class="mt-2  font-weight-bold">&nbsp;</label>
                                     <button type="submit" class="btn btn-sm btn-perso-one btn-block"><i class="fa fa-save"></i>&nbsp;{{ refPaiement == "CR" ? "Payé" : "Déposé"}}</button>
                                 </div>
                             </div>
                         </form>
                     {% endif %}
                     <h5 class="title_form mt-3 text-black text-uppercase">Liste des {{ refPaiement == "CR" ? "Paiements" : "Dépôts"}}</h5>
-                    <div class="table-responsive {{ refPaiement == "CR" ? "w-100" : "w-75"}}">
+                    <div class="table-responsive {{ refPaiement == 'CR' ? 'w-100' : 'w-75'}}">
                         <table class="table-sm table table-bordered">
                             <thead class="text-uppercase thead-dark">
                                 <tr>
+                                    <th>Description</th>
                                     <th>Date de {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</th>
                                     {% if refPaiement == "CR" %}
                                         <th class="text-center">Type</th>
@@ -198,14 +203,15 @@
                             <tbody>
                             {% set totalPayee = 0 %}
                                 {% for financeDetail in financeDetails %}
-                                    <tr {{ facture.refStatut == "TRM" ? 'class="bg-secondary text-white"' : "" }} >
-                                        <td>{{ financeDetail.date|date('d/m/Y') }}</td>
+                                <tr {{ facture.refStatut == 'TRM' ? 'class="bg-secondary text-white"' : "" }} >
+                                        <td class="align-middle">{{financeDetail.description}}</td>
+                                        <td class="align-middle">{{ financeDetail.date|date('d/m/Y') }}</td>
                                         {% if refPaiement == "CR" %}
                                             <td class="align-middle text-center">
                                                 <b class="text-uppercase">soldé</b>
                                             </td>
                                         {% endif %}
-                                        <td>{{ financeDetail.montant }}</td>
+                                        <td class="align-middle">{{ financeDetail.montant }}</td>
                                         {% if refPaiement == "CR" %}
                                             <td class="align-middle text-center">
                                                 <button class="btn btn-sm btn-link text-success font-weight-bold font-smaller">OK</button>
@@ -219,12 +225,13 @@
                                 {% if refPaiement == "CR" %}
                                     {% for echeance in echeances %}
                                         {% if echeance.statut != "DNONE" %}
-                                            <tr class=" {{ echeance.statut == "OK" ? "bg-info" : "bg-danger" }}  text-white" >
-                                                <td>{{ echeance.date }}</td>
+                                        <tr class=" {{ echeance.statut == "OK" ? "bg-info" : "bg-danger" }}  text-white" >
+                                                <td class="align-middle">{{echeance.description}}</td>
+                                                <td class="align-middle">{{ echeance.date }}</td>
                                                 <td class="align-middle text-center">
                                                     <b class="text-uppercase" >Echéance</b>
                                                 </td>
-                                                <td>{{ echeance.montant }}</td>
+                                                <td class="align-middle">{{ echeance.montant }}</td>
                                                 <td class="align-middle text-center">
                                                     <button value="{{echeance.id}}" class="btn btn-sm agd_btn_valid_check btn-purple font-smaller"><i class="fa fa-check"></i></button>
                                                     <button data-value="{{echeance.id}}" class="btn btn-sm agd_btn_prints_ech ml-2 btn-dark font-smaller"><i class="fa fa-print"></i></button>
@@ -238,16 +245,17 @@
                             </tbody>
                             <tfoot class="text-uppercase">
                                 <tr>
-                                    <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Payée</th>
+                                    <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Payée</th>
                                     <th colspan="2" class="bg-success text-white">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
                                 </tr>
                                 <tr>
-                                    <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Echéance</th>
+                                    <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Echéance</th>
                                     <th colspan="2" class="bg-primary text-white">{{ totalCredit == 0 ? "-" : totalCredit }}</th>
                                 </tr>
                                 <tr>
-                                    <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Restant</th>
+                                    <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Restant</th>
                                     <th colspan="2" class="bg-primary text-white">{{ facture.totalTtc - totalPayee - totalCredit }}</th>
+                                    <input type="hidden" name="credit_total_restant" id="credit_total_restant"  value="{{ facture.totalTtc - totalPayee - totalCredit }}">
                                 </tr>
                             </tfoot>
                         </table>
@@ -289,7 +297,6 @@
                 </div>
             {% endif %} 
         {% endif %}
-        
         </form>
     </div>
 </div>

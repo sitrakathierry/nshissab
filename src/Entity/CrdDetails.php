@@ -26,6 +26,9 @@ class CrdDetails
     #[ORM\ManyToOne(inversedBy: 'crdDetails')]
     private ?Agence $agence = null;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $description = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class CrdDetails
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

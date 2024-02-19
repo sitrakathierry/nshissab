@@ -135,7 +135,7 @@ class SAVController extends AbstractController
             
         $factures = $this->appService->searchData($factures,$search) ;
 
-        return $this->render('sav/index.html.twig', [
+        return $this->render('sav/index.html.twig', [ 
             "filename" => "sav",
             "titlePage" => "Service Après Vente",
             "with_foot" => true,

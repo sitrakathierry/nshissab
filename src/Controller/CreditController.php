@@ -232,6 +232,7 @@ class CreditController extends AbstractController
                 $item = [] ;
 
                 $item["id"] = $echeance->getId() ;
+                $item["description"] = $echeance->getDescription() ;
                 $item["date"] = $echeance->getDate()->format('d/m/Y') ;
                 $item["montant"] = $echeance->getMontant() ;
                 $item["statut"] = $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE") ;
@@ -249,7 +250,7 @@ class CreditController extends AbstractController
             "with_foot" => true,
             "facture" => $infoFacture,
             "factureDetails" => $elements,
-            "financeDetails" => $financeDetails,
+            "financeDetails" => $financeDetails, 
             "refPaiement" => $refPaiement,
             "echeances" => $echeances,
             "unAgdAcompte" => $unAgdAcompte
@@ -379,6 +380,8 @@ class CreditController extends AbstractController
     #[Route('/credit/paiement/credit/save', name: 'crd_paiement_credit_save')]
     public function crdSavePaiementCredit(Request $request)
     {
+        $crd_description = $request->request->get('crd_description') ;
+        $crd_description = empty($crd_description) ? null : $crd_description ;
         $crd_paiement_date = $request->request->get('crd_paiement_date') ;
         $crd_paiement_montant = $request->request->get('crd_paiement_montant') ;
         $crd_id_finance = $request->request->get('crd_paiement_id') ;
@@ -433,6 +436,7 @@ class CreditController extends AbstractController
             $echeance->setAgence($this->agence) ;
             $echeance->setCategorie($categorie) ;
             $echeance->setCatTable($finance) ;
+            $echeance->setDescription($crd_description) ;
             $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$crd_paiement_date)) ;
             $echeance->setMontant(floatval($crd_paiement_montant)) ;
             $echeance->setStatut(True) ;
@@ -469,6 +473,7 @@ class CreditController extends AbstractController
         $crdDetail = new CrdDetails() ;
 
         $crdDetail->setFinance($finance) ; 
+        $crdDetail->setDescription($crd_description) ; 
         $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$crd_paiement_date)) ;
         $crdDetail->setMontant(floatval($crd_paiement_montant)) ;
         $crdDetail->setAgence($this->agence) ;

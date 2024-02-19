@@ -664,6 +664,8 @@ class ComptabiliteController extends AbstractController
     {
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
+        
+
         $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
 
         if(!file_exists($filename))

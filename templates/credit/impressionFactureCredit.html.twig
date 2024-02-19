@@ -10143,6 +10143,7 @@ footer {
             <table class="table-sm table table-bordered">
                 <thead class="text-uppercase thead-dark">
                     <tr>
+                        <th>Description</th>
                         <th>Date de {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</th>
                         {% if refPaiement == "CR" %}
                             <th class="text-center">Type</th>
@@ -10157,6 +10158,7 @@ footer {
                 {% set totalPayee = 0 %}
                     {% for financeDetail in financeDetails %}
                         <tr {{ facture.refStatut == "TRM" ? 'class="bg-secondary text-white"' : "" }} >
+                            <td>{{financeDetail.description}}</td>
                             <td>{{ financeDetail.date|date('d/m/Y') }}</td>
                             {% if refPaiement == "CR" %}
                                 <td class="align-middle text-center">
@@ -10191,11 +10193,11 @@ footer {
                 </tbody>
                 <tfoot class="text-uppercase">
                     <tr>
-                        <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Payée</th>
+                        <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Payée</th>
                         <th class="bg-secondary text-light">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
                     </tr>
                     <tr>
-                        <th {% if refPaiement == "CR" %} colspan="2" {% endif %}>Total Restant</th>
+                        <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Restant</th>
                         <th class="bg-dark text-light">{{ facture.totalTtc - totalPayee }}</th>
                     </tr>
                 </tfoot>
