@@ -10080,13 +10080,15 @@ a.text-dark:hover, a.text-dark:focus {
    border: 0.5px solid #000000;
 }
 footer {
-   position: absolute !important;
-   top: 710 ;
-   left: 0;
-   width: 760px !important;
-   transform: translateX(-30px);
-   color: black ;
-   padding-top: 30px ;
+  position: fixed !important;
+  left: 0;
+  right: 0;
+  bottom: -30px;
+  width: 750px !important;
+  color: black ;
+  font-size: 0.65em !important; /* Taille de police de base */
+  border-top: 1px solid grey ;
+  transform: translateY(100px) translateX(-30px) ;
 }
 
 th .text-right, td .text-right{
@@ -10097,17 +10099,6 @@ th .text-right, td .text-right{
 {
   width: 100px !important ;
 }
-
-footer {
-  font-size: 0.65em !important; /* Taille de police de base */
-  border-top: 1px solid grey ;
-}
-
-{# @supports (font-size: clamp(1px, 1vw, 0.5em)) {
-  footer {
-    font-size: clamp(10px, 1vw, 0.5em); /* Ajuste la taille de police en fonction de la largeur de la fenêtre, mais ne dépasse pas 0.9em */
-  }
-} #}
 
 .sizePdf
 {
@@ -10205,7 +10196,7 @@ footer {
     </div>
 </div>
 <footer class="p-1">
-  <div class="w-100">
+  <div class=" w-100 ">
     {{contentBas|raw}}
   </div>
 </footer>
