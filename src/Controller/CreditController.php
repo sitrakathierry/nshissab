@@ -244,6 +244,42 @@ class CreditController extends AbstractController
             $unAgdAcompte = "" ;
         }
 
+        $csrf_token = $this->session->get("user")["csrf_token"] ;
+
+        $dataAdmin = [
+            "nameuser" => null ,
+            "iduser" => null ,
+        ] ;
+
+        if(is_null($this->session->get($csrf_token."_admin")))
+        {
+            //  DEBUT GET INFO ADMIN
+
+            $currentAdmin = null;
+
+            $admins = $this->entityManager->getRepository(User::class)->findBy([
+                "agence" => $this->agence,
+            ]) ;
+
+            foreach ($admins as $admin) {
+                if($admin->getRoles()[0] == 'MANAGER')
+                {
+                    $currentAdmin = $admin ;
+                    break ;
+                }
+            }
+
+            if(!is_null($currentAdmin))
+            {
+                $dataAdmin = [
+                    "nameuser" => $currentAdmin->getUsername(),
+                    "iduser" => base64_encode(urlencode($currentAdmin->getId())),
+                ] ;
+            }
+
+            // FIN GET INFO ADMIN
+        }
+
         return $this->render('credit/detailsFinanceCredit.html.twig',[
             "filename" => "credit",
             "titlePage" => $titlePage,
@@ -253,7 +289,8 @@ class CreditController extends AbstractController
             "financeDetails" => $financeDetails, 
             "refPaiement" => $refPaiement,
             "echeances" => $echeances,
-            "unAgdAcompte" => $unAgdAcompte
+            "unAgdAcompte" => $unAgdAcompte,
+            "dataAdmin" => $dataAdmin
         ]) ;
 
     }
@@ -813,5 +850,110 @@ class CreditController extends AbstractController
 
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
+    }
+
+    #[Route('/credit/activity/authentification', name: 'credit_activity_authentification')]
+    public function crdActivityAuthentification(Request $request)
+    {
+        $iduser = $request->request->get("id_user_admin") ;
+        $pass_admin = $request->request->get("pass_admin") ;
+        
+        $iduser = urldecode(base64_decode($iduser));
+        
+        $response = $this->appService->authentificationAdministrateur($iduser, $pass_admin) ;
+
+        if($response)
+        {
+            $csrf_token = $this->session->get("user")["csrf_token"] ;
+
+            $this->session->set($csrf_token."_admin",[
+                "authorised" => True
+            ]) ;
+
+            return new JsonResponse([
+                "type" => "green",
+                "message" => "Accès autorisée",
+            ]) ;
+        }
+
+        return new JsonResponse([
+            "type" => "red",
+            "message" => "Accès refusée",
+        ]) ;
+    }
+
+    #[Route('/credit/element/update', name: 'credit_element_update')]
+    public function crdUpdateElementCredit(Request $request)
+    {
+        $crd_mod_description = $request->request->get("crd_mod_description") ;
+        $crd_mod_date = $request->request->get("crd_mod_date") ;
+        $crd_mod_montant = $request->request->get("crd_mod_montant") ;
+        $idCreditDetail = $request->request->get("idCreditDetail") ;
+
+        $result = $this->appService->verificationElement([
+            $crd_mod_date,
+            $crd_mod_montant
+        ], [
+            "Date",
+            "Montant"
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $crdDetail = $this->entityManager->getRepository(CrdDetails::class)->find($idCreditDetail) ;
+
+        $crdDetail->setDescription($crd_mod_description) ; 
+        $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$crd_mod_date)) ;
+        $crdDetail->setMontant(floatval($crd_mod_montant)) ;
+
+        $this->entityManager->flush() ; 
+
+        $finance = $crdDetail->getFinance() ;
+
+        $refPaiement = $finance->getPaiement()->getReference() ; 
+
+        $this->appService->updateStatutFinance($finance) ;
+
+        if($refPaiement == "AC")
+            $filename = $this->filename."acompte(agence)/".$this->nameAgence ;
+        else
+            $filename = $this->filename."credit(agence)/".$this->nameAgence ;
+            
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        if($refPaiement == "CR")
+        {
+            $typePaiement = "CRD" ;
+            $nomPaiement = "CREDIT" ;
+            $histoMessage = "Modification Ligne credit N° : ".$finance->getNumFnc() ;
+        }
+        else
+        {
+            $typePaiement = "ACP" ;
+            $nomPaiement = "ACOMPTE" ;
+            $histoMessage = "Modification Ligne acompte N° : ".$finance->getNumFnc() ;
+        }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => $typePaiement,
+            "nomModule" => $nomPaiement,
+            "refAction" => "MOD",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoMessage,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Modification effectué"
+        ]) ;
     }
 }

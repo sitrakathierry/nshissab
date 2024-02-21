@@ -89,8 +89,9 @@ class AppService extends AbstractController
     private $user ;
     private $agence ;
     private $nameAgence ;
+    private $passwordEncoder ;
 
-    public function __construct(SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder, UrlGeneratorInterface $urlGenerator)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder, UrlGeneratorInterface $urlGenerator)
     {
         $this->router = $router ;
         $this->requestStack = $requestStack ;
@@ -104,6 +105,8 @@ class AppService extends AbstractController
             $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
             $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
         }  
+
+        $this->passwordEncoder = $passwordEncoder ;
     }
 
     public function getnameAgence()
@@ -3822,5 +3825,14 @@ class AppService extends AbstractController
             $this->entityManager->flush() ;
         }
 
+    }
+
+    public function authentificationAdministrateur($idUser, $passUser)
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($idUser) ;
+
+        $isPasswordValid = $this->passwordEncoder->isPasswordValid($user,$passUser);
+
+        return $isPasswordValid ;
     }
 }
