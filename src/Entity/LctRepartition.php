@@ -50,6 +50,9 @@ class LctRepartition
     #[ORM\Column(nullable: true)]
     private ?float $versement = null;
 
+    #[ORM\ManyToOne(inversedBy: 'lctRepartitions')]
+    private ?LctNumQuittance $numQuittance = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -195,6 +198,18 @@ class LctRepartition
     public function setVersement(?float $versement): self
     {
         $this->versement = $versement;
+
+        return $this;
+    }
+
+    public function getNumQuittance(): ?LctNumQuittance
+    {
+        return $this->numQuittance;
+    }
+
+    public function setNumQuittance(?LctNumQuittance $numQuittance): self
+    {
+        $this->numQuittance = $numQuittance;
 
         return $this;
     }

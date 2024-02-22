@@ -223,6 +223,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence4', targetEntity: HistoHistorique::class)]
     private Collection $histoHistoriques;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctNumQuittance::class)]
+    private Collection $lctNumQuittances;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -282,6 +285,7 @@ class Agence
         $this->prdDeductions = new ArrayCollection();
         $this->modModelePdfs = new ArrayCollection();
         $this->histoHistoriques = new ArrayCollection();
+        $this->lctNumQuittances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2136,6 +2140,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($histoHistorique->getAgence4() === $this) {
                 $histoHistorique->setAgence4(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LctNumQuittance>
+     */
+    public function getLctNumQuittances(): Collection
+    {
+        return $this->lctNumQuittances;
+    }
+
+    public function addLctNumQuittance(LctNumQuittance $lctNumQuittance): self
+    {
+        if (!$this->lctNumQuittances->contains($lctNumQuittance)) {
+            $this->lctNumQuittances->add($lctNumQuittance);
+            $lctNumQuittance->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLctNumQuittance(LctNumQuittance $lctNumQuittance): self
+    {
+        if ($this->lctNumQuittances->removeElement($lctNumQuittance)) {
+            // set the owning side to null (unless already changed)
+            if ($lctNumQuittance->getAgence() === $this) {
+                $lctNumQuittance->setAgence(null);
             }
         }
 

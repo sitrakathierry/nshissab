@@ -1588,7 +1588,7 @@ $(document).ready(function(){
         {
             $(this).removeClass("btn-outline-info") ;
             $(this).addClass("btn-info") ;
-            $(this).html('<span class="text-uppercase font-weight-bold">Ok</span>')
+            $(this).html('<span class="text-uppercase font-weight-bold">Ok</span>') ;
         }
         else
         {
@@ -1639,10 +1639,72 @@ $(document).ready(function(){
                                 }
                                 var idModeleEntete = $("#modele_pdf_entete").val() ;
                                 var idModeleBas = $("#modele_pdf_bas").val() ;
-                                var idContrat = self.data("value") ;
-                                var url = routes.prest_location_imprimer_quittance + '/' + idContrat + '/' + dataLoyer + '/' + idModeleEntete + '/' + idModeleBas;
+                                var realinstance = instance.loading()
+                                $.ajax({
+                                    url: routes.prest_location_repartition_file,
+                                    type:'post',
+                                    cache: false,
+                                    data:{
+                                        dataLoyer:dataLoyer,
+                                    },
+                                    dataType: 'json',
+                                    success: function(json){
+                                        realinstance.close() ;
+                                        var idContrat = self.data("value") ;
+                                        var url = routes.prest_location_imprimer_quittance + '/' + idContrat + '/' + idModeleEntete + '/' + idModeleBas;
+                                        window.open(url, '_blank');
+                                        location.reload() ;
+                                    },
+                                    error: function(resp){
+                                        realinstance.close()
+                                        $.alert(JSON.stringify(resp)) ;
+                                    }
+                                })
+                            }
+                        }
+                    }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    })
+
+    $(document).on("click",".lct_print_quittance_exist",function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Facture",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Imprimer',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var idNumQtc = self.data("value") ;
+                                var url = routes.prest_location_quittance_existant + '/' + idNumQtc + '/' + idModeleEntete + '/' + idModeleBas;
                                 window.open(url, '_blank');
-                                location.reload()
+                                location.reload() ;
                             }
                         }
                     }

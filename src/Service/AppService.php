@@ -1006,7 +1006,7 @@ class AppService extends AbstractController
 
         $lastRepartition = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
             "contrat" => $contrat,
-            "statut" => $statutLoyerAcompte
+            "statut" => $statutLoyerAcompte 
         ],["id" => "DESC"]) ;
 
         $childs = [] ;
@@ -1022,8 +1022,15 @@ class AppService extends AbstractController
             $montant = is_null($repartition->getMontant()) ? 0 : $repartition->getMontant() ;
             $commission =  ($pourcentage * $montant) / 100 ;
             $versement = '<button value="'.$repartition->getId().'" data-commission="'.($montant - $commission).'" class="btn btn-outline-success lct_check_versement btn-sm font-smaller"><i class="fa fa-hand-holding-dollar"></i></button>' ;
-            $selection = '<button data-value="'.$repartition->getId().'" class="btn btn-outline-info lct_select_impression btn-sm font-smaller"><i class="fa fa-check"></i></button>' ;
-            
+            if(is_null($repartition->getNumQuittance()))
+            {
+                $selection = '<button data-value="'.$repartition->getId().'" class="btn btn-outline-info lct_select_impression btn-sm font-smaller"><i class="fa fa-check"></i></button>' ;
+            }
+            else
+            {
+                $selection = '<a href="#" data-value="'.$repartition->getNumQuittance()->getId().'" class="lct_print_quittance_exist text-primary font-weight-bold text-link">'.$repartition->getNumQuittance()->getNumero().'</a>' ;
+            }
+
             if(!is_null($repartition->getVersement()))
             {
                 $versement = '<b class="text-success">OK</b>' ;

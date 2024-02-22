@@ -16,6 +16,7 @@ use App\Entity\LctCycle;
 use App\Entity\LctForfait;
 use App\Entity\LctLocataire;
 use App\Entity\LctModePaiement;
+use App\Entity\LctNumQuittance;
 use App\Entity\LctPaiement;
 use App\Entity\LctPeriode;
 use App\Entity\LctRenouvellement;
@@ -1757,8 +1758,6 @@ class PrestationController extends AbstractController
             $newRelevePments = $this->appService->searchData($relevePaiements, $search) ;
         }
 
-        // dd($newRelevePments) ;
-
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($id) ;
         
         $statutLoyerPaye = $this->entityManager->getRepository(LctStatutLoyer::class)->findOneBy([
@@ -1805,7 +1804,6 @@ class PrestationController extends AbstractController
             "bail" => $contrat->getBail()->getNom(),
             "lieu" => $contrat->getLieuContrat(),
             "isCaution" => !empty($contrat->getCaution()),
-            
         ] ;
 
         if(!empty($paramSearch))
@@ -1901,13 +1899,25 @@ class PrestationController extends AbstractController
         return new JsonResponse($result) ;
     }
 
-    #[Route('/prestation/location/quittance/imprimer/{idContrat}/{details}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_imprimer_quittance', defaults: [
+    #[Route('/prestation/location/repartition/file', name: 'prest_location_repartition_file')]
+    public function prestFileRepartitionLocation(Request $request)
+    {
+        $details = $request->request->get("dataLoyer") ;
+
+        $filename = $this->filename."location/selectedFile/seleted_file_".$this->userObj->getId().".json" ;
+
+        file_put_contents($filename,json_encode($details)) ;
+
+        return new JsonResponse([]) ;
+    }
+    
+
+    #[Route('/prestation/location/quittance/imprimer/{idContrat}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_imprimer_quittance', defaults: [
         "idContrat" => null, 
-        "details" => null, 
         "idModeleEntete" => null, 
         "idModeleBas" => null
     ])]
-    public function prestLocationImprimerQuittanceLoyer($idContrat,$details, $idModeleEntete, $idModeleBas)
+    public function prestLocationImprimerQuittanceLoyer($idContrat, $idModeleEntete, $idModeleBas)
     {
         $contentEntete = "" ;
         if(!empty($idModeleEntete) || !is_null($idModeleEntete))
@@ -1937,10 +1947,16 @@ class PrestationController extends AbstractController
 
         $contrat = $this->entityManager->getRepository(LctContrat::class)->find($idContrat) ;
 
-        $dataContrat = [
-            "numeroContrat" => $contrat->getNumContrat(),
-            "date" => $contrat->getDateContrat()->format("d/m/Y"),
-            "lieu" => $contrat->getLieuContrat(),
+        $numQuittances = $this->entityManager->getRepository(LctNumQuittance::class)->findBy([
+            "agence" => $this->agence
+        ]) ;
+
+        $quittanceNum = count($numQuittances) > 0 ? count($numQuittances) + 1 : 1 ;
+        $quittanceNum = "QTC-".str_pad($quittanceNum,3,"0",STR_PAD_LEFT) ;
+
+        $dataQuittance = [
+            "numero" => $quittanceNum,
+            "date" => date("d/m/Y"),
         ] ;
 
         $filename = $this->filename."location/releveloyer(agence)/relevePL_".$idContrat."_".$this->nameAgence  ;
@@ -1949,11 +1965,31 @@ class PrestationController extends AbstractController
 
         $relevePaiements = json_decode(file_get_contents($filename)) ;
 
+        $filename = $this->filename."location/selectedFile/seleted_file_".$this->userObj->getId().".json" ;
+
+        $details = json_decode(file_get_contents($filename)) ;
+
+        // DEBUT INSERTION NUMERO SUR BASE
+
+        $numQuittance = new LctNumQuittance() ;
+
+        $numQuittance->setAgence($this->agence) ;
+        $numQuittance->setNumero($quittanceNum) ;
+        $numQuittance->setDate(\DateTime::createFromFormat("d/m/Y",date("d/m/Y"))) ;
+        $numQuittance->setCreatedAt(new \DateTimeImmutable) ;
+        $numQuittance->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($numQuittance) ;
+        $this->entityManager->flush() ;
+
+        // FIN INSERTION NUMERO SUR BASE
+
         $dataDetails = [] ;
-        $headerDetails = explode(",",$details) ;
+        // $headerDetails = explode(",",$details) ;
+        // $headerDetails = $details ;
 
         $totalPayee = 0 ;
-        foreach ($headerDetails as $headerDetail) {
+        foreach ($details as $headerDetail) {
             $search = [
                 "id" => $headerDetail
             ] ;
@@ -1961,11 +1997,16 @@ class PrestationController extends AbstractController
             $uniteReleve = $this->appService->searchData($relevePaiements,$search) ;
             $uniteReleve = $this->appService->objectToArray($uniteReleve) ;
 
+            $repartOne = $this->entityManager->getRepository(LctRepartition::class)->find($headerDetail) ;
+            $repartOne->setNumQuittance($numQuittance) ;
+            
+            $this->entityManager->flush() ;
+
             $totalPayee += $uniteReleve[0]["montant"] ;
             array_push($dataDetails,$uniteReleve[0]) ;
         }
 
-        $dataContrat["lettre"] = $this->appService->NumberToLetter($totalPayee) ;
+        $dataQuittance["lettre"] = $this->appService->NumberToLetter($totalPayee) ;
 
         $locataire = $contrat->getLocataire() ;
 
@@ -1975,10 +2016,14 @@ class PrestationController extends AbstractController
             "telephone" => $locataire->getTelephone(), 
         ] ;
 
+        $filename = $this->filename."location/releveloyer(agence)/relevePL_".$idContrat."_".$this->nameAgence  ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
         $contentImpression = $this->renderView("prestations/location/impression/impressionFactureLoyer.html.twig",[
             "contentEntete" => $contentEntete,
             "contentBas" => $contentBas,
-            "contrat" => $dataContrat,
+            "dataQuittance" => $dataQuittance,
             "locataire" => $dataLocataire,
             "details" => $dataDetails,
         ]) ;
@@ -1989,9 +2034,107 @@ class PrestationController extends AbstractController
         
         // Redirigez vers une autre page pour afficher le PDF
         return $this->redirectToRoute('display_pdf');
-
     }
     
+    #[Route('/prestation/location/quittance/existant/{idNumQtc}/{idModeleEntete}/{idModeleBas}', name: 'prest_location_quittance_existant', defaults: [
+        "idNumQtc" => null, 
+        "idModeleEntete" => null, 
+        "idModeleBas" => null
+    ])]
+    public function prestLocationPrintQuittanceLoyerExistant($idNumQtc, $idModeleEntete, $idModeleBas)
+    {
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+        }
+        
+        $numQuittance = $this->entityManager->getRepository(LctNumQuittance::class)->find($idNumQtc) ;
+        
+        $contrat = $this->entityManager->getRepository(LctRepartition::class)->findOneBy([
+            "numQuittance" => $numQuittance
+        ])->getContrat() ;
+
+        $repartitions = $this->entityManager->getRepository(LctRepartition::class)->findBy([
+            "numQuittance" => $numQuittance
+        ]) ;
+
+        $dataQuittance = [
+            "numero" => $numQuittance->getNumero(),
+            "date" => $numQuittance->getDate()->format("d/m/Y"),
+        ] ;
+
+        $filename = $this->filename."location/releveloyer(agence)/relevePL_".$contrat->getId()."_".$this->nameAgence  ;
+        if(!file_exists($filename))
+            $this->appService->generateLctRelevePaiementLoyer($filename,$contrat->getId()) ;
+
+        $relevePaiements = json_decode(file_get_contents($filename)) ;
+
+        $dataDetails = [] ;
+
+        $totalPayee = 0 ;
+        foreach ($repartitions as $repartition) {
+            $search = [
+                "id" => $repartition->getId()
+            ] ;
+
+            $uniteReleve = $this->appService->searchData($relevePaiements,$search) ;
+            $uniteReleve = $this->appService->objectToArray($uniteReleve) ;
+
+            $totalPayee += $uniteReleve[0]["montant"] ;
+            array_push($dataDetails,$uniteReleve[0]) ;
+        }
+
+        $dataQuittance["lettre"] = $this->appService->NumberToLetter($totalPayee) ;
+
+        $locataire = $contrat->getLocataire() ;
+
+        $dataLocataire = [
+            "nom" => $locataire->getNom(),
+            "adresse" => $locataire->getAdresse(), 
+            "telephone" => $locataire->getTelephone(), 
+        ] ;
+
+        $filename = $this->filename."location/releveloyer(agence)/relevePL_".$contrat->getId()."_".$this->nameAgence  ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $contentImpression = $this->renderView("prestations/location/impression/impressionFactureLoyer.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "dataQuittance" => $dataQuittance,
+            "locataire" => $dataLocataire,
+            "details" => $dataDetails,
+        ]) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentImpression,$this->nameUser) ;
+        
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
+    }
+
 
     #[Route('/prestation/location/loyer/liste', name: 'prest_location_liste_loyer')]
     public function prestListeLoyerLocation()
