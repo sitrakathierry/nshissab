@@ -735,9 +735,6 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/recette/vente', name: 'compta_recette_vente')]
     public function comptaRecetteVente()
     {
-
-
-        
         return $this->render('comptabilite/recettes/recettesVente.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Recettes Ventes",

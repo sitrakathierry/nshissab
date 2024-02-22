@@ -245,9 +245,6 @@ class HomeController extends AbstractController
     #[Route('/home/profil/user', name: 'home_profil_utilisateur')]
     public function homeProfilUtilisateur()
     {
-
-        
-
         return $this->render('home/profilUtilisateur.html.twig', [
             "filename" => "home",
             "titlePage" => "Profil Utilisateur",

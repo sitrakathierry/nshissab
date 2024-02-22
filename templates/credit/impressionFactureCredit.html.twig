@@ -10155,7 +10155,7 @@ footer {
                     </tr>
                 </thead>
                 <tbody>
-                {% set totalPayee = 0 %}
+                {% set total = 0 %}
                     {% for financeDetail in financeDetails %}
                         <tr {{ facture.refStatut == "TRM" ? 'class="bg-secondary text-white"' : "" }} >
                             <td>{{financeDetail.description}}</td>
@@ -10172,7 +10172,7 @@ footer {
                                 </td>
                             {% endif %} #}
                         </tr>
-                        {% set totalPayee = totalPayee + financeDetail.montant %}
+                        {% set total = total + financeDetail.montant %}
                     {% endfor %}
                     {# {% if refPaiement == "CR" %}
                         {% for echeance in echeances %}
@@ -10193,12 +10193,16 @@ footer {
                 </tbody>
                 <tfoot class="text-uppercase">
                     <tr>
+                        <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total</th>
+                        <th class="bg-light text-dark">{{ total == 0 ? "-" : total }}</th>
+                    </tr>
+                    <tr>
                         <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Payée</th>
-                        <th class="bg-secondary text-light">{{ totalPayee == 0 ? "-" : totalPayee }}</th>
+                        <th class="bg-secondary text-light">{{ totalPayee.total == 0 ? "-" : totalPayee.total }}</th>
                     </tr>
                     <tr>
                         <th {% if refPaiement == "CR" %} colspan="3" {% endif %}>Total Restant</th>
-                        <th class="bg-dark text-light">{{ facture.totalTtc - totalPayee }}</th>
+                        <th class="bg-dark text-light">{{ facture.totalTtc - totalPayee.total }}</th>
                     </tr>
                 </tfoot>
             </table>

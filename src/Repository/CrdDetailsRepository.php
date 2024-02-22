@@ -47,6 +47,13 @@ class CrdDetailsRepository extends ServiceEntityRepository
         $resultSet = $stmt->executeQuery([$finance]);
         return $resultSet->fetchAssociative();
     }
+
+    // $response = $this->createQueryBuilder('au')
+    //         ->select('SUM(au.montant) as sommeAvoirUse')
+    //         ->andWhere('au.histoClient = :histoClient')
+    //         ->setParameter('histoClient', $params["histoClient"])
+    //         ->getQuery()
+    //         ->getSingleScalarResult();
 //    /**
 //     * @return CrdDetails[] Returns an array of CrdDetails objects
 //     */

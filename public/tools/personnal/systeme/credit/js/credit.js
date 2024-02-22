@@ -403,11 +403,31 @@ $(document).ready(function(){
                         btnClass: 'btn-blue',
                         keys: ['enter', 'shift'],
                         action: function(){
-                            var idModeleEntete = $("#modele_pdf_entete").val() ;
-                            var idModeleBas = $("#modele_pdf_bas").val() ;
-                            var idFinance = self.data("value") ;
-                            var url = routes.credit_echeance_imprimer + '/' + idFinance + '/' + idModeleEntete + '/' + idModeleBas;
-                            window.open(url, '_blank');
+                          var idModeleEntete = $("#modele_pdf_entete").val() ;
+                          var idModeleBas = $("#modele_pdf_bas").val() ;
+                          var dataCheck = [] ;
+                          $(".btn_check_credit").each(function(){
+                            if($(this).hasClass("btn-success"))
+                              dataCheck.push($(this).data("value")) ;
+                          }) ;
+                          var realinstance = instance.loading()
+                          $.ajax({
+                              url: routes.credit_data_check_save,
+                              type:'post',
+                              cache: false,
+                              data:{dataCheck:dataCheck},
+                              dataType: 'json',
+                              success: function(json){
+                                realinstance.close()
+                                var idFinance = self.data("value") ;
+                                var url = routes.credit_echeance_imprimer + '/' + idFinance + '/' + idModeleEntete + '/' + idModeleBas;
+                                window.open(url, '_blank');
+                              },
+                              error: function(resp){
+                                  realinstance.close()
+                                  $.alert(JSON.stringify(resp)) ;
+                              }
+                          }) ;
                         }
                     }
                 }
@@ -693,6 +713,75 @@ $(document).ready(function(){
         }
     })
     return false ;
+  }) ;
+
+  $(".btn_delete_credit").click(function(){
+    var self = $(this)
+    $.confirm({
+        title: "Suppression",
+        content:"Êtes-vous sûre ?",
+        type:"red",
+        theme:"modern",
+        buttons:{
+            btn1:{
+                text: 'Non',
+                action: function(){}
+            },
+            btn2:{
+                text: 'Oui',
+                btnClass: 'btn-red',
+                keys: ['enter', 'shift'],
+                action: function(){
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.credit_element_detail_delete,
+                        type:'post',
+                        cache: false,
+                        data:{
+                          idCrdDetail:self.data("value")
+                        },
+                        dataType: 'json',
+                        success: function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                }
+            }
+        }
+    })
+    return false ;
+  }) ;
+
+  $(".btn_check_credit").click(function(){
+    if($(this).hasClass("btn-outline-success"))
+    {
+      $(this).removeClass("btn-outline-success") ;
+      $(this).addClass("btn-success") ;
+      $(this).html('<span class="font-weight-bold">OK</span>') ;
+    }
+    else
+    {
+      $(this).removeClass("btn-success") ;
+      $(this).addClass("btn-outline-success") ;
+      $(this).html('<i class="fa fa-check"></i>') ;
+    }
   }) ;
 
 })

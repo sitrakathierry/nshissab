@@ -290,8 +290,8 @@ class CreditController extends AbstractController
             "refPaiement" => $refPaiement,
             "echeances" => $echeances,
             "unAgdAcompte" => $unAgdAcompte,
-            "dataAdmin" => $dataAdmin
-        ]) ;
+            "dataAdmin" => $dataAdmin 
+        ]) ; 
 
     }
 
@@ -358,9 +358,28 @@ class CreditController extends AbstractController
             }
         }
 
-        $financeDetails = $this->entityManager->getRepository(CrdDetails::class)->findBy([
-            "finance" => $finance
-        ]) ;
+        $filename = $this->filename."fileCheck(user)/liste_check_".$this->userObj->getId().".json"  ;
+
+        $dataCheck = json_decode(file_get_contents($filename)) ;
+
+        $financeDetails = [] ;
+
+        $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;
+        
+        if(!empty($dataCheck))
+        {
+            foreach ($dataCheck as $dataCheck) {
+                $financeDetail = $this->entityManager->getRepository(CrdDetails::class)->find($dataCheck) ;
+                $financeDetails[] = $financeDetail ;
+            }
+
+        }
+        else
+        {
+            $financeDetails = $this->entityManager->getRepository(CrdDetails::class)->findBy([
+                "finance" => $finance
+            ]) ;
+        }
 
         $refPaiement = $finance->getPaiement()->getReference() ; 
         $infoFacture = [] ;
@@ -368,14 +387,15 @@ class CreditController extends AbstractController
         $infoFacture["totalTtc"] = $finance->getFacture()->getTotal() ;
 
         $contentIMpression = $this->renderView("credit/impressionFactureCredit.html.twig",[
-            "contentEntete" => $contentEntete,
-            "contentBas" => $contentBas,
             "financeDetails" => $financeDetails,
-            "client" => $dataClient,
-            "finance" => $finance,
+            "contentEntete" => $contentEntete,
             "refPaiement" => $refPaiement,
+            "totalPayee" => $totalPayee,
+            "contentBas" => $contentBas,
             "facture" => $infoFacture,
+            "client" => $dataClient,
             "date" => date("d/m/Y"),
+            "finance" => $finance,
         ]) ;
 
         $pdfGenService = new PdfGenService() ;
@@ -955,5 +975,75 @@ class CreditController extends AbstractController
             "type" => "green",
             "message" => "Modification effectué"
         ]) ;
+    }
+
+    #[Route('/credit/element/delete', name: 'credit_element_detail_delete')]
+    public function crdDeleteElementCredit(Request $request)
+    {
+        $idCrdDetail = $request->request->get("idCrdDetail") ;
+
+        $crdDetail = $this->entityManager->getRepository(CrdDetails::class)->find($idCrdDetail) ;
+
+        $this->entityManager->remove($crdDetail) ;
+        $this->entityManager->flush() ;
+
+        $finance = $crdDetail->getFinance() ;
+
+        $refPaiement = $finance->getPaiement()->getReference() ; 
+
+        $this->appService->updateStatutFinance($finance) ;
+
+        if($refPaiement == "CR")
+        {
+            $typePaiement = "CRD" ;
+            $nomPaiement = "CREDIT" ;
+            $histoMessage = "Suppression Ligne credit N° : ".$finance->getNumFnc() ;
+        }
+        else
+        {
+            $typePaiement = "ACP" ;
+            $nomPaiement = "ACOMPTE" ;
+            $histoMessage = "Suppression Ligne acompte N° : ".$finance->getNumFnc() ;
+        }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => $typePaiement,
+            "nomModule" => $nomPaiement,
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $histoMessage,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
+        if($refPaiement == "AC")
+            $filename = $this->filename."acompte(agence)/".$this->nameAgence ;
+        else
+            $filename = $this->filename."credit(agence)/".$this->nameAgence ;
+            
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué"
+        ]) ;
+    }
+
+    #[Route('/credit/data/check/save', name: 'credit_data_check_save')]
+    public function crdSaveDataCheckCredit(Request $request)
+    {
+        $dataCheck = $request->request->get("dataCheck") ;
+        
+        $filename = $this->filename."fileCheck(user)/liste_check_".$this->userObj->getId().".json" ; 
+
+        file_put_contents($filename,json_encode($dataCheck)) ;
+
+        return new JsonResponse([]) ;
     }
 }

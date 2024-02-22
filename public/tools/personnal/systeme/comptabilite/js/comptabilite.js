@@ -15,7 +15,7 @@ $(document).ready(function(){
           title: "Confirmation",
           content: "Etes-vous sûre ?",
           type: "blue",
-          theme: "modern",
+          theme: "modern", 
           buttons: {
             btn1: {
               text: "Non",
