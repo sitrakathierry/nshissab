@@ -3404,8 +3404,8 @@ class AppService extends AbstractController
                 $this->entityManager->flush() ;
             }
 
-            if($this->agence->getId() == 12)
-                dd($stockRemoveVariation) ;
+            // if($this->agence->getId() == 12)
+            //     dd($stockRemoveVariation) ;
 
             $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
             $this->entityManager->flush() ;
