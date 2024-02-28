@@ -630,7 +630,7 @@ class StockController extends AbstractController
             "type" => $nomType,
             "idType" => $idType,
         ] ;
-
+ 
         return $this->render('stock/stockgeneralParType.html.twig', [
             "filename" => "stock",
             "titlePage" => "Consultation Produit ",

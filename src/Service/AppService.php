@@ -1437,6 +1437,18 @@ class AppService extends AbstractController
 
         $elements = [] ;
 
+        // Produit
+        // PROD
+
+        // Prestation Standard
+        // PSTD
+
+        // Prestation Bâtiment
+        // PBAT
+
+        // Prestation Location
+        // PLOC
+
         foreach ($factures as $facture) {
             $element = [] ;
             $specification = "NONE" ; 
@@ -1444,6 +1456,7 @@ class AppService extends AbstractController
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
             $element["idM"] = $facture->getModele()->getId() ;
+            $element["refModele"] = $facture->getModele()->getReference() ;
             $element["date"] = $facture->getDate()->format('d/m/Y') ;
             $element["currentDate"] = $facture->getDate()->format('d/m/Y') ;
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
@@ -3390,6 +3403,9 @@ class AppService extends AbstractController
                 $variationPrix->setStock($variationPrix->getStock() - $stockRemoveVariation) ;
                 $this->entityManager->flush() ;
             }
+
+            if($this->agence->getId() == 12)
+                dd($stockRemoveVariation) ;
 
             $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
             $this->entityManager->flush() ;

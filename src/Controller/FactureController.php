@@ -1395,6 +1395,7 @@ class FactureController extends AbstractController
                 $signe = "(".$annulation->getPourcentage()."%)" ;
                 $avoir = $annulation->getMontant() - $retenu ;
             }
+            
             $infoFacture["numFact"] = $annulation->getNumFact() ;
             $infoFacture["totalTva"] = $totalTva ;
             $infoFacture["total"] = $total ;

@@ -18,6 +18,8 @@ use App\Entity\DepModePaiement;
 use App\Entity\DepMotif;
 use App\Entity\DepService;
 use App\Entity\DepStatut;
+use App\Entity\FactDetails;
+use App\Entity\Facture;
 use App\Entity\HistoHistorique;
 use App\Entity\User;
 use App\Service\AppService;
@@ -649,7 +651,7 @@ class ComptabiliteController extends AbstractController
         {
             return new JsonResponse([
                 "solde" => ""
-                ]) ;
+            ]) ;
         }
 
         $compte = $this->entityManager->getRepository(CmpCompte::class)->find($id) ;
@@ -664,14 +666,19 @@ class ComptabiliteController extends AbstractController
     {
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
-        
-
         $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
 
         if(!file_exists($filename))
             $this->appService->generateFacture($filename, $this->agence) ;
 
         $factures = json_decode(file_get_contents($filename)) ;
+
+        $dataRefOpt = [
+            "PROD" => "PRODUIT",
+            "PSTD" => "P. STANDARD",
+            "PBAT" => "P. BATIMENT",
+            "PLOC" => "P. LOCATION",
+        ] ;
 
         $search = [
             "refType" => "DF",
@@ -682,15 +689,40 @@ class ComptabiliteController extends AbstractController
         $elements = [] ;
 
         foreach ($factures as $facture) {
-            # code...
+            $oneFacture = $this->entityManager->getRepository(Facture::class)->find($facture->id) ;
+
+            $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "facture" => $oneFacture,
+                "statut" => True,
+            ]) ;
+    
+            $totalHt = 0 ;
+            $totalTva = 0 ;
+            foreach ($details as $detail) {
+                $tvaVal = is_null($detail->getTvaVal()) ? 0 : $detail->getTvaVal() ;
+                $tva = (($detail->getPrix() * $tvaVal) / 100) * $detail->getQuantite();
+                $total = $detail->getPrix() * $detail->getQuantite()  ;
+                $remise = $this->appService->getFactureRemise($detail,$total) ; 
+                
+                $total = $total - $remise ;
+
+                $totalHt += $total ;
+                $totalTva += $tva ;
+            } 
+    
+            $remiseGen = $this->appService->getFactureRemise($oneFacture,$totalHt) ;
+            $totalTtc = $totalHt + $totalTva - $remiseGen ;
+            
+            // dd($dataRefOpt[$facture->refModele]) ;
+
             $item = [
                 "id" => $facture->id,
                 "date" => $facture->dateFacture,
                 "numero" => $facture->numFact,
-                "montant" => $facture->total,
-                "client" => "-",
-                "operation" => "Facture",
-                "refOperation" => "FACTURE",
+                "montant" => $totalTtc,
+                // "client" => "-",
+                "operation" => "Facture ".$dataRefOpt[$facture->refModele],
+                "refOperation" => $facture->refModele,
                 "refJournal" => "DEBIT"
             ] ;
 
@@ -710,7 +742,7 @@ class ComptabiliteController extends AbstractController
                 "date" => $caisse->date,
                 "numero" => $caisse->numCommande,
                 "montant" => $caisse->montant,
-                "client" => "-",
+                // "client" => "-",
                 "operation" => "Caisse",
                 "refOperation" => "CAISSE",
                 "refJournal" => "DEBIT"
