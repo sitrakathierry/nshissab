@@ -1,0 +1,15 @@
+{% set total = 0 %}
+{% for key, value in stockTypes %}
+    <tr>
+        <td class="align-middle">{{key|upper}}</td>
+        <td class="align-middle">{{value.stock}}</td>
+        <td class="text-center align-middle">
+            <a href="{{path('stock_general_par_type',{'type': value.encodedId,'idPref': idPref})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+        </td>
+    </tr>
+    {% set total = total + value.stock %}
+{% endfor %}
+<tr>
+    <th >Total</th>
+    <th colspan="2" class="bg-purple text-white">{{total}}</th>
+</tr>

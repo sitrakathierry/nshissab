@@ -1167,7 +1167,7 @@ $(document).ready(function(){
         },
         {
             name: "idC",
-            selector : "search_categorie"
+            selector : "search_stock_categorie"
         },
         {
             name: "id",
@@ -1258,6 +1258,38 @@ $(document).ready(function(){
         {
             searchStockEntrepot()
         })
-    })
+    }) ;
+
+
+    $("#search_nom_produit").change(function(){
+        searchNomProduit() ;
+    }) ;
+
+    function searchNomProduit()
+    {
+        var myinstance = new Loading(files.search) ;
+        $(".elem_stock_nom_produit").html(myinstance.search(3)) ;
+        var formData = new FormData() ;
+        // for (let j = 0; j < stock_entrepot_search.length; j++) {
+        //     const search = stock_entrepot_search[j];
+        // }
+        formData.append("type",$("#search_nom_produit").val());
+        formData.append("preference",$("#search_id_pref").val());
+        $.ajax({
+            url: routes.stock_search_nom_produit ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".elem_stock_nom_produit").html(response) ;
+            },
+            error: function(resp){
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }
 })
 

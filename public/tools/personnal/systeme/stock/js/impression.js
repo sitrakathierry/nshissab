@@ -105,7 +105,7 @@ $(document).ready(function(){
         }
     }
 
-    initJspm();
+    // initJspm();
     $("#stock_print_barcode_test").click(function(){
         if(clientPrinters == null)
         {

@@ -1,0 +1,19 @@
+{% set total = 0 %}
+{% for stockType in stockTypes %}
+    <tr>
+        <td class="align-middle">{{stockType.codeProduit}}</td>
+        {# <td class="align-middle">{{stockType.categorie|upper}}</td> #}
+        <td class="align-middle">{{stockType.nom}}</td>
+        <td class="align-middle">{{stockType.stock}}</td>
+        <td class="text-center align-middle">
+        <a href="{{path('stock_general_details',{'id':stockType.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+        </td>
+    </tr>
+    {% set total = total + stockType.stock %}
+{% endfor %}
+<tr>
+    <th colspan="2" >Total</th>
+    <th colspan="2" class="bg-purple text-white">{{total}}</th>
+</tr>
+
+

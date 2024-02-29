@@ -343,8 +343,19 @@ $(document).ready(function(){
             title: "Déduction",
             content:`
                 <div class="w-100 text-left">
-                    <label for="reduc_qte" class="font-weight-bold">Quantité à  déduire</label>
-                    <input type="number" step="any" name="reduc_qte" id="reduc_qte" class="form-control" placeholder=". . .">
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="quantite_stock" class="font-weight-bold">Stock Actuel</label>
+                            <input type="number" readonly step="any" name="quantite_stock" id="quantite_stock" value="`+self.data("stock")+`" class="form-control" placeholder=". . .">
+                        </div>
+                        <div class="col-6">
+                            <label for="reduc_qte" class="font-weight-bold">Qte à reduire</label>
+                            <input type="number" step="any" name="reduc_qte" id="reduc_qte" class="form-control" placeholder=". . .">
+                        </div>
+                    </div>
+
+                    <label for="quantite_restant" class="mt-2 font-weight-bold">Stock restant</label>
+                    <input type="number" readonly step="any" name="quantite_restant" id="quantite_restant" class="form-control" placeholder=". . .">
 
                     <label for="reduc_type" class="mt-2 font-weight-bold">Type</label>
                     <select name="reduc_type" class="custom-select custom-select-sm" id="reduc_type">
@@ -354,7 +365,7 @@ $(document).ready(function(){
                     <div id="contentCause">
                         <label for="reduc_cause" class="mt-2 font-weight-bold">Raison/Cause</label>
                         <input type="text" name="reduc_cause" id="reduc_cause" class="form-control" placeholder=". . .">
-                    </div>
+                    </div>  
                 </div>
                 <script>
                     $("#contentCause").hide()
@@ -372,6 +383,19 @@ $(document).ready(function(){
                     btnClass: 'btn-orange',
                     keys: ['enter', 'shift'],
                     action: function(){
+                        var  quantite_restant = $("#quantite_restant").val() ;
+
+                        if(quantite_restant == "" || $("#reduc_qte").val() <= 0)
+                        {
+                            $.alert({
+                                title: "Message",
+                                content: "Erreur. Veuillez annuler l'opération",
+                                type:'red'
+                            }) ;
+
+                            return false ;
+                        }
+
                         self.closest('tr').find(".contentBtnReduire").html(`
                             <span class="text-warning">
                                 Qte déduit : <b>`+$("#reduc_qte").val()+`</b>,
@@ -386,7 +410,28 @@ $(document).ready(function(){
             }
         })
         return false ;
-    })
+    }) ;
+
+    $(document).on("keyup","#reduc_qte",function(){
+        var reduction = $(this).val() == "" ? 0 : $(this).val() ;
+        var quantite_stock = parseFloat($("#quantite_stock").val()) ;
+        var quantite_restant = quantite_stock - reduction ;
+
+        if(quantite_restant < 0)
+        {
+            $.alert({
+                title: "Message",
+                content: "Le stock restant ne doit pas être négaitf.",
+                type:'red'
+            }) ;
+
+            $(this).val("") ;
+
+            return false ;
+        }
+
+        $("#quantite_restant").val(quantite_restant) ;
+    }) ;
 
     $(document).on('change',"#reduc_type",function(){
         if($(this).val() == "Par défaut")

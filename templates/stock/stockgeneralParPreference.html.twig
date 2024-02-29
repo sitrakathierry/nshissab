@@ -27,13 +27,14 @@
                 <input type="text" name="societe" id="societe" class="form-control" value="{{parent.societe|upper}}" readonly>
             </div>
             <div class="col-md-3">
-                <label for="search_categorie" class="mt-2 font-weight-bold text-uppercase">Nom Produit</label>
-                <select name="search_categorie" class="custom-select search_categorie custom-select-sm" id="search_categorie">
+                <label for="search_nom_produit" class="mt-2 font-weight-bold text-uppercase">Nom Produit</label>
+                <select name="search_nom_produit" class="custom-select chosen_select custom-select-sm" id="search_nom_produit">
                     <option value="">TOUS</option>
-                    {# {% for categorie in categories %}
-                        <option value="{{categorie.id}}">{{categorie.nom|upper}}</option>
-                    {% endfor %} #}
+                    {% for key, value in stockTypes %}
+                        <option value="{{value.type}}">{{key|upper}}</option>
+                    {% endfor %}
                 </select>
+                <input type="hidden" value="{{parent.idPref}}" name="search_id_pref" id="search_id_pref">
             </div>
             {# <div class="col-md-3">
                 <label for="search_produit" class="mt-2 font-weight-bold text-uppercase">Désignation Produit</label>
@@ -65,7 +66,7 @@
                             <td class="align-middle">{{key|upper}}</td>
                             <td class="align-middle">{{value.stock}}</td>
                             <td class="text-center align-middle">
-                            <a href="{{path('stock_general_par_type',{'type': value.encodedId,'idPref': parent.idPref})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                <a href="{{path('stock_general_par_type',{'type': value.encodedId,'idPref': parent.idPref})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                             </td>
                         </tr>
                         {% set total = total + value.stock %}
