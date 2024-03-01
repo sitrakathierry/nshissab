@@ -141,7 +141,7 @@ $(document).ready(function(){
         // }
 
         var fact_text_type = fact_mod_prod_type == "autre" ? "Autre" : fact_mod_prod_type
-        var fact_text_designation = fact_mod_prod_type == "autre" ? `<div class='text-center px-3 py-2'>`+$('#fact_mod_prod_autre').val()+`</div>` : $("#fact_mod_prod_designation").val() ;
+        var fact_text_designation = fact_mod_prod_type == "autre" ? `<div class='text-center px-3 py-2'>`+$('#fact_mod_prod_autre').val()+`</div>` : $("#fact_mod_prod_designation").find("option:selected").text() ;
         var fact_text_prix = fact_mod_prod_type == "autre" ? $("#fact_mod_prod_prix").val() : parseFloat($("#fact_text_prix").val().split(" | ")[0])
         
         var fact_mod_prod_designation = fact_mod_prod_type == "autre" ? fact_text_designation : $("#fact_mod_prod_designation").val()
