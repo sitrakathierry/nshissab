@@ -72,7 +72,7 @@ class AchatController extends AbstractController
         
         return $this->render('achat/creationBonDeCommande.html.twig', [
             "filename" => "achat",
-            "titlePage" => "Création bon de commande (achat)",
+            "titlePage" => "Création bon de commande (achat)", 
             "with_foot" => true,
             "fournisseurs" => $fournisseurs,
             "types" => $types,

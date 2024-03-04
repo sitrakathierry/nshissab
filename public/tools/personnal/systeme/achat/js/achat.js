@@ -93,15 +93,16 @@ $(document).ready(function(){
         var totalGeneral = 0
         
         $("#contentItemMarchandise tr").each(function(){
-            // var quantiteLigne = $(this).find("#achat_bon_enr_quantite").val()
-            // var prixLigne = $(this).find("#achat_bon_enr_prix").val()
-            // var totalLigne = parseFloat(quantiteLigne) * parseFloat(prixLigne)
-            var totalLigne = parseFloat($(this).find("#achat_bon_enr_total_ligne").val())
+            var quantiteLigne = $(this).find("#achat_bon_enr_quantite").val()
+            var prixLigne = $(this).find("#achat_bon_enr_prix").val()
+            var totalLigne = parseFloat(quantiteLigne) * parseFloat(prixLigne)
+            // var totalLigne = parseFloat($(this).find("#achat_bon_enr_total_ligne").val())()
             totalGeneral += totalLigne ;
         })
 
-        $("#achat_bon_total_Gen").text(totalGeneral)
-        $("#achat_bon_val_total_Gen").val(totalGeneral)
+        $("#achat_bon_total_Gen").text(totalGeneral.toFixed(2)) ;
+        $("#achat_bon_val_total_Gen").val(totalGeneral.toFixed(2)) ;
+
     }
 
     $(document).on('click',"#ajout_marchandise", function(){
@@ -171,7 +172,7 @@ $(document).ready(function(){
                             <input type="hidden" name="achat_bon_enr_prix[]" id="achat_bon_enr_prix" value="`+prix+`">
                         </td>
                         <td>
-                        `+total+`
+                        `+total.toFixed(2)+`
                         <input type="hidden" id="achat_bon_enr_total_ligne" value="`+total+`">
                         </td>
                         <td class="text-center align-middle">
@@ -221,7 +222,9 @@ $(document).ready(function(){
                             `+prix+`
                             <input type="hidden" name="achat_bon_enr_prix[]" id="achat_bon_enr_prix" value="`+prix+`">
                         </td>
-                        <td>`+total+`</td>
+                        <td>`+total.toFixed(2)+`
+                        <input type="hidden" id="achat_bon_enr_total_ligne" value="`+total+`">
+                        </td>
                         <td class="text-center align-middle">
                             <button type="button" class="btn btn-sm bon_supprimer_ligne btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
                         </td>
