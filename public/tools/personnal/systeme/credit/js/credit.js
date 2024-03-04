@@ -624,7 +624,7 @@ $(document).ready(function(){
             }
         }
     })
-    return false ;
+    return false ; 
   }) ;
 
   $(document).on("click","#loginTogglePass",function(){

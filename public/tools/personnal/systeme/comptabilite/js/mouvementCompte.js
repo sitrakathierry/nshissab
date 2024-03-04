@@ -2,7 +2,7 @@ $(document).ready(function(){
     $("#search_date").datepicker()
     $("#search_date_debut").datepicker()
     $("#search_date_fin").datepicker()
-
+    var instance = new Loading(files.loading)
     var elemSearch = [
         {
             name: "currentDate",
@@ -151,4 +151,143 @@ $(document).ready(function(){
     $(".vider").click(function(){
         searchMouvementCompte()
     })
+
+    $(document).on('click',".btn_unlock_mvt",function(){
+        var self = $(this)
+        var id_user_admin = $(this).data("iduser") ;
+        var user_admin = $(this).data("nameuser") ;
+        $.confirm({
+            title: "Authentification",
+            content:`
+            <div class="w-100 text-left">
+                <label for="user_admin" class="font-weight-bold">Administrateur</label>
+                <input type="text" readonly name="user_admin" id="user_admin" class="form-control font-weight-bold" value="`+user_admin+`">
+                <input type="hidden" name="id_user_admin" id="id_user_admin" value="`+id_user_admin+`">
+    
+                <label for="pass_admin" class="mt-2 font-weight-bold">Mot de passe Administrateur</label>
+                <input type="password" name="pass_admin" id="pass_admin" class="form-control" placeholder=". . .">
+                <div class="w-100 d-flex mt-2 flex-row align-items-center">
+                    <input type="checkbox" class="form-input-check" id="loginTogglePass">
+                    <span class="ml-2" id="labelToggle">Afficher le mot de passe</span>
+                </div>
+            </div>
+            `,
+            type:"dark",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Annuler',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Valider',
+                    btnClass: 'btn-red',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.credit_activity_authentification,
+                            type:'post',
+                            cache: false,
+                            data:{
+                              id_user_admin:$("#id_user_admin").val(),
+                              pass_admin:$("#pass_admin").val()
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                              location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
+
+    $(document).on("click","#loginTogglePass",function(){
+        if($(this).is(':checked'))
+        {
+            $("#pass_admin").attr("type","text")
+            $("#labelToggle").text("Masquer le mot de passe")
+        }
+        else
+        {
+            $("#pass_admin").attr("type","password")
+            $("#labelToggle").text("Afficher le mot de passe")
+        }
+    }) ;
+
+    $(document).on('click',".btn_delete_mvt",function(){
+        // compta_banque_operation_delete
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.compta_banque_operation_delete,
+                            type:'post',
+                            cache: false,
+                            data:{
+                                idOpt:self.data("value")
+                            },
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
+
 })

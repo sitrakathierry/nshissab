@@ -132,7 +132,7 @@
                             <th>Personne concerné</th>
                             <th>Opération</th>
                             <th>Montant</th>
-                            {# <th></th> #}
+                            <th></th> 
                         </tr>
                     </thead>
                     <tbody class="elementMouvementCompte">
@@ -156,9 +156,16 @@
                                 <td>{{operation.personne|upper}}</td>
                                 <td>{{operation.categorie|upper}}</td>
                                 <td>{{operation.montant}}</td>
-                                {# <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
-                                </td> #}
+                                <td class="text-center align-middle">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        {% if dataAdmin.iduser is not null %}
+                                            <button data-iduser="{{dataAdmin.iduser}}" data-nameuser="{{dataAdmin.nameuser}}" class="btn btn-sm btn-outline-primary btn_unlock_mvt ml-1 font-smaller"><i class="fa fa-lock"></i></button>
+                                        {% else %}
+                                            <button data-value="{{operation.id}}" class="btn btn-sm btn-outline-warning btn_update_mvt ml-1 font-smaller"><i class="fa fa-edit"></i></button>
+                                            <button data-value="{{operation.id}}" class="btn btn-sm btn-outline-danger btn_delete_mvt ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                         <tr>

@@ -142,13 +142,53 @@ class ComptabiliteController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateCmpBanque($filename, $this->agence) ;
         
-        $banques = json_decode(file_get_contents($filename)) ;
+        $banques = json_decode(file_get_contents($filename)) ; 
 
         $categories = $this->entityManager->getRepository(CmpCategorie::class)->findAll() ;
 
         // $types = $this->entityManager->getRepository(CmpType::class)->findAll() ;
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
+        // DEBUT AUTH
+
+        $csrf_token = $this->session->get("user")["csrf_token"] ;
+
+        $dataAdmin = [
+            "nameuser" => null ,
+            "iduser" => null ,
+        ] ;
+
+        if(is_null($this->session->get($csrf_token."_admin")))
+        {
+            //  DEBUT GET INFO ADMIN
+
+            $currentAdmin = null;
+
+            $admins = $this->entityManager->getRepository(User::class)->findBy([
+                "agence" => $this->agence,
+            ]) ;
+
+            foreach ($admins as $admin) {
+                if($admin->getRoles()[0] == 'MANAGER')
+                {
+                    $currentAdmin = $admin ;
+                    break ;
+                }
+            }
+
+            if(!is_null($currentAdmin))
+            {
+                $dataAdmin = [
+                    "nameuser" => $currentAdmin->getUsername(),
+                    "iduser" => base64_encode(urlencode($currentAdmin->getId())),
+                ] ;
+            }
+
+            // FIN GET INFO ADMIN
+        }
+
+        // FIN AUTH
+        
         return $this->render('comptabilite/banque/mouvementCompte.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Mouvement des comptes",
@@ -158,7 +198,22 @@ class ComptabiliteController extends AbstractController
             "categories" => $categories,
             "tabMois" => $tabMois,
             // "types" => $types
+            "dataAdmin" => $dataAdmin 
         ]);  
+    }
+
+    #[Route('/comptabilite/banque/operation/update', name: 'compta_banque_operation_update')]
+    public function comptaBanqueUpdateOperationBancaire()
+    {
+
+    }
+
+    #[Route('/comptabilite/banque/operation/delete', name: 'compta_banque_operation_delete')]
+    public function comptaBanqueDeleteOperationBancaire(Request $request)
+    {
+        $idOpt = $request->request->get("idOpt") ;
+
+        dd($idOpt) ;
     }
 
     #[Route('/comptabilite/banque/update', name: 'compta_banque_update')]
@@ -606,8 +661,10 @@ class ComptabiliteController extends AbstractController
                     "message" => "Désole, le montant spécifié est supérieur au solde du compte"
                     ]) ;
             }
+            
             $compte->setSolde($compte->getSolde() - floatval($cmp_operation_montant)) ;
         }
+
         $this->entityManager->flush() ;
 
         $operation = new CmpOperation() ;
