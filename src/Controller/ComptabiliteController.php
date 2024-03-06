@@ -265,6 +265,17 @@ class ComptabiliteController extends AbstractController
         $compte = $operation->getCompte() ;
         $this->appService->synchroCompteBancaire($compte) ;
 
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => "DEL",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Suppression Opération - Compte N° : ".$compte->getNumero()." ; Montant : ".$compte->getSolde(),
+        ]) ;
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué",
@@ -758,6 +769,26 @@ class ComptabiliteController extends AbstractController
             $this->entityManager->persist($operation) ;
 
         $this->entityManager->flush() ;
+
+        if(!isset($cmp_operation_id))
+        {
+            $refAction = "DEP" ;
+        }
+        else
+        {
+            $refAction = "MOD" ;
+        }
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "CMP",
+            "nomModule" => "COMPTABILITE",
+            "refAction" => $refAction,
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => $categorie->getNom()." de Compte N° : ".$compte->getNumero()." ; Montant : ".$compte->getSolde(),
+        ]) ;
 
         $filename = $this->filename."operation(agence)/".$this->nameAgence ;
 
