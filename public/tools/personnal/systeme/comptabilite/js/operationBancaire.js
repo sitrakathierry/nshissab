@@ -48,7 +48,7 @@ $(document).ready(function(){
       })
 
       $("#cmp_operation_categorie").change(function(){
-        if($("#cmp_operation_type").val() != "")
+        if($("#cmp_operation_type").val() != "" && !$("#cmp_operation_type").is("input"))
           $("#cmp_operation_type").change()
       })
 
@@ -104,4 +104,6 @@ $(document).ready(function(){
         })
         return false ;
     }) ;
+
+    $(".chosen_select").trigger("chosen:updated") ;
 })

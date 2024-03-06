@@ -39,6 +39,15 @@ class CmpOperationRepository extends ServiceEntityRepository
         }
     }
 
+    public function getSommeOperation($categorie, $compte)
+    {
+        $sql = "SELECT SUM(`montant`) as montant FROM `cmp_operation` WHERE `categorie_id` = ? AND `compte_id` = ? AND statut = ? " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$categorie,$compte,True]);
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return CmpOperation[] Returns an array of CmpOperation objects
 //     */

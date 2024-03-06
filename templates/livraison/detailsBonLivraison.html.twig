@@ -42,7 +42,7 @@
                     {% for detail in details %}
                         <tr>
                             <td>{{ detail.type|upper }}</td>
-                            <td>{{ detail.designation }}</td>
+                            <td>{{ detail.designation|raw}}</td>
                             <td>{{ detail.quantite }}</td>
                         </tr>
                     {% endfor %}

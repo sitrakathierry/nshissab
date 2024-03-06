@@ -22,6 +22,7 @@ use App\Entity\ChkCheque;
 use App\Entity\CltHistoClient;
 use App\Entity\CmdBonCommande;
 use App\Entity\CmpBanque;
+use App\Entity\CmpCategorie;
 use App\Entity\CmpCompte;
 use App\Entity\CmpOperation;
 use App\Entity\CrdDetails;
@@ -2343,6 +2344,24 @@ class AppService extends AbstractController
         }
 
         file_put_contents($filename,json_encode($items)) ;
+    }
+
+    public function synchroCompteBancaire(CmpCompte $compte)
+    {
+        $catDepot = $this->entityManager->getRepository(CmpCategorie::class)->findOneBy([
+            "reference" => "DEP"
+        ]) ;
+
+        $catRetrait = $this->entityManager->getRepository(CmpCategorie::class)->findOneBy([
+            "reference" => "RET"
+        ]) ;
+
+        $sommeDepot = $this->entityManager->getRepository(CmpOperation::class)->getSommeOperation($catDepot->getId(), $compte->getId()) ;
+        $sommeRetrait = $this->entityManager->getRepository(CmpOperation::class)->getSommeOperation($catRetrait->getId(), $compte->getId()) ;
+
+        $compte->setSolde($sommeDepot[0]["montant"] - $sommeRetrait[0]["montant"]) ;
+
+        $this->entityManager->flush() ;
     }
 
     public function generateAchMarchandise($filename, $agence) 

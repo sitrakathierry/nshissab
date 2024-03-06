@@ -52,7 +52,7 @@ class PrdVariationPrixRepository extends ServiceEntityRepository
     //     $stmt = $conn->prepare($sql);
     //     $resultSet = $stmt->executeQuery([$idP]);
     //     return $resultSet->fetchAllAssociative();
-    // }
+    // } 
 //    /**
 //     * @return PrdVariationPrix[] Returns an array of PrdVariationPrix objects
 //     */

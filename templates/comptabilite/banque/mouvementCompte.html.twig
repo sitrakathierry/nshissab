@@ -161,7 +161,7 @@
                                         {% if dataAdmin.iduser is not null %}
                                             <button data-iduser="{{dataAdmin.iduser}}" data-nameuser="{{dataAdmin.nameuser}}" class="btn btn-sm btn-outline-primary btn_unlock_mvt ml-1 font-smaller"><i class="fa fa-lock"></i></button>
                                         {% else %}
-                                            <button data-value="{{operation.id}}" class="btn btn-sm btn-outline-warning btn_update_mvt ml-1 font-smaller"><i class="fa fa-edit"></i></button>
+                                            <a href="{{path('compta_banque_operation_to_update',{'id':operation.id})}}" class="btn btn-sm btn-outline-warning btn_update_mvt ml-1 font-smaller"><i class="fa fa-edit"></i></a>
                                             <button data-value="{{operation.id}}" class="btn btn-sm btn-outline-danger btn_delete_mvt ml-1 font-smaller"><i class="fa fa-trash"></i></button>
                                         {% endif %}
                                     </div>

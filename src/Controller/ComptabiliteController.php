@@ -202,10 +202,43 @@ class ComptabiliteController extends AbstractController
         ]);  
     }
 
-    #[Route('/comptabilite/banque/operation/update', name: 'compta_banque_operation_update')]
-    public function comptaBanqueUpdateOperationBancaire()
+    #[Route('/comptabilite/banque/operation/updateTo/{id}', name: 'compta_banque_operation_to_update')]
+    public function comptaBanqueUpdateToOperationBancaire($id)
     {
+        $filename = $this->filename."banque(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCmpBanque($filename, $this->agence) ;
 
+        $banques = json_decode(file_get_contents($filename)) ;
+
+        $categories = $this->entityManager->getRepository(CmpCategorie::class)->findAll() ;
+        $types = $this->entityManager->getRepository(CmpType::class)->findAll() ;
+
+        $filename = $this->filename."operation(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateCmpOperation($filename, $this->agence) ;
+        
+        $operations = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "id" => $id
+        ] ;
+
+        $operations = $this->appService->searchData($operations,$search) ;
+
+        $operations = array_values($operations) ;
+
+        // dd($operations) ;
+
+        return $this->render('comptabilite/banque/operationBancaireUpdate.html.twig', [
+            "filename" => "comptabilite",
+            "titlePage" => "Opération bancaire",
+            "with_foot" => true,
+            "operation" => $operations[0],
+            "categories" => $categories,
+            // "types" => $types,
+        ]);
     }
 
     #[Route('/comptabilite/banque/operation/delete', name: 'compta_banque_operation_delete')]
@@ -213,7 +246,29 @@ class ComptabiliteController extends AbstractController
     {
         $idOpt = $request->request->get("idOpt") ;
 
-        dd($idOpt) ;
+        $operation = $this->entityManager->getRepository(CmpOperation::class)->find($idOpt) ;
+        
+        $operation->setStatut(False) ;
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."operation(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $filename = $this->filename."compte(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $compte = $operation->getCompte() ;
+        $this->appService->synchroCompteBancaire($compte) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectué",
+        ]) ;
     }
 
     #[Route('/comptabilite/banque/update', name: 'compta_banque_update')]
@@ -636,15 +691,28 @@ class ComptabiliteController extends AbstractController
             "Montant",
             "Date",
             "Personne concerné",
-            ]) ;
+        ]) ;
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
         
-        $compte = $this->entityManager->getRepository(CmpCompte::class)->find($cmp_operation_compte) ;
-        $banque = $this->entityManager->getRepository(CmpBanque::class)->find($cmp_operation_banque) ;
+        $cmp_operation_id = $request->request->get("cmp_operation_id") ;
+
+        if(!isset($cmp_operation_id))
+        {
+            $compte = $this->entityManager->getRepository(CmpCompte::class)->find($cmp_operation_compte) ;
+            $banque = $this->entityManager->getRepository(CmpBanque::class)->find($cmp_operation_banque) ;
+            $type = $this->entityManager->getRepository(CmpType::class)->find($cmp_operation_type) ;
+        }
+        else
+        {
+            $operation = $this->entityManager->getRepository(CmpOperation::class)->find($cmp_operation_id) ;
+            $compte = $operation->getCompte() ;
+            $banque = $operation->getBanque() ;
+            $type = $operation->getType() ;
+        }
+
         $categorie = $this->entityManager->getRepository(CmpCategorie::class)->find($cmp_operation_categorie) ;
-        $type = $this->entityManager->getRepository(CmpType::class)->find($cmp_operation_type) ;
 
         if($categorie->getReference() == "DEP")
         {
@@ -659,32 +727,36 @@ class ComptabiliteController extends AbstractController
                 return new JsonResponse([
                     "type" => "orange",
                     "message" => "Désole, le montant spécifié est supérieur au solde du compte"
-                    ]) ;
+                ]) ;
             }
             
             $compte->setSolde($compte->getSolde() - floatval($cmp_operation_montant)) ;
         }
 
         $this->entityManager->flush() ;
-
-        $operation = new CmpOperation() ;
+        if(!isset($cmp_operation_id))
+        {
+            $operation = new CmpOperation() ;
+            $operation->setAgence($this->agence) ;
+            $operation->setBanque($banque) ;
+            $operation->setCompte($compte) ;
+            $operation->setType($type) ;
+            $operation->setNumeroMode(empty($cmp_numero_mode) ? null : $cmp_numero_mode) ;
+            $operation->setEditeurMode(empty($cmp_editeur_mode) ? null : $cmp_editeur_mode) ;
+            $operation->setStatut(True) ;
+            $operation->setCreatedAt(new \DateTimeImmutable) ;
+        }
     
-        $operation->setAgence($this->agence) ;
-        $operation->setBanque($banque) ;
-        $operation->setCompte($compte) ;
         $operation->setCategorie($categorie) ;
-        $operation->setType($type) ;
         $operation->setNumero(empty($cmp_operation_numero) ? "-" : $cmp_operation_numero) ;
         $operation->setMontant($cmp_operation_montant) ;
         $operation->setDate(\DateTime::createFromFormat('j/m/Y',$cmp_operation_date)) ;
         $operation->setPersonne($cmp_operation_personne) ;
-        $operation->setNumeroMode(empty($cmp_numero_mode) ? null : $cmp_numero_mode) ;
-        $operation->setEditeurMode(empty($cmp_editeur_mode) ? null : $cmp_editeur_mode) ;
-        $operation->setStatut(True) ;
-        $operation->setCreatedAt(new \DateTimeImmutable) ;
         $operation->setUpdatedAt(new \DateTimeImmutable) ;
 
-        $this->entityManager->persist($operation) ;
+        if(!isset($cmp_operation_id))
+            $this->entityManager->persist($operation) ;
+
         $this->entityManager->flush() ;
 
         $filename = $this->filename."operation(agence)/".$this->nameAgence ;
@@ -696,6 +768,12 @@ class ComptabiliteController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        $this->appService->synchroCompteBancaire($compte) ;
+
+        if(isset($cmp_operation_id))
+            $result["idOpt"] = $operation->getId() ;
+
         return new JsonResponse($result) ;
         
     }

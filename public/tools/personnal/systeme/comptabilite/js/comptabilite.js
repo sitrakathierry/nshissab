@@ -285,7 +285,13 @@ $(document).ready(function(){
                               $("#" + elem.split("=")[0]).val("");
                             });
                             $(".chosen_select").trigger("chosen:updated"); 
-                            location.reload();
+                            if (json.idOpt != undefined) {
+                                location.href = routes.compta_banque_mouvement_compte ;
+                            }
+                            else
+                            {
+                              location.reload();
+                            }
                           }
                         },
                       },
