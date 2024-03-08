@@ -22,51 +22,13 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-2">
-        {# <form id="formVariationProduit">
-            <div class="row">
-                <div class="col-md-3">
-                    <label for="prod_variation_entrepot" class="font-weight-bold">Entrepot</label>
-                    <select name="prod_variation_entrepot" class="custom-select chosen_select custom-select-sm" id="prod_variation_entrepot">
-                        <option value="">-</option>
-                        {% for entrepot in entrepots %}
-                            <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="prod_variation_fournisseur" class=" font-weight-bold">Fournisseur</label>
-                    <select name="prod_variation_fournisseur[]" class="custom-select chosen_select custom-select-sm prod_variation_fournisseur" multiple id="prod_variation_fournisseur">
-                        {% for fournisseur in fournisseurs %}
-                            <option value="{{fournisseur.id}}">{{fournisseur.nom | upper}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="prod_variation_indice" class="font-weight-bold">Indice</label>
-                    <input type="text" name="prod_variation_indice" oninput="this.value = this.value.toUpperCase();" id="prod_variation_indice" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="prod_variation_prix_vente" class=" mt-3 font-weight-bold">Prix de vente</label>
-                    <input type="number" step="any" name="prod_variation_prix_vente" id="prod_variation_prix_vente" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="prod_variation_stock" class="mt-3 font-weight-bold">Stock</label>
-                    <input type="text" name="prod_variation_stock" id="prod_variation_stock" class="form-control" placeholder=". . .">
-                </div>
-                <div class="col-md-3">
-                    <label for="prod_variation_expiree" class="mt-3 font-weight-bold">Expirée le</label>
-                    <input type="text" name="prod_variation_expiree" id="prod_variation_expiree" class="form-control" placeholder=". . .">
-                </div>
-            </div>
-            <div class="w-100 barre_dashed mt-3 p-3 text-right">
-                <button type="submit" class="btn btn-sm px-5 btn-perso-one" ><i class="fa fa-save" ></i>&nbsp;Enregistrer</button>
-            </div>
-        </form> #}
         <div class="w-100 d-flex flex-row p-3 align-items-center justify-content-center mb-2">
             <button type="button" caption="Nouveau" data-class="btn-info" class="btn btn-sm btn-outline-info appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
             <button type="button" caption="Existant" data-class="btn-primary" class="btn btn-sm btn-outline-primary ml-2 appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
+            <button type="button" data-class="btn-warning" class="btn btn-sm btn-outline-warning ml-2 entrepot_transfert px-3" style="display: none;"><i class="fa fa-exchange"></i>&nbsp;Transfert / Migration</button>
             <h5 class="title_form text-black ml-auto text-uppercase">Type d'approvisionnement : <span class="text-warning font-weight-bold appro_caption">Default</span></h5>
         </div>
+        <div class="content_transfert"></div>
         <div id="elemAppro" class="w-100 mb-3 container-fluid">
             <div class="row">
                 <div class="col-md-3">
@@ -116,6 +78,7 @@
                     <select name="appro_calcul" class="custom-select chosen_select appro_calcul custom-select-sm" id="appro_calcul">
                         <option value="1" selected>Montant</option>
                         <option value="2">%</option>
+                        <option value="3">COEFF</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -152,58 +115,58 @@
                 <button type="button" class="btn btn-success btn-sm px-5 appro_ajoute_elem text-uppercase"><i class="fa fa-database"></i>&nbsp;Ajouter</button>
             </div>
         </div>
-    <form id="formAppro">
-        <div class="table-responsive barre_dashed pt-2">
-            <table class="table table-sm font-smaller table-bordered table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Entrepôt</th>
-                        <th>Type</th>
-                        <th>Produit</th>
-                        <th>Indice</th>
-                        <th>Fournisseur</th>
-                        <th>Expirée le</th>
-                        <th>Qte</th>
-                        <th>Prix Achat</th>
-                        <th>Charge</th>
-                        <th>Prix Revient</th>
-                        <th>Calcul</th>
-                        <th>Marge</th>
-                        <th>Prix Vente</th>
-                        <th>Montant total</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody class="elem_appro">
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="13">Total Géneral</th>
-                        <th class="bg-secondary text-right text-white appro_total_general" id="appro_total_general">0</th>
-                        <td class="bg-secondary"></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <div class="row">
-            <div class="col-md-7"></div>
-            <div class="col-md-5"> 
-                <label for="nom" class="mt-1 font-weight-bold">Approvisionnement le,</label>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+        <form id="formAppro">
+            <div class="table-responsive barre_dashed pt-2">
+                <table class="table table-sm font-smaller table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Entrepôt</th>
+                            <th>Type</th>
+                            <th>Produit</th>
+                            <th>Indice</th>
+                            <th>Fournisseur</th>
+                            <th>Expirée le</th>
+                            <th>Qte</th>
+                            <th>Prix Achat</th>
+                            <th>Charge</th>
+                            <th>Prix Revient</th>
+                            <th>Calcul</th>
+                            <th>Marge</th>
+                            <th>Prix Vente</th>
+                            <th>Montant total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="elem_appro">
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="13">Total Géneral</th>
+                            <th class="bg-secondary text-right text-white appro_total_general" id="appro_total_general">0</th>
+                            <td class="bg-secondary"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-7"></div>
+                <div class="col-md-5"> 
+                    <label for="nom" class="mt-1 font-weight-bold">Approvisionnement le,</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        <input type="text"  value="{{ 'now'|date('d/m/Y') }}" class="form-control enr_appro_date" placeholder=". . ." name="enr_appro_date" id="enr_appro_date" aria-label="dateAppro" aria-describedby="basic-addon1">
                     </div>
-                    <input type="text"  value="{{ 'now'|date('d/m/Y') }}" class="form-control enr_appro_date" placeholder=". . ." name="enr_appro_date" id="enr_appro_date" aria-label="dateAppro" aria-describedby="basic-addon1">
                 </div>
             </div>
-        </div>
-        {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
-                <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-            </div>
-        {% endif %} 
-    </form>
+            {% if with_foot %}
+                <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                    <button type="button" class="btn btn-sm effacerTout btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
+                    <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            {% endif %} 
+        </form>
     </div>
 </div>
 {% endblock %}

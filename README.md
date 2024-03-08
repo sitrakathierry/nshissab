@@ -77,14 +77,14 @@ var self = $(this)
                 btn2:{
                     text: 'Oui',
                     btnClass: 'btn-red',
-                    keys: ['enter', 'shift'],
+                    keys: ['enter'],
                     action: function(){
                         var realinstance = instance.loading()
                         $.ajax({
                             url: routes.stock_delete_fournisseur,
                             type:'post',
                             cache: false,
-                            data:{:self.data("value")},
+                            data:{test:self.data("value")},
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()

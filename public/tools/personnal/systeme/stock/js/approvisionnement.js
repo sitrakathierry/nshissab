@@ -52,7 +52,7 @@ $(document).ready(function(){
     $(".appr_ajout").click(function(){
         var self = $(this)
         $(".appro_caption").text($(this).attr("caption"))
-
+        
         var recordArray = [
             "#appro_search_entrepot",
             "#appro_search_produit",
@@ -104,6 +104,8 @@ $(document).ready(function(){
             $("#appro_indice").parent().addClass("col-md-2")
             $("#appro_quantite").parent().find('label').addClass("mt-3")
             $("#appro_indice").attr("readonly",true)
+
+            $(".entrepot_transfert").hide() ;
         }
         else
         {
@@ -130,6 +132,7 @@ $(document).ready(function(){
 
             $("#appro_search_produit").html(produitEntrepots) ; 
             $("#appro_search_produit").trigger("chosen:updated") ;
+            $(".entrepot_transfert").show() ;
         }
         $(".chosen_select").trigger("chosen:updated")
         var btnClass = $(this).data("class")
@@ -256,7 +259,7 @@ $(document).ready(function(){
                         <input type="hidden" name="enr_appro_prix_revient[]" class="enr_appro_prix_revient" value="`+appro_prix_revient+`">
                     </td>
                     <td class="align-middle">
-                        `+(appro_calcul == 1 ? "Montant" : "%" )+`
+                        `+(appro_calcul == 1 ? "Montant" : (appro_calcul == 2 ? "%" : "COEFF") )+`
                         <input type="hidden" name="enr_appro_calcul[]" class="enr_appro_calcul" value="`+appro_calcul+`">
                     </td>
                     <td class="align-middle">
@@ -303,7 +306,7 @@ $(document).ready(function(){
 
     // submit appro 
     $("#formAppro").submit(function(event){
-        event.preventDefault()
+        event.preventDefault() ;
         var data = $(this).serialize();
         $.confirm({
             title: "Confirmation",
@@ -566,11 +569,26 @@ $(document).ready(function(){
         var quantite = $("#appro_quantite").val() != "" ? $("#appro_quantite").val() : 0
         var prix_revient = $("#appro_prix_revient")
         var prix_vente = $("#appro_prix_vente")
+        var prixVente = 0 ; 
+        var prixRevient = parseFloat(prix_revient.val()) ;
+
+        if($("#appro_calcul").val() == 1) 
+        {
+            prixVente = prixRevient + parseFloat(marge)
+        }
+        else if($("#appro_calcul").val() == 2)
+        {
+            prixVente = (prixRevient * (parseFloat(marge) + 100)) / 100 ;
+        }
+        else
+        {
+            prixVente = prixRevient * parseFloat(marge) ;
+        }
 
         prix_revient.val(parseFloat(prix_achat) + parseFloat(charge))
-        prix_vente.val(parseFloat(prix_revient.val()) + parseFloat(marge))
+        prix_vente.val(prixVente)
 
-        var total_partiel = parseFloat(quantite) * parseFloat(prix_vente.val())
+        var total_partiel = parseFloat(quantite) * prixVente ;
         $(".appro_montant_total").val(total_partiel)
     }
 
@@ -578,6 +596,7 @@ $(document).ready(function(){
         "#appro_prix_achat",
         "#appro_charge",
         "#appro_marge",
+        "#appro_calcul",
         "#appro_prix_revient",
         "#appro_prix_vente",
         "#appro_quantite"

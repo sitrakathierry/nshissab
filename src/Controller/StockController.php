@@ -2104,7 +2104,104 @@ class StockController extends AbstractController
             "stockGenerales" => $stockGenerales,
             "entrepots" => $entrepots,
             "fournisseurs" => $fournisseurs
-        ]);
+        ]); 
+    }
+
+    #[Route('/stock/entrepot/transfert', name: 'stock_entrepot_to_transfert')]
+    public function stockTransfertEntrepot()
+    {
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
+        $response = $this->renderView('stock/entrepot/formulaireTransfert.html.twig',[
+            "entrepots" => $entrepots
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/stock/entrepot/transfert/save', name: 'stock_entrepot_to_transfert_save')]
+    public function stockSaveTransfertEntrepot(Request $request)
+    {
+        $trans_entrepot_source = $request->request->get("trans_entrepot_source") ;
+        $trans_entrepot_dest = $request->request->get("trans_entrepot_dest") ;
+
+        if($trans_entrepot_source == $trans_entrepot_dest)
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Transfert invalide. Changer l'entrepot de destination"
+            ]) ;
+        }
+
+        // $entrepotSource = $this->entityManager->getRepository(PrdEntrepot::class)->find($trans_entrepot_source) ;
+        $entrepotDestination = $this->entityManager->getRepository(PrdEntrepot::class)->find($trans_entrepot_dest) ;
+        
+        $produitEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getProduitsInEntrepots($trans_entrepot_source) ;
+
+        foreach ($produitEntrepots as $produitEntrepot) {
+            $produit = $this->entityManager->getRepository(Produit::class)->find($produitEntrepot["id"]) ;
+
+            $variations = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produit,
+                "statut" => True
+            ]) ;
+
+            foreach ($variations as $variation) {
+                // $histoEntrepotSource = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                //     "variationPrix" => $variation,
+                //     "entrepot" => $entrepotSource,
+                //     "statut" => True
+                // ]) ;
+                
+                $histoEntrepotDest = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    "entrepot" => $entrepotDestination,
+                    "variationPrix" => $variation,
+                    "statut" => True
+                ]) ;
+
+                if(is_null($histoEntrepotDest))
+                {
+                    $newHistoEntrepotDest = new PrdHistoEntrepot() ;
+
+                    $newHistoEntrepotDest->setEntrepot($entrepotDestination) ;
+                    $newHistoEntrepotDest->setVariationPrix($variation) ;
+                    $newHistoEntrepotDest->setStock(0) ;
+                    $newHistoEntrepotDest->setStatut(True) ;
+                    $newHistoEntrepotDest->setAnneeData(date('Y')) ;
+                    $newHistoEntrepotDest->setAgence($this->agence) ;
+                    $newHistoEntrepotDest->setCreatedAt(new \DateTimeImmutable) ;
+                    $newHistoEntrepotDest->setUpdatedAt(new \DateTimeImmutable) ;
+            
+                    $this->entityManager->persist($newHistoEntrepotDest) ;
+                    $this->entityManager->flush() ;
+                }
+                
+            }
+
+        }
+
+        $dataFilenames = [
+            $this->filename."stock_general(agence)/".$this->nameAgence,
+            $this->filename."stock_entrepot(agence)/".$this->nameAgence,
+            $this->filename."type(agence)/".$this->nameAgence,
+            $this->filename."stockType(agence)/".$this->nameAgence ,
+            $this->filename."stockGEntrepot(agence)/".$this->nameAgence ,
+        ] ;
+
+        foreach ($dataFilenames as $dataFilename) {
+            if(file_exists($dataFilename))
+                unlink($dataFilename) ;
+        }
+
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Transfert effectué"
+        ]) ;
     }
 
     #[Route('/stock/approvisionnement/save', name: 'stock_save_approvisionnement')]

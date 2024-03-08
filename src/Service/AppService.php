@@ -3303,6 +3303,7 @@ class AppService extends AbstractController
                     // $approvisionnements = $this->entityManager->getRepository(PrdApprovisionnement::class)->find([
                     //     "variationPrix" => $variationPrix
                     // ]) ;
+
                     $stockTotalEntrepot = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalVariationPrix([
                         "variationPrix" => $variationPrix->getId(),
                         "histoEntrepot" => $histoEntrepot->getId(),
@@ -3310,7 +3311,13 @@ class AppService extends AbstractController
 
                     $stockAddVariation += $stockTotalEntrepot["stockTotalEntrepot"] ;
 
-                    $histoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
+                    // if($histoEntrepot->getId() == 65)
+                    // {
+                    //     dd($stockTotalEntrepot["stockTotalEntrepot"]) ;
+                    // }
+
+                    $updateHistoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($histoEntrepot->getId()) ;
+                    $updateHistoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
                     $this->entityManager->flush() ;
                 }
                 

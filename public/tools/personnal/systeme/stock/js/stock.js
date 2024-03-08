@@ -1005,9 +1005,6 @@ $(document).ready(function(){
             prixVente = prixRevient * parseFloat(marge) ;
         }
 
-        
-
-        
         parent.find(prixProduit.revient).val(prixRevient)
         parent.find(prixProduit.vente).val(prixVente)
     }
@@ -1291,5 +1288,80 @@ $(document).ready(function(){
             }
         })
     }
+
+    $(".entrepot_transfert").click(function(){
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.stock_entrepot_to_transfert,
+            type:'post',
+            cache: false,
+            data:{},
+            dataType: 'html',
+            processData:false,
+            contentType:false,
+            success: function(response){
+                realinstance.close()
+                $(".content_transfert").html(response) ;
+                $("#elemAppro").hide() ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        }) ;
+    }) ;
+
+    $(document).on('submit',"#formTransfert",function(){
+        var self = $(this)
+        $.confirm({
+            title: "Confirmation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter'],
+                    action: function(){
+                        var data = self.serialize() ;
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.stock_entrepot_to_transfert_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
 })
 
