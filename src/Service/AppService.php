@@ -61,6 +61,7 @@ use App\Entity\PrdType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
 use App\Entity\SavAnnulation;
+use App\Entity\SavAvoirUse;
 use App\Entity\SavDetails;
 use App\Entity\SavMotif;
 use App\Entity\Service;
@@ -3883,5 +3884,72 @@ class AppService extends AbstractController
         $isPasswordValid = $this->passwordEncoder->isPasswordValid($user,$passUser);
 
         return $isPasswordValid ;
+    }
+
+    public function generateListeAvoir($filename)
+    {
+        $pathAnnulation = "files/systeme/sav/annulation(agence)/".$this->nameAgence ;
+
+        if(!file_exists($pathAnnulation))
+            $this->generateSavAnnulation($pathAnnulation,$this->agence) ;
+        
+        $annulations = json_decode(file_get_contents($pathAnnulation)) ;
+
+        
+        $search = [
+            "refSpec" => "AVR"
+            ] ;
+            
+        $avoirs = $this->searchData($annulations,$search) ;
+            
+        $avoirs = $this->objectToArray($avoirs) ;
+
+        $tableauRegroupe = [];
+        foreach ($avoirs as $element) {
+            $idC = $element["idC"];
+            if (array_key_exists($idC, $tableauRegroupe)) {
+                $tableauRegroupe[$idC][] = $element;
+            } else {
+                $tableauRegroupe[$idC] = [$element];
+            }
+        }
+        
+        $avoirs = [] ;
+        foreach ($tableauRegroupe as $key => $value) {
+            $item = [] ;
+            $item["remboursee"] = 0 ;
+            foreach ($tableauRegroupe[$key] as $element) {
+                $item["client"] = $element["client"] ;
+                $item["remboursee"] += floatval($element["remboursee"]) ;
+            }
+
+            $item["idC"] = $key ;
+
+            array_push($avoirs,$item) ;
+        } 
+
+        $avoirs = array_values($avoirs) ;
+
+        $newAvoirs = [] ;
+
+        foreach ($avoirs as $avoir) {
+            $histoAvoir = $this->entityManager->getRepository(SavAvoirUse::class)->getSommeAvoirUse([
+                "histoClient" => $avoir["idC"],
+                // "isNew" => True,
+            ]) ;
+
+            if(is_null($histoAvoir))
+            {
+                $newAvoirs[] = $avoir ;
+                continue ;
+            }
+
+            $totalAvoir = $avoir["remboursee"] - $histoAvoir ;
+            $avoir["remboursee"] = $totalAvoir ;
+
+            $newAvoirs[] = $avoir ;
+        }
+
+        file_put_contents($filename,json_encode($newAvoirs)) ;
     }
 }

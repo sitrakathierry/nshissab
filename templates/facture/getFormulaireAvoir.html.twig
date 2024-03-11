@@ -1,0 +1,23 @@
+<div class="row mt-2">
+    <div class="col-3">
+        <label for="fact_text_total" class="font-weight-bold">Total avoir client</label>
+        <input type="text" readonly name="fact_text_total" id="fact_text_total" value="{{dataAvoir.remboursee}}&nbsp;{{symboleDevise}}" class="form-control font-weight-bold text-success" placeholder=". . .">
+        <input type="hidden" name="fact_total_avoir" id="fact_total_avoir" value="{{dataAvoir.remboursee}}">
+    </div>
+    <div class="col-3">
+        <label for="fact_avoir_use" class="font-weight-bold">Avoir utilisé</label>
+        <input type="number" step="any" name="fact_avoir_use" id="fact_avoir_use" class="form-control" placeholder=". . .">
+    </div>
+    <div class="col-2">
+        <label for="" class="font-weight-bold">&nbsp;</label>
+        <button type="button" class="btn btn-dark fact_auto_bouton btn-sm btn-block"><i class="fa fa-spinner"></i>&nbsp;AUTO</button>
+    </div>
+    <div class="col-3">
+        <label for="avoir_total_restant" class="font-weight-bold">Total payé</label>
+        <input type="number" step="any" readonly name="avoir_total_restant" id="avoir_total_restant" class="form-control font-weight-bold text-dark" placeholder=". . .">
+    </div>
+    <div class="col-1">
+        <label for="" class="font-weight-bold">&nbsp;</label>
+        <button type="button" class="btn btn-danger btn_delete_avoir btn-block"><i class="fa fa-times"></i></button>
+    </div>
+</div>

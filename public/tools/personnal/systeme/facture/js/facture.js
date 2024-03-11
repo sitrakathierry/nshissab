@@ -791,4 +791,149 @@ $(document).ready(function(){
         return false ;
     })
     
+
+    // DEBUT CALCUL AVOIR FACTURE
+
+    $(document).on("change","#fact_client",function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        var formData = new FormData() ;
+        formData.append("idClient",self.val()) ;
+        $.ajax({
+          url: routes.facture_form_avoir_get,
+          type:"post",
+          data:formData,
+          dataType:"html",
+          processData:false,
+          contentType:false,
+          success : function(response){
+              realinstance.close()
+              $(".content_avoir").html(response) ;
+          },
+          error: function(resp){
+              realinstance.close()
+              $.alert(JSON.stringify(resp)) ;
+          }
+        })
+      })
+  
+      $(document).on("click",".btn_delete_avoir",function(){
+        $(".content_avoir").html(`
+          <div style="width: 220px ;">
+          <button type="button" class="btn btn-primary btn-sm btn_redisplay_avoir py-2 text-uppercase btn-block"><i class="fa fa-plus"></i>&nbsp;Ajouter Avoir client</button>
+          <label for="" class="font-weight-bold">&nbsp;</label>
+          </div>
+        `)
+      })
+  
+      $(document).on("click",".btn_redisplay_avoir",function(){
+        if($("#fact_client").val() == "")
+        {
+          $.alert({
+            title:"Message",
+            content:"Veuillez seléctionner un client",
+            type:'orange'
+          }) ;
+  
+          return false ;
+        }
+  
+        $("#fact_client").change() ;
+      })
+  
+      $(document).on("click",".fact_auto_bouton",function(){
+        var totalTtc = parseFloat($("#facture_val_total_ttc").val())
+        var totalAvoir = parseFloat($("#fact_total_avoir").val())
+        var totalUtilisee = 0 ;
+        var totalRestant = 0 ;
+  
+        if(totalTtc > totalAvoir)
+        {
+          totalUtilisee = totalAvoir ;
+          totalRestant = totalTtc - totalAvoir ;
+        }
+        else
+        {
+          totalUtilisee = totalTtc ;
+          totalRestant = 0 ;
+        }
+  
+        $("#fact_avoir_use").val(totalUtilisee)
+        $("#avoir_total_restant").val(totalRestant)
+      })
+  
+      $(document).on("keyup","#fact_avoir_use",function(){
+        var totalTtc = parseFloat($("#facture_val_total_ttc").val())
+        var totalAvoir = parseFloat($("#fact_total_avoir").val())
+        var totalUtilisee = parseFloat($(this).val()) ;
+        var totalRestant = 0 ;
+  
+        if($(this).val() == "")
+        {
+          $("#avoir_total_restant").val(totalTtc)
+          return false ;
+        }
+  
+        if(totalUtilisee > totalAvoir)
+        {
+          $.alert({
+            title:"Message",
+            content:"Le montant est trop grand. Veuillez entrer une valeur inférieue à "+totalAvoir,
+            type:"red"
+          }) ;
+  
+          $("#fact_avoir_use").val("") ;
+          $("#avoir_total_restant").val(totalTtc) ;
+  
+          return false ;
+  
+        }else if(totalUtilisee <= 0 )
+        {
+          $.alert({
+            title:"Message",
+            content:"Montant négatif. Veuillez entrer une valeur supérieur à 0",
+            type:"red"
+          }) ;
+  
+          $("#fact_avoir_use").val("") ;
+          $("#avoir_total_restant").val(totalTtc) ;
+  
+          return false ;
+        }
+  
+        if(totalTtc <= 0 )
+        {
+          $.alert({
+            title:"Message",
+            content:"Veuillez ajouter des éléments",
+            type:"orange"
+          }) ;
+  
+          $("#fact_avoir_use").val(0) ;
+          $("#avoir_total_restant").val(0) ;
+  
+          return false ;
+        }
+  
+        if(totalTtc > totalUtilisee)
+        {
+          totalRestant = totalTtc - totalUtilisee ;
+        }
+        else
+        {
+          $.alert({
+            title:"Message",
+            content:"L'avoir utilisé ne doit pas dépasser le montant TTC",
+            type:"blue"
+          }) ;
+  
+          totalUtilisee = totalTtc ;
+          totalRestant = 0 ;
+          $("#fact_avoir_use").val(totalUtilisee)
+        }
+  
+        $("#avoir_total_restant").val(totalRestant)
+      })
+
+    // FIN CALCUL AVOIR FACTURE
 })

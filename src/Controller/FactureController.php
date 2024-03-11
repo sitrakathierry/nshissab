@@ -37,6 +37,7 @@ use App\Entity\LctStatutLoyer;
 use App\Entity\ModModelePdf;
 use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
+use App\Entity\SavAvoirUse;
 use App\Entity\SavDetails;
 use App\Entity\User;
 use App\Service\AppService;
@@ -1782,6 +1783,35 @@ class FactureController extends AbstractController
         $this->entityManager->persist($facture) ;
         $this->entityManager->flush() ;
 
+        // DEBUT ENREGISTREMENT AVOIR DU CLIENT
+
+        $fact_avoir_use = $request->request->get("fact_avoir_use") ;
+
+        if(isset($fact_avoir_use) && !empty($fact_avoir_use))
+        {
+            if($fact_avoir_use > 0)
+            {
+                $savAvoirUse = new SavAvoirUse() ;
+    
+                $savAvoirUse->setFacture($facture) ;
+                $savAvoirUse->setHistoClient($client) ;
+                $savAvoirUse->setMontant($fact_avoir_use) ;
+                $savAvoirUse->setIsNew(True) ;
+                $savAvoirUse->setCreatedAt(new \DateTimeImmutable) ;
+                $savAvoirUse->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                $this->entityManager->persist($savAvoirUse) ;
+                $this->entityManager->flush() ;
+
+                $filename = "files/systeme/sav/avoirs(agence)/".$this->nameAgence ;
+
+                if(file_exists($filename))
+                    unlink($filename) ;
+            }
+        }
+
+        // FIN ENREGISTREMENT AVOIR DU CLIENT
+
         // DEBUT SAUVEGARDE HISTORIQUE
 
         $this->entityManager->getRepository(HistoHistorique::class)
@@ -2637,5 +2667,56 @@ class FactureController extends AbstractController
         return new JsonResponse($result) ;
     }
 
+    #[Route('/facture/formulaire/avoir/get', name: 'facture_form_avoir_get')]
+    public function factureGetFormulaireAvoir(Request $request)
+    {
+        $idClient = $request->request->get("idClient") ;
+
+        if(empty($idClient))
+            return new Response("") ;
+        
+        $filename = "files/systeme/sav/avoirs(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateListeAvoir($filename) ;
     
+        $avoirs = json_decode(file_get_contents($filename)) ;
+
+        $avoirs = $this->appService->objectToArray($avoirs) ;
+
+        $oneAvoir = [] ;
+    
+        foreach ($avoirs as $avoir) 
+        {
+            if($avoir["idC"] == $idClient)
+            {
+                $oneAvoir = $avoir ;
+                break ;
+            }
+        }
+
+        if(empty($oneAvoir) || (isset($oneAvoir["remboursee"]) && $oneAvoir["remboursee"] <= 0))
+            return new Response("") ;
+
+        $devise = $this->agence->getDevise() ;
+        if(!is_null($devise))
+        {
+            $lettreDevise = $devise->getLettre() ;
+            $symboleDevise = $devise->getSymbole() ;
+        }
+        else
+        {
+            $lettreDevise = "" ;
+            $symboleDevise = "" ;
+        }
+
+        $response = $this->renderView('facture/getFormulaireAvoir.html.twig',[
+            "dataAvoir" => $oneAvoir,
+            "lettreDevise" => $lettreDevise,
+            "symboleDevise" => $symboleDevise,
+        ]) ;
+
+        return new Response($response) ;
+    }
+
 }
