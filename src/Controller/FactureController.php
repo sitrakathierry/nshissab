@@ -1789,7 +1789,7 @@ class FactureController extends AbstractController
 
         if(isset($fact_avoir_use) && !empty($fact_avoir_use))
         {
-            if($fact_avoir_use > 0)
+            if($fact_avoir_use > 0 && !empty($fact_avoir_use))
             {
                 $savAvoirUse = new SavAvoirUse() ;
     
