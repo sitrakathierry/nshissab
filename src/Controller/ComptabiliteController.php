@@ -122,7 +122,7 @@ class ComptabiliteController extends AbstractController
             "titlePage" => "Opération bancaire",
             "with_foot" => true,
             "banques" => $banques,
-            "categories" => $categories,
+            "categories" => $categories, 
             "types" => $types,
         ]);
     }

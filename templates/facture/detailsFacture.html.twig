@@ -178,6 +178,7 @@
                                             </tr>
                                         {% endif %}
                                     </tfoot>
+
                                 {% else %}
                                     <tfoot>
                                         <tr>
@@ -274,7 +275,24 @@
                     Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}</span> {{app.session.get("user")["deviseLettre"]}}
                 </div>
             </div>
-        
+            {% if dataAvoir is defined %}
+                {% if dataAvoir.isTrue %}
+                    <div class="row mt-2">
+                        <div class="col-3">
+                            <label for="fact_avoir_use" class="mt-2 font-weight-bold">Avoir utilisé</label>
+                            <input type="text" readonly name="fact_avoir_use" id="fact_avoir_use" class="form-control text-success font-weight-bold bg-white" value="{{dataAvoir.montant}}" placeholder=". . .">
+                        </div>
+                        <div class="col-3">
+                            <label for="avoir_total_restant" class="mt-2 font-weight-bold">Total payé</label>
+                            <input type="text" readonly name="avoir_total_restant" id="avoir_total_restant" class="form-control text-dark font-weight-bold bg-white" value="{{dataAvoir.totalPayee}}" placeholder=". . .">
+                        </div>
+                        <div class="col-3">
+                            <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                            <button type="button" class="btn btn-sm btn-primary btn-block"><i class="fa fa-print"></i>&nbsp;Imprimer Avoir</button>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
         <div class="row">
             <div class="col-md-7"></div>
             <div class="col-md-5"> 

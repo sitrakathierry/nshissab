@@ -261,7 +261,7 @@ class FactureController extends AbstractController
 
         $responses = $this->renderView("facture/produit.html.twig",[
             "stockGenerales" => $stockGenerales,
-            "devises" => $devises,
+            "devises" => $devises, 
             "agcDevise" => $agcDevise,
             "typeRemises" => $typeRemises,
         ]) ;
@@ -1451,8 +1451,31 @@ class FactureController extends AbstractController
 
         $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
 
+        $deviseBase = $this->agence->getDevise() ;
+
+        $baseSymbole = is_null($deviseBase) ? "" : $deviseBase->getSymbole() ;
+
         if(!is_null($facture->getModele()->getReference()))
         {
+            // DEBUT DETAIL AVOIR 
+            $dataAvoir = [
+                "isTrue" => False ,
+            ] ;
+    
+            $avoirInUse = $this->entityManager->getRepository(SavAvoirUse::class)->findOneBy([
+                "facture" => $facture
+            ]) ;
+    
+            if(!is_null($avoirInUse))
+            {
+                $dataAvoir = [
+                    "isTrue" => True,
+                    "montant" => $avoirInUse->getMontant()." ".$baseSymbole,
+                    "totalPayee" => ($facture->getTotal() - $avoirInUse->getMontant())." ".$baseSymbole,
+                ] ;
+            }
+            // FIN DETAIL AVOIR 
+
             if($facture->getModele()->getReference() == "PROD")
             {
                 $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
@@ -1533,7 +1556,8 @@ class FactureController extends AbstractController
                     "factureParent" => $factureParent,
                     "factureGenere" => $factureGenere,
                     "factureCreer" => $factureCreer,
-                    "paiements" => $paiements
+                    "paiements" => $paiements,
+                    "dataAvoir" => $dataAvoir,
                 ]) ;
             }
         }
@@ -1541,18 +1565,19 @@ class FactureController extends AbstractController
         return $this->render('facture/detailsFacture.html.twig', [
             "filename" => "facture",
             "titlePage" => "Détails Facture",
-            "with_foot" => true,
-            "facture" => $infoFacture,
-            "factureDetails" => $elements,
-            "nature" => $nature,
             "templateEditFacture" => $templateEditFacture,
-            "typeRemises" => $typeRemises,
-            "devises" => $devises,
-            "agcDevise" => $agcDevise,
             "factureParent" => $factureParent,
             "factureGenere" => $factureGenere,
             "factureCreer" => $factureCreer,
-            "paiements" => $paiements
+            "typeRemises" => $typeRemises,
+            "factureDetails" => $elements,
+            "paiements" => $paiements,
+            "agcDevise" => $agcDevise,
+            "facture" => $infoFacture,
+            "dataAvoir" => $dataAvoir,
+            "devises" => $devises,
+            "with_foot" => true,
+            "nature" => $nature,
         ]) ;
     }
 

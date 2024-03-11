@@ -764,4 +764,43 @@ $(document).ready(function(){
       return false;
     }) ;
 
+    function convertStringToDate(dateString) {
+      var parts = dateString.split("/");
+      // Attention : dans JavaScript, le mois est indexé à partir de zéro, donc on soustrait 1
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+
+    
+
+    $("#cmp_operation_date").change(function(){
+      var self = $(this)
+      // Chaîne de caractères représentant la date au format "d/m/Y"
+      var dateString = $(this).val() ;
+
+      // Convertir la chaîne de caractères en objet Date
+      var dateToCompare = convertStringToDate(dateString);
+      dateToCompare = dateToCompare.getTime() ;
+      // Obtenir la date d'aujourd'hui
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      today = today.getTime() ;
+
+      // console.log(dateToCompare," @@ ",today) ;
+      
+      if(dateToCompare > today)
+      {
+        $.alert({
+          title:"Message",
+          content:"Date supérieure non valide",
+          type:"orange",
+          buttons: {
+            OK: function(){
+              self.val("") ;
+            }
+          }
+        })
+      }
+
+    }) ;
+
 })

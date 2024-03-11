@@ -72,7 +72,7 @@ class CommandeController extends AbstractController
 
         $bonCommandes = json_decode(file_get_contents($filename)) ;
 
-        $dataFactures = [] ;
+        $dataFactures = [] ; 
 
         foreach($factures as $facture)
         {

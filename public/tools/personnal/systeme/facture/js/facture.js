@@ -795,6 +795,9 @@ $(document).ready(function(){
     // DEBUT CALCUL AVOIR FACTURE
 
     $(document).on("change","#fact_client",function(){
+        // console.log($(".fact_btn_type.btn-primary").data("reference")) ;
+        if($(".fact_btn_type.btn-primary").data("reference") != "DF")
+            return false ;
         var self = $(this)
         var realinstance = instance.loading()
         var formData = new FormData() ;
@@ -842,8 +845,8 @@ $(document).ready(function(){
       })
   
       $(document).on("click",".fact_auto_bouton",function(){
-        var totalTtc = parseFloat($("#facture_val_total_ttc").val())
-        var totalAvoir = parseFloat($("#fact_total_avoir").val())
+        var totalTtc = parseFloat($(".fact_enr_total_general").val()) ;
+        var totalAvoir = parseFloat($("#fact_total_avoir").val()) ;
         var totalUtilisee = 0 ;
         var totalRestant = 0 ;
   
@@ -863,7 +866,7 @@ $(document).ready(function(){
       })
   
       $(document).on("keyup","#fact_avoir_use",function(){
-        var totalTtc = parseFloat($("#facture_val_total_ttc").val())
+        var totalTtc = parseFloat($(".fact_enr_total_general").val())
         var totalAvoir = parseFloat($("#fact_total_avoir").val())
         var totalUtilisee = parseFloat($(this).val()) ;
         var totalRestant = 0 ;

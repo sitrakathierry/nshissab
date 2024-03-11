@@ -348,6 +348,8 @@ $(document).ready(function(){
         $("#fact_total_general").text(totalTTC)
         $(".fact_enr_total_general").val(totalTTC)
 
+        
+
         $("#fact_somme_lettre").text(lettreTotal) ;
     }
 
