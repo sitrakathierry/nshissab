@@ -966,7 +966,7 @@ class FactureController extends AbstractController
     }
 
     #[Route('/facture/imprimer/{idFacture}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_detail_imprimer', defaults: ["idModeleEntete" => null,"idFacture" => null, "description" => null, "idModeleBas" => null])]
-    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$description,$idFacture)
+    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$idFacture)
     {
         // $idModeleEntete = $request->request->get("idModeleEntete") ;
         // $idModeleBas = $request->request->get("idModeleBas") ;
@@ -1183,6 +1183,145 @@ class FactureController extends AbstractController
             "agence" => $this->agence,
             "nameAgence" => $this->nameAgence,
             "description" => "Impression Facture ; ".strtoupper($facture->getModele()->getNom())." ; N° : ".$facture->getNumFact(),
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
+    }
+
+    #[Route('/facture/avoir/imprimer/{idAvoir}/{idModeleEntete}/{idModeleBas}', name: 'fact_facture_avoir_imprimer', defaults: ["idModeleEntete" => null,"idAvoir" => null, "idModeleBas" => null])]
+    public function factureImprimerFactureAvoir($idModeleEntete,$idModeleBas,$idAvoir)
+    {
+        $avoirUse = $this->entityManager->getRepository(SavAvoirUse::class)->find($idAvoir) ;
+
+        $facture = $avoirUse->getFacture() ;
+        
+        $crdFinance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([
+            "facture" => $facture
+        ]) ;
+
+        $addsNum = "" ;
+
+        if(!is_null($crdFinance))
+        {
+            $paiement = $crdFinance->getPaiement() ;
+
+            if(($paiement->getReference() == "AC" || $paiement->getReference() == "CR") && $crdFinance->getStatut()->getReference() == "ECR")
+            {
+                $addsNum = "- ".strtoupper($paiement->getNom()) ;
+            }
+        }
+        
+        $dataFacture = [
+            "numFact" => $facture->getNumFact() ,
+            "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
+            "lettre" => $this->appService->NumberToLetter($avoirUse->getMontant()) ,
+            "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre(), 
+            "description" => $facture->getDescription(),
+            "addsNum" => $addsNum ,
+            "titreFacture" => "Fiche d'avoir" ,
+        ] ;
+
+        $client = $facture->getClient() ;
+
+        $dataClient = [
+            "nom" => "",
+            "adresse" => "",   
+            "telephone" => "",   
+        ] ; 
+
+        if(!is_null($client))
+        {
+            if(!is_null($client->getSociete()))
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getSociete()->getNom(),   
+                    "adresse" => $client->getSociete()->getAdresse(),   
+                    "telephone" => $client->getSociete()->getTelFixe(),   
+                ] ;
+            }
+            else
+            {
+                $dataClient = [
+                    "statut" => $client->getType()->getNom(),   
+                    "nom" => $client->getClient()->getNom(),   
+                    "adresse" => $client->getClient()->getAdresse(),   
+                    "telephone" => $client->getClient()->getTelephone(),   
+                ] ;
+            }
+        }
+
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentBas = $modeleBas->getContenu() ;
+        }
+
+        $dataDetails = [
+            "designation" => "Avoir utilisé sur facture N° : ".$facture->getNumFact()."".$addsNum,
+            "montant" => $avoirUse->getMontant(),
+        ] ;
+        
+        $dataFacture["date"] = $facture->getDate()->format("d/m/Y") ;
+        $dataFacture["lieu"] = $facture->getLieu() ;
+
+        if(!is_null($facture->getDevise()))
+        {
+            $dataFacture["deviseCaption"] = $facture->getDevise()->getLettre() ;
+            $dataFacture["deviseValue"] = number_format($facture->getTotal()/$facture->getDevise()->getMontantBase(),2,","," ")." ".$facture->getDevise()->getSymbole();
+        }
+
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        $contentIMpression = $this->renderView("facture/impression/impressionFicheAvoir.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "facture" => $dataFacture,
+            "client" => $dataClient,
+            "avoirUse" => $dataDetails,
+        ]) ;
+       
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "IMP",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Impression Fiche D'avoir Facture N° ".$facture->getNumFact(),
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
@@ -1468,8 +1607,9 @@ class FactureController extends AbstractController
     
             if(!is_null($avoirInUse))
             {
-                $dataAvoir = [
+                $dataAvoir = [ 
                     "isTrue" => True,
+                    "idAvoir" => $avoirInUse->getId(),
                     "montant" => $avoirInUse->getMontant()." ".$baseSymbole,
                     "totalPayee" => ($facture->getTotal() - $avoirInUse->getMontant())." ".$baseSymbole,
                 ] ;
@@ -1538,8 +1678,6 @@ class FactureController extends AbstractController
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
                 }
-
-
                 
                 return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
                     "filename" => "facture",

@@ -177,7 +177,7 @@ class StockController extends AbstractController
                 $crt_stock_alert[$key],
                 // $crt_charge[$key],
                 // $crt_marge[$key],
-                $crt_stock[$key]
+                // $crt_stock[$key]
             ];
     
             $dataMessage = [
@@ -188,7 +188,7 @@ class StockController extends AbstractController
                 "Stock Alert",
                 // "Charge",
                 // "Marge",
-                "Stock",
+                // "Stock",
             ] ;
 
             $result = $this->appService->verificationElement($data,$dataMessage) ;
@@ -266,9 +266,11 @@ class StockController extends AbstractController
                 "statut" => True
             ]) ; 
 
+            $crtStock = empty($crt_stock[$key]) || floatval($crt_stock[$key]) < 0 ? 0 : floatval($crt_stock[$key]) ; 
+
             if(!is_null($variationPrix))
             {
-                $variationPrix->setStock($variationPrix->getStock() + floatval($crt_stock[$key])) ;
+                $variationPrix->setStock($variationPrix->getStock() + $crtStock) ;
                 $variationPrix->setUpdatedAt(new \DateTimeImmutable) ;
                 $this->entityManager->flush() ;
             }
@@ -279,7 +281,7 @@ class StockController extends AbstractController
                 $variationPrix->setProduit($produit) ;
                 $variationPrix->setPrixVente($crt_prix_vente[$key]) ;
                 $variationPrix->setIndice(empty($crt_indice[$key]) ? null : $crt_indice[$key]) ;
-                $variationPrix->setStock($crt_stock[$key]) ;
+                $variationPrix->setStock($crtStock) ;
                 $variationPrix->setStockAlert($crt_stock_alert[$key]) ;
                 $variationPrix->setStatut(True) ;
                 $variationPrix->setCreatedAt(new \DateTimeImmutable) ;
@@ -299,7 +301,7 @@ class StockController extends AbstractController
             $histoEntrepot->setEntrepot($entrepot) ;
             $histoEntrepot->setVariationPrix($variationPrix) ;
             // $histoEntrepot->setIndice(empty($crt_indice[$key]) ? null : $crt_indice[$key]) ;
-            $histoEntrepot->setStock($crt_stock[$key]) ;
+            $histoEntrepot->setStock($crtStock) ;
             $histoEntrepot->setStatut(True) ;
             $histoEntrepot->setAgence($this->agence) ;
             $histoEntrepot->setAnneeData(date('Y')) ;
@@ -318,7 +320,7 @@ class StockController extends AbstractController
             $approvisionnement->setHistoEntrepot($histoEntrepot) ;
             $approvisionnement->setVariationPrix($variationPrix) ;
             $approvisionnement->setMargeType($margeType) ;
-            $approvisionnement->setQuantite($crt_stock[$key]) ;
+            $approvisionnement->setQuantite($crtStock) ;
             $approvisionnement->setPrixAchat(empty($crt_prix_achat[$key]) ? null : $crt_prix_achat[$key]) ;
             $approvisionnement->setCharge(empty($crt_charge[$key]) ? null : $crt_charge[$key]) ;
             $approvisionnement->setMargeValeur(empty($crt_marge[$key]) ? null : $crt_marge[$key]) ;
@@ -352,7 +354,7 @@ class StockController extends AbstractController
             
             $indice += $crt_count_fournisseur[$key];
 
-            $stockProduit += $crt_stock[$key] ;
+            $stockProduit += $crtStock ;
         }
 
         $produit->setStock($stockProduit) ;

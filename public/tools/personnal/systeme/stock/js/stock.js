@@ -903,33 +903,8 @@ $(document).ready(function(){
             type:"blue",
             theme:"modern",
             buttons : {
-                NON : function()
-                {
-                    // $('input, select').val('');
-                    // $("#prod_categorie").trigger("chosen:updated");
-                    // $("#prod_type").trigger("chosen:updated");
-                    // $(".crt_entrepot").trigger("chosen:updated");
-                    // $(".crt_fournisseur").trigger("chosen:updated");
-                },
+                NON : function(){},
                 OUI : function(){
-                    // var crt_frns_vide = false
-                    // $(".crt_fournisseur").each(function(){
-                    //     if($(this).val().length == 0)
-                    //     {
-                    //         crt_frns_vide = true ;
-                    //         return ;
-                    //     }
-                    // })
-
-                    // if(crt_frns_vide)
-                    // {
-                    //     $.alert({
-                    //         title: 'Fournisseur vide',
-                    //         content: "Veuillez séléctionner au moins un fournisseur",
-                    //         type:'orange',
-                    //     })
-                    //     return ;
-                    // }
                     var data = self.serialize();
                     var realinstance = instance.loading()
                     $.ajax({
