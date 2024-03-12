@@ -3314,10 +3314,10 @@ class AppService extends AbstractController
 
                     $stockAddVariation += $stockTotalEntrepot["stockTotalEntrepot"] ;
 
-                    // if($histoEntrepot->getId() == 65)
-                    // {
-                    //     dd($stockTotalEntrepot["stockTotalEntrepot"]) ;
-                    // }
+                    if($histoEntrepot->getId() == 1025)
+                    {
+                        dd($stockTotalEntrepot["stockTotalEntrepot"]) ;
+                    }
 
                     $updateHistoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($histoEntrepot->getId()) ;
                     $updateHistoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
