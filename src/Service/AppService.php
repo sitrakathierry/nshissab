@@ -3380,12 +3380,15 @@ class AppService extends AbstractController
             $this->entityManager->flush() ;
         }
 
+        // DEBUT SOUSTRACTION 
+
         foreach($produits as $produit)
         {
             $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
                 "produit" => $produit,
                 "statut" => True
             ]) ; 
+
             $stockRemoveVariation = 0 ;
             foreach ($variationPrixs as $variationPrix) {
                 foreach ($factureDefinitives as $factureDefinitive) {
@@ -3412,22 +3415,25 @@ class AppService extends AbstractController
                 ],["stock" => "DESC"]) ; 
     
                 $repartitionDeduction = $stockRemoveVariation ;
-
+                $aDeduire = 0 ;
                 foreach ($histoEntrepots as $histoEntrepot) {
                     $totalStockEntrepot = $histoEntrepot->getStock() ;
-                    
-                    if($repartitionDeduction > $totalStockEntrepot)
+
+                    $aDeduire = $histoEntrepot->getStock() ;
+
+                    if($repartitionDeduction >= $totalStockEntrepot)
                     {
                         $histoEntrepot->setStock(0) ;
-                        $this->entityManager->flush() ;
-    
-                        $repartitionDeduction -= $histoEntrepot->getStock() ;
                     }
                     else
                     {
                         $histoEntrepot->setStock($histoEntrepot->getStock() - $repartitionDeduction) ;
-                        $this->entityManager->flush() ;
                     }
+
+                    $repartitionDeduction -= $aDeduire ;
+
+                    if($repartitionDeduction <= 0)
+                        break ;
                 }
     
                 $variationPrix->setStock($variationPrix->getStock() - $stockRemoveVariation) ;
