@@ -16,7 +16,7 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 pt-3"> 
         <div class="row">
             <div class="col-md-3">
                 <label for="search_type_cheque" class="mt-2 font-weight-bold text-uppercase">Type de chèque</label>
@@ -112,7 +112,7 @@
                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                     <a href="{{path('compta_cheque_details',{'id':cheque.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
                                     {% if cheque.refStatut == "DECLARE" %}
-                                        <button data-value="{{cheque.id}}" class="btn btn-sm mt-2 btn-outline-primary chk_btn_valider font-smaller"><i class="fa fa-check"></i></button>   
+                                        <button data-banque="{{cheque.banqueId}}" data-value="{{cheque.id}}" class="btn btn-sm mt-2 btn-outline-primary chk_btn_valider font-smaller"><i class="fa fa-check"></i></button>   
                                     {% endif %}
                                 </div>
                             </td>

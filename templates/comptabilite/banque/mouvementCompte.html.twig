@@ -139,10 +139,10 @@
                         {% set total = 0 %}
                         {% for operation in operations %}
                             {% if operation.refCategorie == "DEP" %}
-                                {% set statutClass = "text-success" %}
+                                {% set statutClass = operation.toCheque ? "text-primary" : "text-success"  %}
                                 {% set total = total + operation.montant %}
                             {% else %}
-                                {% set statutClass = "text-danger" %}
+                                {% set statutClass = operation.toCheque ? "text-warning" : "text-danger" %}
                                 {% set total = total - operation.montant %}
                             {% endif %}
                             <tr class="{{statutClass}}">

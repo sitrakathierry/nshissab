@@ -56,6 +56,9 @@ class CmpOperation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $editeurMode = null;
 
+    #[ORM\ManyToOne(inversedBy: 'cmpOperations')]
+    private ?ChkCheque $cheque = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -225,6 +228,18 @@ class CmpOperation
     public function setEditeurMode(?string $editeurMode): self
     {
         $this->editeurMode = $editeurMode;
+
+        return $this;
+    }
+
+    public function getCheque(): ?ChkCheque
+    {
+        return $this->cheque;
+    }
+
+    public function setCheque(?ChkCheque $cheque): self
+    {
+        $this->cheque = $cheque;
 
         return $this;
     }

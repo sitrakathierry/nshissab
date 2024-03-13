@@ -71,26 +71,29 @@ $(document).ready(function(){
     $(document).on('click',".chk_btn_valider", function(){
       var self = $(this);
       $.confirm({
-        title: "Validation",
-        content: "Etes-vous sûre de vouloir valider le chèque?",
+        title: "Confirmation",
+        content: "Etes-vous sûre ?",
         type: "blue",
-        theme: "modern",
+        theme: "material",
         buttons: {
           btn1: {
-            text: "Non",
+            text: "Annuler",
             action: function () {},
           },
-          btn2: {
-            text: "Oui",
-            btnClass: "btn-blue",
-            keys: ["enter", "shift"],
-            action: function () {
+          btn3:{
+            text: 'Rejeter',
+            btnClass: 'btn-red',
+            keys: ['escape'],
+            action: function(){
               var realinstance = instance.loading();
               $.ajax({
                 url: routes.compta_cheque_validation,
                 type: "post",
                 cache: false,
-                data: {id:self.data("value")},
+                data: {
+                      id:self.data("value"),
+                      reference:"REJET"
+                  },
                 dataType: "json",
                 success: function (json) {
                   realinstance.close();
@@ -112,6 +115,88 @@ $(document).ready(function(){
                   $.alert(JSON.stringify(resp));
                 },
               });
+            }
+          },
+          btn2: {
+            text: "Valider",
+            btnClass: "btn-blue",
+            keys: ["enter", "shift"],
+            action: function () {
+              // Enregistrement sur opération de compte 
+              var realinstance = instance.loading()
+              $.ajax({
+                  url: routes.compta_banque_compte_bancaire_get,
+                  type:'post',
+                  cache: false,
+                  data:{id:self.data("banque")},
+                  dataType: 'html',
+                  success: function(response){
+                      realinstance.close()
+                      $.confirm({
+                        title: "Enregistrement",
+                        content:`
+                        <div class="w-100">
+                            <label for="cmp_operation_compte" class="font-weight-bold">Choisir le Compte Bancaire</label>
+                            <select name="cmp_operation_compte" class="custom-select chosen_select custom-select-sm" id="cmp_operation_compte">
+                                `+response+`
+                            </select>
+                        </div>
+                        `,
+                        type:"blue",
+                        theme:"material",
+                        buttons:{
+                            btn1:{
+                                text: 'Annuler',
+                                action: function(){}
+                            },
+                            btn2:{
+                                text: 'Valider',
+                                btnClass: 'btn-blue',
+                                keys: ['enter'],
+                                action: function(){
+                                  var realinstance = instance.loading();
+                                  $.ajax({
+                                    url: routes.compta_cheque_validation,
+                                    type: "post",
+                                    cache: false,
+                                    data: {
+                                          id:self.data("value"),
+                                          reference:"VALIDE",
+                                          compte:$("#cmp_operation_compte").val(),
+                                      },
+                                    dataType: "json",
+                                    success: function (json) {
+                                      realinstance.close();
+                                      $.alert({
+                                        title: "Message",
+                                        content: json.message,
+                                        type: json.type,
+                                        buttons: {
+                                          OK: function () {
+                                            if (json.type == "green") {
+                                              location.reload();
+                                            }
+                                          },
+                                        },
+                                      });
+                                    }, 
+                                    error: function (resp) {
+                                      realinstance.close();
+                                      $.alert(JSON.stringify(resp));
+                                    },
+                                  });
+                                }
+                            }
+                        }
+                    })
+                    return false ;
+                  },
+                  error: function(resp){
+                      realinstance.close()
+                      $.alert(JSON.stringify(resp)) ;
+                  }
+              })
+              // fin
             },
           },
         },

@@ -14,7 +14,7 @@
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
-        {% set statutCheque = cheque.refStatut == "DECLARE" ? "Déclaré" : "Déclaré et Validé" %}
+        {% set statutCheque = cheque.refStatut == "DECLARE" ? "Déclaré" : (cheque.refStatut == "VALIDE" ? "Déclaré et Validé" : "Rejeté") %}
         <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
             {{titlePage}}
             &nbsp;

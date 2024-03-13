@@ -987,7 +987,7 @@ class ComptabiliteController extends AbstractController
 
         return $this->render('comptabilite/cheque/consultationCheque.html.twig', [
             "filename" => "comptabilite",
-            "titlePage" => "Consultation Chèques",
+            "titlePage" => "Consultation Chèques", 
             "with_foot" => false,
             "cheques" => $cheques,
             "types" => $types,
@@ -2201,17 +2201,104 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/cheque/validation', name: 'compta_cheque_validation')]
     public function comptaValidationCheque(Request $request)
     {
+        $reference = $request->request->get("reference") ;
         $id = $request->request->get("id") ;
+        $message = $reference == "VALIDE" ? "Validation" : "Rejet" ;
+        $messageResult = $reference == "VALIDE" ? "Validation et enregistrement effectué" : "Chèque Rejeté" ;
+
         $cheque = $this->entityManager->getRepository(ChkCheque::class)->find($id) ;
 
         $statut = $this->entityManager->getRepository(ChkStatut::class)->findOneBy([
-            "reference" =>  "VALIDE"
+            "reference" =>  $reference
         ]) ;
 
         $cheque->setStatut($statut);
         $cheque->setUpdatedAt(new \DateTimeImmutable) ;
 
         $this->entityManager->flush() ;
+
+        if($reference == "VALIDE")
+        {
+            $compteId = $request->request->get("compte") ;
+
+            $compte = $this->entityManager->getRepository(CmpCompte::class)->find($compteId) ;
+            $banque = $compte->getBanque() ;
+            $refCat = $cheque->getType()->getReference() == "ENTRANT" ? "DEP" : "RET" ;
+            $type = $this->entityManager->getRepository(CmpType::class)->findOneBy([
+                "reference" => "CHQ"
+            ]) ;
+
+            $categorie = $this->entityManager->getRepository(CmpCategorie::class)->findOneBy([
+                "reference" => $refCat
+            ]) ;
+
+            if($categorie->getReference() == "DEP")
+            {
+                $compte->setSolde($compte->getSolde() + floatval($cheque->getMontant())) ;
+            }
+            else if($categorie->getReference() == "RET")
+            {
+                $solde = $compte->getSolde() ;
+
+                if(floatval($cheque->getMontant()) > $solde)
+                {
+                    return new JsonResponse([
+                        "type" => "orange",
+                        "message" => "Désole, le montant spécifié est supérieur au solde du compte"
+                    ]) ;
+                }
+                
+                $compte->setSolde($compte->getSolde() - floatval($cheque->getMontant())) ;
+            }
+
+            $this->entityManager->flush() ;
+
+            $operation = new CmpOperation() ;
+            $operation->setAgence($this->agence) ;
+            $operation->setBanque($banque) ;
+            $operation->setCompte($compte) ;
+            $operation->setType($type) ;
+            $operation->setNumeroMode(empty($cheque->getNumCheque()) ? null : $cheque->getNumCheque()) ;
+            $operation->setEditeurMode(empty($cheque->getNomChequier()) ? null : $cheque->getNomChequier()) ;
+            $operation->setStatut(True) ;
+                
+            $operation->setCategorie($categorie) ;
+            $operation->setNumero(empty($cheque->getNumCheque()) ? "-" : $cheque->getNumCheque()) ;
+            $operation->setMontant($cheque->getMontant()) ;
+            $operation->setDate($cheque->getDateCheque()) ;
+            $operation->setPersonne($cheque->getNomChequier()) ;
+            $operation->setCheque($cheque) ;
+            $operation->setUpdatedAt(new \DateTimeImmutable) ;
+            $operation->setCreatedAt(new \DateTimeImmutable) ;
+
+            $this->entityManager->persist($operation) ;
+            $this->entityManager->flush() ;
+
+
+            $this->entityManager->getRepository(HistoHistorique::class)
+            ->insererHistorique([
+                "refModule" => "CMP",
+                "nomModule" => "COMPTABILITE",
+                "refAction" => $refCat,
+                "user" => $this->userObj,
+                "agence" => $this->agence,
+                "nameAgence" => $this->nameAgence,
+                "description" => $categorie->getNom()." de Compte N° : ".$compte->getNumero()." ; Montant : ".$compte->getSolde(),
+            ]) ;
+
+            $filename = $this->filename."operation(agence)/".$this->nameAgence ;
+
+            if(file_exists($filename))
+                unlink($filename) ;
+
+            $filename = $this->filename."compte(agence)/".$this->nameAgence ;
+
+            if(file_exists($filename))
+                unlink($filename) ;
+
+            $this->appService->synchroCompteBancaire($compte) ;
+
+        }
 
         $filename = $this->filename."cheque(agence)/".$this->nameAgence ;
 
@@ -2228,14 +2315,14 @@ class ComptabiliteController extends AbstractController
             "user" => $this->userObj,
             "agence" => $this->agence,
             "nameAgence" => $this->nameAgence,
-            "description" => "Validation Chèque ; CHEQUE ".strtoupper($cheque->getType()->getReference())." ; Nom Chèquier : ".strtoupper($cheque->getNomChequier())." ; Montant : ".$cheque->getMontant(),
+            "description" => $message." Chèque ; CHEQUE ".strtoupper($cheque->getType()->getReference())." ; Nom Chèquier : ".strtoupper($cheque->getNomChequier())." ; Montant : ".$cheque->getMontant(),
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
         
         return new JsonResponse([
             "type" => "green",
-            "message" => "Validation effectué",
+            "message" => $messageResult,
         ]) ;
     }
 

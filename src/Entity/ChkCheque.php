@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ChkChequeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -52,6 +54,14 @@ class ChkCheque
 
     #[ORM\Column(nullable: true)]
     private ?bool $statutGen = null;
+
+    #[ORM\OneToMany(mappedBy: 'cheque', targetEntity: CmpOperation::class)]
+    private Collection $cmpOperations;
+
+    public function __construct()
+    {
+        $this->cmpOperations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -210,6 +220,36 @@ class ChkCheque
     public function setStatutGen(?bool $statutGen): self
     {
         $this->statutGen = $statutGen;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmpOperation>
+     */
+    public function getCmpOperations(): Collection
+    {
+        return $this->cmpOperations;
+    }
+
+    public function addCmpOperation(CmpOperation $cmpOperation): self
+    {
+        if (!$this->cmpOperations->contains($cmpOperation)) {
+            $this->cmpOperations->add($cmpOperation);
+            $cmpOperation->setCheque($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCmpOperation(CmpOperation $cmpOperation): self
+    {
+        if ($this->cmpOperations->removeElement($cmpOperation)) {
+            // set the owning side to null (unless already changed)
+            if ($cmpOperation->getCheque() === $this) {
+                $cmpOperation->setCheque(null);
+            }
+        }
 
         return $this;
     }

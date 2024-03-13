@@ -2330,6 +2330,7 @@ class AppService extends AbstractController
             $item["idCategorie"] = $operation->getCategorie()->getId() ;
             $item["refCategorie"] = $operation->getCategorie()->getReference() ;
             $item["type"] = $operation->getType()->getNom() ;
+            $item["toCheque"] = is_null($operation->getCheque()) ? False : True ;
             $item["numeroMode"] = is_null($operation->getNumeroMode()) ? "-" : $operation->getNumeroMode() ;
             $item["editeurMode"] = is_null($operation->getEditeurMode()) ? "-" : $operation->getEditeurMode() ;
             $item["numero"] = $operation->getNumero() ;
@@ -2432,6 +2433,7 @@ class AppService extends AbstractController
             $item["agence"] = $cheque->getAgence()->getId() ;
             $item["nomChequier"] = $cheque->getNomChequier() ;
             $item["banque"] = $cheque->getBanque()->getNom() ;
+            $item["banqueId"] = $cheque->getBanque()->getId() ;
             $item["type"] = $cheque->getType()->getNom() ; 
             $item["idType"] = $cheque->getType()->getId() ; 
             $item["dateCheque"] = $cheque->getDateCheque()->format("d/m/Y") ;
