@@ -672,19 +672,37 @@ class ComptabiliteController extends AbstractController
     }
 
     #[Route('/comptabilite/banque/operation/save', name: 'compta_banque_operation_save')]
-    public function comptaBanqueSaveOperationBancaire(Request $request)
+    public function comptaBanqueSaveOperationBancaire(Request $request, $dataUpdate = [])
     {
-        $cmp_operation_banque = $request->request->get("cmp_operation_banque") ;
-        $cmp_operation_compte = $request->request->get("cmp_operation_compte") ;
-        $cmp_operation_categorie = $request->request->get("cmp_operation_categorie") ;
-        $cmp_operation_numero = $request->request->get("cmp_operation_numero") ;
-        $cmp_operation_type = $request->request->get("cmp_operation_type") ;
-        $cmp_operation_montant = $request->request->get("cmp_operation_montant") ;
-        $cmp_operation_date = $request->request->get("cmp_operation_date") ;
-        $cmp_operation_personne = $request->request->get("cmp_operation_personne") ;
+        if(empty($dataUpdate))
+        {
+            $cmp_operation_banque = $request->request->get("cmp_operation_banque") ;
+            $cmp_operation_compte = $request->request->get("cmp_operation_compte") ;
+            $cmp_operation_categorie = $request->request->get("cmp_operation_categorie") ;
+            $cmp_operation_numero = $request->request->get("cmp_operation_numero") ; // 
+            $cmp_operation_type = $request->request->get("cmp_operation_type") ;
+            $cmp_operation_montant = $request->request->get("cmp_operation_montant") ; // 
+            $cmp_operation_date = $request->request->get("cmp_operation_date") ; // 
+            $cmp_operation_personne = $request->request->get("cmp_operation_personne") ; //
+    
+            $cmp_numero_mode = $request->request->get("cmp_numero_mode") ;
+            $cmp_editeur_mode = $request->request->get("cmp_editeur_mode") ;
+        }
+        else
+        {
+            $cmp_operation_numero = $dataUpdate["cmp_operation_numero"] ;
+            $cmp_operation_montant = $dataUpdate["cmp_operation_montant"] ;
+            $cmp_operation_date = $dataUpdate["cmp_operation_date"] ;
+            $cmp_operation_personne = $dataUpdate["cmp_operation_personne"] ;
+            $cmp_operation_categorie = $dataUpdate["cmp_operation_categorie"] ;
 
-        $cmp_numero_mode = $request->request->get("cmp_numero_mode") ;
-        $cmp_editeur_mode = $request->request->get("cmp_editeur_mode") ;
+            $cmp_operation_banque = "DEFAULT DATA" ;
+            $cmp_operation_compte = "DEFAULT DATA" ;
+            $cmp_operation_type = "DEFAULT DATA" ;
+            $cmp_numero_mode = "DEFAULT DATA" ;
+            $cmp_editeur_mode = "DEFAULT DATA" ;
+
+        }
 
         $result = $this->appService->verificationElement([
             $cmp_operation_banque,
@@ -706,8 +724,16 @@ class ComptabiliteController extends AbstractController
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
-        
-        $cmp_operation_id = $request->request->get("cmp_operation_id") ;
+
+        if(empty($dataUpdate))
+        {
+            $cmp_operation_id = $request->request->get("cmp_operation_id") ;
+        }
+        else
+        {
+            $cmp_operation_id = $dataUpdate["cmp_operation_id"] ;
+        }
+
 
         if(!isset($cmp_operation_id))
         {
@@ -725,26 +751,29 @@ class ComptabiliteController extends AbstractController
 
         $categorie = $this->entityManager->getRepository(CmpCategorie::class)->find($cmp_operation_categorie) ;
 
-        if($categorie->getReference() == "DEP")
+        if(empty($dataUpdate))
         {
-            $compte->setSolde($compte->getSolde() + floatval($cmp_operation_montant)) ;
-        }
-        else if($categorie->getReference() == "RET")
-        {
-            $solde = $compte->getSolde() ;
-
-            if(floatval($cmp_operation_montant) > $solde)
+            if($categorie->getReference() == "DEP")
             {
-                return new JsonResponse([
-                    "type" => "orange",
-                    "message" => "Désole, le montant spécifié est supérieur au solde du compte"
-                ]) ;
+                $compte->setSolde($compte->getSolde() + floatval($cmp_operation_montant)) ;
             }
-            
-            $compte->setSolde($compte->getSolde() - floatval($cmp_operation_montant)) ;
+            else if($categorie->getReference() == "RET")
+            {
+                $solde = $compte->getSolde() ;
+    
+                if(floatval($cmp_operation_montant) > $solde)
+                {
+                    return new JsonResponse([
+                        "type" => "orange",
+                        "message" => "Désole, le montant spécifié est supérieur au solde du compte"
+                    ]) ;
+                }
+                
+                $compte->setSolde($compte->getSolde() - floatval($cmp_operation_montant)) ;
+            }
+            $this->entityManager->flush() ;
         }
 
-        $this->entityManager->flush() ;
         if(!isset($cmp_operation_id))
         {
             $operation = new CmpOperation() ;
@@ -2092,60 +2121,131 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/cheque/save', name: 'compta_cheque_save')]
     public function comptaSaveCheque(Request $request)
     {
+        $chk_id_cheque = $request->request->get("chk_id_cheque") ;
+
         $chk_nom_chequier = $request->request->get("chk_nom_chequier") ;
-        $chk_banque = $request->request->get("chk_banque") ;
-        $chk_type = $request->request->get("chk_type") ;
+
+        if(!isset($chk_id_cheque))
+        {
+            $chk_banque = $request->request->get("chk_banque") ;
+            $chk_type = $request->request->get("chk_type") ;
+        }
         $chk_numCheque = $request->request->get("chk_numCheque") ;
         $chk_date_cheque = $request->request->get("chk_date_cheque") ;
         $chk_montant = $request->request->get("chk_montant") ;
         $cheque_editor = $request->request->get("cheque_editor") ;
         $chk_date_declaration = $request->request->get("chk_date_declaration") ;
-
-        $result = $this->appService->verificationElement([
+        
+        $data = [
             $chk_nom_chequier,
-            $chk_banque,
-            $chk_type,
             $chk_numCheque,
             $chk_date_cheque,
             $chk_montant,
             $chk_date_declaration,
-        ], [
+        ] ;
+
+        $dataMessage = [
             "Nom Chèquier",
-            "Banque",
-            "Type",
             "Numéro de Chèque",
             "Date de Chèque",
             "Montant",
             "Date déclaration",
-            ]) ;
+        ] ;
+
+        if(!isset($chk_id_cheque))
+        {
+            $data[] = $chk_banque ;
+            $dataMessage[] = "Banque" ;
+
+            $data[] = $chk_type ;
+            $dataMessage[] = "Type" ;
+        }
+
+        $result = $this->appService->verificationElement($data, $dataMessage) ;
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
-        $banque = $this->entityManager->getRepository(CmpBanque::class)->find($chk_banque) ;
-        $type = $this->entityManager->getRepository(ChkType::class)->find($chk_type) ;
-        $statut = $this->entityManager->getRepository(ChkStatut::class)->findOneBy([
-            "reference" =>  "DECLARE"
-        ]) ;
+        if(!isset($chk_id_cheque))
+        {
+            $banque = $this->entityManager->getRepository(CmpBanque::class)->find($chk_banque) ;
+            $type = $this->entityManager->getRepository(ChkType::class)->find($chk_type) ;
+            $statut = $this->entityManager->getRepository(ChkStatut::class)->findOneBy([
+                "reference" =>  "DECLARE"
+            ]) ;
+        }
 
-        $cheque = new ChkCheque() ;
+        if(!isset($chk_id_cheque))
+        {
+            $refAction = "CRT" ;
+            $histMessage = "Nouveau" ;
 
-        $cheque->setAgence($this->agence) ;
-        $cheque->setBanque($banque) ;
-        $cheque->setType($type) ;
-        $cheque->setNomChequier($chk_nom_chequier) ;
-        $cheque->setNumCheque($chk_numCheque) ;
-        $cheque->setDateCheque(\DateTime::createFromFormat("d/m/Y",$chk_date_cheque)) ;
-        $cheque->setMontant($chk_montant) ;
-        $cheque->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$chk_date_declaration)) ;
+            $cheque = new ChkCheque() ;
+
+            $cheque->setAgence($this->agence) ;
+            $cheque->setBanque($banque) ;
+            $cheque->setType($type) ;
+            $cheque->setStatut($statut) ;
+            $cheque->setStatutGen(True) ; 
+            $cheque->setCreatedAt(new \DateTimeImmutable) ;
+            $cheque->setDateDeclaration(\DateTime::createFromFormat("d/m/Y",$chk_date_declaration)) ;
+        }
+        else
+        {
+            $refAction = "MOD" ;
+            $histMessage = "Modification" ;
+
+            $cheque = $this->entityManager->getRepository(ChkCheque::class)->find($chk_id_cheque) ;
+
+            $statut = $cheque->getStatut() ;
+            $type = $cheque->getType() ; 
+
+            $result = [
+                "type" => "green",
+                "message" => "Modification effectué"
+            ] ;
+        }
+
+        if($statut->getReference() != "REJET")
+        {
+            $cheque->setNomChequier($chk_nom_chequier) ;
+            $cheque->setNumCheque($chk_numCheque) ;
+            $cheque->setMontant($chk_montant) ;
+            $cheque->setDateCheque(\DateTime::createFromFormat("d/m/Y",$chk_date_cheque)) ;
+        }
+
         $cheque->setDescription($cheque_editor) ;
-        $cheque->setStatut($statut) ;
-        $cheque->setStatutGen(True) ; 
-        $cheque->setCreatedAt(new \DateTimeImmutable) ;
         $cheque->setUpdatedAt(new \DateTimeImmutable) ;
 
-        $this->entityManager->persist($cheque) ;
+        if(!isset($chk_id_cheque))
+            $this->entityManager->persist($cheque) ;
+
         $this->entityManager->flush() ;
+
+        if(isset($chk_id_cheque) && $statut->getReference() == "VALIDE")
+        {
+            $operation = $this->entityManager->getRepository(CmpOperation::class)->findOneBy([
+                "cheque" => $cheque,
+                "statut" => True 
+            ]) ;
+
+            if(!is_null($operation))
+            {
+                $request = new Request();
+                $dataOperation = [
+                    "cmp_operation_id" => $operation->getId(),
+                    "cmp_operation_numero" => $cheque->getNumCheque(),
+                    "cmp_operation_montant" => $cheque->getMontant(),
+                    "cmp_operation_date" => $cheque->getDateCheque()->format("d/m/Y"),
+                    "cmp_operation_personne" => $cheque->getNomChequier(),
+                    "cmp_operation_categorie" => $operation->getCategorie()->getId(),
+                ] ;
+
+                $this->comptaBanqueSaveOperationBancaire($request, $dataOperation) ;
+
+                // dd($rsp) ;
+            }
+        }
 
         $filename = $this->filename."cheque(agence)/".$this->nameAgence ;
 
@@ -2158,11 +2258,11 @@ class ComptabiliteController extends AbstractController
         ->insererHistorique([
             "refModule" => "CMP",
             "nomModule" => "COMPTABILITE",
-            "refAction" => "CRT",
+            "refAction" => $refAction,
             "user" => $this->userObj,
             "agence" => $this->agence,
             "nameAgence" => $this->nameAgence,
-            "description" => "Nouveau Chèque ; CHEQUE ".strtoupper($type->getReference())." ; Nom Chèquier : ".strtoupper($chk_nom_chequier)." ; Montant : ".$chk_montant,
+            "description" => $histMessage." Chèque ; CHEQUE ".strtoupper($type->getReference())." ; Nom Chèquier : ".strtoupper($chk_nom_chequier)." ; Montant : ".$chk_montant,
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
