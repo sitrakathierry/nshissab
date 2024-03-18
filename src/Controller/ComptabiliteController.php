@@ -2699,6 +2699,66 @@ class ComptabiliteController extends AbstractController
             array_push($elements,$item) ;
         }
 
+        $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateLocationContrat($filename, $this->agence) ; 
+
+        $contrats = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "refStatut" => "ENCR",
+        ] ;
+
+        $contrats = $this->appService->searchData($contrats,$search) ;
+
+        foreach ($contrats as $contrat) 
+        {
+
+            $id = $contrat->id ;
+
+            $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
+            
+            if(!file_exists($filename))
+                $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
+    
+            $relevePaiements = json_decode(file_get_contents($filename)) ;
+
+            $countReleve = count($relevePaiements) ;
+
+            $totalRelevePayee = 0 ;
+
+            for($i = 0; $i < $countReleve; $i++)
+            {
+                $totalRelevePayee += $relevePaiements[$i]->datePaiement != "-" ? $relevePaiements[$i]->montant : 0 ;
+
+                if($relevePaiements[$i]->datePaiement == "-")
+                {
+                    break ;
+                }
+            }
+
+            $item = [
+                "id" =>  $id,
+                "date" => $contrat->dateContrat,
+                "currentDate" => $contrat->dateContrat,
+                "dateDeclaration" => $contrat->dateContrat,
+                "dateDebut" => $contrat->dateContrat,
+                "dateFin" => $contrat->dateContrat,
+                "annee" => explode("/",$contrat->dateContrat)[2],
+                "mois" => explode("/",$contrat->dateContrat)[1],
+                "numero" => $contrat->numContrat,
+                "montant" => $totalRelevePayee,
+                // "client" => "-",
+                "operation" => "Facture Location",
+                "refOperation" => "PLOC",
+                "refJournal" => "DEBIT"
+            ] ;
+ 
+            array_push($elements,$item) ;
+        }
+
+
         usort($elements, [self::class, 'comparaisonDates']);  ;
 
         $recettes = $elements ;
