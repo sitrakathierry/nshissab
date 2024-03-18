@@ -12,7 +12,7 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/location.js')}}" ></script>
 {% endblock %}
 {% block body %}
-<div class="barre_top rounded shadow mb-5">
+<div class="barre_top rounded shadow mb-5"> 
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
@@ -236,6 +236,30 @@
                         <label for="prest_ctr_autre_valeur" class="font-weight-bold mt-3">Autre valeur</label>
                         <input type="number" step="any" name="prest_ctr_autre_valeur" id="prest_ctr_autre_valeur" class="form-control prest_ctr_autre_valeur" placeholder=". . .">
                     </div>
+                    <div class="col-md-5">
+                        <label class="font-weight-bold mt-3">Type Compte</label>
+                        <ul class="list-unstyled list-inline pl-3 pt-2">
+                            {% for typeCompte in typeComptes %}
+                                <li class="list-inline-item mr-5">
+                                    <input type="radio" class="form-check-input prest_ctr_type_compte" name="prest_ctr_type_compte" value="{{typeCompte.id}}">{{typeCompte.nom|upper}}&nbsp;<a data-target="#{{typeCompte.reference}}" id="nav-home-tab" data-toggle="tab" type="button" role="tab" aria-controls="nav-home" aria-selected="false" class="text-warning ctr_info_type_compte"><i class="fa fa-question-circle"></i></a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade" id="PROP" role="tabpanel" aria-labelledby="PROP">
+                        <div class="w-100 alert alert-primary">
+                            &emsp;<i class="fa fa-info-circle"></i>&nbsp;En tant que propriétaire, la recette au niveau de la location
+                            sera compté en fonction du montant du loyer payé par mois
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="AGIMO" role="tabpanel" aria-labelledby="AGIMO">
+                        <div class="w-100 alert alert-info">
+                            &emsp;<i class="fa fa-info-circle"></i>&nbsp;En tant que agence immobilière, la recette au niveau de la location
+                                sera compté en fonction du montant de la commission versé par mois
+                        </div>
+                    </div>
                 </div>
                 <div class="w-100 text-right mt-5 barre_dashed p-3">
                     <button type="button" class="btn btn-warning text-white px-3 btn-sm prev-btn"><i class="fa fa-arrow-left"></i>&nbsp;Précédent</button>
@@ -342,7 +366,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
                                     </div>
-                                    <input type="text" class="form-control ctr_lieu" name="ctr_lieu" value="Moroni" placeholder=". . ." aria-label="Lieu Contrat" id="ctr_lieu">
+                                    <input type="text" class="form-control ctr_lieu" name="ctr_lieu" placeholder=". . ." aria-label="Lieu Contrat" id="ctr_lieu">
                                 </div>
                             </div>
                         </div>

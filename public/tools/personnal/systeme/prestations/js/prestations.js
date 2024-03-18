@@ -177,6 +177,7 @@ $(document).ready(function(){
                           prest_ctr_bailleur:$("#prest_ctr_bailleur").val(),
                           prest_ctr_locataire:$("#prest_ctr_locataire").val(),
                           prest_ctr_bail_nom:$("#prest_ctr_bail_location").val(),
+                          prest_ctr_type_compte:$(".prest_ctr_type_compte:checked").val(),
                       }
                       $.ajax({
                           url: routes.prest_location_edit_contrat_valid,

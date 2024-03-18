@@ -12,6 +12,7 @@ class AppExtension extends AbstractExtension
         return [
             new TwigFilter('is_decimal', [$this, 'isDecimal']),
             new TwigFilter('format_number', [$this, 'formatNumber']),
+            new TwigFilter('html_decode', [$this, 'decodeStringHtml']),
         ];
     }
 
@@ -34,6 +35,11 @@ class AppExtension extends AbstractExtension
         {
             return number_format($number,0,","," ") ;
         }
+    }
+
+    public function decodeStringHtml($string)
+    {
+        return html_entity_decode($string) ;
     }
 }
 

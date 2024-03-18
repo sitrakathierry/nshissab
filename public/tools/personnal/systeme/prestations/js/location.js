@@ -699,6 +699,17 @@ $(document).ready(function(){
                             dataType: 'json',
                             success: function(json){
                                 realinstance.close()
+                                if(json.type != "green")
+                                {
+                                    $.alert({
+                                        title: 'Message',
+                                        content: json.message,
+                                        type: json.type
+                                    });
+
+                                    return false ;
+                                }
+
                                 if(json.caution == "SANS")
                                 {
                                     $.alert({
@@ -716,6 +727,7 @@ $(document).ready(function(){
                                     });
                                     return false ;
                                 }
+                                
                                 $.alert({
                                     title: 'Message',
                                     content: json.message+". Est-ce que la caution a-t-il été payée ? ",
@@ -1762,4 +1774,17 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $(".ctr_info_type_compte").click(function(){
+        var self = this ;
+        $(".ctr_info_type_compte").each(function(){
+            if(!$(this).is(self))
+            {
+                if($(this).hasClass("active"))
+                {
+                    $(this).removeClass("active") ;
+                }
+            }
+        }) ;
+    }) ;
 })

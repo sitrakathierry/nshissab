@@ -23,6 +23,7 @@ use App\Entity\LctRenouvellement;
 use App\Entity\LctRepartition;
 use App\Entity\LctStatut;
 use App\Entity\LctStatutLoyer;
+use App\Entity\LctTypeCompte;
 use App\Entity\LctTypeLocation;
 use App\Entity\ModModelePdf;
 use App\Entity\Service;
@@ -1093,6 +1094,7 @@ class PrestationController extends AbstractController
         $periodes = $this->entityManager->getRepository(LctPeriode::class)->findBy([],["rang" => "ASC"]) ;
         $forfaits = $this->entityManager->getRepository(LctForfait::class)->findAll() ;
         $modePaiements = $this->entityManager->getRepository(LctModePaiement::class)->findAll() ;
+        $typeComptes = $this->entityManager->getRepository(LctTypeCompte::class)->findAll() ;
 
         return $this->render('prestations/location/contrat.html.twig', [
             "filename" => "prestations",
@@ -1105,7 +1107,7 @@ class PrestationController extends AbstractController
             "cycles" => $cycles,
             "forfaits" => $forfaits,
             "modePaiements" => $modePaiements,
-
+            "typeComptes" => $typeComptes,
         ]);
     }
 
@@ -1424,6 +1426,7 @@ class PrestationController extends AbstractController
         $prest_ctr_mode = $request->request->get("prest_ctr_mode") ;
         $prest_ctr_delai_mode = $request->request->get("prest_ctr_delai_mode") ;
         $prest_ctr_delai_change = $request->request->get("prest_ctr_delai_change") ;
+        $prest_ctr_type_compte = $request->request->get("prest_ctr_type_compte") ;
 
         $forfait = $this->entityManager->getRepository(LctForfait::class)->find($prest_ctr_forfait) ;
         $cycle = $this->entityManager->getRepository(LctCycle::class)->find($prest_ctr_cycle) ;
@@ -1439,7 +1442,7 @@ class PrestationController extends AbstractController
                 "Renouvellement",
                 "Mode de paiement Loyer",
                 "Date Limite de Paiement",
-                "Changement avant fin du contrat"
+                "Changement avant fin du contrat",
             ]) ;
     
             if(!$result["allow"])
@@ -1533,6 +1536,16 @@ class PrestationController extends AbstractController
             $bail = $this->entityManager->getRepository(LctBail::class)->find($prest_ctr_bail_location) ;
         }
 
+        if(is_null($prest_ctr_type_compte))
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Type compte vide. Veuiller choisir un type de compte",
+            ]) ;
+        }
+
+        $typeCompte = $this->entityManager->getRepository(LctTypeCompte::class)->find($prest_ctr_type_compte) ;
+
         // ENREGISTREMENT DU CONTRAT
 
         $lastRecordFContrat = $this->entityManager->getRepository(LctContrat::class)->findOneBy([], ['id' => 'DESC']);
@@ -1557,6 +1570,14 @@ class PrestationController extends AbstractController
         $ctr_lieu = $request->request->get("ctr_lieu") ;
         $ctr_date = $request->request->get("ctr_date") ;
         
+        if(empty($ctr_lieu))
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Lieu vide",
+            ]) ;
+        }
+
         $type_loc = $this->entityManager->getRepository(LctTypeLocation::class)->find($prest_ctr_bail_type_location) ;
         $renouv = $this->entityManager->getRepository(LctRenouvellement::class)->find($prest_ctr_renouvellement) ;
         $periode = $this->entityManager->getRepository(LctPeriode::class)->find($prest_ctr_periode) ;
@@ -1568,6 +1589,7 @@ class PrestationController extends AbstractController
         $contrat = new LctContrat() ;
 
         $contrat->setAgence($this->agence) ;
+        $contrat->setTypeCompte($typeCompte) ;
         $contrat->setBailleur($bailleur) ;
         $contrat->setBail($bail) ;
         $contrat->setLocataire($locataire) ;
@@ -1690,15 +1712,17 @@ class PrestationController extends AbstractController
             "caution" => empty($contrat->getCaution()) ? "" : $contrat->getCaution(),
             "isCaution" => !empty($contrat->getCaution()),
             "montantContrat" => $contrat->getMontantContrat(),
+            "typeCompte" => is_null($contrat->getTypeCompte()) ? 'Non Défini' : $contrat->getTypeCompte()->getNom(),
+            "hasTypeCompte" => is_null($contrat->getTypeCompte()) ? False : True,
             "refStatut" => $contrat->getStatut()->getReference(),
             "changement" => empty($contrat->getDelaiChgFin()) ? "" : $contrat->getDelaiChgFin()." Jours avant la fin du contrat"
         ] ;
-
+            
         return $this->render('prestations/location/detailsContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Detail contrat",
             "with_foot" => true,
-            "contrat" => $parent,
+            "contrat" => $parent, 
             "bailleur" => $bailleur,
             "locataire" => $locataire,
             "bail" => $bail,
@@ -1742,6 +1766,7 @@ class PrestationController extends AbstractController
                 array_push($newRelevePments,$relevePaiements[$i]) ;
             }
         }
+        
         $anneeSearch = intval(date("Y")) ;
         if(!empty($paramSearch))
         {
@@ -2324,17 +2349,20 @@ class PrestationController extends AbstractController
 
         $tabBails = json_decode(file_get_contents($filename)) ;
 
+        $typeComptes = $this->entityManager->getRepository(LctTypeCompte::class)->findAll() ;
+
         return $this->render('prestations/location/modifierContrat.html.twig', [
             "filename" => "prestations",
             "titlePage" => "Modification contrat ",
-            "with_foot" => true,
-            "type_locs" => $type_locs,
-            "contrat" => $parent,
-            "bail" => $bail,
-            "renouvs" => $renouvs, 
-            "bailleurs" => $bailleurs, 
+            "typeComptes" => $typeComptes,
             "locataires" => $locataires, 
+            "type_locs" => $type_locs,
+            "bailleurs" => $bailleurs, 
             "tabBails" => $tabBails, 
+            "renouvs" => $renouvs, 
+            "contrat" => $parent,
+            "with_foot" => true,
+            "bail" => $bail,
         ]);
     }
 
@@ -2350,7 +2378,19 @@ class PrestationController extends AbstractController
         $prest_ctr_bailleur = $request->request->get("prest_ctr_bailleur") ;
         $prest_ctr_locataire = $request->request->get("prest_ctr_locataire") ;
         $prest_ctr_bail_nom = $request->request->get("prest_ctr_bail_nom") ;
-
+        
+        $prest_ctr_type_compte = $request->request->get("prest_ctr_type_compte") ;
+        
+        if(is_null($prest_ctr_type_compte))
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Type compte vide. Veuiller choisir un type de compte",
+            ]) ;
+        }
+        
+        $typeCompte = $this->entityManager->getRepository(LctTypeCompte::class)->find($prest_ctr_type_compte) ;
+        
         $bailleur = $this->entityManager->getRepository(LctBailleur::class)->find($prest_ctr_bailleur) ;
         $locataire = $this->entityManager->getRepository(LctLocataire::class)->find($prest_ctr_locataire) ;
         $bail = $this->entityManager->getRepository(LctBail::class)->find($prest_ctr_bail_nom) ;
@@ -2369,6 +2409,7 @@ class PrestationController extends AbstractController
             "statut" => $statutLoyer
         ]) ;
 
+        $contrat->setTypeCompte($typeCompte) ;
         $contrat->setBailleur($bailleur) ;
         $contrat->setLocataire($locataire) ;
         $contrat->setBail($bail) ;
@@ -2412,7 +2453,7 @@ class PrestationController extends AbstractController
         return new JsonResponse([
             "type" => "green",
             "message" => "Modification effectué.".$plusMsg,
-            ]) ;
+        ]) ;
     }
 
     #[Route('/prestation/location/contrat/delete', name: 'prest_location_contrat_delete')]

@@ -152,7 +152,31 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <label class="font-weight-bold mt-3">Type Compte</label>
+                    <ul class="list-unstyled list-inline pl-3 pt-2">
+                        {% for typeCompte in typeComptes %}
+                            <li class="list-inline-item mr-5">
+                                <input type="radio" class="form-check-input prest_ctr_type_compte" name="prest_ctr_type_compte" value="{{typeCompte.id}}">{{typeCompte.nom|upper}}&nbsp;<a data-target="#{{typeCompte.reference}}" id="nav-home-tab" data-toggle="tab" type="button" role="tab" aria-controls="nav-home" aria-selected="false" class="text-warning ctr_info_type_compte"><i class="fa fa-question-circle"></i></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div> 
+            <div class="tab-content mt-3" id="nav-tabContent">
+                <div class="tab-pane fade" id="PROP" role="tabpanel" aria-labelledby="PROP">
+                    <div class="w-100 alert alert-primary">
+                        &emsp;<i class="fa fa-info-circle"></i>&nbsp;En tant que propriétaire, la recette au niveau de la location
+                        sera compté en fonction du montant du loyer payé par mois
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="AGIMO" role="tabpanel" aria-labelledby="AGIMO">
+                    <div class="w-100 alert alert-info">
+                        &emsp;<i class="fa fa-info-circle"></i>&nbsp;En tant que agence immobilière, la recette au niveau de la location
+                            sera compté en fonction du montant de la commission versé par mois
+                    </div>
+                </div>
+            </div>
             <div class="w-100 mt-3">
                 <label class="font-weight-bold">Description</label>
                 <textarea name="paiement_editor" class="form-control"  id="paiement_editor" cols="30" rows="10"></textarea>

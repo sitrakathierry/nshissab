@@ -100,10 +100,14 @@
                     <label class="font-weight-bold mt-3">Changement avant fin du contrat</label>
                     <input type="text" class="form-control" readonly id="recap_ctr_changement" value="{{contrat.changement}}" >
                 </div>
+                <div class="col-md-3">
+                    <label class="font-weight-bold mt-3">Type de Compte</label>
+                    <input type="text" class="form-control {{ not contrat.hasTypeCompte ? "text-danger font-weight-bold" : "" }} " readonly id="recap_ctr_type_compte" value="{{contrat.typeCompte|upper}}" >
+                </div>
             </div>
         </div> 
         <div class="w-100">
-            <label class="font-weight-bold">Description</label>
+            <label class="font-weight-bold">Description </label>
             <textarea name="paiement_editor" class="form-control"  id="paiement_editor" cols="30" rows="10"></textarea>
         </div>
 

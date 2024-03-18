@@ -1428,7 +1428,7 @@ class AppService extends AbstractController
 
 
     public function generateFacture($filename, $agence)
-    {
+    { 
         $factures = $this->entityManager->getRepository(Facture::class)->findBy([
             "agence" => $agence,
             "statut" => True,

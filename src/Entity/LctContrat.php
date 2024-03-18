@@ -109,6 +109,9 @@ class LctContrat
     #[ORM\Column(nullable: true)]
     private ?int $frequenceRenouv = null;
 
+    #[ORM\ManyToOne(inversedBy: 'lctContrats')]
+    private ?LctTypeCompte $typeCompte = null;
+
     public function __construct()
     {
         $this->lctPaiements = new ArrayCollection();
@@ -524,6 +527,18 @@ class LctContrat
     public function setFrequenceRenouv(?int $frequenceRenouv): self
     {
         $this->frequenceRenouv = $frequenceRenouv;
+
+        return $this;
+    }
+
+    public function getTypeCompte(): ?LctTypeCompte
+    {
+        return $this->typeCompte;
+    }
+
+    public function setTypeCompte(?LctTypeCompte $typeCompte): self
+    {
+        $this->typeCompte = $typeCompte;
 
         return $this;
     }
