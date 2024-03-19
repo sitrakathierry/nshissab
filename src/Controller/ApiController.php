@@ -3,6 +3,10 @@
 namespace App\Controller;
 
 use App\Service\AppService;
+use Stancer\Card;
+use Stancer\Config;
+use Stancer\Customer;
+use Stancer\Payment;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +30,11 @@ class ApiController extends AbstractController
         } catch(\PDOException $e) {
             echo "La connexion a échoué : " . $e->getMessage();
         }
+
+        $config = Config::init(['<your_public_keys>', '<your_secret_keys>']);
+
+        $config->setMode(Config::TEST_MODE); # Not needed, TEST mode is set by default
+                                                # But you need to do it to go on production ;)
     }
 
     public function verificationElement($data= [], $dataMessage = [])
@@ -679,5 +688,35 @@ class ApiController extends AbstractController
         echo json_encode(["message" => "succès"]) ;
 
         return new Response() ;
+    }
+
+    #[Route('/api/stancer/paiement/set', name: 'app_api_stancer_paiement_set')]
+    public function apiStancerSetPaiement()
+    {
+
+        $card = new Card();
+        $card->setNumber('5555555555554444');
+        $card->setCvc('123');
+        $card->setExpirationMonth('02');
+        $card->setExpirationYear('2025');
+
+        $customer = new Customer();
+        $customer->setEmail('sitrakathierryfr@gmail.com');
+        $customer->setMobile('+261345481995');
+        $customer->setName('Randria Sitraka');
+
+        $payment = new Payment();
+        $payment->setAmount(100);
+        $payment->setCard($card);
+        $payment->setCurrency('eur');
+        $payment->setCustomer($customer);
+        $payment->setDescription('Test Payment Company');
+
+        $payment->send();
+
+        dd($payment) ;
+
+        return $payment ;
+        
     }
 }
