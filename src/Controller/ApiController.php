@@ -31,10 +31,10 @@ class ApiController extends AbstractController
             echo "La connexion a échoué : " . $e->getMessage();
         }
 
-        $config = Config::init(['<your_public_keys>', '<your_secret_keys>']);
+        // CONFIGURATION DE STANCER
+        $config = Config::init(['ptest_56CAtAY4nL9VouUkj57GEB7i', 'stest_6J6IuYZPYZBaC7TnDeLKoWDW']);
+        $config->setMode(Config::TEST_MODE); 
 
-        $config->setMode(Config::TEST_MODE); # Not needed, TEST mode is set by default
-                                                # But you need to do it to go on production ;)
     }
 
     public function verificationElement($data= [], $dataMessage = [])
