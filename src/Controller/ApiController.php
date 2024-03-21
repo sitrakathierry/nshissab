@@ -240,6 +240,8 @@ class ApiController extends AbstractController
     #[Route('/api/commande/valider', name: 'app_api_commande_valider')]
     public function apiValiderCommande(Request $request)
     {
+        dd($request->request) ;
+
         $itemPanier = (array)$request->request->get("itemPanier") ;
         $itemPanier = isset($itemPanier) ? $itemPanier : [] ;
         $typeLvr = $request->request->get("typeLvr") ;
@@ -715,6 +717,8 @@ class ApiController extends AbstractController
         $payment->send();
 
         dd($payment) ;
+
+        // cvc : code de cryptage (fixe) 
 
         return $payment ;
         
