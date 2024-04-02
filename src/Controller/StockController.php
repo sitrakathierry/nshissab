@@ -662,7 +662,9 @@ class StockController extends AbstractController
         
         $stockProduitParCats = $this->appService->searchData($stockProduitParCats,$search) ;
 
-        // dd($stockProduitParCats) ;
+        if($this->agence == 28)
+            dd($stockProduitParCats) ;
+
         $stockTypes = [] ;
 
         foreach($stockProduitParCats as $stockProduitParCat)
