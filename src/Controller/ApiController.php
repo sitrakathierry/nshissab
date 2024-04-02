@@ -264,7 +264,7 @@ class ApiController extends AbstractController
 
         $payment->send();
 
-        dd($payment) ;
+        // dd($payment) ;
 
         // cvc : code de cryptage (fixe) 
 
