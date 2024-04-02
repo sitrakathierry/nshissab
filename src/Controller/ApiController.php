@@ -267,8 +267,8 @@ class ApiController extends AbstractController
         // dd($payment) ;
 
         // cvc : code de cryptage (fixe) 
-
-        return $payment ;
+        echo json_encode($payment) ;
+        return new Response("") ;
 
         // FIN PAIEMENT
 
