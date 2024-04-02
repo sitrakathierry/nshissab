@@ -657,13 +657,13 @@ class StockController extends AbstractController
         $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($idPrefs) ; 
 
         $search = [
-            "idCat" => $preference->getId(),
+            "idCat" => $preference->getCategorie()->getId(),
         ] ;
         
         $stockProduitParCats = $this->appService->searchData($stockProduitParCats,$search) ;
 
-        if($this->agence->getId() == 28)
-            dd($stockProduitParCats) ;
+        // if($this->agence->getId() == 28)
+        //     dd($stockProduitParCats) ;
 
         $stockTypes = [] ;
 
