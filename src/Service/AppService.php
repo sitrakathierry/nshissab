@@ -708,6 +708,7 @@ class AppService extends AbstractController
             $element["id"] = $stockGeneral->getId() ;
             $element["encodedId"] = $this->encodeChiffre($stockGeneral->getId()) ;
             $element["idC"] = $stockGeneral->getPreference()->getId() ;
+            $element["idCat"] = $stockGeneral->getPreference()->getCategorie()->getId() ;
             $element["codeProduit"] = $stockGeneral->getCodeProduit() ;
             $element["categorie"] = $stockGeneral->getPreference()->getCategorie()->getNom() ;
             $element["nom"] = $stockGeneral->getNom() ;
