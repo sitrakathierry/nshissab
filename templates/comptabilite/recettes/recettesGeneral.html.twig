@@ -87,14 +87,18 @@
                     <tbody class="elemRecette">
                         {% set totalGeneral = 0 %}
                         {% for recette in recettes %}
-                            <tr>
-                                <td>{{recette.date}}</td>
-                                <td>{{recette.numero}}</td>
-                                <td>{{recette.operation|upper}}</td>
-                                {# <td>{{recette.client|upper}}</td> #}
-                                <td>{{recette.montant}}</td>
-                            </tr>
-                            {% set totalGeneral = totalGeneral + recette.montant %}
+                            {% set anneeNow = 'now'|date('Y') %}
+                            {% set anneeActuel = recette.date|split('/') %}
+                            {% if anneeActuel[2] == anneeNow  %}
+                                <tr>
+                                    <td>{{recette.date}}</td>
+                                    <td>{{recette.numero}}</td>
+                                    <td>{{recette.operation|upper}}</td>
+                                    {# <td>{{recette.client|upper}}</td> #}
+                                    <td>{{recette.montant}}</td>
+                                </tr>
+                                {% set totalGeneral = totalGeneral + recette.montant %}
+                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>

@@ -240,16 +240,76 @@ class ApiController extends AbstractController
     #[Route('/api/commande/valider', name: 'app_api_commande_valider')]
     public function apiValiderCommande(Request $request)
     {
-        dd($request->request) ;
+        // dd($request->request) ;
 
-        $itemPanier = (array)$request->request->get("itemPanier") ;
+        // DEBUT PAIEMENT
+
+        $card = new Card();
+        $card->setNumber('5555555555554444');
+        $card->setCvc('123');
+        $card->setExpirationMonth('02');
+        $card->setExpirationYear('2025');
+
+        $customer = new Customer();
+        $customer->setEmail('sitrakathierryfr@gmail.com');
+        $customer->setMobile('+261345481995');
+        $customer->setName('Randria Sitraka');
+
+        $payment = new Payment();
+        $payment->setAmount(100);
+        $payment->setCard($card);
+        $payment->setCurrency('eur');
+        $payment->setCustomer($customer);
+        $payment->setDescription('Test Payment Company');
+
+        $payment->send();
+
+        dd($payment) ;
+
+        // cvc : code de cryptage (fixe) 
+
+        return $payment ;
+
+        // FIN PAIEMENT
+
+
+        /*
+            item_panier_designation
+            item_panier_quantite
+            item_panier_prix
+            item_panier_fournisseur
+            item_panier_id
+
+            pan_type_livraison
+
+            clt_nom
+            clt_adresse
+            clt_telephone
+            clt_lieu_livraison
+            clt_date_livraison
+
+            card_num
+            card_mois_exp
+            card_annee_exp
+            card_cvc
+
+            exampleCheck1 => on
+        */
+
+        // $itemPanier = (array)$request->request->get("itemPanier") ;
+        $item_panier_designation = (array)$request->request->get("item_panier_designation") ;
+        $item_panier_prix = (array)$request->request->get("item_panier_prix") ;
+        $item_panier_quantite = (array)$request->request->get("item_panier_quantite") ;
+        $item_panier_fournisseur = (array)$request->request->get("item_panier_fournisseur") ;
+        $item_panier_id = (array)$request->request->get("item_panier_id") ;
+        
         $itemPanier = isset($itemPanier) ? $itemPanier : [] ;
-        $typeLvr = $request->request->get("typeLvr") ;
-        $nom = $request->request->get("nom") ;
-        $adresse = $request->request->get("adresse") ;
-        $telephone = $request->request->get("telephone") ;
-        $lieuLvr = $request->request->get("lieuLvr") ;
-        $dateLvr = $request->request->get("dateLvr") ;
+        $typeLvr = $request->request->get("pan_type_livraison") ;
+        $nom = $request->request->get("clt_nom") ;
+        $adresse = $request->request->get("clt_adresse") ;
+        $telephone = $request->request->get("clt_telephone") ;
+        $lieuLvr = $request->request->get("clt_lieu_livraison") ;
+        $dateLvr = $request->request->get("clt_date_livraison") ;
         $message = $typeLvr == "DRV" ? "Point de récupération" : "Zone de livraison" ;
 
         $result = $this->verificationElement([
@@ -276,12 +336,15 @@ class ApiController extends AbstractController
             return new Response("") ;
         }
 
-        $clientId = empty($request->request->get("userId")) ? NULL : $request->request->get("userId") ;
+
+
+        // $clientId = empty($request->request->get("userId")) ? NULL : $request->request->get("userId") ;
+        $clientId = null ;
 
         $lastRecord = $this->getData("SELECT * FROM `cmd_commande` WHERE 1 ORDER BY `id` DESC LIMIT 1 ") ;
 
         $numCommande = !is_null($lastRecord) ? (intval($lastRecord["id"]) + 1) : 1 ;
-        $numCommande = str_pad($numCommande, 4, "0", STR_PAD_LEFT)."/".date('y');
+        $numCommande = str_pad($numCommande, 4, "0", STR_PAD_LEFT)."/".date('y') ;
 
         // Requête SQL d'insertion avec des marqueurs de position (?)
         $this->setData("INSERT INTO `cmd_commande`(`id`, `client_id`, `cmd_statut_id`, `date`, `lieu`, `montant`, `statut`, `created_at`, `updated_at`, `num_commande`) VALUES (?,?,?,?,?,?,?,?,?,?)",[
@@ -299,18 +362,18 @@ class ApiController extends AbstractController
 
         $commandeId = $this->connection->lastInsertId();
         
-        for ($i=0; $i < count($itemPanier); $i++) { 
-            $element = $itemPanier[$i] ;
+        for ($i=0; $i < count($item_panier_designation); $i++) { 
+            $element = $item_panier_designation[$i] ;
             $this->setData("INSERT INTO `cmd_details` (`id`, `commande_id`, `fournisseur_id`, `prix_id`, `produit_id`, `cmd_statut_id`, `designation`, `montant`, `quantite`, `statut`) VALUES (?,?,?,?,?,?,?,?,?,?) ",[
                 NULL, 
                 $commandeId, 
-                $element["fournisseur"],
+                $item_panier_fournisseur[$i],
                 NULL,
-                $element["id"],
+                $item_panier_id[$i],
                 4,
-                $element["nom"],
-                $element["prix"],
-                $element["quantite"],
+                $item_panier_designation[$i],
+                $item_panier_prix[$i],
+                $item_panier_quantite[$i],
                 true,
             ]) ;
 

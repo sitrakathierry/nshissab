@@ -947,7 +947,6 @@ class ComptabiliteController extends AbstractController
 
         foreach ($contrats as $contrat) 
         {
-
             $id = $contrat->id ;
 
             $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
@@ -1000,13 +999,9 @@ class ComptabiliteController extends AbstractController
             array_push($elements,$item) ;
         }
 
-
-
         usort($elements, [self::class, 'comparaisonDates']);  ;
 
-        $recettes = $elements ;
-
-
+        $recettes = $elements ; 
 
         return $this->render('comptabilite/recettes/recettesGeneral.html.twig', [
             "filename" => "comptabilite",
