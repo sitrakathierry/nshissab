@@ -80,6 +80,29 @@ class PdfGenService extends AbstractController
         return $pdfFilePath ;
     }
 
+    public function generateApiPdf($content)
+    {
+        // Créez une instance Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        
+        $dompdf = new Dompdf($options);
+
+        // Chargez le contenu HTML dans Dompdf
+        $dompdf->loadHtml($content);
+        $dompdf->setPaper('A4', 'portrait');
+        
+        $dompdf->render();
+
+        // Enregistrez le PDF généré dans un fichier temporaire
+        $pdfFilePath = 'files/tempPdf/file_api_pdf.pdf';
+        file_put_contents($pdfFilePath, $dompdf->output());
+
+        // return $response;
+        return $pdfFilePath ;
+    }
+
     public function printBarCode($printerName)
     {
         // Remplacez ces valeurs par l'adresse IP et le port réels de l'imprimante

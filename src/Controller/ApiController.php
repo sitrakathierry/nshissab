@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use Stancer\Card;
 use Stancer\Config;
 use Stancer\Customer;
@@ -785,5 +786,21 @@ class ApiController extends AbstractController
 
         return $payment ;
         
+    }
+
+    #[Route('/api/download/file/pdf', name: 'app_api_file_pdf_download')]
+    public function apiDownloadFilePdf(Request $request)
+    {
+        $contentIMpression = $request->request->get("fichiersHtml") ;
+
+        dd($contentIMpression) ;
+
+        $pdfGenService = new PdfGenService() ;
+
+        $filePath = $pdfGenService->generateApiPdf($contentIMpression) ;
+
+        echo $filePath ;
+        
+        return new Response() ;
     }
 }
