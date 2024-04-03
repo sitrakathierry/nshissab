@@ -747,6 +747,7 @@ class AppService extends AbstractController
             
             $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
             $cle = $indice."|".$variation->getPrixVente() ;
+            
             foreach($histoEntrepots as $histoEntrepot)
             {
                 if (array_key_exists($cle, $item))

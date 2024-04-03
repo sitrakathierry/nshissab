@@ -620,7 +620,7 @@ class StockController extends AbstractController
 
         if($idType == "NA")
         {
-            $nomType = "Non Assignée" ;       
+            $nomType = "Non Assignée" ;
         }
         else
         {
@@ -2486,7 +2486,7 @@ class StockController extends AbstractController
             "titlePage" => "Details Produit",
             "with_foot" => true,
             "types" => $types,
-            "entrepots" => $entrepots,
+            "entrepots" => $entrepots, 
             "categories" => $preferences,
             "infoProduit" => $infoProduit,
             "variationProduits" => $variationProduits,
