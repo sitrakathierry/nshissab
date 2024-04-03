@@ -609,9 +609,11 @@ class StockController extends AbstractController
 
         $stockTypes = json_decode(file_get_contents($filename)) ;
 
+        $preference = $this->entityManager->getRepository(PrdPreferences::class)->find($idPref) ; 
+
         $search = [
             "type" => $idType,
-            "idC" => $idPref,
+            "idCat" => $preference->getCategorie()->getId(),
         ] ;
         
         $stockTypes = $this->appService->searchData($stockTypes,$search) ;
