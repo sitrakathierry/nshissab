@@ -791,7 +791,11 @@ class ApiController extends AbstractController
     #[Route('/api/download/file/pdf', name: 'app_api_file_pdf_download')]
     public function apiDownloadFilePdf(Request $request)
     {
-        $contentIMpression = $request->request->get("fichiersHtml") ;
+        $fichiersHtml = $request->request->get("fichiersHtml") ;
+
+        $contentIMpression = $this->renderView("api/commande/resumeeCommande.html.twig",[
+            "fichiersHtml" => $fichiersHtml,
+        ]) ;
 
         // dd($contentIMpression) ;
 
