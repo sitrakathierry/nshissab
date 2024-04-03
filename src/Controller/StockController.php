@@ -2382,7 +2382,7 @@ class StockController extends AbstractController
                 $item = [] ;
                 $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
                 $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
-                // $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
+                $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $caissePanier->getQuantite() ;
                 $item["prix"] = $caissePanier->getPrix() ;
@@ -2402,7 +2402,7 @@ class StockController extends AbstractController
                 $item = [] ;
                 $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
                 $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
-                // $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $appro->getQuantite() ;
                 $item["prix"] = $prixVente ;
@@ -2441,7 +2441,7 @@ class StockController extends AbstractController
                 {
                     $item = [] ;
                     $item["date"] = $factureVariation->getFacture()->getDate()->format("d/m/Y");
-                    // $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                    $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
                     $item["produit"] = $factureVariation->getDesignation() ;
                     $item["quantite"] = $factureVariation->getQuantite() ;
                     $item["prix"] = $factureVariation->getPrix() ;
@@ -2465,7 +2465,7 @@ class StockController extends AbstractController
             foreach ($deductionVariations as $deductionVariation) {
                 $item = [] ;
                 $item["date"] = $deductionVariation->getCreatedAt()->format("d/m/Y");
-                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $deductionVariation->getQuantite() ;
                 $item["prix"] = $deductionVariation->getVariationPrix()->getPrixVente() ;
