@@ -793,14 +793,14 @@ class ApiController extends AbstractController
     {
         $contentIMpression = $request->request->get("fichiersHtml") ;
 
-        dd($contentIMpression) ;
+        // dd($contentIMpression) ;
 
         $pdfGenService = new PdfGenService() ;
 
         $filePath = $pdfGenService->generateApiPdf($contentIMpression) ;
 
         echo $filePath ;
-        
+
         return new Response() ;
     }
 }
