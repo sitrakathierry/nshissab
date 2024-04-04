@@ -776,7 +776,7 @@ class ApiController extends AbstractController
         $payment->setCard($card);
         $payment->setCurrency('eur');
         $payment->setCustomer($customer);
-        $payment->setDescription('Test Payment Company');
+        $payment->setDescription('paiement');
 
         $payment->send();
 
