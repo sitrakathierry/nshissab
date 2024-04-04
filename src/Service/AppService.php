@@ -3455,7 +3455,6 @@ class AppService extends AbstractController
                 unlink($filename) ;
         }
 
-
         $produitActives = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,
             "statut" => True

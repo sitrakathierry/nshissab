@@ -807,4 +807,24 @@ class ApiController extends AbstractController
 
         return new Response() ;
     }
+
+    #[Route('/files/tempPdf/file_api_pdf.pdf', name: 'app_api_valid_file_pdf_download')]
+    public function apiValidDownloadFilePdf()
+    {
+        // Autoriser les requêtes depuis n'importe quelle origine
+        header("Access-Control-Allow-Origin: *");
+
+        // Autres en-têtes CORS facultatifs
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Origin, Content-Type, Accept");
+
+        // Récupérer le contenu du fichier et le renvoyer en tant que réponse
+        $file = 'files/tempPdf/file_api_pdf.pdf';
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="file_api_pdf.pdf"');
+
+        readfile($file);
+
+        return new Response() ;
+    }
 }
