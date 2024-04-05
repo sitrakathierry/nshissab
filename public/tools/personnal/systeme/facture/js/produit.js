@@ -238,6 +238,8 @@ $(document).ready(function(){
             colspanElement = 'colspan="2"' ;
         }
 
+        fact_total_partiel = fact_total_partiel.toFixed(2) ;
+        fact_mod_prod_qte = fact_mod_prod_qte.toFixed(2) ;
         var item = `
             <tr>
                 <td>
