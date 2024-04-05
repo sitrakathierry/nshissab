@@ -811,6 +811,7 @@ class ApiController extends AbstractController
     #[Route('/files/tempPdf/file_api_pdf.pdf', name: 'app_api_valid_file_pdf_download')]
     public function apiValidDownloadFilePdf()
     {
+        dd("test") ;
         // Autoriser les requêtes depuis n'importe quelle origine
         header("Access-Control-Allow-Origin: *");
 

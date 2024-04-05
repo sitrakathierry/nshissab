@@ -56,6 +56,8 @@ class ClientController extends AbstractController
     {
         $types = $this->entityManager->getRepository(CltTypes::class)->findAll() ;
 
+
+
         return $this->render('client/creation.html.twig', [
             "filename" => "client",
             "titlePage" => "Création Client",
@@ -381,6 +383,8 @@ class ClientController extends AbstractController
             "identity" => is_null($histoClient->getSociete()) ? $histoClient->getClient()->getId() : $histoClient->getSociete()->getId(),
         ] ;
 
+        $typeSocietes = $this->entityManager->getRepository(CltTypeSociete::class)->findAll() ;
+
         if($histoClient->getType()->getReference() == "PHYSIQUE")
         {
             $client = $histoClient->getClient() ;
@@ -403,6 +407,7 @@ class ClientController extends AbstractController
             $response = $this->renderView("client/detail/templateDetailPhysique.html.twig",[
                 "dataClient" => $dataClient,
                 "dataUrgence" => $dataUrgence,
+                "typeSocietes" => $typeSocietes,
             ]) ;
         }
         else
@@ -421,9 +426,12 @@ class ClientController extends AbstractController
                 "type_societe" => is_null($societe->getTypeSociete()) ? "" : $societe->getTypeSociete()->getId(),
             ] ;
 
+            
+
             $response = $this->renderView("client/detail/templateDetailMorale.html.twig",[
                 "dataClient" => $dataClient,
                 "dataUrgence" => $dataUrgence,
+                "typeSocietes" => $typeSocietes,
             ]) ;
         }
 
