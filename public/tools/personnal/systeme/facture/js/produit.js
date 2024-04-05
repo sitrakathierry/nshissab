@@ -310,7 +310,7 @@ $(document).ready(function(){
         
         var remiseType = $("#fact_type_remise_prod_general").val()
         var selectedTypeRemise = $("#fact_type_remise_prod_general").find("option:selected")
-        var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : Number($("#fact_remise_prod_general").val()) ;
+        var remiseVal = $("#fact_remise_prod_general").val() == "" ? 0 : parseFloat($("#fact_remise_prod_general").val()) ;
 
         $(".elem_facture_produit tr").each(function(){
             var quantiteLigne = $(this).find(".fact_enr_prod_quantite").val() ;
@@ -318,8 +318,8 @@ $(document).ready(function(){
             var tvaLigne = $(this).find(".fact_enr_prod_tva_val").val() ; 
             var totalLigne = $(this).find(".fact_enr_total_ligne").val() ;
 
-            totalHT += Number(totalLigne) ;
-            var valTva = ((Number(tvaLigne) * Number(prixLigne)) / 100) * Number(quantiteLigne)
+            totalHT += parseFloat(totalLigne) ;
+            var valTva = ((parseFloat(tvaLigne) * parseFloat(prixLigne)) / 100) * parseFloat(quantiteLigne)
             totalTva = totalTva + valTva ;
         })
 
@@ -330,6 +330,11 @@ $(document).ready(function(){
 
         totalTTC = (totalHT + totalTva) - remise ;
         totalApresDeduction = totalHT - remise ; 
+
+        totalApresDeduction = totalApresDeduction.toFixed(2) ; 
+        totalTTC = totalTTC.toFixed(2) ; 
+        totalTva = totalTva.toFixed(2) ; 
+        totalHT = totalHT.toFixed(2) ; 
         
         var lettreTotal = NumberToLetter(totalTTC)
 

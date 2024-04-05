@@ -41,7 +41,7 @@
         <div id="factureStandard">
             <form id="formFacture">
                 <div class="d-flex flex-row align-items-center justify-content-center pb-3 px-3">
-                    {% for modele in modeles %}
+                    {% for modele in modeles %} 
                         <button type="button" data-indice="{{modele.reference}}" data-text="{{modele.nom|upper}}" data-class="btn-warning" data-target="#fact_modele" value="{{modele.id}}" class="btn fact_btn_modele btn-sm btn-outline-warning mx-2">{{modele.nom|upper}}</button>
                     {% endfor %}
                     <input type="hidden" class="fact_modele" id="fact_modele" name="fact_modele" >

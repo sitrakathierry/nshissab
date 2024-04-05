@@ -104,7 +104,7 @@ class FactureController extends AbstractController
             "titlePage" => "Création Facture", 
             "with_foot" => true,
             "modeles" => $modeles,
-            "types" => $types,
+            "types" => $types, 
             "paiements" => $paiements,
             "clients" => $clients,
         ]); 
