@@ -680,7 +680,7 @@ class FactureController extends AbstractController
     }
 
     #[Route('/facture/retenu/consultation', name: 'ftr_retenu_consultation')]
-    public function factureRetenusConsultation(): Response
+    public function factureRetenusConsultation() : Response
     { 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
 
@@ -934,8 +934,7 @@ class FactureController extends AbstractController
 
         return new Response($templateEditFacture) ;
     }
-
-    
+ 
     #[Route('/facture/element/modif/valid', name: 'fact_valid_modif_facture')]
     public function factureValidModifModifFacture(Request $request)
     {

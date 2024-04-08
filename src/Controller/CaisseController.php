@@ -60,7 +60,7 @@ class CaisseController extends AbstractController
 
         $margeTypes = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
 
-        return $this->render('caisse/caisse.html.twig', [
+        return $this->render('caisse/caisse.html.twig', [ 
             "filename" => "caisse",
             "titlePage" => "Vente des Produits",
             "with_foot" => true,

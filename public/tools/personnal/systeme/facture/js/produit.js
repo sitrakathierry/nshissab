@@ -124,6 +124,31 @@ $(document).ready(function(){
         }
 
 
+        var existant = false ;
+        $(".elem_facture_produit tr").each(function(){
+            if($(this).find(".fact_enr_prod_type").val() != "autre")
+            {
+                var idPrix = $(this).find(".fact_enr_prod_prix").val() ;
+                var idProd =  $(this).find(".fact_enr_prod_produit").val() ;
+    
+                if(fact_mod_prod_designation == idProd && fact_mod_prod_prix == idPrix)
+                {
+                    existant = true ;
+                    return ;
+                }
+            }
+        })
+
+        if(existant)
+        {
+            $.alert({
+                title: 'Element existant',
+                content: "Vous ne pouvez pas ajouter cet élémnt avec ce prix car elle existe déjà ",
+                type:'orange',
+            })
+            return false ;
+        }
+
         // if(fact_mod_prod_type == "autre")
         // {
         //     var fact_mod_prod_prix = $("#fact_mod_prod_prix").val() ;
@@ -251,6 +276,7 @@ $(document).ready(function(){
                 <td>
                     `+fact_text_designation+`
                     <input type="hidden" value="`+fact_text_designation+`" name="fact_enr_prod_designation[]" class="fact_enr_prod_designation"> 
+                    <input type="hidden" value="`+fact_mod_prod_designation+`" class="fact_enr_prod_produit"> 
                     </td>
                     <td>
                     `+fact_mod_prod_qte+`
