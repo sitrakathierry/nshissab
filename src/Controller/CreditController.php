@@ -147,7 +147,7 @@ class CreditController extends AbstractController
                 $infoFacture["libelleValue"] = $histoPaiement->getLibelle() ;
             }
         }
-        else
+        else 
         { 
             $infoFacture["infoSup"] = false ;
         }

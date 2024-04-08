@@ -497,7 +497,7 @@ class FactureController extends AbstractController
             "modeles" => $modeles,
             "types" => $types,
             "clients" => $clients,
-            "critereDates" => $critereDates
+            "critereDates" => $critereDates 
         ]); 
     }
 
