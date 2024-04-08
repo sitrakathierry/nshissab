@@ -249,7 +249,7 @@ class FactureController extends AbstractController
             "agence" => $this->agence,
             "statut" => True
         ]) ; 
-
+ 
         $typeRemises = $this->entityManager->getRepository(FactRemiseType::class)->findAll() ; 
 
         $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;

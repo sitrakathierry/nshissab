@@ -44,6 +44,7 @@ $(document).ready(function(){
         //     var dateNow = dataActuel.getDay()+"/"+dataActuel.getMonth()+"/"+dataActuel.getFullYear()
         //     agd_ech_date = dateNow
         // }
+        agd_ech_montant = parseFloat(agd_ech_montant).toFixed(2) ;
 
         var element = `
             <tr>
@@ -62,7 +63,8 @@ $(document).ready(function(){
         ` 
         $(".elem_echeance").append(element)
         var totalRestant = $("#agd_total_restant").text()
-        $("#agd_val_total_restant").val(parseFloat(totalRestant))
+        totalRestant = parseFloat(totalRestant).toFixed(2)  ;
+        $("#agd_val_total_restant").val(totalRestant)
         firstAdd = true ;
         $("#agd_ech_date").val("")
         $("#agd_ech_montant").val("")
@@ -82,6 +84,8 @@ $(document).ready(function(){
         else
             var newTotalRestant = parseFloat(totalRestant) - valMontant
 
+        newTotalRestant = newTotalRestant.toFixed(2) ;
+
         $("#agd_total_restant").text(newTotalRestant)
 
         var totalEcheance = valMontant
@@ -90,6 +94,8 @@ $(document).ready(function(){
             totalEcheance += montantPaye
         })
         
+        totalEcheance = totalEcheance.toFixed(2) ;
+
         $("#agd_total_echeance").text(totalEcheance)
     }
 

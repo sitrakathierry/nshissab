@@ -240,6 +240,8 @@ $(document).ready(function(){
 
         fact_total_partiel = fact_total_partiel.toFixed(2) ;
         fact_mod_prod_qte = fact_mod_prod_qte.toFixed(2) ;
+        fact_valeur_tva = fact_valeur_tva.toFixed(2) ;
+        
         var item = `
             <tr>
                 <td>
