@@ -56,6 +56,11 @@ $(document).ready(function(){
             name: "mois",
             action:"change",
             selector : "#date_mois"
+        },
+        {
+            name: "idEntrepot",
+            action:"change",
+            selector : "#fact_search_entrepôt"
         }
     ] 
     $("#fact_search_date").change(function(){

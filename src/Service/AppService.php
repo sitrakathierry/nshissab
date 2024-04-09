@@ -2750,6 +2750,21 @@ class AppService extends AbstractController
 
                         $condition = $condition && ($dateSearch == $dateValue) ;
                     }
+                    else if($key == "idEntrepot")
+                    {
+                        $findEntrepot = False ;
+                        $arrayTab = (array)($item->$key) ;
+                        $arrayTab = array_values($arrayTab) ;
+                        for ($i=0; $i < count($arrayTab); $i++) { 
+                            if($value == $arrayTab[$i])
+                            {
+                                $findEntrepot = True ;
+                                break ;
+                            }
+                        }
+                        
+                        $condition = $condition && $findEntrepot ;
+                    }
                     else
                     {
                         $spec = explode("-",$key) ;

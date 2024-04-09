@@ -435,7 +435,6 @@ class FactureController extends AbstractController
         
         $annulations = json_decode(file_get_contents($filename)) ;
 
-        
         $search = [
             "refSpec" => "AVR"
         ] ;
@@ -2588,6 +2587,7 @@ class FactureController extends AbstractController
         $dateFin = $request->request->get('dateFin') ;
         $annee = $request->request->get('annee') ;
         $mois = $request->request->get('mois') ;
+        $idEntrepot = $request->request->get('idEntrepot') ;
 
         $search = [
             "idT" => $idT,
@@ -2600,6 +2600,7 @@ class FactureController extends AbstractController
             "dateFin" => $dateFin,
             "annee" => $annee,
             "mois" => $mois,
+            "idEntrepot" => $idEntrepot,
         ] ;
 
         foreach ($search as $key => $value) {
