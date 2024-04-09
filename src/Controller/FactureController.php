@@ -435,6 +435,7 @@ class FactureController extends AbstractController
         
         $annulations = json_decode(file_get_contents($filename)) ;
 
+        
         $search = [
             "refSpec" => "AVR"
         ] ;
