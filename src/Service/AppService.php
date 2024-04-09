@@ -1497,26 +1497,38 @@ class AppService extends AbstractController
                         if (array_key_exists($cle, $item))
                         {
                             $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"] .= "#@#".$histoEntrepot->getEntrepot()->getId()  ;
+                            $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
                         }
                         else
                         {
                             $item[$cle] = [] ;
             
                             $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"] = $histoEntrepot->getEntrepot()->getId()  ;
+                            $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
                         }
                     }
-
-                    if(!isset($itemEntrepot["entrepot"]))
-                        $itemEntrepot["entrepot"] = $item[$cle]["entrepot"] ;
-                    else
-                        $itemEntrepot["entrepot"] .= ", ".$item[$cle]["entrepot"] ;
 
                     if(!isset($itemEntrepot["idEntrepot"]))
                         $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
                     else
-                        $itemEntrepot["idEntrepot"] .= "#@#".$item[$cle]["idEntrepot"] ;
+                        $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
+                }
+
+                if(!isset($itemEntrepot["entrepot"]))
+                {
+                    dd($itemEntrepot["idEntrepot"]) ;
+
+                    $itemEntrepot["idEntrepot"] = array_unique((array)$itemEntrepot["idEntrepot"]) ;
+        
+    
+                    foreach ($itemEntrepot["idEntrepot"] as $ident) {
+                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
+        
+                        if(!isset($itemEntrepot["entrepot"]))
+                            $itemEntrepot["entrepot"] = $entrepot->getNom() ;
+                        else
+                            $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
+                    }
                 }
             }
             $element = [] ;
@@ -3124,28 +3136,35 @@ class AppService extends AbstractController
                         if (array_key_exists($cle, $item))
                         {
                             $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"] .= "#@#".$histoEntrepot->getEntrepot()->getId()  ;
+                            $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
                         }
                         else
                         {
                             $item[$cle] = [] ;
             
                             $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"] = $histoEntrepot->getEntrepot()->getId()  ;
+                            $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
                         }
                     }
-
-                    if(!isset($itemEntrepot["entrepot"]))
-                        $itemEntrepot["entrepot"] = $item[$cle]["entrepot"] ;
-                    else
-                        $itemEntrepot["entrepot"] .= ", ".$item[$cle]["entrepot"] ;
 
                     if(!isset($itemEntrepot["idEntrepot"]))
                         $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
                     else
-                        $itemEntrepot["idEntrepot"] .= "#@#".$item[$cle]["idEntrepot"] ;
+                        $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
                 }
+
+                $itemEntrepot["idEntrepot"] = array_unique((array)$itemEntrepot["idEntrepot"]) ;
+    
+                foreach ($itemEntrepot["idEntrepot"] as $ident) {
+                    $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
+    
+                    if(!isset($itemEntrepot["entrepot"]))
+                        $itemEntrepot["entrepot"] = $entrepot->getNom() ;
+                    else
+                        $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
+                }   
             }
+
 
             $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
             $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "-" ;
