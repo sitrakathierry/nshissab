@@ -1519,21 +1519,10 @@ class AppService extends AbstractController
                         $itemEntrepot["idEntrepot"] .= "#@#".$item[$cle]["idEntrepot"] ;
                 }
             }
-
-            // if(!empty($itemEntrepot))
-            // {
-            //     dd($itemEntrepot) ;
-
-            //     for ($i=0; $i < count($itemEntrepot[0]); $i++) { 
-            //         $groupEntrepot["entrepot"] .= ", ".$itemEntrepot[0]["entrepot"] ;
-            //         $groupEntrepot["idEntrepot"] .= "#@#".$itemEntrepot[0]["idEntrepot"] ;
-            //     }
-            // }
-
             $element = [] ;
 
-            $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "" ;
-            $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "" ;
+            $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
+            $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "-" ;
 
             $specification = "NONE" ; 
             $element["id"] = $facture->getId() ;
@@ -1541,8 +1530,8 @@ class AppService extends AbstractController
             $element["idT"] = $facture->getType()->getId() ;
             $element["idM"] = $facture->getModele()->getId() ;
             $element["refModele"] = $facture->getModele()->getReference() ;
-            $element["entrepot"] = $refModele == "PROD" ? $entrepot : "" ;
-            $element["idEntrepot"] = $refModele == "PROD" ? $idEntrepot : "" ;
+            $element["entrepot"] = $refModele == "PROD" ? $entrepot : "-" ;
+            $element["idEntrepot"] = $refModele == "PROD" ? $idEntrepot : "-" ;
             $element["date"] = $facture->getDate()->format('d/m/Y') ;
             $element["currentDate"] = $facture->getDate()->format('d/m/Y') ;
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;
@@ -1751,12 +1740,79 @@ class AppService extends AbstractController
 
         foreach ($annulations as $annulation) {
             $facture = $annulation->getFacture() ;
+
+            $itemEntrepot = [] ;
+
             if(!is_null($facture))
             {
                 $client = $this->getFactureClient($facture) ;
                 $nomClient = $client["client"] ;
                 $idClient = $facture->getClient()->getId() ;
                 $idFacture = $facture->getId() ;
+
+
+                $refModele = $facture->getModele()->getReference() ; 
+
+                if($refModele == "PROD")
+                {
+                    $factDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                        "facture" => $facture,
+                        "statut" => True
+                    ]) ;
+        
+                    // dd($factDetails) ;
+
+                    foreach($factDetails as $factDetail)
+                    {
+                        if($factDetail->getActivite() != "Produit")
+                            continue ;
+        
+                        $idVariation = $factDetail->getEntite() ;
+            
+                        $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+            
+                        // dd($variation) ;
+
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "statut" => True
+                        ]) ;
+            
+                        // dd($histoEntrepots) ;
+
+                        $item = [] ;
+                        
+                        $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
+
+                        $cle = $indice."|".$variation->getPrixVente() ;
+                        
+                        foreach($histoEntrepots as $histoEntrepot)
+                        {
+                            if (array_key_exists($cle, $item))
+                            {
+                                $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
+                                $item[$cle]["idEntrepot"] .= "#@#".$histoEntrepot->getEntrepot()->getId()  ;
+                            }
+                            else
+                            {
+                                $item[$cle] = [] ;
+                
+                                $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
+                                $item[$cle]["idEntrepot"] = $histoEntrepot->getEntrepot()->getId()  ;
+                            }
+                        }
+
+                        if(!isset($itemEntrepot["entrepot"]))
+                            $itemEntrepot["entrepot"] = $item[$cle]["entrepot"] ;
+                        else
+                            $itemEntrepot["entrepot"] .= ", ".$item[$cle]["entrepot"] ;
+
+                        if(!isset($itemEntrepot["idEntrepot"]))
+                            $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
+                        else
+                            $itemEntrepot["idEntrepot"] .= "#@#".$item[$cle]["idEntrepot"] ;
+                    }
+                }
             }
             else
             {
@@ -1764,6 +1820,9 @@ class AppService extends AbstractController
                 $idClient = "-" ;
                 $idFacture = "-" ;
             }
+
+            $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
+            $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "-" ;
 
             $total = $annulation->getMontant() ;
 
@@ -1789,6 +1848,8 @@ class AppService extends AbstractController
             $element["annee"] = $annulation->getDate()->format('Y') ;
             $element["lieu"] = $annulation->getLieu() ;
             $element["typeAffiche"] = is_null($annulation->getFacture()) ? "CAISSE" : "FACTURE" ;
+            $element["entrepot"] = $refModele == "PROD" ? $entrepot : "-" ;
+            $element["idEntrepot"] = $refModele == "PROD" ? $idEntrepot : "-" ;
             $element["numero"] = $annulation->getNumFact() ;
             $element["client"] = $nomClient ;
             $element["idC"] = $idClient ;
