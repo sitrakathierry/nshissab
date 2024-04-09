@@ -1565,6 +1565,8 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         }
 
+        dd($elements) ;
+
         file_put_contents($filename,json_encode($elements)) ;
     }
 
