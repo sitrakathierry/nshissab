@@ -1514,7 +1514,7 @@ class AppService extends AbstractController
                         $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
                 }
 
-                if(isset($itemEntrepot["entrepot"]))
+                if(isset($itemEntrepot["idEntrepot"]))
                 {
                     // dd($itemEntrepot["idEntrepot"]) ;
 
@@ -3153,13 +3153,12 @@ class AppService extends AbstractController
                         $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
                 }
 
-                if(isset($itemEntrepot["entrepot"]))
+                if(isset($itemEntrepot["idEntrepot"]))
                 {
                     // dd($itemEntrepot["idEntrepot"]) ;
 
                     $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
         
-    
                     foreach ($itemEntrepot["idEntrepot"] as $ident) {
                         $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
         
