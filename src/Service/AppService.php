@@ -1514,7 +1514,7 @@ class AppService extends AbstractController
                         $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
                 }
 
-                if(!isset($itemEntrepot["entrepot"]))
+                if(isset($itemEntrepot["entrepot"]))
                 {
                     // dd($itemEntrepot["idEntrepot"]) ;
 
@@ -3153,7 +3153,7 @@ class AppService extends AbstractController
                         $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
                 }
 
-                if(!isset($itemEntrepot["entrepot"]))
+                if(isset($itemEntrepot["entrepot"]))
                 {
                     // dd($itemEntrepot["idEntrepot"]) ;
 
