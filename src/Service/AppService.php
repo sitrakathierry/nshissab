@@ -3153,16 +3153,22 @@ class AppService extends AbstractController
                         $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
                 }
 
-                $itemEntrepot["idEntrepot"] = array_unique((array)$itemEntrepot["idEntrepot"]) ;
+                if(!isset($itemEntrepot["entrepot"]))
+                {
+                    // dd($itemEntrepot["idEntrepot"]) ;
+
+                    $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
+        
     
-                foreach ($itemEntrepot["idEntrepot"] as $ident) {
-                    $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
-    
-                    if(!isset($itemEntrepot["entrepot"]))
-                        $itemEntrepot["entrepot"] = $entrepot->getNom() ;
-                    else
-                        $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
-                }   
+                    foreach ($itemEntrepot["idEntrepot"] as $ident) {
+                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
+        
+                        if(!isset($itemEntrepot["entrepot"]))
+                            $itemEntrepot["entrepot"] = $entrepot->getNom() ;
+                        else
+                            $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
+                    }
+                } 
             }
 
 
