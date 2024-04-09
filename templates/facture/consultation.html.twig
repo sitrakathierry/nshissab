@@ -62,13 +62,22 @@
                             <option value="{{client.id}}">{{client.nom|upper}}</option>
                         {% endfor %}
                     </select>
-                </div>
+                </div> 
                 <div class="col-md-3">
                     <label for="fact_search_date" class="mt-2 font-weight-bold text-uppercase">Date</label>
                     <select name="fact_search_date" class="custom-select chosen_select fact_search_date custom-select-sm" id="fact_search_date">
                         <option value="" data-critere="">TOUS</option>
                         {% for critereDate in critereDates %}
                             <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                </div> 
+                <div class="col-md-3">
+                    <label for="fact_search_entrepôt" class="mt-2 font-weight-bold text-uppercase">Enrepot</label>
+                    <select name="fact_search_entrepôt" class="custom-select chosen_select fact_search_entrepôt custom-select-sm" id="fact_search_entrepôt">
+                        <option value="" data-critere="">TOUS</option>
+                        {% for entrepot in entrepots %}
+                            <option value="{{entrepot.id}}" >{{entrepot.nom|upper}}</option>
                         {% endfor %}
                     </select>
                 </div> 
@@ -85,6 +94,7 @@
                             <th>N° facture</th>
                             <th>Modèle</th>
                             <th>Type</th>
+                            <th>Entrepot</th>
                             <th>Date Création</th>
                             <th>Date Facture</th>
                             <th>Client</th>
@@ -101,6 +111,7 @@
                                     <td>{{ facture.numFact }}</td>
                                     <td>{{ facture.modele|upper}}</td>
                                     <td>{{ facture.type|upper}}</td>
+                                    <td>{{ facture.entrepot|upper}}</td>
                                     <td>{{ facture.dateCreation }}</td>
                                     <td>{{ facture.dateFacture }}</td>
                                     <td>{{ facture.client|upper}}</td>

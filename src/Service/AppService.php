@@ -755,7 +755,7 @@ class AppService extends AbstractController
                     $item[$cle]["stock"] += $histoEntrepot->getStock() ;
                     $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
 
-                    $elements[$cle] = $item[$cle] ;
+                    // $elements[$cle] = $item[$cle] ;
                 }
                 else
                 {
@@ -778,9 +778,9 @@ class AppService extends AbstractController
                     $item[$cle]["soldeType"] = is_null($solde) ? "-" : $solde->getType()->getCalcul() ;
                     $item[$cle]["soldeQte"] = is_null($solde) ? "-" : $solde->getSolde() ;
                     $item[$cle]["soldeDate"] = is_null($solde) ? "-" : $solde->getDateLimite()->format("d/m/Y") ;
-                    
-                    $elements[$cle] = $item[$cle] ;
                 }
+
+                $elements[$cle] = $item[$cle] ;
             }
         }
 
@@ -1454,13 +1454,95 @@ class AppService extends AbstractController
         // PLOC
 
         foreach ($factures as $facture) {
+
+            $itemEntrepot = [] ;
+
+            $refModele = $facture->getModele()->getReference() ; 
+
+            if($refModele == "PROD")
+            {
+                $factDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                    "facture" => $facture,
+                    "statut" => True
+                ]) ;
+    
+                // dd($factDetails) ;
+
+                foreach($factDetails as $factDetail)
+                {
+                    if($factDetail->getActivite() != "Produit")
+                        continue ;
+    
+                    $idVariation = $factDetail->getEntite() ;
+        
+                    $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+        
+                    // dd($variation) ;
+
+                    $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                        "variationPrix" => $variation,
+                        "statut" => True
+                    ]) ;
+        
+                    // dd($histoEntrepots) ;
+
+                    $item = [] ;
+                    
+                    $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
+
+                    $cle = $indice."|".$variation->getPrixVente() ;
+                    
+                    foreach($histoEntrepots as $histoEntrepot)
+                    {
+                        if (array_key_exists($cle, $item))
+                        {
+                            $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
+                            $item[$cle]["idEntrepot"] .= "#@#".$histoEntrepot->getEntrepot()->getId()  ;
+                        }
+                        else
+                        {
+                            $item[$cle] = [] ;
+            
+                            $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
+                            $item[$cle]["idEntrepot"] = $histoEntrepot->getEntrepot()->getId()  ;
+                        }
+                    }
+
+                    if(!isset($itemEntrepot["entrepot"]))
+                        $itemEntrepot["entrepot"] = $item[$cle]["entrepot"] ;
+                    else
+                        $itemEntrepot["entrepot"] .= ", ".$item[$cle]["entrepot"] ;
+
+                    if(!isset($itemEntrepot["idEntrepot"]))
+                        $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
+                    else
+                        $itemEntrepot["idEntrepot"] .= "#@#".$item[$cle]["idEntrepot"] ;
+                }
+            }
+
+            // if(!empty($itemEntrepot))
+            // {
+            //     dd($itemEntrepot) ;
+
+            //     for ($i=0; $i < count($itemEntrepot[0]); $i++) { 
+            //         $groupEntrepot["entrepot"] .= ", ".$itemEntrepot[0]["entrepot"] ;
+            //         $groupEntrepot["idEntrepot"] .= "#@#".$itemEntrepot[0]["idEntrepot"] ;
+            //     }
+            // }
+
             $element = [] ;
+
+            $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "" ;
+            $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "" ;
+
             $specification = "NONE" ; 
             $element["id"] = $facture->getId() ;
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
             $element["idM"] = $facture->getModele()->getId() ;
             $element["refModele"] = $facture->getModele()->getReference() ;
+            $element["entrepot"] = $refModele == "PROD" ? $entrepot : "" ;
+            $element["idEntrepot"] = $refModele == "PROD" ? $idEntrepot : "" ;
             $element["date"] = $facture->getDate()->format('d/m/Y') ;
             $element["currentDate"] = $facture->getDate()->format('d/m/Y') ;
             $element["dateFacture"] = $facture->getDate()->format('d/m/Y')  ;

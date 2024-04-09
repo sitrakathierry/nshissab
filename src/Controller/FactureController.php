@@ -489,7 +489,14 @@ class FactureController extends AbstractController
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
 
-        return $this->render('facture/consultation.html.twig', [
+        $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+        
+        $entrepots = json_decode(file_get_contents($filename)) ;
+
+        return $this->render('facture/consultation.html.twig', [ 
             "filename" => "facture",
             "titlePage" => "Consultation Facture",
             "with_foot" => false,
@@ -497,7 +504,8 @@ class FactureController extends AbstractController
             "modeles" => $modeles,
             "types" => $types,
             "clients" => $clients,
-            "critereDates" => $critereDates 
+            "critereDates" => $critereDates ,
+            "entrepots" => $entrepots 
         ]); 
     }
 

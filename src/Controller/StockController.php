@@ -2410,7 +2410,7 @@ class StockController extends AbstractController
                 $item["type"] = "Approvisionnement" ;
                 $item["indice"] = "DEBIT" ;
 
-                array_push($listes,$item) ;
+                array_push($listes,$item) ; 
             }
 
             $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
@@ -2422,6 +2422,7 @@ class StockController extends AbstractController
                 "agence" => $this->agence,
                 "statut" => True
             ]) ; 
+
                 // dd($factureDefinitives) ;
             foreach ($factureDefinitives as $factureDefinitive) {
                 $factureVariations = $this->entityManager->getRepository(FactDetails::class)->findBy([
