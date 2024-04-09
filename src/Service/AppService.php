@@ -1516,9 +1516,9 @@ class AppService extends AbstractController
 
                 if(!isset($itemEntrepot["entrepot"]))
                 {
-                    dd($itemEntrepot["idEntrepot"]) ;
+                    // dd($itemEntrepot["idEntrepot"]) ;
 
-                    $itemEntrepot["idEntrepot"] = array_unique((array)$itemEntrepot["idEntrepot"]) ;
+                    $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
         
     
                     foreach ($itemEntrepot["idEntrepot"] as $ident) {
