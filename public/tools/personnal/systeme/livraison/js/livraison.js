@@ -54,7 +54,7 @@ $(document).ready(function(){
 
     $("#lvr_val_source").change(function(){
         var lvr_source = $("#lvr_source").val()
-        var idSource = $(this).val()
+        var idSource = $(this).val() 
 
         var self = $(this)
         var data = new FormData() ;
@@ -252,6 +252,15 @@ $(document).ready(function(){
                                     dataType: 'json',
                                     success: function(response){
                                         realinstance.close()
+
+                                        $.alert({
+                                            title: "mise à jour en attente (02)",
+                                            content: ". . .",
+                                            type: "black"
+                                        })
+                                
+                                        return false ;
+
                                         var idLivraison = self.data("value") ;
                                         var url = routes.lvr_bon_livraison_detail_imprimer + '/' + idLivraison + '/' + idModeleEntete + '/' + idModeleBas;
                                         window.open(url, '_blank');
@@ -273,4 +282,67 @@ $(document).ready(function(){
         })
         return false ;
     })
+
+    $("#lvrUpdateForm").submit(function(event){
+        event.preventDefault()
+
+        // $.alert({
+        //     title: "mise à jour en attente (01)",
+        //     content: ". . .",
+        //     type: "black"
+        // })
+
+        // return false ;
+
+        $(".lvr_creation_description").val(cmd_creation_description.getEditorText('.lvr_creation_description'))
+        var self = $(this)
+        $.confirm({
+            title: "Mise à jour",
+            content:"Etes-vous sûre ?",
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-orange',
+                    keys: ['enter'],
+                    action: function(){
+                    var data = self.serialize();
+                    var realinstance = instance.loading()
+                    $.ajax({
+                        url: routes.lvr_update_bon_livraison,
+                        type:"post",
+                        data:data,
+                        dataType:"json",
+                        success : function(json){
+                            realinstance.close()
+                            $.alert({
+                                title: 'Message',
+                                content: json.message,
+                                type: json.type,
+                                buttons: {
+                                    OK: function(){
+                                        if(json.type == "green")
+                                        {
+                                            location.reload()
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function(resp){
+                            realinstance.close()
+                            $.alert(JSON.stringify(resp)) ;
+                        }
+                    })
+                    }
+                }
+            }
+        })
+    })
+
 })

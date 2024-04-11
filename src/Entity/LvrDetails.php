@@ -25,6 +25,9 @@ class LvrDetails
     #[ORM\ManyToOne(inversedBy: 'lvrDetails')]
     private ?Agence $agence = null;
 
+    #[ORM\ManyToOne(inversedBy: 'lvrDetails')]
+    private ?LvrStatut $lvrStatut = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +77,18 @@ class LvrDetails
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function getLvrStatut(): ?LvrStatut
+    {
+        return $this->lvrStatut;
+    }
+
+    public function setLvrStatut(?LvrStatut $lvrStatut): self
+    {
+        $this->lvrStatut = $lvrStatut;
 
         return $this;
     }

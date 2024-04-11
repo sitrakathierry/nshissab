@@ -10044,13 +10044,15 @@ a.text-dark:hover, a.text-dark:focus {
     font-weight: 600;
     letter-spacing: 1px;
 }
+
 .title_form_entete
 {
-  font-size: 1.15em;
+  font-size: 0.92em;
   font-weight: 600;
   letter-spacing: 1px;
   text-decoration: underline ;
 }
+
 * {
     font-family: "Poppins", Arial, sans-serif;
 }
@@ -10066,7 +10068,7 @@ a.text-dark:hover, a.text-dark:focus {
     justify-content: center ;
 }
 .table {
-  border: 0.5px solid #000000;
+  /* border: 0.5px solid #000000; */
 }
 .table-bordered > thead,
 .table-bordered > tbody,
@@ -10087,6 +10089,7 @@ footer {
    transform: translateX(-30px);
    color: black ;
    padding-top: 30px ;
+   font-size: 0.65em !important; /* Taille de police de base */
 }
 
 th .text-right, td .text-right{
@@ -10098,16 +10101,21 @@ th .text-right, td .text-right{
   width: 100px !important ;
 }
 
-footer {
-  font-size: 10px; /* Taille de police de base */
-}
-
 @supports (font-size: clamp(1px, 1vw, 0.5em)) {
   footer {
     font-size: clamp(10px, 1vw, 0.5em); /* Ajuste la taille de police en fonction de la largeur de la fenêtre, mais ne dépasse pas 0.9em */
   }
 }
 
+.sizePdf
+{
+  font-size: 0.85em !important ;
+}
+
+.familyRoman 
+{
+  font-family: 'Times New Roman' !important ;
+}
 
 </style>
 <div style="width: 100% !important">
@@ -10115,12 +10123,12 @@ footer {
         {{contentEntete|raw}}
     </div>
     <div>
-        <div class="mt-1" style="width: 380px; margin-left: 57%">
-            <ul class="list-unstyled" style="line-height: 20px ; font-size: 0.92em">
+        <div class="mt-1" style="width: 380px; margin-left: 65%">
+            <ul class="list-unstyled sizePdf" style="line-height: 20px ;">
                 <h5 class="title_form_entete text-black text-uppercase">Bon de Livraison <br> N° {{facture.numBonLivraison}}</h5>
-                <li><span class="font-weight-bold">Nom Client</span>&nbsp;:&nbsp;<span>{{client.nom}}</span></li>
-                <li><span class="font-weight-bold">Adresse</span>&nbsp;:&nbsp;<span>{{client.adresse}}</span></li>
-                <li><span class="font-weight-bold">Téléphone</span>&nbsp;:&nbsp;<span>{{client.telephone}}</span></li>
+                <li class="familyRoman"><span class="font-weight-bold familyRoman">Nom Client</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.nom}}</span></li>
+                <li class="familyRoman"><span class="font-weight-bold familyRoman">Adresse</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.adresse}}</span></li>
+                <li class="familyRoman"><span class="font-weight-bold familyRoman">Téléphone</span>&nbsp;:&nbsp;<span class="familyRoman">{{client.telephone}}</span></li>
             </ul>
         </div>
         {% if facture.description is not empty %}
@@ -10128,7 +10136,7 @@ footer {
             {{ facture.description | raw}}
           </div>
         {% endif %}
-        <div class="table-responsive mt-2">
+        <div class="table-responsive sizePdf mt-2">
             <table class="table table-sm table-bordered">
                 <thead class="thead-dark">
                     <tr>
@@ -10139,6 +10147,7 @@ footer {
                         <th class="text-right">Type Remise</th>
                         <th class="text-right">Valeur Remise</th>
                         <th class="text-right expand_width">Montant Total</th>
+                        <th>Statut</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -10151,6 +10160,7 @@ footer {
                             <td class="text-right">{{detail.typeRemise}}</td>
                             <td class="text-right">{{detail.valRemise|number_format(0, ',', ' ')}}</td>
                             <td class="text-right expand_width" >{{detail.total|number_format(0, ',', ' ')}}</td>
+                            <td class="align-middle">{{detail.nomStatut|upper}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -10159,8 +10169,9 @@ footer {
                     <tr>
                         <th colspan="6">Total HT</th>
                         <th class="bg-light text-right expand_width">{{facture.totalHt|number_format(0, ',', ' ')}}</th>
+                        <th class="bg-light text-right" ></th>
                     </tr>
-                    <tr>
+                    {# <tr>
                         <th colspan="6">Remise</th>
                         <th class="bg-light text-right expand_width">{{facture.remise|number_format(0, ',', ' ')}}</th>
                     </tr>
@@ -10177,21 +10188,21 @@ footer {
                             <th colspan="6">Montant en {{facture.deviseCaption}}</th>
                             <th class="bg-light text-right expand_width">{{facture.deviseValue}}</th>
                         </tr>
-                    {% endif %}
+                    {% endif %} #}
                 </tfoot>
             </table>
-            <div class="w-100 mt-2" style="font-size: 0.92em ">
-                Arrêté la présente facture à la somme de <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}&nbsp;{{facture.deviseLettre}}</span>
+            <div class="w-100 mt-2 sizePdf">
+                <span id="cmd_somme_lettre" class="font-weight-bold text-uppercase">{{facture.lettre}}&nbsp;{{facture.deviseLettre}}</span>
             </div>
         </div>
-        <div class="w-100 text-right mt-3" style="font-size: 0.92em ">
+        <div class="w-100 text-right sizePdf mt-3">
             <span>Fait à {{facture.lieu}}, le {{facture.date}}</span>
         </div>
-        <h5 class="title_form text-black text-uppercase text-left mt-3 px-3"><span></span><span style="margin-left:390px !important;">Signature</span></h5>
+        <h5 class="title_form text-black sizePdf text-uppercase text-left mt-3 px-3"><span></span><span style="margin-left:450px !important;">Signature</span></h5>
     </div>
 </div>
 <footer>
-  {{contentBas|raw}}
+  {{contentBas|raw}} 
 </footer>
 
 

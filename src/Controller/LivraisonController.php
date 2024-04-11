@@ -12,6 +12,7 @@ use App\Entity\Facture;
 use App\Entity\HistoHistorique;
 use App\Entity\LvrDetails;
 use App\Entity\LvrLivraison;
+use App\Entity\LvrStatut;
 use App\Entity\ModModelePdf;
 use App\Entity\User;
 use App\Service\AppService;
@@ -61,7 +62,7 @@ class LivraisonController extends AbstractController
             "titlePage" => "Création bon de livraison",
             "with_foot" => true
         ]);
-    }
+    } 
     
     #[Route('/livraison/facture/display', name: 'lvr_facture_display')]
     public function lvrFactureDisplay(Request $request)
@@ -77,8 +78,6 @@ class LivraisonController extends AbstractController
                 "source" => $bonCommande->getId(),
                 "typeSource" => "BonCommande"
             ]) ;
-
-
         }
         else
         {
@@ -412,6 +411,61 @@ class LivraisonController extends AbstractController
 
         return new JsonResponse($result) ;
     }
+
+    #[Route('/livraison/bon/update', name: 'lvr_update_bon_livraison')]
+    public function lvrUpdateBonLivraison(Request $request)
+    {
+        $lvr_creation_description = $request->request->get('lvr_creation_description') ;
+        $lvr_lieu = $request->request->get('lvr_lieu') ;
+
+        $data = [
+            $lvr_lieu
+        ];
+
+        $dataMessage = [
+            "Lieu"
+        ] ;
+
+        $result = $this->appService->verificationElement($data,$dataMessage) ;
+        
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $lvr_id_facture_detail = (array)$request->request->get("lvr_id_facture_detail") ;
+
+        $lvr_id_bon_livraison = $request->request->get("lvr_id_bon_livraison") ;
+        
+        $bonLivraison = $this->entityManager->getRepository(LvrLivraison::class)->find($lvr_id_bon_livraison);
+                
+        $bonLivraison->setDescription($lvr_creation_description) ;
+        $bonLivraison->setLieu($lvr_lieu) ;
+
+        $this->entityManager->flush() ;
+
+        $lvrStatut = $this->entityManager->getRepository(LvrStatut::class)->findOneBy([
+            "reference" => "LIVRE"
+        ]);
+
+        for ($i=0; $i < count($lvr_id_facture_detail); $i++) { 
+            $idLvrDetail = $lvr_id_facture_detail[$i] ;
+
+            $lvrDetail = $this->entityManager->getRepository(LvrDetails::class)->find($idLvrDetail) ;
+
+            $lvrDetail->setLvrStatut($lvrStatut) ;
+        }
+
+        $this->entityManager->flush() ;
+
+        $filename = $this->filename."bonLivraison(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Mise à jour effectué"
+        ]) ;
+    }
     
     #[Route('/livraison/activities/consultation', name: 'lvr_consultation_livraison')]
     public function lvrConsultationLivraison()
@@ -508,7 +562,7 @@ class LivraisonController extends AbstractController
         $livraison["id"] = $bonLivraison->getId() ;
         $livraison["numLivraison"] = $bonLivraison->getNumLivraison() ;
         $livraison["libelleNum"] = $libelle ;
-        $livraison["description"] = $bonLivraison->getNumLivraison() ;
+        $livraison["description"] = $bonLivraison->getDescription() ;
         $livraison["valeurNum"] = $numero ;
         $livraison["date"] = $bonLivraison->getDate()->format('d/m/Y') ;
         $livraison["lieu"] = $bonLivraison->getLieu() ;
@@ -527,6 +581,8 @@ class LivraisonController extends AbstractController
             $detail["type"] = $lvrDetail->getFactureDetail()->getActivite() ;
             $detail["designation"] = $lvrDetail->getFactureDetail()->getDesignation() ;
             $detail["quantite"] = $lvrDetail->getFactureDetail()->getQuantite() ;
+            $detail["lvrStatut"] = !is_null($lvrDetail->getLvrStatut()) ? $lvrDetail->getLvrStatut()->getId() : null ;
+            $detail["nomLvrStatut"] = !is_null($lvrDetail->getLvrStatut()) ? $lvrDetail->getLvrStatut()->getNom() : null ;
 
             array_push($details,$detail) ;
         } 
@@ -613,7 +669,6 @@ class LivraisonController extends AbstractController
             "numBonLivraison" => $bonLivraison->getNumLivraison() ,
             "numFact" => $facture->getNumFact() ,
             "type" => $facture->getType()->getReference() == "DF" ? "" : $facture->getType()->getNom() ,
-            "lettre" => $this->appService->NumberToLetter($facture->getTotal()) ,
             "deviseLettre" => is_null($this->agence->getDevise()) ? "" : $this->agence->getDevise()->getLettre() ,
             "description" => $bonLivraison->getDescription() 
         ] ;
@@ -649,8 +704,13 @@ class LivraisonController extends AbstractController
             }
         }
 
-        $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
-            "facture" => $facture,
+        $lvrStatut = $this->entityManager->getRepository(LvrStatut::class)->findOneBy([
+            "reference" => "LIVRE"
+        ]);
+
+        $lvrDetails = $this->entityManager->getRepository(LvrDetails::class)->findBy([
+            "livraison" => $bonLivraison,
+            // "lvrStatut" => $lvrStatut,
             "statut" => True,
         ]) ;
 
@@ -658,7 +718,10 @@ class LivraisonController extends AbstractController
         $totalHt = 0 ;
         $totalTva = 0 ;
 
-        foreach ($details as $detail) {
+        foreach ($lvrDetails as $lvrDetail) {
+
+            $detail = $lvrDetail->getFactureDetail() ;
+
             $tvaVal = is_null($detail->getTvaVal()) ? 0 : $detail->getTvaVal() ;
             $tva = (($detail->getPrix() * $tvaVal) / 100) * $detail->getQuantite();
             $total = $detail->getPrix() * $detail->getQuantite()  ;
@@ -677,6 +740,8 @@ class LivraisonController extends AbstractController
             $element["valRemise"] = $detail->getRemiseVal() ;
             $element["statut"] = $detail->isStatut();
             $element["total"] = $total ;
+            $element["nomStatut"] = is_null($lvrDetail->getLvrStatut()) ? "Non Livré" : "Livré" ;
+
             array_push($dataDetails,$element) ;
 
             $totalHt += $total ;
@@ -687,8 +752,9 @@ class LivraisonController extends AbstractController
         $dataFacture["totalTva"] = $totalTva ;
         $dataFacture["remise"] = $this->appService->getFactureRemise($facture,$totalHt) ; 
         $dataFacture["devise"] = !is_null($facture->getDevise()) ;
-        $dataFacture["date"] = $facture->getDate()->format("d/m/Y") ;
-        $dataFacture["lieu"] = $facture->getLieu() ;
+        $dataFacture["lettre"] = $this->appService->NumberToLetter($totalHt) ;
+        $dataFacture["date"] = $bonLivraison->getDate()->format("d/m/Y") ;
+        $dataFacture["lieu"] = $bonLivraison->getLieu() ;
 
         if(!is_null($facture->getDevise()))
         {

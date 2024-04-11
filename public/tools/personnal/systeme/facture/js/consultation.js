@@ -114,7 +114,7 @@ $(document).ready(function(){
     function searchFacture()
     {
         var instance = new Loading(files.search) ;
-        $(".elem_facture").html(instance.search(8)) ;
+        $(".elem_facture").html(instance.search(9)) ;
         var formData = new FormData() ;
         for (let j = 0; j < elemSearch.length; j++) {
             const search = elemSearch[j];

@@ -20,7 +20,7 @@
                 <th>Type Remise</th>
                 <th>Valeur Remise</th>
                 <th>Montant Total</th>
-                <th></th>
+                {# <th></th> #}
             </tr>
         </thead>
         <tbody> 
@@ -34,15 +34,17 @@
                     <td>{{ factureDetail.tva }}</td>
                     <td>{{ factureDetail.typeRemise }}</td>
                     <td>{{ factureDetail.valRemise }}</td>
-                    <td>{{ factureDetail.total }}</td>
-                    <td class="text-center align-middle">
+                    <td>
+                        {{ factureDetail.total }}
+                        <input type="hidden" value="{{ factureDetail.id }}" class="lvr_id_facture_detail" name="lvr_id_facture_detail[]">
+                    </td>
+                    {# <td class="text-center align-middle">
                         {% if factureDetail.statut is not empty %}
                             {{factureDetail.statut|raw}}
                         {% else %}
                         <button type="button" value="{{ factureDetail.id }}" class="btn btn_lvr_check btn-outline-success btn-sm font-smaller"><i class="fa fa-check"></i></button>
-                        {# <button class="btn btn-outline-danger btn-sm font-smaller"><i class="fa fa-times"></i></button> #}
                         {% endif %}
-                    </td>
+                    </td> #}
                 </tr>
             {% endfor %}
         </tbody>
@@ -50,28 +52,28 @@
             <tr>
                 <th colspan="8">Total HT</th>
                 <th class="bg-light">{{facture.totalHt}}</th>
-                <td class="bg-light"></td>
+                {# <td class="bg-light"></td> #}
             </tr>
             <tr>
                 <th colspan="8">Remise</th>
                 <th class="bg-light">{{facture.remise}}</th>
-                <td class="bg-light"></td>
+                {# <td class="bg-light"></td> #}
             </tr>
             <tr>
                 <th colspan="8">Total TVA</th>
                 <th class="bg-light">{{facture.totalTva}}</th> 
-                <td class="bg-light"></td>
+                {# <td class="bg-light"></td> #}
             </tr>
             <tr>
                 <th colspan="8">Total TTC</th>
                 <th class="bg-primary text-white">{{facture.totalTtc}}</th>
-                <td class="bg-primary"></td>
+                {# <td class="bg-primary"></td> #}
             </tr>
             {% if facture.devise %}
                 <tr>
                     <th colspan="8">Montant en {{facture.deviseCaption}}</th>
                     <th class="bg-light">{{facture.deviseValue}}</th>
-                    <td class="bg-light"></td>
+                    {# <td class="bg-light"></td> #}
                 </tr>
             {% endif %}
         </tfoot>
