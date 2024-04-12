@@ -57,7 +57,7 @@
                                         <b class="text-success font-smaller">{{detail.nomLvrStatut|upper}}</b>
                                     {% endif %}
                                 </td>
-                                <td>-</td>
+                                <td>{{detail.dateLivraison}}</td>
                             </tr>
                             {% set totalQte = totalQte + detail.quantite %}
                         {% endfor %}
@@ -91,7 +91,6 @@
                             </tr>
                         </thead>
                         <tbody class="elemDateLvr">
-                            <input type="hidden" var="">
                         </tbody>
                     </table>
                 </div>

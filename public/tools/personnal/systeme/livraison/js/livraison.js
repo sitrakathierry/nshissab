@@ -351,10 +351,11 @@ $(document).ready(function(){
     $(".btn_ajouter_date_livraison").click(function(){
         var lvr_date_livraison = $("#lvr_date_livraison").val() ; 
         var nombreProduit = 0 ;
-
+        var tabIdProduit = [] ;
         $(".btn_lvr_check").each(function(){
             if($(this).hasClass("btn-success"))
             {
+                tabIdProduit.push($(this).attr("value")) ;
                 nombreProduit++ ;
             }
         }) ;
@@ -400,12 +401,26 @@ $(document).ready(function(){
             return false ;
         }
 
+        var compteLigne = ($(".elemDateLvr").find("tr")).length ;
+
+        if(compteLigne > 0)
+        {
+            $.alert({
+                title:"Message",
+                content:"Veuillez enregistrer votre action précédente",
+                type:'orange'
+            }) ;
+
+            return false ;
+        }
+
         var element = `
             <tr>
                 <td class="item_date_livraison" >`+lvr_date_livraison+`</td>
                 <td>
                     `+appBase.str_pad(nombreProduit, 2, '0', 'left')+` produit(s)
-                    
+                    <input type="hidden" name="enr_date_livraison" value="`+lvr_date_livraison+`">
+                    <input type="hidden" name="enr_produit_livree" id="enr_produit_livree" value="`+tabIdProduit+`">
                 </td>
             </tr>` ;
 

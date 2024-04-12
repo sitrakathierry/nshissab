@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\LvrDetailsRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LvrDetailsRepository::class)]
@@ -27,6 +28,9 @@ class LvrDetails
 
     #[ORM\ManyToOne(inversedBy: 'lvrDetails')]
     private ?LvrStatut $lvrStatut = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateLivraison = null;
 
     public function getId(): ?int
     {
@@ -89,6 +93,18 @@ class LvrDetails
     public function setLvrStatut(?LvrStatut $lvrStatut): self
     {
         $this->lvrStatut = $lvrStatut;
+
+        return $this;
+    }
+
+    public function getDateLivraison(): ?\DateTimeInterface
+    {
+        return $this->dateLivraison;
+    }
+
+    public function setDateLivraison(?\DateTimeInterface $dateLivraison): self
+    {
+        $this->dateLivraison = $dateLivraison;
 
         return $this;
     }

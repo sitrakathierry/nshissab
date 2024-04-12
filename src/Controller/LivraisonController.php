@@ -431,6 +431,9 @@ class LivraisonController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
+        $enr_date_livraison = $request->request->get('enr_date_livraison') ;
+        $enr_produit_livree = explode(",",$request->request->get('enr_produit_livree'))  ;
+
         $lvr_id_facture_detail = (array)$request->request->get("lvr_id_facture_detail") ;
 
         $lvr_id_bon_livraison = $request->request->get("lvr_id_bon_livraison") ;
@@ -445,6 +448,16 @@ class LivraisonController extends AbstractController
         $lvrStatut = $this->entityManager->getRepository(LvrStatut::class)->findOneBy([
             "reference" => "LIVRE"
         ]);
+
+        foreach ($enr_produit_livree as $assocDate) {
+            // $idLvrDetail = $lvr_id_facture_detail[$i] ;
+
+            $lvrDetail = $this->entityManager->getRepository(LvrDetails::class)->find($assocDate) ;
+
+            $lvrDetail->setDateLivraison(\DateTime::createFromFormat("d/m/Y",$enr_date_livraison)) ;
+        }
+
+        $this->entityManager->flush() ;
 
         for ($i=0; $i < count($lvr_id_facture_detail); $i++) { 
             $idLvrDetail = $lvr_id_facture_detail[$i] ;
@@ -583,6 +596,7 @@ class LivraisonController extends AbstractController
             $detail["quantite"] = $lvrDetail->getFactureDetail()->getQuantite() ;
             $detail["lvrStatut"] = !is_null($lvrDetail->getLvrStatut()) ? $lvrDetail->getLvrStatut()->getId() : null ;
             $detail["nomLvrStatut"] = !is_null($lvrDetail->getLvrStatut()) ? $lvrDetail->getLvrStatut()->getNom() : null ;
+            $detail["dateLivraison"] = !is_null($lvrDetail->getDateLivraison()) ? $lvrDetail->getDateLivraison()->format("d/m/Y") : "-" ;
 
             array_push($details,$detail) ;
         } 
