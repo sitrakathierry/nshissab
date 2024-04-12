@@ -423,7 +423,7 @@ class FactureController extends AbstractController
         $factures = json_decode(file_get_contents($filename)) ;
 
         $search = [
-            "specification" => "NONE"
+            "specification" => "NONE" 
         ] ;
         
         $item1 = $this->appService->searchData($factures, $search) ;

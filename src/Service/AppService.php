@@ -1508,10 +1508,13 @@ class AppService extends AbstractController
                         }
                     }
 
-                    if(!isset($itemEntrepot["idEntrepot"]))
-                        $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
-                    else
-                        $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
+                    if(isset($item[$cle]))
+                    {
+                        if(!isset($itemEntrepot["idEntrepot"]))
+                            $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
+                        else
+                            $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
+                    }
                 }
 
                 if(isset($itemEntrepot["idEntrepot"]))
@@ -1531,6 +1534,7 @@ class AppService extends AbstractController
                     }
                 }
             }
+
             $element = [] ;
 
             $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
