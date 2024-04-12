@@ -1684,7 +1684,8 @@ class FactureController extends AbstractController
 
                     // $element["designation"] = $detailBatiment["designation"] ;
                     $element["designation"] = "-" ;
-                    $element["mesure"] = $detailBatiment["mesure"] ;
+                    // $element["mesure"] = $detailBatiment["mesure"] ;
+                    $element["mesure"] = "-" ;
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
                 }
