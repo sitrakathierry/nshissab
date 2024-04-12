@@ -1,9 +1,12 @@
 $(document).ready(function(){
     var cmd_creation_description = new LineEditor(".lvr_creation_description") ;
-    var instance = new Loading(files.loading)
+    var instance = new Loading(files.loading) ;
+    var appBase = new AppBase() ;
+
     cmd_creation_description.setEditorText($(".lvr_creation_description").text())
     $("#lvr_date").datepicker()
-    
+    $("#lvr_date_livraison").datepicker()
+
     $("#lvr_val_source").chosen({
         no_results_text: "Aucun resultat trouvé : "
     }); 
@@ -343,6 +346,78 @@ $(document).ready(function(){
                 }
             }
         })
+    }) ;
+
+    $(".btn_ajouter_date_livraison").click(function(){
+        var lvr_date_livraison = $("#lvr_date_livraison").val() ; 
+        var nombreProduit = 0 ;
+
+        $(".btn_lvr_check").each(function(){
+            if($(this).hasClass("btn-success"))
+            {
+                nombreProduit++ ;
+            }
+        }) ;
+        
+        nombreProduit = nombreProduit == 0 ? "" : nombreProduit ;
+
+        var result = appBase.verificationElement([
+            lvr_date_livraison,
+            nombreProduit
+        ],[
+            "Date de livraison",
+            "Nombre de Produit livré"
+    ])
+        if(!result["allow"])
+        {
+            $.alert({
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            });
+
+            return result["allow"] ;
+        }
+
+        var exist = false;
+
+        $(".elemDateLvr").each(function(){
+            if($(this).find(".item_date_livraison").text() == lvr_date_livraison)
+            {
+                exist = true ;
+                return ;
+            }
+        }) ;
+
+        if(exist)
+        {
+            $.alert({
+                title:"Message",
+                content:"Désolé, vous ne pouvez pas ajouter cette date",
+                type:'orange'
+            }) ;
+
+            return false ;
+        }
+
+        var element = `
+            <tr>
+                <td class="item_date_livraison" >`+lvr_date_livraison+`</td>
+                <td>
+                    `+appBase.str_pad(nombreProduit, 2, '0', 'left')+` produit(s)
+                    
+                </td>
+            </tr>` ;
+
+        $(".elemDateLvr").append(element) ;
+        
+        $("#lvr_date_livraison").val("")
+
+        // $.alert({
+        //     title:"Message",
+        //     content:nombreProduit,
+        // }) ;
+
     })
 
 })
