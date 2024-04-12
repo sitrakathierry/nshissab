@@ -40,6 +40,7 @@
                             <th>Désignation</th>
                             <th>Quantité</th>
                             <th></th>
+                            <th>Date de livraison</th>
                         </tr>
                     </thead>
                     <tbody> 
@@ -56,6 +57,7 @@
                                         <b class="text-success font-smaller">{{detail.nomLvrStatut|upper}}</b>
                                     {% endif %}
                                 </td>
+                                <td>-</td>
                             </tr>
                             {% set totalQte = totalQte + detail.quantite %}
                         {% endfor %}
@@ -64,6 +66,7 @@
                         <tr>
                             <th colspan="2" >Total</th>
                             <th colspan="2" class="bg-light">{{totalQte}}</th>
+                            <td class="bg-light"></td>
                         </tr>
                     </tfoot>
                 </table>
