@@ -269,7 +269,7 @@
                                     {% set totalRestant = facture.totalTtc - totalPayee - totalCredit %}
                                     <th {{ refPaiement == "CR" ? 'colspan="3"' : 'colspan="2"' }}>Total Restant</th>
                                     <th colspan="3" class="bg-primary text-white">{{ totalRestant | format_number }}</th>
-                                    <input type="hidden" name="credit_total_restant" id="credit_total_restant"  value="{{ totalRestant | format_number }}">
+                                    <input type="hidden" name="credit_total_restant" id="credit_total_restant"  value="{{totalRestant}}">
                                 </tr>
                             </tfoot>
                         </table>

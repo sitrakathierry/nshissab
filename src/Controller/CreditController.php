@@ -76,7 +76,7 @@ class CreditController extends AbstractController
             "classement" => "CR"
         ],["rang" => "ASC"]) ;
 
-        return $this->render('credit/consultationCredit.html.twig', [
+        return $this->render('credit/consultationCredit.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Consultation Credit",
             "with_foot" => false,
