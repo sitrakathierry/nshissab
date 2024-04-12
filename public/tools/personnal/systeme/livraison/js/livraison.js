@@ -253,13 +253,13 @@ $(document).ready(function(){
                                     success: function(response){
                                         realinstance.close()
 
-                                        $.alert({
-                                            title: "mise à jour en attente (02)",
-                                            content: ". . .",
-                                            type: "black"
-                                        })
+                                        // $.alert({
+                                        //     title: "mise à jour en attente (02)",
+                                        //     content: ". . .",
+                                        //     type: "black"
+                                        // })
                                 
-                                        return false ;
+                                        // return false ;
 
                                         var idLivraison = self.data("value") ;
                                         var url = routes.lvr_bon_livraison_detail_imprimer + '/' + idLivraison + '/' + idModeleEntete + '/' + idModeleBas;
