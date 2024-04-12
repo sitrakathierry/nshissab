@@ -1680,7 +1680,7 @@ class FactureController extends AbstractController
                         "idFactDetail" => $element["id"]
                     ]) ;
     
-                    $element["designation"] = $detailBatiment["designation"] ;
+                    $element["designation"] = is_null($detailBatiment["designation"]) ? "" : $detailBatiment["designation"] ;
                     $element["mesure"] = $detailBatiment["mesure"] ;
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
