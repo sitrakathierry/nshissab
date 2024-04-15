@@ -1682,9 +1682,9 @@ class FactureController extends AbstractController
     
                     // dd($detailBatiment["designation"]) ;
 
-                    if(is_bool($detailBatiment["designation"]))
+                    if($detailBatiment["designation"] ?? null)
                         dd($detailBatiment["designation"]) ;
-                    
+
                     $element["designation"] = $detailBatiment["designation"] ;
                     // $element["designation"] = "-" ;
                     $element["mesure"] = $detailBatiment["mesure"] ;
