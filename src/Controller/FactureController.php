@@ -1680,10 +1680,10 @@ class FactureController extends AbstractController
                         "idFactDetail" => $element["id"]
                     ]) ;
     
-                    // dd($detailBatiment["designation"]) ;
+                    dd($detailBatiment["designation"][0]) ;
 
-                    if($detailBatiment["designation"] ?? null)
-                        dd($detailBatiment["designation"]) ;
+                    // if($detailBatiment["designation"] ?? null)
+                    //     dd($detailBatiment["designation"]) ;
 
                     $element["designation"] = $detailBatiment["designation"] ;
                     // $element["designation"] = "-" ;
