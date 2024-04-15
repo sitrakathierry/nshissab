@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AgdLivraison;
 use App\Entity\Agence;
 use App\Entity\CmdBonCommande;
 use App\Entity\CmdStatut;
@@ -445,6 +446,21 @@ class LivraisonController extends AbstractController
 
         $this->entityManager->flush() ;
 
+        // DEBUT AJOUT LIVRAISON SUR AGENDA
+
+        $agdLivraison = new AgdLivraison() ;
+
+        $agdLivraison->setLivraison($bonLivraison) ;
+        $agdLivraison->setDate(\DateTime::createFromFormat("d/m/Y",$enr_date_livraison)) ;
+        $agdLivraison->setObjet("LIVRAISON DE ".str_pad(count($enr_produit_livree),2,"0",STR_PAD_LEFT)." PRODUIT, BON DE LIVRAISON N° ".$bonLivraison->getNumLivraison()) ;
+        $agdLivraison->setStatut(True) ;
+        $agdLivraison->setAgence($this->agence) ;
+
+        $this->entityManager->persist($agdLivraison) ;
+        $this->entityManager->flush() ;
+
+        // FIN AJOUT LIVRAISON SUR AGENDA
+        
         $lvrStatut = $this->entityManager->getRepository(LvrStatut::class)->findOneBy([
             "reference" => "LIVRE"
         ]);
@@ -470,7 +486,10 @@ class LivraisonController extends AbstractController
         $this->entityManager->flush() ;
 
         $filename = $this->filename."bonLivraison(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
 
+        $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
         if(file_exists($filename))
             unlink($filename) ;
 

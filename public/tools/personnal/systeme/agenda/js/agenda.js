@@ -151,7 +151,7 @@ $(document).ready(function(){
             dataType: 'html',
             processData: false,
             contentType: false,
-            success: function(resp){  
+            success: function(resp){   
               realinstance.close()
               $.confirm({
                 columnClass: 'agdDisplayDate',

@@ -7,11 +7,14 @@ use App\Entity\AgdCommentaire;
 use App\Entity\AgdEcheance;
 use App\Entity\AgdHistoAcompte;
 use App\Entity\AgdHistorique;
+use App\Entity\AgdLivraison;
 use App\Entity\AgdTypes;
 use App\Entity\Agence;
 use App\Entity\Agenda;
+use App\Entity\CmdBonCommande;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
+use App\Entity\Facture;
 use App\Entity\HistoHistorique;
 use App\Entity\User;
 use App\Service\AppService;
@@ -87,8 +90,9 @@ class AgendaController extends AbstractController
     public function agdConsultationAgenda(): Response
     {
         $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
+        $this->appService->checkAllDateAgenda($filename) ;
+
         if (!file_exists($filename)) {
-            $this->appService->checkAllDateAgenda() ;
             $this->appService->generateAgenda($filename, $this->agence) ;
         }
 
@@ -112,7 +116,7 @@ class AgendaController extends AbstractController
             "titlePage" => "Consultation agenda",
             "with_foot" => false,
             "calendarFile" => $filename,
-            "mois" => $mois
+            "mois" => $mois 
         ]);
     }
 
@@ -319,11 +323,63 @@ class AgendaController extends AbstractController
             array_push($acompteArray,$element) ; 
         }
 
+        // DEBUT DETAIL AGENDA LIVRAISON 
+
+        $agdLivraisons = $this->entityManager->getRepository(AgdLivraison::class)->findBy([
+            "agence" => $this->agence,
+            "date" => \DateTime::createFromFormat('Y-m-d', $date)
+        ]) ;
+
+        $livraisonArray = [] ;
+        foreach ($agdLivraisons as $agdLivraison) {
+            $livraison = $agdLivraison->getLivraison() ;
+
+            if($livraison->getTypeSource() == "Facture")
+            {
+                $facture = $this->entityManager->getRepository(Facture::class)->find($livraison->getSource()) ;   
+            }
+            else
+            {
+                $bc = $this->entityManager->getRepository(CmdBonCommande::class)->find($livraison->getSource()) ; 
+                $facture = $bc->getFacture() ;  
+            }
+
+            $client = $this->appService->getFactureClient($facture)["client"] ;
+            
+            // Personnalier le statut pour pouvoir faciliter l'affichage
+            //  - En cours : 1 => ECR
+            //  - En Alerte : NULL => WRN
+            //  - Terminé : 0 => END
+
+            if($agdLivraison->isStatut())
+            {
+                $statut = "ECR" ;
+            }
+            else
+            {
+                $statut = "END" ;
+            }
+
+            $element = [] ;
+
+            $element["type"] = "Livraison" ;
+            $element["id"] = $agdLivraison->getLivraison()->getId() ;
+            $element["client"] = $client ;
+            $element["statut"] = $statut ;
+            $element["numLvr"] = $livraison->getNumLivraison() ;
+            $element["objet"] = $agdLivraison->getObjet() ;
+
+            array_push($livraisonArray,$element) ; 
+        }
+
+        // FIN DETAIL AGENDA LIVRAISON 
+
         $listEcheances = $elements ;
         $response = $this->renderView("agenda/detailsDateAganda.html.twig", [
             "agendas" => $agendas,
             "listEcheances" => $listEcheances,
-            "acompteArray" => $acompteArray
+            "acompteArray" => $acompteArray,
+            "livraisonArray" => $livraisonArray
         ]) ;
 
         return new Response($response) ;

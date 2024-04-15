@@ -49,9 +49,13 @@ class LvrLivraison
     #[ORM\OneToMany(mappedBy: 'livraison', targetEntity: LvrDetails::class)]
     private Collection $lvrDetails;
 
+    #[ORM\OneToMany(mappedBy: 'livraison', targetEntity: AgdLivraison::class)]
+    private Collection $agdLivraisons;
+
     public function __construct()
     {
         $this->lvrDetails = new ArrayCollection();
+        $this->agdLivraisons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -203,6 +207,36 @@ class LvrLivraison
             // set the owning side to null (unless already changed)
             if ($lvrDetail->getLivraison() === $this) {
                 $lvrDetail->setLivraison(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AgdLivraison>
+     */
+    public function getAgdLivraisons(): Collection
+    {
+        return $this->agdLivraisons;
+    }
+
+    public function addAgdLivraison(AgdLivraison $agdLivraison): self
+    {
+        if (!$this->agdLivraisons->contains($agdLivraison)) {
+            $this->agdLivraisons->add($agdLivraison);
+            $agdLivraison->setLivraison($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgdLivraison(AgdLivraison $agdLivraison): self
+    {
+        if ($this->agdLivraisons->removeElement($agdLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($agdLivraison->getLivraison() === $this) {
+                $agdLivraison->setLivraison(null);
             }
         }
 

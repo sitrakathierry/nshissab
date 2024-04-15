@@ -24,7 +24,15 @@
         </div>
     {% endfor %}
 {% endif %}
-{% if agendas is empty and listEcheances is empty and acompteArray is empty %}
+{% if livraisonArray is not empty %}
+    {% for agendaLivraison in livraisonArray %}
+        {% set statutLVR = agendaLivraison.statut == "ECR" ? "bg-outline-info" : "bg-outline-dark"  %}
+        <div class="border rounded py-2 px-3 m-2 {{statutLVR}} d-flex flex-row align-items-center">
+            <i class="fa fa-truck"></i><span class="ml-3 lh-2"><b>{{"Livraison"|upper}}</b> - Objet : <b>{{agendaLivraison.objet}}</b> - Bon deLivraison N° : <b>{{agendaLivraison.numLvr}}</b> - Client : <b>{{agendaLivraison.client|upper}}</b> &emsp;<a href="{{path('lvr_details_bon_livraison',{'id':agendaLivraison.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        </div>
+    {% endfor %}
+{% endif %}
+{% if agendas is empty and listEcheances is empty and acompteArray is empty and livraisonArray is empty %}
     <div class="border rounded p-2 m-2 bg-outline-warning d-flex flex-row align-items-center">
         <b>Aucune information à signaler</b></span>
     </div>

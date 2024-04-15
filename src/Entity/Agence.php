@@ -226,6 +226,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: LctNumQuittance::class)]
     private Collection $lctNumQuittances;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AgdLivraison::class)]
+    private Collection $agdLivraisons;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -286,6 +289,7 @@ class Agence
         $this->modModelePdfs = new ArrayCollection();
         $this->histoHistoriques = new ArrayCollection();
         $this->lctNumQuittances = new ArrayCollection();
+        $this->agdLivraisons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2170,6 +2174,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($lctNumQuittance->getAgence() === $this) {
                 $lctNumQuittance->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AgdLivraison>
+     */
+    public function getAgdLivraisons(): Collection
+    {
+        return $this->agdLivraisons;
+    }
+
+    public function addAgdLivraison(AgdLivraison $agdLivraison): self
+    {
+        if (!$this->agdLivraisons->contains($agdLivraison)) {
+            $this->agdLivraisons->add($agdLivraison);
+            $agdLivraison->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgdLivraison(AgdLivraison $agdLivraison): self
+    {
+        if ($this->agdLivraisons->removeElement($agdLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($agdLivraison->getAgence() === $this) {
+                $agdLivraison->setAgence(null);
             }
         }
 

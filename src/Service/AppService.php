@@ -12,6 +12,7 @@ use App\Entity\AchType;
 use App\Entity\AgdAcompte;
 use App\Entity\AgdCategorie;
 use App\Entity\AgdEcheance;
+use App\Entity\AgdLivraison;
 use App\Entity\Agence;
 use App\Entity\Agenda;
 use App\Entity\BtpElement;
@@ -1915,7 +1916,8 @@ class AppService extends AbstractController
     {
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
             "agence" => $agence
-            ]) ;
+        ]) ;
+
         // Statut de l'agenda sur evènement et rendez-vous
             // -   En cours : 1
             // -   Terminé : 0
@@ -2017,6 +2019,38 @@ class AppService extends AbstractController
             array_push($elements,$element) ;
         }
 
+        // DEBUT BON DE LIVRAISON
+
+        $agdLivraisons = $this->entityManager->getRepository(AgdLivraison::class)->findBy([
+            "agence" => $agence
+        ]) ;
+
+        foreach ($agdLivraisons as $agdLivraison) {
+            $element = [] ;
+            $element["date"] = $agdLivraison->getDate()->format('Y-m-d') ;
+            $markup = '' ;
+
+            // Tous les statut sont : 
+            //     - En cours : 1
+            //     - Soldé : 0
+            //     - En souffrance : NULL
+
+            $statutAgdLvr = $agdLivraison->isStatut() ;
+
+            if($statutAgdLvr)
+            {
+                $markup = "<span class=\"badge bg-info m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
+            }
+            else
+            {
+                $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
+            }
+            $element["markup"] = $markup ;
+            array_push($elements,$element) ;
+        }
+
+        // FIN BON DE LIVRAISON
+
         $items = $elements ;
 
         // Group the markup by date using array_reduce
@@ -2044,7 +2078,7 @@ class AppService extends AbstractController
                 </div>
             </div>" ;
             array_push($agendaResult,$newMarkUp) ;
-        }   
+        }  
 
         file_put_contents($filename,json_encode($agendaResult)) ;
 
@@ -3239,44 +3273,55 @@ class AppService extends AbstractController
         }
     }
 
-    public function checkAllDateAgenda()
+    public function checkAllDateAgenda($filename)
     {
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
             "agence" => $this->agence
         ]) ;
         
         if(!is_null($agendas))
-            $this->validCompareDate($agendas) ;
+            $this->validCompareDate($agendas,$filename) ;
 
         $echeances = $this->entityManager->getRepository(AgdEcheance::class)->findBy([
             "agence" => $this->agence
         ]) ;
 
         if(!is_null($echeances))
-            $this->validCompareDate($echeances) ;
+            $this->validCompareDate($echeances,$filename) ;
 
-        $agendaAcomptes = $this->entityManager->getRepository(AgdAcompte::class)->findOneBy([
+        $agendaAcomptes = $this->entityManager->getRepository(AgdAcompte::class)->findBy([
             "agence" => $this->agence
         ]) ;
-        
+
         if(!is_null($agendaAcomptes))
-            $this->validCompareDate($agendaAcomptes) ;
+            $this->validCompareDate($agendaAcomptes,$filename) ;
+
+        $agdLivraisons = $this->entityManager->getRepository(AgdLivraison::class)->findBy([
+            "agence" => $this->agence
+        ]) ;
+
+        if(!is_null($agdLivraisons))
+            $this->validCompareDate($agdLivraisons,$filename) ;
+        
     }
 
-    public function validCompareDate($object)
+    public function validCompareDate($object, $filename)
     {
         $dateActuel = date('d/m/Y') ;
-        foreach ($object as $object) {
-            $dateAgdAcompte = $object->getDate()->format('d/m/Y') ; 
-        
+        foreach ($object as $obj) {
+            $dateAgdAcompte = $obj->getDate()->format('d/m/Y') ; 
             $compareInf = $this->compareDates($dateAgdAcompte,$dateActuel,"P") ;
-        
+            
             if($compareInf)
             {
-                if($object->isStatut())
+                if($obj->isStatut())
                 {
-                    $object->setStatut(NULL) ;
+                    // dd($obj) ;
+                    $obj->setStatut(NULL) ;
                     $this->entityManager->flush() ;
+
+                    if(file_exists($filename))
+                        unlink($filename) ;
                 }
             }
         }
