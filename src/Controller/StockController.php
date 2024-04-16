@@ -1250,18 +1250,20 @@ class StockController extends AbstractController
     #[Route('/stock/entrepot', name: 'stock_entrepot')]
     public function stockEntrepot(): Response
     {
-        
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
             $this->appService->generateStockEntrepot($filename,$this->agence) ;
         
         $entrepots = json_decode(file_get_contents($filename)) ;
 
+        $role = $this->userObj->getRoles()[0] ;
+
         return $this->render('stock/entrepot.html.twig', [
             "filename" => "stock",
             "titlePage" => "Entrepot",
             "with_foot" => true,
-            "entrepots" => $entrepots
+            "entrepots" => $entrepots,
+            "role" => $role
         ]);
     }
 

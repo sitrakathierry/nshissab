@@ -926,7 +926,7 @@ $(document).ready(function(){
         {
           $.alert({
             title:"Message",
-            content:"L'avoir utilisé ne doit pas dépasser le montant TTC",
+            content:"L'avoir utilisé ne doit pas dépasser le montant TTC", 
             type:"blue"
           }) ;
   

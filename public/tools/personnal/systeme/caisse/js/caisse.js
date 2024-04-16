@@ -170,9 +170,9 @@ $(document).ready(function(){
                         }
                     
                         var produitSelected = $("#caisse_search_produit").find("option:selected");
-                        var stock = parseInt(produitSelected.data("stock"))
+                        var stock = parseFloat(produitSelected.data("stock"))
 
-                        if(stock < parseInt(quantiteProduit))
+                        if(stock < parseFloat(quantiteProduit))
                         {
                             $.alert({
                                 title: "Stock insuffisant",

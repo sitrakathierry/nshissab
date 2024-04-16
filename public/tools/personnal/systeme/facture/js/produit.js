@@ -8,6 +8,20 @@ $(document).ready(function(){
 
     $(document).on("change",".fact_mod_prod_designation",function(){
         var self = $(this)
+        var stock = parseFloat($(".fact_mod_prod_designation").find("option:selected").data("stock"))
+        if($(".fact_btn_type.btn-primary").data("reference") == "DF")
+        {
+            if(stock <= 0)
+            {
+                $.alert({
+                    title: "Stock en alerte",
+                    content: "Désolé, vous ne pouvez pas ajouter ce produit. Veuiller faire un approvisionnment",
+                    type:'red',
+                })
+                return false ;
+            }
+        }
+
         var maRoute = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? routes.stock_get_produit_prix : routes.prest_get_service_prix ;
         var typeData = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? 'json' : 'html' ;
         if ($(this).is("select")) {
@@ -123,6 +137,21 @@ $(document).ready(function(){
             return result["allow"] ;
         }
 
+        if($(".fact_btn_type.btn-primary").data("reference") == "DF")
+        {
+            var stock = $("#fact_mod_prod_designation").find("option:selected").data("stock")
+            var quantiteProduit = parseFloat(fact_mod_prod_qte)
+    
+            if(stock < parseFloat(quantiteProduit))
+            {
+                $.alert({
+                    title: "Stock insuffisant",
+                    content: "Veuiller entrer une quantité inférieure au stock",
+                    type:'red',
+                })
+                return false ;
+            }
+        }
 
         var existant = false ;
         $(".elem_facture_produit tr").each(function(){
@@ -137,13 +166,13 @@ $(document).ready(function(){
                     return ;
                 }
             }
-        })
+        }) 
 
         if(existant)
         {
             $.alert({
                 title: 'Element existant',
-                content: "Vous ne pouvez pas ajouter cet élémnt avec ce prix car elle existe déjà ",
+                content: "Vous ne pouvez pas ajouter cet élément avec ce prix car elle existe déjà ",
                 type:'orange',
             })
             return false ;
