@@ -35,14 +35,14 @@ class BtpElementRepository extends ServiceEntityRepository
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->getEntityManager()->flush(); 
         }
     }
 
     public function getInformationElement($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT be.nom as designation, IF(bm.notation IS NULL,'-', bm.notation) as mesure FROM `fact_details` fd JOIN btp_element be ON be.id = fd.entite JOIN btp_mesure bm ON bm.id = be.mesure_id WHERE fd.id = ? ";
+        $sql = "SELECT be.nom as designation, IF(bm.notation IS NULL,'-', bm.notation) as mesure FROM `fact_details` fd JOIN btp_element be ON be.id = fd.entite LEFT JOIN btp_mesure bm ON bm.id = be.mesure_id WHERE fd.id = ? ";
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([$params["idFactDetail"]]);
         return $resultSet->fetchAssociative();
