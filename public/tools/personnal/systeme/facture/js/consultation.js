@@ -122,7 +122,7 @@ $(document).ready(function(){
         }
 
         $.ajax({
-            url: routes.facture_search_items ,
+            url: routes.facture_search_items , 
             type: 'post',
             cache: false,
             data:formData,

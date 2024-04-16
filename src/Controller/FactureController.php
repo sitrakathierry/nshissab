@@ -35,6 +35,7 @@ use App\Entity\LctPaiement;
 use App\Entity\LctRepartition;
 use App\Entity\LctStatutLoyer;
 use App\Entity\ModModelePdf;
+use App\Entity\PrdEntrepot;
 use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
 use App\Entity\SavAvoirUse;
@@ -1389,7 +1390,7 @@ class FactureController extends AbstractController
     {
         $this->appService->synchronisationFacture($this->agence) ;
 
-        if ($nature == "ANL")
+        if ($nature == "ANL")  
         {
             $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
             $facture = $annulation->getFacture() ;
@@ -2621,6 +2622,20 @@ class FactureController extends AbstractController
         } 
 
         $factures = $this->appService->searchData($factures,$search) ;
+
+        if(!empty($idEntrepot))
+        {
+            foreach ($factures as $key => $value) {
+                if($value->idEntrepot != "-")
+                {
+                    if(!empty($value->idEntrepot))
+                    {
+                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($idEntrepot) ;
+                        $factures[$key]->entrepot = $entrepot->getNom() ;
+                    }
+                }
+            }
+        }
 
         $response = $this->renderView("facture/searchFacture.html.twig", [
             "factures" => $factures
