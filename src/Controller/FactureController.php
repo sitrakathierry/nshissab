@@ -1652,7 +1652,7 @@ class FactureController extends AbstractController
                 ]) ;
             }
 
-            if($facture->getModele()->getReference() == "PBAT")
+            if($facture->getModele()->getReference() == "PBAT") 
             {
 
                 $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
@@ -1695,6 +1695,7 @@ class FactureController extends AbstractController
                     // }
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
+                    $totalFactureBatiment += 
                 }
                 
                 return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
