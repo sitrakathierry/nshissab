@@ -18,6 +18,9 @@ $(document).ready(function(){
                     content: "Désolé, vous ne pouvez pas ajouter ce produit. Veuiller faire un approvisionnment",
                     type:'red',
                 })
+
+                $(".fact_mod_prod_designation").val("")
+                $(".fact_mod_prod_designation").trigger('chosen:updated') ; 
                 return false ;
             }
         }
