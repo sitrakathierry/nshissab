@@ -1695,7 +1695,6 @@ class FactureController extends AbstractController
                     // }
 
                     $newTabFactureDetls[$key1][$key2][] = $element ;
-                    $totalFactureBatiment += 
                 }
                 
                 return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
