@@ -1,0 +1,73 @@
+ {% extends 'menu/index.html.twig' %}
+
+{% block title %}{{titlePage}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/utilisateur.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/utilisateur.js')}}" ></script>
+{% endblock %}
+{% block body %}
+<div class="barre_top rounded shadow mb-5">
+    <div class="w-100 border-bottom pt-2 px-3">
+        <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
+    </div>
+    <div class="container-fluid px-3">
+        <form id="formAffectEntrp">
+            <div class="row">
+                <div class="col-4">
+                    <label for="param_affect_user" class="mt-2 font-weight-bold">Agents</label>
+                    <select name="param_affect_user" class="custom-select chosen_select custom-select-sm" id="param_affect_user">
+                        <option value="">-</option>
+                        {% for agent in agents %}
+                            {% if agent.roles[0] == "AGENT" %}
+                                <option value="{{agent.id}}" >{{agent.username|upper}}</option>
+                            {% endif %}
+                        {% endfor %} 
+                    </select>
+                </div>
+                <div class="col-3">
+                    <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
+                    <button type="submit" class="btn btn-sm btn-block btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                </div>
+            </div>
+            <div class="table-responsive limit_tbody overflow-auto mt-4">
+                <table class="table table-bordered table-hover table-sm">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Adresse</th>
+                            <th>Tél</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="elem_entrp_affectation">
+                        {% for entrepot in entrepots %}
+                            <tr >
+                                <td>{{entrepot.nom}}</td>
+                                <td>{{entrepot.adresse}}</td>
+                                <td>{{entrepot.telephone}}</td>
+                                <td class="text-center align-middle">
+                                    <button type="button" value="{{entrepot.id}}" class="btn btn-sm btn-outline-info btn_select_entrepot font-smaller" ><i class="fa fa-check"></i></button>
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        {% if with_foot %}
+            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+{% endblock %}
+
+

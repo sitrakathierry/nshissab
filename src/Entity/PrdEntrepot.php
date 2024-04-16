@@ -42,9 +42,13 @@ class PrdEntrepot
     #[ORM\Column(nullable: true)]
     private ?bool $statut = null;
 
+    #[ORM\OneToMany(mappedBy: 'entrepot', targetEntity: PrdEntrpAffectation::class)]
+    private Collection $prdEntrpAffectations;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
+        $this->prdEntrpAffectations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -174,6 +178,36 @@ class PrdEntrepot
     public function setStatut(?bool $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdEntrpAffectation>
+     */
+    public function getPrdEntrpAffectations(): Collection
+    {
+        return $this->prdEntrpAffectations;
+    }
+
+    public function addPrdEntrpAffectation(PrdEntrpAffectation $prdEntrpAffectation): self
+    {
+        if (!$this->prdEntrpAffectations->contains($prdEntrpAffectation)) {
+            $this->prdEntrpAffectations->add($prdEntrpAffectation);
+            $prdEntrpAffectation->setEntrepot($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdEntrpAffectation(PrdEntrpAffectation $prdEntrpAffectation): self
+    {
+        if ($this->prdEntrpAffectations->removeElement($prdEntrpAffectation)) {
+            // set the owning side to null (unless already changed)
+            if ($prdEntrpAffectation->getEntrepot() === $this) {
+                $prdEntrpAffectation->setEntrepot(null);
+            }
+        }
 
         return $this;
     }

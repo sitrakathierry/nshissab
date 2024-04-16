@@ -166,4 +166,105 @@ $(document).ready(function(){
         
     })
 
+    $(document).on("click",".btn_select_entrepot",function(){
+        if($(this).hasClass('btn-outline-info'))
+        {
+            $(this).removeClass("btn-outline-info")
+            $(this).addClass("btn-info")
+
+            var value = $(this).attr("value")
+
+            $(this).html('<span class="text-uppercase ls-1">Ajouté</span>')
+            $(this).parent().append('<input type="hidden" value="'+value+'" class="param_id_entrepot" name="param_id_entrepot[]">') ;
+        }
+        else
+        {
+            $(this).removeClass("btn-info")
+            $(this).addClass("btn-outline-info")
+
+            $(this).html('<i class="fa fa-check"></i>')
+
+            $(this).parent().find(".param_id_entrepot").remove()
+        }
+    })
+
+    $("#formAffectEntrp").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Validation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading() ;
+                        var data = self.serialize() ;
+                        $.ajax({
+                            url: routes.param_user_affecation_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
+
+    $(document).on("change","#param_affect_user",function(){
+        if($(this).val() == "")
+            return false ;
+
+        var realinstance = instance.loading()
+        var self = $(this)
+        var formData = new FormData() ;
+        formData.append("idUser",self.val())
+        $.ajax({
+            url: routes.param_user_affectation_get,
+            type:'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false,
+            contentType: false,
+            success: function(response){
+                realinstance.close()
+                $(".elem_entrp_affectation").html(response) ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }) ;
 })

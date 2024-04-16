@@ -97,6 +97,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: HistoHistorique::class)]
     private Collection $histoHistoriques;
 
+    #[ORM\OneToMany(mappedBy: 'Agent', targetEntity: PrdEntrpAffectation::class)]
+    private Collection $prdEntrpAffectations;
+
     public function __construct()
     {
         $this->usrHistoFonctions = new ArrayCollection();
@@ -110,6 +113,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->usrAbonnements = new ArrayCollection();
         $this->modModelePdfs = new ArrayCollection();
         $this->histoHistoriques = new ArrayCollection();
+        $this->prdEntrpAffectations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -602,6 +606,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($histoHistorique->getUser() === $this) {
                 $histoHistorique->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdEntrpAffectation>
+     */
+    public function getPrdEntrpAffectations(): Collection
+    {
+        return $this->prdEntrpAffectations;
+    }
+
+    public function addPrdEntrpAffectation(PrdEntrpAffectation $prdEntrpAffectation): self
+    {
+        if (!$this->prdEntrpAffectations->contains($prdEntrpAffectation)) {
+            $this->prdEntrpAffectations->add($prdEntrpAffectation);
+            $prdEntrpAffectation->setAgent($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdEntrpAffectation(PrdEntrpAffectation $prdEntrpAffectation): self
+    {
+        if ($this->prdEntrpAffectations->removeElement($prdEntrpAffectation)) {
+            // set the owning side to null (unless already changed)
+            if ($prdEntrpAffectation->getAgent() === $this) {
+                $prdEntrpAffectation->setAgent(null);
             }
         }
 

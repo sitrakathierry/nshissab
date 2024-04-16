@@ -12,6 +12,8 @@ use App\Entity\MenuAgence;
 use App\Entity\MenuUser;
 use App\Entity\ModModelePdf;
 use App\Entity\ParamTvaType;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
 use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
@@ -869,7 +871,7 @@ class ParametresController extends AbstractController
     {
         $agents = $this->entityManager->getRepository(User::class)->findBy([
             "agence" => $this->agence,
-            "statut" => True,    
+            "statut" => True,
         ]) ;
 
         return $this->render('parametres/utilisateur/listesCompteAgent.html.twig', [
@@ -1182,7 +1184,114 @@ class ParametresController extends AbstractController
         ]);
     }
 
+    #[Route('/parametres/utilisateur/affectation/entrepot', name: 'param_utilisateur_affectation_entrepot')]
+    public function paramAffectationEntrepot()
+    {
+        $agents = $this->entityManager->getRepository(User::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True,
+        ]) ;
+
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
+            "statut" => True,
+            "agence" => $this->agence
+        ]) ;
+
+        return $this->render('parametres/utilisateur/affectationEntrepot.html.twig',[
+            "filename" => "parametres",
+            "titlePage" => "Affecation entrepot",
+            "with_foot" => false,
+            "agents" => $agents,
+            "entrepots" => $entrepots,
+        ]);
+    }
+
+    #[Route('/parametres/user/affectation/save', name: 'param_user_affecation_save')]
+    public function paramSaveAffectationEntrepot(Request $request)
+    {
+        $param_id_entrepot = (array)$request->request->get("param_id_entrepot") ;
+        $param_affect_user = $request->request->get("param_affect_user") ;
+
+        $data = [
+            $param_id_entrepot,
+            $param_affect_user,
+        ] ;
+
+        $dataMessage = [
+            "Element entrepot",
+            "Agent",
+        ] ;
+
+        $result = $this->appService->verificationElement($data, $dataMessage) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $agent = $this->entityManager->getRepository(User::class)->find($param_affect_user) ;
+
+        foreach ($param_id_entrepot as $idEntrepot) {
+            $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($idEntrepot) ;
+
+            $prdEntrpAffectation = new PrdEntrpAffectation() ;
     
+            $prdEntrpAffectation->setAgence($this->agence) ;
+            $prdEntrpAffectation->setAgent($agent) ;
+            $prdEntrpAffectation->setEntrepot($entrepot) ;
+            $prdEntrpAffectation->setStatut(True) ;
+            $prdEntrpAffectation->setCreatedAt(new \DateTimeImmutable) ;
+            $prdEntrpAffectation->setUpdatedAt(new \DateTimeImmutable) ;
+
+            $this->entityManager->persist($prdEntrpAffectation) ;
+            $this->entityManager->flush() ;
+        }
+
+        return new JsonResponse($result) ;
+    }   
+
+    #[Route('/parametres/user/affectation/get', name: 'param_user_affectation_get')]
+    public function paramGetUserAffectationEntrepot(Request $request)
+    {
+        $idUser = $request->request->get("idUser") ;
+
+        $agent = $this->entityManager->getRepository(User::class)->find($idUser) ;
+
+        $entrepotArray = [] ;
+
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
+            "statut" => True,
+            "agence" => $this->agence
+        ]) ;
+
+        foreach ($entrepots as $entrepot) {
+            $prdEntrpAffectation = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                "agent" => $agent,
+                "statut" => True,
+                "entrepot" => $entrepot,
+            ]) ;
+
+            $item = [
+                "id" => $entrepot->getId(),
+                "nom" => $entrepot->getNom(),
+                "adresse" => $entrepot->getAdresse(),
+                "telephone" => $entrepot->getTelephone(),
+                "isSelected" => False,
+            ] ;
+
+            if(!is_null($prdEntrpAffectation))
+            {
+                $item["isSelected"] = True ;
+            }
+
+            $entrepotArray[] = $item ;
+        }
+
+        $response = $this->renderView("parametres/utilisateur/getUserAffectation.html.twig",[
+            "entrepots" => $entrepotArray
+        ]) ;
+
+        return new Response($response) ;
+    }
+
     #[Route('/parametres/user/contentPass/get', name: 'param_user_content_password_get')]
     public function paramGetUserContentPass()
     {

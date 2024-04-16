@@ -229,6 +229,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: AgdLivraison::class)]
     private Collection $agdLivraisons;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdEntrpAffectation::class)]
+    private Collection $prdEntrpAffectations;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -290,6 +293,7 @@ class Agence
         $this->histoHistoriques = new ArrayCollection();
         $this->lctNumQuittances = new ArrayCollection();
         $this->agdLivraisons = new ArrayCollection();
+        $this->prdEntrpAffectations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2204,6 +2208,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($agdLivraison->getAgence() === $this) {
                 $agdLivraison->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdEntrpAffectation>
+     */
+    public function getPrdEntrpAffectations(): Collection
+    {
+        return $this->prdEntrpAffectations;
+    }
+
+    public function addPrdEntrpAffectation(PrdEntrpAffectation $prdEntrpAffectation): self
+    {
+        if (!$this->prdEntrpAffectations->contains($prdEntrpAffectation)) {
+            $this->prdEntrpAffectations->add($prdEntrpAffectation);
+            $prdEntrpAffectation->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdEntrpAffectation(PrdEntrpAffectation $prdEntrpAffectation): self
+    {
+        if ($this->prdEntrpAffectations->removeElement($prdEntrpAffectation)) {
+            // set the owning side to null (unless already changed)
+            if ($prdEntrpAffectation->getAgence() === $this) {
+                $prdEntrpAffectation->setAgence(null);
             }
         }
 
