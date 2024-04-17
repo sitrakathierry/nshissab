@@ -70,7 +70,7 @@
                             <td rowspan="{{ligne}}" class="align-middle">{{bonLivraison.client|upper}}</td>
                             {% set passe = false %}
                         {% endif %}
-                        <td class="align-middle">{{bonLivraison.designation}}</td>
+                        <td class="align-middle">{{bonLivraison.designation|raw}}</td>
                         <td class="align-middle">{{bonLivraison.quantite}}</td>
                         {% if passeM %}
                             {% if bonLivraison.refStatut == "ECR" %}

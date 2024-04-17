@@ -1254,7 +1254,7 @@ class StockController extends AbstractController
         if(!file_exists($filename))  
             $this->appService->generateStockEntrepot($filename,$this->agence) ;
         
-        $entrepots = json_decode(file_get_contents($filename)) ;
+        $entrepots = json_decode(file_get_contents($filename)) ; 
 
         $role = $this->userObj->getRoles()[0] ;
 

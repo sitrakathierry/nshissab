@@ -3576,7 +3576,7 @@ class AppService extends AbstractController
 
         $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
             "reference" => "DF"
-        ]) ; 
+        ]) ;
 
         $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
             "type" => $typeFacture,
@@ -3597,6 +3597,9 @@ class AppService extends AbstractController
             ]) ;
 
             $totalHistoEntrepot = floatval($histoEntrepotActif->getStock()) ;
+            
+            // $histoEntrepotActif->setStock(floatval($histoEntrepotActif->getStock()) - floatval($deductionEntrepot["sommeStock"])) ;
+            // $this->entityManager->flush() ;
 
             if($deductionEntrepot["sommeStock"] > $totalHistoEntrepot)
             {
