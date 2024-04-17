@@ -1927,6 +1927,7 @@ class AppService extends AbstractController
         foreach ($agendas as $agenda) {
             $element = [] ;
             $element["date"] = $agenda->getDate()->format('Y-m-d') ;
+            // $element["typeAgenda"] = "AGD" ; 
             $markup = '' ;
             $refType = $agenda->getType()->getReference() ;
             $statut = $agenda->isStatut() ;
@@ -1960,6 +1961,7 @@ class AppService extends AbstractController
         foreach ($echeances as $echeance) {
             $element = [] ;
             $element["date"] = $echeance->getDate()->format('Y-m-d') ;
+            // $element["typeAgenda"] = "CRD" ; 
             $markup = '' ;
 
             // Tous les statut sont : 
@@ -1994,6 +1996,7 @@ class AppService extends AbstractController
         foreach ($agendaAcomptes as $agendaAcompte) {
             $element = [] ;
             $element["date"] = $agendaAcompte->getDate()->format('Y-m-d') ;
+            // $element["typeAgenda"] = "ACP" ; 
             $markup = '' ;
 
             // Tous les statut sont : 
@@ -2028,6 +2031,7 @@ class AppService extends AbstractController
         foreach ($agdLivraisons as $agdLivraison) {
             $element = [] ;
             $element["date"] = $agdLivraison->getDate()->format('Y-m-d') ;
+            // $element["typeAgenda"] = "LVR" ; 
             $markup = '' ;
 
             // Tous les statut sont : 
@@ -3616,6 +3620,7 @@ class AppService extends AbstractController
 
             $histoEntrepotActif->getVariationPrix()->setStock($histoEntrepotActif->getVariationPrix()->getStock() - $deductionEntrepot["sommeStock"]) ;
             $produitEntrepotActif->setStock($produitEntrepotActif->getStock() - $deductionEntrepot["sommeStock"]) ;
+            
             $this->entityManager->flush() ;
         }
 

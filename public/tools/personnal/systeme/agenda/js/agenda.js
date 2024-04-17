@@ -66,7 +66,7 @@ $(document).ready(function(){
           },
         });
           return false;
-      });
+    });
 
     $("#agd_type").change(function(){
         var selectedOption = $(this).find("option:selected") ;
@@ -80,6 +80,7 @@ $(document).ready(function(){
     }) ;
 
     $.getJSON($("#calendarPath").val(), function(json) {
+      // console.log(json)
       $("#monCalendrier").zabuto_calendar({
         classname: 'table table-bordered lightgrey-weekends clickable',
         // header_format: '[year] // [month]',
@@ -267,4 +268,42 @@ $(document).ready(function(){
     $("#agd_search_annee").change(function(){
       formatCalendrier($("#agd_search_mois").val(),$(this).val())
     })
+
+    $(".btn_search_agenda").click(function(){
+      var realinstance = instance.loading()
+      var self = $(this)
+      $.ajax({
+          url: routes.agenda_calendar_search,
+          type:'post',
+          cache: false,
+          data: {
+            typeAgenda:self.data("type")
+          },
+          dataType: 'json',
+          success: function(response){
+            realinstance.close()
+            console.log(response) ;
+            $("#monCalendrier").html("") ;
+            $("#monCalendrier").zabuto_calendar({
+              classname: 'table table-bordered lightgrey-weekends clickable',
+              // header_format: '[year] // [month]',
+              week_starts: 'sunday',
+              show_days: true,
+              today_markup: '<span class="font-weight-bold text-info">[day]</span>',
+              navigation_markup: {
+                  prev: '<i class="fas fa-chevron-circle-left"></i>',
+                  next: '<i class="fas fa-chevron-circle-right"></i>'
+                },
+                language: 'fr',
+                events : response
+            }); 
+          },
+          error: function(resp){
+              realinstance.close()
+              $.alert(JSON.stringify(resp)) ;
+          }
+      })
+      
+    }) ;
+
 })

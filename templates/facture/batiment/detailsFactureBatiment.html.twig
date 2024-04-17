@@ -77,7 +77,7 @@
         </div>
         {% if nature == "FACTURE" and facture.refType != "DF" %}
             <div class="barre_dashed p-3 mt-3">
-                <div class="container-fluid">
+                {# <div class="container-fluid">
                     <h5 class="title_form text-black text-uppercase">Rajouter Prestation Batiment</h5>
                     <div class="row">
                         <div class="col-md-4">
@@ -125,6 +125,80 @@
                         </div>
                         <div class="col-md-2">
                             <label for="fact_btp_qte" class="mt-2 font-weight-bold">Quantité</label>
+                            <input type="number" step="any" name="fact_btp_qte" class="form-control" id="fact_btp_qte" placeholder=". . .">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fact_btp_tva_val" class=" mt-2 font-weight-bold">TVA(%)</label>
+                            <input type="number" name="fact_btp_tva_val" class="form-control" id="fact_btp_tva_val" placeholder=". . .">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="" class="mt-2 font-weight-bold">&nbsp;</label>
+                            <button type="button" class="btn btn-success btn-block btn-sm px-4 ajout_fact_btp_element" ><i class="fa fa-plus-circle"></i>&nbsp;AJOUTER</button>
+                        </div>
+                    </div>
+                </div> #}
+                <div class="container-fluid">
+                    {# <span class="fact_title_modele"></span> #}
+                    <h5 class="title_form text-black text-uppercase">Insertion modèle Prestation Batiment</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="fact_btp_enoncee" class="font-weight-bold">Enoncée</label>
+                            <select class="custom-select custom-select-sm chosen_select" name="fact_btp_enoncee" id="fact_btp_enoncee" >
+                                <option value="">-</option> 
+                                {% for enoncee in enoncees %}
+                                    <option value="{{enoncee.id}}">{{enoncee.nom|upper}}</option> 
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fact_btp_categorie" class="font-weight-bold">Catégorie</label>
+                            <select class="custom-select custom-select-sm chosen_select" name="fact_btp_categorie" id="fact_btp_categorie" >
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fact_btp_info_sup" class="font-weight-bold">Info Supplementaire</label>
+                            <input type="text" name="fact_btp_info_sup" class="form-control" id="fact_btp_info_sup" placeholder="Ex : Surface 10.6, Quantite 2.24 ...">
+                        </div>
+                        <div class="col-md-5">
+                            <div class="w-100 pbat_content_designation">
+                                <label for="fact_btp_designation" class="mt-2 font-weight-bold">Désignation Existant</label>
+                                <div class="w-100 d-flex flex-row">
+                                    <select class="custom-select custom-select-sm chosen_select" name="fact_btp_designation" id="fact_btp_designation" >
+                                        <option value="">-</option>
+                                        {% for element in elements %}
+                                            <option value="{{element.id}}">{{element.designation|upper}} | {{element.mesure}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button" data-value="NEW" class="btn font-weight-bold btn_designation_plus font-smaller btn-primary btn-sm ml-2" style="width: 50px; height: 33px;"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="fact_text_designation">
+                        </div>
+                        <div class="col-5">
+                            <label for="fact_btp_description" class="mt-2 font-weight-bold">Description</label>
+                            <input type="text" name="fact_btp_description" id="fact_btp_description" class="form-control" placeholder=". . .">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fact_btp_mesure" class="mt-2 font-weight-bold">Mésure</label>
+                            <input type="text" readonly name="fact_btp_mesure" class="form-control" id="fact_btp_mesure" placeholder=". . .">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fact_btp_prix" class="mt-2 font-weight-bold">Prix Unitaire HT</label>
+                            <div class="content_fact_prix w-100">
+                                <select class="custom-select custom-select-sm chosen_select" name="fact_btp_prix" id="fact_btp_prix" >
+                                    <option value=""></option> 
+                                </select>
+                            </div>
+                            <input type="hidden" id="fact_text_prix">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fact_btp_forfait" class="mt-2 font-weight-bold">&nbsp;</label>
+                            <button type="button" class="btn btn-outline-info btn_btp_forfait btn-sm btn-block"><i class="fa fa-cube"></i>&nbsp;FORFAIT</button>
+                            <input type="hidden" name="fact_is_forfait" id="fact_is_forfait" value="NON">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fact_btp_qte" class="mt-2 font-weight-bold">Quantité</label>
+                            <input type="hidden" readonly name="fact_btp_label_qte" class="form-control" id="fact_btp_label_qte" value="U">
                             <input type="number" step="any" name="fact_btp_qte" class="form-control" id="fact_btp_qte" placeholder=". . .">
                         </div>
                         <div class="col-md-2">

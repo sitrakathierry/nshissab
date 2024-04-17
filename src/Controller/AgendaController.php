@@ -90,9 +90,10 @@ class AgendaController extends AbstractController
     public function agdConsultationAgenda(): Response
     {
         $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
-        $this->appService->checkAllDateAgenda($filename) ;
-
-        if (!file_exists($filename)) {
+        
+        if (!file_exists($filename)) 
+        {
+            $this->appService->checkAllDateAgenda($filename) ;
             $this->appService->generateAgenda($filename, $this->agence) ;
         }
 
@@ -109,7 +110,7 @@ class AgendaController extends AbstractController
             10 =>  "Octobre",
             11 =>  "Novembre",
             12 =>  "Décembre",
-            ] ;
+            ] ; 
 
         return $this->render('agenda/consultation.html.twig', [
             "filename" => "agenda",
@@ -120,7 +121,7 @@ class AgendaController extends AbstractController
         ]);
     }
 
-    #[Route('/agenda/activite/save', name: 'agd_activites_save')]
+    #[Route('/agenda/activite/save', name: 'agd_activites_save')] 
     public function agdSaveActivite(Request $request)
     {
         // dd($request->request) ;
@@ -648,5 +649,90 @@ class AgendaController extends AbstractController
             "type" => "green",
             "message" => "Suppression effectuée",
         ]) ;
+    }
+
+    #[Route('/agenda/calendar/search', name: 'agenda_calendar_search')]
+    public function agdCalendarSearch(Request $request)
+    {
+        $typeAgenda = $request->request->get("typeAgenda") ;
+        
+        $result = $this->appService->verificationElement([
+            $typeAgenda
+        ], [
+            "Type Agenda",
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $agendaResult = [] ;
+
+        if($typeAgenda == "LVR") { 
+            // DEBUT BON DE LIVRAISON
+    
+            $agdLivraisons = $this->entityManager->getRepository(AgdLivraison::class)->findBy([
+                "agence" => $this->agence
+            ]) ;
+    
+            $elements = [] ;
+    
+            foreach ($agdLivraisons as $agdLivraison) {
+                $element = [] ;
+                $element["date"] = $agdLivraison->getDate()->format('Y-m-d') ;
+                // $element["typeAgenda"] = "LVR" ; 
+                $markup = '' ;
+    
+                // Tous les statut sont : 
+                //     - En cours : 1
+                //     - Soldé : 0
+                //     - En souffrance : NULL
+    
+                $statutAgdLvr = $agdLivraison->isStatut() ;
+    
+                if($statutAgdLvr)
+                {
+                    $markup = "<span class=\"badge bg-info m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
+                }
+                else
+                {
+                    $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
+                }
+                $element["markup"] = $markup ;
+                array_push($elements,$element) ;
+            }
+    
+            // FIN BON DE LIVRAISON
+    
+            $items = $elements ;
+    
+            // Group the markup by date using array_reduce
+            $mergedMarkup = array_reduce($items, function ($result, $item) {
+                $date = $item['date'];
+                $markup = $item['markup'];
+    
+                if (isset($result[$date])) {
+                    $result[$date]['markup'] .= $markup;
+                } else {
+                    $result[$date] = $item;
+                }
+    
+                return $result;
+            }, []);
+    
+            
+            foreach ($mergedMarkup as $mark) {
+                $newMarkUp = [] ;
+                $newMarkUp['date'] = $mark['date'] ;
+                $newMarkUp['markup'] = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+                    <b>[day]</b>
+                    <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
+                        ".$mark['markup']."
+                    </div>
+                </div>" ;
+                array_push($agendaResult,$newMarkUp) ;
+            }  
+        }
+
+        return new JsonResponse($agendaResult) ;
     }
 }
