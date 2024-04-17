@@ -1392,7 +1392,7 @@ class StockController extends AbstractController
         $telephone = $request->request->get('telephone') ;
 
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        $entrepots =(array)(json_decode(file_get_contents($filename))) ;
+        $entrepots = (array)(json_decode(file_get_contents($filename))) ;
         
         $datas = [
             "nom" => $nom,

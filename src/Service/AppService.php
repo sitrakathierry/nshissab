@@ -1912,7 +1912,7 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
-    public function generateAgenda($filename, $agence)
+    public function generateAgenda($filename, $fileSearch, $agence)
     {
         $agendas = $this->entityManager->getRepository(Agenda::class)->findBy([
             "agence" => $agence
@@ -1927,9 +1927,11 @@ class AppService extends AbstractController
         foreach ($agendas as $agenda) {
             $element = [] ;
             $element["date"] = $agenda->getDate()->format('Y-m-d') ;
-            // $element["typeAgenda"] = "AGD" ; 
-            $markup = '' ;
             $refType = $agenda->getType()->getReference() ;
+            $element["typeAgenda"] = $refType ; 
+            $element["mois"] = intval($agenda->getDate()->format('m')) ; 
+            $element["annee"] = intval($agenda->getDate()->format('Y')) ; 
+            $markup = '' ;
             $statut = $agenda->isStatut() ;
             $icone = $refType == "EVT" ? "fa-star" : "fa-clock" ;
             if($statut)
@@ -1961,7 +1963,9 @@ class AppService extends AbstractController
         foreach ($echeances as $echeance) {
             $element = [] ;
             $element["date"] = $echeance->getDate()->format('Y-m-d') ;
-            // $element["typeAgenda"] = "CRD" ; 
+            $element["typeAgenda"] = "FNC" ; 
+            $element["mois"] = intval($echeance->getDate()->format('m')) ; 
+            $element["annee"] = intval($echeance->getDate()->format('Y')) ; 
             $markup = '' ;
 
             // Tous les statut sont : 
@@ -1996,7 +2000,9 @@ class AppService extends AbstractController
         foreach ($agendaAcomptes as $agendaAcompte) {
             $element = [] ;
             $element["date"] = $agendaAcompte->getDate()->format('Y-m-d') ;
-            // $element["typeAgenda"] = "ACP" ; 
+            $element["typeAgenda"] = "FNC" ; 
+            $element["mois"] = intval($agendaAcompte->getDate()->format('m')) ; 
+            $element["annee"] = intval($agendaAcompte->getDate()->format('Y')) ; 
             $markup = '' ;
 
             // Tous les statut sont : 
@@ -2031,7 +2037,9 @@ class AppService extends AbstractController
         foreach ($agdLivraisons as $agdLivraison) {
             $element = [] ;
             $element["date"] = $agdLivraison->getDate()->format('Y-m-d') ;
-            // $element["typeAgenda"] = "LVR" ; 
+            $element["typeAgenda"] = "LVR" ; 
+            $element["mois"] = intval($agdLivraison->getDate()->format('m')) ; 
+            $element["annee"] = intval($agdLivraison->getDate()->format('Y')) ; 
             $markup = '' ;
 
             // Tous les statut sont : 
@@ -2054,6 +2062,8 @@ class AppService extends AbstractController
         }
 
         // FIN BON DE LIVRAISON
+
+        file_put_contents($fileSearch,json_encode($elements)) ;
 
         $items = $elements ;
 

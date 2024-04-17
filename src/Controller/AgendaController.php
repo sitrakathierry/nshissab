@@ -90,11 +90,11 @@ class AgendaController extends AbstractController
     public function agdConsultationAgenda(): Response
     {
         $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
-        
+        $fileSearch = $this->filename."agenda(agence)/file_search".$this->nameAgence ;
         if (!file_exists($filename)) 
         {
             $this->appService->checkAllDateAgenda($filename) ;
-            $this->appService->generateAgenda($filename, $this->agence) ;
+            $this->appService->generateAgenda($filename,$fileSearch,$this->agence) ;
         }
 
         $mois = [
@@ -655,84 +655,72 @@ class AgendaController extends AbstractController
     public function agdCalendarSearch(Request $request)
     {
         $typeAgenda = $request->request->get("typeAgenda") ;
+        $agd_search_mois = $request->request->get("agd_search_mois") ;
+        $agd_search_annee = $request->request->get("agd_search_annee") ;
         
-        $result = $this->appService->verificationElement([
-            $typeAgenda
-        ], [
-            "Type Agenda",
-        ]) ;
-
-        if(!$result["allow"])
-            return new JsonResponse($result) ;
-
         $agendaResult = [] ;
 
-        if($typeAgenda == "LVR") { 
-            // DEBUT BON DE LIVRAISON
-    
-            $agdLivraisons = $this->entityManager->getRepository(AgdLivraison::class)->findBy([
-                "agence" => $this->agence
-            ]) ;
-    
-            $elements = [] ;
-    
-            foreach ($agdLivraisons as $agdLivraison) {
-                $element = [] ;
-                $element["date"] = $agdLivraison->getDate()->format('Y-m-d') ;
-                // $element["typeAgenda"] = "LVR" ; 
-                $markup = '' ;
-    
-                // Tous les statut sont : 
-                //     - En cours : 1
-                //     - Soldé : 0
-                //     - En souffrance : NULL
-    
-                $statutAgdLvr = $agdLivraison->isStatut() ;
-    
-                if($statutAgdLvr)
-                {
-                    $markup = "<span class=\"badge bg-info m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
-                }
-                else
-                {
-                    $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
-                }
-                $element["markup"] = $markup ;
-                array_push($elements,$element) ;
-            }
-    
-            // FIN BON DE LIVRAISON
-    
-            $items = $elements ;
-    
-            // Group the markup by date using array_reduce
-            $mergedMarkup = array_reduce($items, function ($result, $item) {
-                $date = $item['date'];
-                $markup = $item['markup'];
-    
-                if (isset($result[$date])) {
-                    $result[$date]['markup'] .= $markup;
-                } else {
-                    $result[$date] = $item;
-                }
-    
-                return $result;
-            }, []);
-    
-            
-            foreach ($mergedMarkup as $mark) {
-                $newMarkUp = [] ;
-                $newMarkUp['date'] = $mark['date'] ;
-                $newMarkUp['markup'] = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
-                    <b>[day]</b>
-                    <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
-                        ".$mark['markup']."
-                    </div>
-                </div>" ;
-                array_push($agendaResult,$newMarkUp) ;
-            }  
+        $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
+        $fileSearch = $this->filename."agenda(agence)/file_search".$this->nameAgence ;
+        if (!file_exists($fileSearch)) 
+        {
+            $this->appService->checkAllDateAgenda($filename) ;
+            $this->appService->generateAgenda($filename,$fileSearch,$this->agence) ;
         }
 
+        if($typeAgenda == "ALL")
+        {
+            $typeAgenda = "" ;
+            $agd_search_mois = "" ;
+            $agd_search_annee = "" ;
+        }
+        else if($agd_search_mois == intval(date("m")) && $agd_search_annee == intval(date("Y")))
+        {
+            $agd_search_mois = "" ;
+            $agd_search_annee = "" ;
+        }
+        
+
+        $search = [
+            "typeAgenda" => $typeAgenda,
+            "mois" => $agd_search_mois,
+            "annee" => $agd_search_annee,
+        ] ;
+
+        $elements = json_decode(file_get_contents($fileSearch)) ;
+
+        $elements = $this->appService->searchData($elements,$search) ;
+        
+        $elements = array_values($elements) ;
+
+        $items = $elements ;
+
+        // Group the markup by date using array_reduce
+        $mergedMarkup = array_reduce($items, function ($result, $item) {
+            $date = $item->date;
+            $markup = $item->markup;
+
+            if (isset($result[$date])) {
+                $result[$date]['markup'] .= $markup;
+            } else {
+                $result[$date] = (array)$item;
+            }
+
+            return $result;
+        }, []);
+
+        foreach ($mergedMarkup as $mark) {
+            $newMarkUp = [] ;
+            $newMarkUp['date'] = $mark['date'] ;
+            $newMarkUp['markup'] = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+                <b>[day]</b>
+                <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
+                    ".$mark['markup']."
+                </div>
+            </div>" ;
+            array_push($agendaResult,$newMarkUp) ;
+        }
+        
         return new JsonResponse($agendaResult) ;
     }
 }

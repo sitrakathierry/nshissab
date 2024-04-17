@@ -270,6 +270,26 @@ $(document).ready(function(){
     })
 
     $(".btn_search_agenda").click(function(){
+      var self = $(this) ;
+      if($(this).hasClass('btn-outline-primary'))
+      {
+          $(this).removeClass("btn-outline-primary")
+          $(this).addClass("btn-primary")
+      }
+      else
+      {
+          $(this).removeClass("btn-primary")
+          $(this).addClass("btn-outline-primary")
+      }
+
+      $(".btn_search_agenda").each(function(){
+        if(!$(this).is(self) && $(this).hasClass("btn-primary"))
+        {
+          $(this).removeClass("btn-primary")
+          $(this).addClass("btn-outline-primary")
+        }
+      })
+
       var realinstance = instance.loading()
       var self = $(this)
       $.ajax({
@@ -277,12 +297,15 @@ $(document).ready(function(){
           type:'post',
           cache: false,
           data: {
-            typeAgenda:self.data("type")
+            typeAgenda:self.data("type"),
+            agd_search_mois:$("#agd_search_mois").val(),
+            agd_search_annee:$("#agd_search_annee").val(),
           },
           dataType: 'json',
           success: function(response){
             realinstance.close()
             console.log(response) ;
+            $('#monCalendrier').zabuto_calendar('destroy');
             $("#monCalendrier").html("") ;
             $("#monCalendrier").zabuto_calendar({
               classname: 'table table-bordered lightgrey-weekends clickable',

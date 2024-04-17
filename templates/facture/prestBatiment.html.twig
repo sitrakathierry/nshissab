@@ -5,17 +5,23 @@
         <div class="row">
             <div class="col-md-4">
                 <label for="fact_btp_enoncee" class="font-weight-bold">Enoncée</label>
-                <select class="custom-select custom-select-sm chosen_select" name="fact_btp_enoncee" id="fact_btp_enoncee" >
-                    <option value="">-</option> 
-                    {% for enoncee in enoncees %}
-                        <option value="{{enoncee.id}}">{{enoncee.nom|upper}}</option> 
-                    {% endfor %}
-                </select>
+                <div class= " w-100 d-flex flex-row">
+                    <select class="custom-select custom-select-sm chosen_select" name="fact_btp_enoncee" id="fact_btp_enoncee" >
+                        <option value="">-</option>
+                        {% for enoncee in enoncees %}
+                            <option value="{{enoncee.id}}">{{enoncee.nom|upper}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" data-value="NEW" class="btn font-weight-bold font-smaller btn-primary btn-sm ml-2" style="width: 50px; height: 33px;"><i class="fa fa-plus"></i></button>
+                </div>
             </div>
             <div class="col-md-4">
                 <label for="fact_btp_categorie" class="font-weight-bold">Catégorie</label>
-                <select class="custom-select custom-select-sm chosen_select" name="fact_btp_categorie" id="fact_btp_categorie" >
-                </select>
+                <div class="d-flex flex-row">
+                    <select class="custom-select custom-select-sm chosen_select" name="fact_btp_categorie" id="fact_btp_categorie" >
+                    </select>
+                    <button type="button" data-value="NEW" class="btn font-weight-bold font-smaller btn-primary btn-sm ml-2" style="width: 50px; height: 33px;"><i class="fa fa-plus"></i></button>
+                </div>
             </div>
             <div class="col-md-4">
                 <label for="fact_btp_info_sup" class="font-weight-bold">Info Supplementaire</label>
@@ -37,8 +43,11 @@
                 <input type="hidden" id="fact_text_designation">
             </div>
             <div class="col-5">
-                <label for="fact_btp_description" class="mt-2 font-weight-bold">Description</label>
-                <input type="text" name="fact_btp_description" id="fact_btp_description" class="form-control" placeholder=". . .">
+                <label for="fact_btp_description" class="mt-2 font-weight-bold">Surface de travail</label>
+                <select name="fact_btp_description" class="custom-select chosen_select custom-select-sm" id="fact_btp_description">
+                    <option value="">-</option>
+                </select>
+                {# <input type="text" name="fact_btp_description" id="fact_btp_description" class="form-control" placeholder=". . ."> #}
             </div>
             <div class="col-md-2">
                 <label for="fact_btp_mesure" class="mt-2 font-weight-bold">Mésure</label>
