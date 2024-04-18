@@ -10,6 +10,7 @@ use App\Entity\BtpCategorie;
 use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\BtpPrix;
+use App\Entity\BtpSurface;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\Client;
@@ -292,11 +293,17 @@ class FactureController extends AbstractController
 
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
 
+        $surfaces = $this->entityManager->getRepository(BtpSurface::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True,
+        ]) ;
+
         $responses = $this->renderView("facture/prestBatiment.html.twig",[
             "elements" => $elements,
             "devises" => $devises,
             "agcDevise" => $agcDevise,
             "enoncees" => $enoncees,
+            "surfaces" => $surfaces,
         ]) ;
 
         return new Response($responses) ;

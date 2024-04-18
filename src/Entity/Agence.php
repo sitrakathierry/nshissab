@@ -232,6 +232,9 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: PrdEntrpAffectation::class)]
     private Collection $prdEntrpAffectations;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: BtpSurface::class)]
+    private Collection $btpSurfaces;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -294,6 +297,7 @@ class Agence
         $this->lctNumQuittances = new ArrayCollection();
         $this->agdLivraisons = new ArrayCollection();
         $this->prdEntrpAffectations = new ArrayCollection();
+        $this->btpSurfaces = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2238,6 +2242,36 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($prdEntrpAffectation->getAgence() === $this) {
                 $prdEntrpAffectation->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BtpSurface>
+     */
+    public function getBtpSurfaces(): Collection
+    {
+        return $this->btpSurfaces;
+    }
+
+    public function addBtpSurface(BtpSurface $btpSurface): self
+    {
+        if (!$this->btpSurfaces->contains($btpSurface)) {
+            $this->btpSurfaces->add($btpSurface);
+            $btpSurface->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBtpSurface(BtpSurface $btpSurface): self
+    {
+        if ($this->btpSurfaces->removeElement($btpSurface)) {
+            // set the owning side to null (unless already changed)
+            if ($btpSurface->getAgence() === $this) {
+                $btpSurface->setAgence(null);
             }
         }
 

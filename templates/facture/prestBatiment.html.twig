@@ -42,16 +42,19 @@
                 </div>
                 <input type="hidden" id="fact_text_designation">
             </div>
+            <div class="col-md-2">
+                <label for="fact_btp_mesure" class="mt-2 font-weight-bold">Mésure</label>
+                <input type="text" readonly name="fact_btp_mesure" class="form-control" id="fact_btp_mesure" placeholder=". . .">
+            </div>
             <div class="col-5">
                 <label for="fact_btp_description" class="mt-2 font-weight-bold">Surface de travail</label>
                 <select name="fact_btp_description" class="custom-select chosen_select custom-select-sm" id="fact_btp_description">
                     <option value="">-</option>
+                    {% for surface in surfaces %}
+                        <option value="{{surface.id}}">{{surface.nom|upper}}</option>
+                    {% endfor %}
                 </select>
                 {# <input type="text" name="fact_btp_description" id="fact_btp_description" class="form-control" placeholder=". . ."> #}
-            </div>
-            <div class="col-md-2">
-                <label for="fact_btp_mesure" class="mt-2 font-weight-bold">Mésure</label>
-                <input type="text" readonly name="fact_btp_mesure" class="form-control" id="fact_btp_mesure" placeholder=". . .">
             </div>
             <div class="col-md-3">
                 <label for="fact_btp_prix" class="mt-2 font-weight-bold">Prix Unitaire HT</label>

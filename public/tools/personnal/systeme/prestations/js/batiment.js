@@ -337,5 +337,58 @@ $(document).ready(function(){
             }
         })
         return false ;
-      })
+    })
+
+    $("#formSurface").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Validation",
+            content:"Êtes-vous sûre ?",
+            type:"blue",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-blue',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize() ;
+                        $.ajax({
+                            url: routes.prest_btp_surface_travail_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
 })

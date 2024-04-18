@@ -8,6 +8,7 @@ use App\Entity\BtpElement;
 use App\Entity\BtpEnoncee;
 use App\Entity\BtpMesure;
 use App\Entity\BtpPrix;
+use App\Entity\BtpSurface;
 use App\Entity\HistoHistorique;
 use App\Entity\LctBail;
 use App\Entity\LctBailleur;
@@ -722,6 +723,50 @@ class PrestationController extends AbstractController
             "type" => "green",
             "message" => "Modification effectué",
         ]) ;
+    }
+
+    #[Route('/prestation/batiment/surface/travail', name: 'prest_btp_surface_travail')]
+    public function prestBatConsultSurfaceTravail(Request $request)
+    {
+        $surfaces = $this->entityManager->getRepository(BtpSurface::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True,
+        ]) ;
+
+        return $this->render('prestations/batiment/surfaceTravail.html.twig', [
+            "filename" => "prestations",
+            "titlePage" => "Mésure",
+            "with_foot" => false,
+            "surfaces" => $surfaces
+        ]);
+    }
+
+    #[Route('/prestation/batiment/surface/save', name: 'prest_btp_surface_travail_save')]
+    public function prestBatSaveSurfaceTravail(Request $request)
+    {
+        $btp_surface_nom = $request->request->get("btp_surface_nom") ;
+
+        $result = $this->appService->verificationElement([
+            $btp_surface_nom,
+        ],[
+            "Désognation",
+        ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
+        $surface = new BtpSurface() ;
+
+        $surface->setAgence($this->agence) ;
+        $surface->setNom($btp_surface_nom) ;
+        $surface->setStatut(True) ;
+        $surface->setCreatedAt(new \DateTimeImmutable) ;
+        $surface->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->entityManager->persist($surface);
+        $this->entityManager->flush() ;
+
+        return new JsonResponse($result) ;
     }
 
     #[Route('/prestation/service/duree/get', name: 'prest_service_duree_get')]

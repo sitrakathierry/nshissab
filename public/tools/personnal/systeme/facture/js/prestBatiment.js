@@ -89,7 +89,7 @@ $(document).ready(function(){
             var designationText = $("#fact_btp_designation").find("option:selected").text();
         }
 
-        console.log(designation) ;
+        // console.log(designation) ;
 
         var enonceeText = $("#fact_btp_enoncee").find("option:selected").text();
         var enonceId = $("#fact_btp_enoncee").val()
@@ -316,7 +316,7 @@ $(document).ready(function(){
             var totalTvaLigne = parseFloat($(this).closest('tr').find("#fact_btp_total_tva_ligne").val()) 
 
             var totalCatVal = $("#totalCat"+categorieId).val()
-            $("#totalCatText"+categorieId).text(parseFloat(totalCatVal) - total)
+            $("#totalCatText"+categorieId).text(parseFloat(totalCatVal) - total) 
             $("#totalCat"+categorieId).val(parseFloat(totalCatVal) - total)
 
             var totalEnonceeVal = $("#totalEnonce"+enonceId).val()
