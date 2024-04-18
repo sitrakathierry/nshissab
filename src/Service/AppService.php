@@ -54,6 +54,7 @@ use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdDeduction;
 use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdPreferences;
@@ -1467,6 +1468,11 @@ class AppService extends AbstractController
                     "statut" => True
                 ]) ;
     
+                $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                    "agent" => $facture->getUser(),
+                    "statut" => True
+                ]) ;
+
                 // dd($factDetails) ;
 
                 foreach($factDetails as $factDetail)
@@ -1480,10 +1486,22 @@ class AppService extends AbstractController
         
                     // dd($variation) ;
 
-                    $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                        "variationPrix" => $variation,
-                        "statut" => True
-                    ]) ;
+                    if(!is_null($affectEntrepot))
+                    {
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "entrepot" => $affectEntrepot->getEntrepot(),
+                            "statut" => True
+                        ]) ;
+                    }
+                    else
+                    {
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "statut" => True
+                        ]) ;
+                    }
+
         
                     // dd($histoEntrepots) ;
 
@@ -3163,6 +3181,11 @@ class AppService extends AbstractController
 
             $refModele = $facture->getModele()->getReference() ; 
 
+            $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                "agent" => $facture->getUser(),
+                "statut" => True
+            ]) ;
+
             $itemEntrepot = [] ;
 
             if($refModele == "PROD")
@@ -3185,10 +3208,22 @@ class AppService extends AbstractController
         
                     // dd($variation) ;
 
-                    $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                        "variationPrix" => $variation,
-                        "statut" => True
-                    ]) ;
+                    if(!is_null($affectEntrepot))
+                    {
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "entrepot" => $affectEntrepot->getEntrepot(),
+                            "statut" => True
+                        ]) ;
+                    }
+                    else
+                    {
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "statut" => True
+                        ]) ;
+                    }
+
         
                     // dd($histoEntrepots) ;
 
