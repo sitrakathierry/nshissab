@@ -94,6 +94,8 @@ $(document).ready(function(){
         var enonceeText = $("#fact_btp_enoncee").find("option:selected").text();
         var enonceId = $("#fact_btp_enoncee").val()
         var enonceItem = $(document).find("#enoncee"+enonceId)
+        var surfaceText = $("#fact_btp_surface").find("option:selected").text() ;
+        var surfaceId = $("#fact_btp_surface").val() ;
         var mesure = $("#fact_btp_mesure").val()
         var prix = $("#fact_btp_prix").val()
         var infoSup = $("#fact_btp_info_sup").val()
@@ -112,13 +114,14 @@ $(document).ready(function(){
         totalTvaLigne = parseFloat(totalTvaLigne.toFixed(2)) ;
 
         var itemElem = `
-            <tr>
+            <tr class="surface`+surfaceId+`">
                 <td>
                 `+designationText+`
                 <input type="hidden" name="fact_enr_btp_enonce_id[]" value="`+enonceId+`">
                 <input type="hidden" name="fact_enr_btp_categorie_id[]" value="`+categorieId+`">
                 <input type="hidden" name="fact_enr_btp_info_sup[]" value="`+infoSup+`">
                 <input type="hidden" name="fact_enr_btp_element_id[]" value="`+designation+`">
+                <input type="hidden" name="fact_enr_btp_surface_id[]" value="`+surfaceId+`">
                 <input type="hidden" name="fact_enr_btp_designation[]" value="`+(designationText+mesure)+`">
                 </td>
                 <td>`+mesure+`</td>
@@ -150,9 +153,14 @@ $(document).ready(function(){
             <div class="table-responsive mt-3">
                 <h5 class="title_form text-black text-uppercase" id="enoncee`+enonceId+`">Enonceée : `+enonceeText+`</h5>
                 <table class="table table-sm table-bordered table-hover">
-                    <thead class="thead-light">
+                    <thead class="thead-dark">
                         <tr>
-                            <th colspan="7" class="text-uppercase" id="categorie`+categorieId+`">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+`</th>
+                            <th colspan="7" class="text-uppercase">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+` </th>
+                        </tr>
+                    </thead>
+                    <tbody id="categorie`+categorieId+`">
+                        <tr class="thead-light">
+                            <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+`</th>
                         </tr>
                         <tr>
                             <th>Désignation</th>
@@ -163,8 +171,6 @@ $(document).ready(function(){
                             <th>Montant Total</th>
                             <th></th>
                         </tr>
-                    </thead>
-                    <tbody>
                         `+itemElem+`
                     </tbody>
                     <tfoot>
@@ -188,7 +194,7 @@ $(document).ready(function(){
                             <input type="hidden" id="totalEnonce`+enonceId+`" value="`+total+`">
                         </td>
                     </tr>
-                `)
+                `) ;
         }
         else
         {
@@ -197,44 +203,75 @@ $(document).ready(function(){
             if(categorieItem.text() == "")
             {
                 var itemCategorie = `
-                <table class="table table-sm table-bordered table-hover">
-                    <thead class="thead-light">
-                        <tr>
-                            <th colspan="7" class="text-uppercase" id="categorie`+categorieId+`">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+` </th>
-                        </tr>
-                        <tr>
-                            <th>Désignation</th>
-                            <th>Mésure</th>
-                            <th>Prix Unitaire HT</th>
-                            <th>Qte</th>
-                            <th>Montant TVA</th>
-                            <th>Montant Total</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        `+itemElem+`
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="5">Total Catégorie</th>
-                            <th colspan="2" class="bg-secondary text-white">
-                                <span id="totalCatText`+categorieId+`">`+total+`</span>
-                                <input type="hidden" id="totalCat`+categorieId+`" value="`+total+`">
-                            </th>
-                        </tr>
-                    </tfoot>
-                </table>
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="7" class="text-uppercase">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+` </th>
+                            </tr>
+                        </thead>
+                        <tbody id="categorie`+categorieId+`">
+                            <tr class="thead-light">
+                                <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+`</th>
+                            </tr>
+                            <tr>
+                                <th>Désignation</th>
+                                <th>Mésure</th>
+                                <th>Prix Unitaire HT</th>
+                                <th>Qte</th>
+                                <th>Montant TVA</th>
+                                <th>Montant Total</th>
+                                <th></th>
+                            </tr>
+                            `+itemElem+`
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5">Total Catégorie</th>
+                                <th colspan="2" class="bg-secondary text-white">
+                                    <span id="totalCatText`+categorieId+`">`+total+`</span>
+                                    <input type="hidden" id="totalCat`+categorieId+`" value="`+total+`">
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 `
-                enonceItem.parent().append(itemCategorie)
+                enonceItem.parent().append(itemCategorie) ;
             }
             else
             {
+                // console.log(categorieItem)
+                // console.log(categorieItem.html())
+
+                var lastSurfaceItem = categorieItem.find('.surface'+surfaceId).last()
+                
+                // console.log(lastSurfaceItem) ;
+
+                if (lastSurfaceItem.length == 0 ) {
+                    var itemSurface = `
+                    <tr class="thead-light">
+                        <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+`</th>
+                    </tr>
+                    <tr>
+                        <th>Désignation</th>
+                        <th>Mésure</th>
+                        <th>Prix Unitaire HT</th>
+                        <th>Qte</th>
+                        <th>Montant TVA</th>
+                        <th>Montant Total</th>
+                        <th></th>
+                    </tr>
+                    `+itemElem+`
+                    `
+                    categorieItem.append(itemSurface) ;
+                }
+                else
+                {
+                    $(itemElem).insertAfter(lastSurfaceItem) ;
+                }
+
                 var totalCatVal = $("#totalCat"+categorieId).val()
                 $("#totalCatText"+categorieId).text(parseFloat(totalCatVal) + total)
                 $("#totalCat"+categorieId).val(parseFloat(totalCatVal) + total)
-
-                categorieItem.closest('table').find('tbody').append(itemElem)
             }
 
             var totalEnonceeVal = $("#totalEnonce"+enonceId).val()
@@ -277,14 +314,14 @@ $(document).ready(function(){
             $("#fact_btp_enoncee").val(),
             $("#fact_btp_categorie").val(),
             $("#fact_btp_designation").val(),
-            $("#fact_btp_info_sup").val(),
+            // $("#fact_btp_info_sup").val(),
             $("#fact_btp_prix").val(),
             $("#fact_btp_qte").val(),
         ],[
             "Enoncée",
             "Catégorie",
             "Désignation",
-            "Information Supplémentaire",
+            // "Information Supplémentaire",
             "Prix",
             "Quantié",
         ])
