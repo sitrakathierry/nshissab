@@ -66,11 +66,10 @@
                             <tr>
                                 <td>
                                     {{element.entrepot|upper}}
-                                    <input type="hidden" name="reduc_val_entrepot[]" class="histo_entrepot" value="{{element.id}}">
                                 </td>
                                 <td>{{element.stock}}</td>
                                 <td class="text-center align-middle contentBtnReduire">
-                                    <button type="button" data-stock="{{element.stock}}" class="btn btn-sm modif_btn_deduire font-smaller btn-outline-warning"><i class="fa fa-minus"></i></button>
+                                    <button type="button" data-stock="{{element.stock}}" data-value="{{element.id}}" class="btn btn-sm modif_btn_deduire font-smaller btn-outline-warning"><i class="fa fa-minus"></i></button>
                                 </td>
                             </tr>
                             {% set total = total + element.stock %}

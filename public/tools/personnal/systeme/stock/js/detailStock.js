@@ -221,7 +221,7 @@ $(document).ready(function(){
             }
         })
         return false ;
-    })
+    }) 
 
     $(document).on("click",".prod_edit_variation",function(){
         var prd_list_id = $(this).closest("tr").find(".prd_list_id").val()
@@ -400,6 +400,7 @@ $(document).ready(function(){
                             <span class="text-warning">
                                 Qte déduit : <b>`+$("#reduc_qte").val()+`</b>,
                                 Type : <b>`+$("#reduc_type").val()+`</b>
+                                <input type="hidden" name="reduc_val_entrepot[]" value="`+self.data("value")+`">
                                 <input type="hidden" name="reduc_val_qte[]" value="`+$("#reduc_qte").val()+`">
                                 <input type="hidden" name="reduc_val_type[]" value="`+$("#reduc_type").val()+`">
                                 <input type="hidden" name="reduc_val_cause[]" value="`+$("#reduc_cause").val()+`">
@@ -411,6 +412,8 @@ $(document).ready(function(){
         })
         return false ;
     }) ;
+
+
 
     $(document).on("keyup","#reduc_qte",function(){
         var reduction = $(this).val() == "" ? 0 : $(this).val() ;

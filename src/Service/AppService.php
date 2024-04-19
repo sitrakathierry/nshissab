@@ -3695,12 +3695,11 @@ class AppService extends AbstractController
                 {
                     $histoEntrepots = [] ;
                     foreach ($affectEntrepots as $affectEntrepot) {
-    
                         $item = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
                             "variationPrix" => $variationPrix,
                             "entrepot" => $affectEntrepot->getEntrepot(),
                             "statut" => True
-                        ],["stock" => "DESC"]) ; 
+                        ]) ; 
     
                         $histoEntrepots = array_merge($histoEntrepots,$item) ;
                     }

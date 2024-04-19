@@ -2813,15 +2813,15 @@ class StockController extends AbstractController
             }
         }
 
-        $reduc_val_qte = (array)$request->request->get("reduc_val_qte") ;
+        $reduc_val_entrepot = (array)$request->request->get("reduc_val_entrepot") ;
 
-        if(isset($reduc_val_qte))
+        if(isset($reduc_val_entrepot))
         {
-            $reduc_val_entrepot = $request->request->get("reduc_val_entrepot") ;
+            $reduc_val_qte = $request->request->get("reduc_val_qte") ;
             $reduc_val_type = $request->request->get("reduc_val_type") ;
             $reduc_val_cause = $request->request->get("reduc_val_cause") ;
 
-            foreach ($reduc_val_qte as $key => $value) {
+            foreach ($reduc_val_entrepot as $key => $value) {
                 # code...
                 $deduction = new PrdDeduction() ;
 
