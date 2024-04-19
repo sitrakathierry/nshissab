@@ -3708,6 +3708,7 @@ class AppService extends AbstractController
     
                 $repartitionDeduction = $stockRemoveVariation ;
                 foreach ($histoEntrepots as $histoEntrepot) { 
+                    dd($histoEntrepot) ;
                     $totalStockEntrepot = $histoEntrepot->getStock() ; 
                     $aDeduire = $repartitionDeduction ; 
                     if($repartitionDeduction >= $totalStockEntrepot)
