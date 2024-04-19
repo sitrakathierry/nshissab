@@ -94,6 +94,7 @@ class AppService extends AbstractController
     private $agence ;
     private $nameAgence ;
     private $passwordEncoder ;
+    private $userObj ;
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder, SessionInterface $session,RouterInterface $router,RequestStack $requestStack, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $encoder, UrlGeneratorInterface $urlGenerator)
     {
@@ -108,6 +109,10 @@ class AppService extends AbstractController
         {
             $this->agence = $this->entityManager->getRepository(Agence::class)->find($this->user["agence"]) ; 
             $this->nameAgence = strtolower($this->agence->getNom())."-".$this->agence->getId().".json" ;
+            $this->userObj = $this->entityManager->getRepository(User::class)->findOneBy([
+                "username" => $this->user["username"],
+                "agence" => $this->agence  
+            ]) ;
         }  
 
         $this->passwordEncoder = $passwordEncoder ;
@@ -3572,6 +3577,17 @@ class AppService extends AbstractController
             "statut" => True
         ]) ;
 
+        $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
+            "reference" => "DF"
+        ]) ;
+
+        $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
+            "type" => $typeFacture,
+            "agence" => $this->agence,
+            "ticketCaisse" => null,
+            "statut" => True
+        ]) ; 
+
         foreach($produits as $produit)
         {
             $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
@@ -3579,6 +3595,7 @@ class AppService extends AbstractController
                 "statut" => True
             ]) ; 
 
+            $stockRemoveProduit = 0 ;
             $stockAddProduit = 0 ;
             foreach ($variationPrixs as $variationPrix) {
                 $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
@@ -3587,6 +3604,8 @@ class AppService extends AbstractController
                 ],["stock" => "DESC"]) ; 
 
                 $stockAddVariation = 0 ;
+                $histoEntTos = [] ;
+
                 foreach ($histoEntrepots as $histoEntrepot) {
                     // $approvisionnements = $this->entityManager->getRepository(PrdApprovisionnement::class)->find([
                     //     "variationPrix" => $variationPrix
@@ -3603,83 +3622,45 @@ class AppService extends AbstractController
                     // {
                     //     dd($stockTotalEntrepot["stockTotalEntrepot"]) ;
                     // }
-
+                    
                     $updateHistoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($histoEntrepot->getId()) ;
                     $updateHistoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
                     $this->entityManager->flush() ;
+
+                    // DEBUT DEDUCTION HISTO ENTREPOT
+
+                    $deductionEntrepot = $this->entityManager->getRepository(PrdDeduction::class)->getSommeDeductionEntrepot([
+                        "histoEntrepot" => $histoEntrepot->getId()
+                    ]) ;
+        
+                    $totalHistoEntrepot = floatval($histoEntrepot->getStock()) ;
+                    $totalDeductionEntrepot = floatval($deductionEntrepot["sommeStock"]) ;
+                    // $histoEntrepotActif->setStock(floatval($histoEntrepotActif->getStock()) - floatval($deductionEntrepot["sommeStock"])) ;
+                    // $this->entityManager->flush() ;
+        
+                    if($deductionEntrepot["sommeStock"] >= $totalHistoEntrepot)
+                    {
+                        // $histoEntrepotActif->setStock(0) ;
+                        // $this->entityManager->flush() ;
+                        $totalDeductionEntrepot = $totalHistoEntrepot;
+                    }
+        
+                    $updateHistoEntrepot->setStock($totalHistoEntrepot - $totalDeductionEntrepot) ;
+                    $this->entityManager->flush() ;
+                    
+                    // $produitEntrepotActif = $histoEntrepot->getVariationPrix()->getProduit() ;
+                    // $produitEntrepotActif->setStock($produitEntrepotActif->getStock() - $totalDeductionEntrepot) ;
+                    // $this->entityManager->flush() ;
+
+                    $stockRemoveProduit += $totalDeductionEntrepot ;
+
+                    // DEBUT DEDUCTION HISTO ENTREPOT
                 }
-                
-                $variationPrix->setStock($stockAddVariation) ;
-                $this->entityManager->flush() ;
 
-                $stockAddProduit += $stockAddVariation ;
-            }
+                $stockRemoveVariation = 0 ;
 
-            $produit->setStock($stockAddProduit) ;
-            $produit->setToUpdate(null) ;
-            $this->entityManager->flush() ;
-        }
+                // DEBUT CALCUL FACTURE
 
-        if(empty($produits))
-            return ;
-
-        $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
-            "reference" => "DF"
-        ]) ;
-
-        $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
-            "type" => $typeFacture,
-            "agence" => $this->agence,
-            "ticketCaisse" => null,
-            "statut" => True
-        ]) ; 
-
-        $histoEntrepotActifs = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-            "statut" => True,
-            "agence" => $this->agence
-        ]) ; 
-
-        foreach($histoEntrepotActifs as $histoEntrepotActif)
-        {
-            $deductionEntrepot = $this->entityManager->getRepository(PrdDeduction::class)->getSommeDeductionEntrepot([
-                "histoEntrepot" => $histoEntrepotActif->getId()
-            ]) ;
-
-            $totalHistoEntrepot = floatval($histoEntrepotActif->getStock()) ;
-            
-            // $histoEntrepotActif->setStock(floatval($histoEntrepotActif->getStock()) - floatval($deductionEntrepot["sommeStock"])) ;
-            // $this->entityManager->flush() ;
-
-            if($deductionEntrepot["sommeStock"] > $totalHistoEntrepot)
-            {
-                $histoEntrepotActif->setStock(0) ;
-                $this->entityManager->flush() ;
-            }
-            else
-            {
-                $histoEntrepotActif->setStock(floatval($histoEntrepotActif->getStock()) - floatval($deductionEntrepot["sommeStock"])) ;
-                $this->entityManager->flush() ;
-            }
-
-            $produitEntrepotActif = $histoEntrepotActif->getVariationPrix()->getProduit() ;
-
-            $histoEntrepotActif->getVariationPrix()->setStock($histoEntrepotActif->getVariationPrix()->getStock() - $deductionEntrepot["sommeStock"]) ;
-            $produitEntrepotActif->setStock($produitEntrepotActif->getStock() - $deductionEntrepot["sommeStock"]) ;
-            
-            $this->entityManager->flush() ;
-        }
-
-        // DEBUT SOUSTRACTION 
-
-        foreach($produits as $produit)
-        {
-            $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-                "produit" => $produit,
-                "statut" => True
-            ]) ; 
-
-            $stockRemoveVariation = 0 ;
-            foreach ($variationPrixs as $variationPrix) {
                 foreach ($factureDefinitives as $factureDefinitive) {
                     $detailFactureVariation = $this->entityManager->getRepository(FactDetails::class)->stockTotalFactureVariation([
                         "facture" => $factureDefinitive->getId(),
@@ -3698,89 +3679,174 @@ class AppService extends AbstractController
 
                 // REPARTITION de la diminution
     
-                $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                    "variationPrix" => $variationPrix,
+                $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
+                    "agent" => $this->userObj,
                     "statut" => True
-                ],["stock" => "DESC"]) ; 
+                ]) ;
+
+                if(empty($affectEntrepots))
+                {
+                    $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                        "statut" => True,
+                        "agence" => $this->agence
+                    ]) ;
+                }
+                else
+                {
+                    $histoEntrepots = [] ;
+                    foreach ($affectEntrepots as $affectEntrepot) {
+    
+                        $item = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variationPrix,
+                            "entrepot" => $affectEntrepot->getEntrepot(),
+                            "statut" => True
+                        ],["stock" => "DESC"]) ; 
+    
+                        $histoEntrepots[] = $item ;
+                    }
+                }
     
                 $repartitionDeduction = $stockRemoveVariation ;
-                $aDeduire = 0 ;
-                foreach ($histoEntrepots as $histoEntrepot) {
-                    $totalStockEntrepot = $histoEntrepot->getStock() ;
-
-                    $aDeduire = $histoEntrepot->getStock() ;
-
+                foreach ($histoEntrepots as $histoEntrepot) { 
+                    $totalStockEntrepot = $histoEntrepot->getStock() ; 
+                    $aDeduire = $repartitionDeduction ; 
                     if($repartitionDeduction >= $totalStockEntrepot)
                     {
-                        $histoEntrepot->setStock(0) ;
-                    }
-                    else
-                    {
-                        $histoEntrepot->setStock($histoEntrepot->getStock() - $repartitionDeduction) ;
+                        $aDeduire = $totalStockEntrepot ;
+                        // $histoEntrepot->setStock(0) ;
                     }
 
-                    $repartitionDeduction -= $aDeduire ;
+                    $histoEntrepot->setStock($histoEntrepot->getStock() - $aDeduire) ;
+
+                    $repartitionDeduction -= $aDeduire ; 
 
                     if($repartitionDeduction <= 0)
                         break ;
                 }
     
-                $variationPrix->setStock($variationPrix->getStock() - $stockRemoveVariation) ;
+                // $variationPrix->setStock($variationPrix->getStock() - ) ;
+                // $this->entityManager->flush() ;
+
+                // FIN CALCUL FACTURE
+
+                $variationPrix->setStock($stockAddVariation - $stockRemoveVariation) ;
                 $this->entityManager->flush() ;
+
+                // DEBUT DEDUCTION VARIATION
+
+                $deductionVariation = $this->entityManager->getRepository(PrdDeduction::class)->getSommeDeductionVariation([
+                    "variationPrix" => $variationPrix->getId()
+                ]) ;
+
+                $totalDeduction = $deductionVariation["sommeVariation"] ;
+
+                if($totalDeduction >= $variationPrix->getStock())
+                {
+                    $totalDeduction = $variationPrix->getStock() ;
+                }
+
+                $variationPrix->setStock($variationPrix->getStock() - $totalDeduction) ;
+                $this->entityManager->flush() ;
+
+                // FIN DEDUCTION VARIATION
+                $stockRemoveProduit += $stockRemoveVariation ;
+                $stockAddProduit += $stockAddVariation ;
             }
 
-            // if($this->agence->getId() == 28)
-            //     dd($stockRemoveVariation) ;
-
-            $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
+            $produit->setStock($stockAddProduit - $stockRemoveProduit) ;
+            $produit->setToUpdate(null) ;
             $this->entityManager->flush() ;
+
+            // if($produit->getStock() < 0)
+            // {
+            //     $produit->setStock(0) ;
+            //     $this->entityManager->flush() ;
+            // }
 
             $filename = "files/systeme/stock/variationProduit(agence)/vartPrd_".$produit->getId()."_".$this->nameAgence  ;
             if(file_exists($filename))
                 unlink($filename) ;
         }
 
-        $produitActives = $this->entityManager->getRepository(Produit::class)->findBy([
-            "agence" => $this->agence,
-            "statut" => True
-        ]) ;
+        if(empty($produits))
+            return ;
 
-        foreach($produitActives as $produitActive)
-        {
-            $variationPrixActives = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-                "produit" => $produit,
-                "statut" => True
-            ]) ; 
+        // $histoEntrepotActifs = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+        //     "statut" => True,
+        //     "agence" => $this->agence
+        // ]) ; 
+        
+        // // $histoEntrepotActifs = $histoEntTos ;
 
-            foreach ($variationPrixActives as $variationPrixActive)
-            {
-                $histoEntrepotActives = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                    "variationPrix" => $variationPrix,
-                    "statut" => True
-                ]) ; 
+        // foreach($histoEntrepotActifs as $histoEntrepotActif)
+        // {
+            
+        // }
 
-                foreach($histoEntrepotActives as $histoEntrepotActive)
-                {
-                    if($histoEntrepotActive->getStock() <= 0)
-                    {
-                        $histoEntrepotActive->setStock(0) ;
-                        $this->entityManager->flush() ;
-                    }
-                }
+        // DEBUT SOUSTRACTION 
 
-                if($variationPrixActive->getStock() <= 0)
-                {
-                    $variationPrixActive->setStock(0) ;
-                    $this->entityManager->flush() ;
-                }
-            }
+        // foreach($produits as $produit)
+        // {
+        //     $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+        //         "produit" => $produit,
+        //         "statut" => True
+        //     ]) ; 
 
-            if($produitActive->getStock() <= 0)
-            {
-                $produitActive->setStock(0) ;
-                $this->entityManager->flush() ;
-            }
-        }
+        //     $stockRemoveVariation = 0 ;
+        //     foreach ($variationPrixs as $variationPrix) {
+                
+        //     }
+
+        //     // if($this->agence->getId() == 28)
+        //     //     dd($stockRemoveVariation) ;
+
+        //     $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
+        //     $this->entityManager->flush() ;
+
+            
+        // }
+
+        // $produitActives = $this->entityManager->getRepository(Produit::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "statut" => True
+        // ]) ;
+
+        // foreach($produitActives as $produitActive)
+        // {
+        //     $variationPrixActives = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+        //         "produit" => $produit,
+        //         "statut" => True
+        //     ]) ; 
+
+        //     foreach ($variationPrixActives as $variationPrixActive)
+        //     {
+        //         $histoEntrepotActives = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+        //             "variationPrix" => $variationPrix,
+        //             "statut" => True
+        //         ]) ; 
+
+        //         foreach($histoEntrepotActives as $histoEntrepotActive)
+        //         {
+        //             if($histoEntrepotActive->getStock() <= 0)
+        //             {
+        //                 $histoEntrepotActive->setStock(0) ;
+        //                 $this->entityManager->flush() ;
+        //             }
+        //         }
+
+        //         if($variationPrixActive->getStock() <= 0)
+        //         {
+        //             $variationPrixActive->setStock(0) ;
+        //             $this->entityManager->flush() ;
+        //         }
+        //     }
+
+        //     if($produitActive->getStock() <= 0)
+        //     {
+        //         $produitActive->setStock(0) ;
+        //         $this->entityManager->flush() ;
+        //     }
+        // }
 
         $dataFilenames = [
             "files/systeme/stock/stock_general(agence)/".$this->nameAgence,

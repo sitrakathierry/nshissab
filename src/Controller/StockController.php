@@ -625,7 +625,7 @@ class StockController extends AbstractController
         else
         {
             $type = $this->entityManager->getRepository(PrdType::class)->find($idType) ;
-            $nomType = $type->getNom() ; 
+            $nomType = $type->getNom() ;  
         }
 
         $parent = [

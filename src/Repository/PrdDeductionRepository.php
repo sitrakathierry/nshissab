@@ -47,6 +47,15 @@ class PrdDeductionRepository extends ServiceEntityRepository
         $resultSet = $stmt->executeQuery([$params["histoEntrepot"]]);
         return $resultSet->fetchAssociative();
     }
+
+    public function getSommeDeductionVariation($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as sommeVariation FROM `prd_deduction` WHERE `variation_prix_id` = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
+        return $resultSet->fetchAssociative();
+    }
 //    /**
 //     * @return PrdDeduction[] Returns an array of PrdDeduction objects
 //     */

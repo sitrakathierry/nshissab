@@ -38,7 +38,7 @@ class FactDetailsRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
+ 
     public function stockTotalFactureVariation($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();

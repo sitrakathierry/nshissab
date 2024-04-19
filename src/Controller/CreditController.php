@@ -80,11 +80,23 @@ class CreditController extends AbstractController
             "filename" => "credit",
             "titlePage" => "Consultation Credit",
             "with_foot" => false,
-            "clients" => $clients,
+            "clients" => $clients, 
             "critereDates" => $critereDates,
             "credits" => $credits,
             "crdStatuts" => $crdStatuts,
             "refPaiement" => "CR"
+        ]);
+    }
+
+    
+    #[Route('/credit/suivi/general', name: 'crd_suivi_credit_general')]
+    public function crdSuiviCreditGeneral(): Response
+    {
+
+        return $this->render('credit/suiviCreditGeneral.html.twig', [ 
+            "filename" => "credit",
+            "titlePage" => "Suivi Crédit Général",
+            "with_foot" => false
         ]);
     }
 
@@ -508,7 +520,6 @@ class CreditController extends AbstractController
             {
                 unlink($filename) ;
             }
-
             return new JsonResponse($result) ;
         }
 
@@ -583,7 +594,7 @@ class CreditController extends AbstractController
     #[Route('/credit/acompte/consultation', name: 'crd_consultation_acompte')]
     public function crdAcompteConsultation(): Response
     {
-        $this->appService->updateAnneeData() ;
+        $this->appService->updateAnneeData() ; 
         
         $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
