@@ -1501,10 +1501,24 @@ class AppService extends AbstractController
                     }
                     else
                     {
-                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                            "variationPrix" => $variation,
+                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+                            "nom" => strtoupper($facture->getLieu()),
                             "statut" => True
                         ]) ;
+                        
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "entrepot" => $entrepot,
+                            "statut" => True
+                        ]) ;
+
+                        if(empty($histoEntrepots))
+                        {
+                            $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                                "variationPrix" => $variation,
+                                "statut" => True
+                            ]) ;
+                        }
                     }
 
         
@@ -3223,10 +3237,24 @@ class AppService extends AbstractController
                     }
                     else
                     {
-                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                            "variationPrix" => $variation,
+                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+                            "nom" => strtoupper($facture->getLieu()),
                             "statut" => True
                         ]) ;
+                        
+                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                            "variationPrix" => $variation,
+                            "entrepot" => $entrepot,
+                            "statut" => True
+                        ]) ;
+
+                        if(empty($histoEntrepots))
+                        {
+                            $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+                                "variationPrix" => $variation,
+                                "statut" => True
+                            ]) ;
+                        }
                     }
 
         
