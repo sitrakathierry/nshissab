@@ -3702,13 +3702,13 @@ class AppService extends AbstractController
                             "statut" => True
                         ],["stock" => "DESC"]) ; 
     
-                        $histoEntrepots[] = $item ;
+                        $histoEntrepots = array_merge($histoEntrepots,$item) ;
                     }
                 }
     
                 $repartitionDeduction = $stockRemoveVariation ;
                 foreach ($histoEntrepots as $histoEntrepot) { 
-                    dd($histoEntrepot) ;
+                    // dd($histoEntrepot) ;
                     $totalStockEntrepot = $histoEntrepot->getStock() ; 
                     $aDeduire = $repartitionDeduction ; 
                     if($repartitionDeduction >= $totalStockEntrepot)
