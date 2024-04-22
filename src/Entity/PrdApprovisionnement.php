@@ -70,6 +70,9 @@ class PrdApprovisionnement
     #[ORM\ManyToOne(inversedBy: 'prdApprovisionnements')]
     private ?Agence $agence = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isAuto = null;
+
     public function __construct()
     {
         $this->prdApproFournisseurs = new ArrayCollection();
@@ -329,6 +332,18 @@ class PrdApprovisionnement
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function isIsAuto(): ?bool
+    {
+        return $this->isAuto;
+    }
+
+    public function setIsAuto(?bool $isAuto): self
+    {
+        $this->isAuto = $isAuto;
 
         return $this;
     }

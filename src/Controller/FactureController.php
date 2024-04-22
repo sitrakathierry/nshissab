@@ -443,7 +443,7 @@ class FactureController extends AbstractController
         
         $annulations = json_decode(file_get_contents($filename)) ;
 
-        $search = [
+        $search = [ 
             "refSpec" => "AVR"
         ] ;
 
@@ -1402,7 +1402,7 @@ class FactureController extends AbstractController
             $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
             $facture = $annulation->getFacture() ;
         }
-        else
+        else 
         {
             $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
         }
@@ -1510,6 +1510,8 @@ class FactureController extends AbstractController
             $element["enonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getNom() ;
             $element["idCategorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getId() ;
             $element["categorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getNom() ;
+            $element["idSurface"] = is_null($infoSupDetail) ? "-" : (is_null($infoSupDetail->getSurface()) ? "-" : $infoSupDetail->getSurface()->getId()) ;
+            $element["surface"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getSurface()) ? "-" : $infoSupDetail->getSurface()->getNom()) ;
             $element["infoSup"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getInfoSup()) ? "" : $infoSupDetail->getInfoSup()) ;
             
             array_push($elements,$element) ;
@@ -1683,26 +1685,22 @@ class FactureController extends AbstractController
 
                     $key1 = $element["idEnonce"]."#|#".$element["enonce"] ;
                     $key2 = $element["idCategorie"]."#|#".$element["categorie"] ;
+                    $key3 = $element["idSurface"]."#|#".$element["surface"] ;
 
                     $detailBatiment = $this->entityManager->getRepository(BtpElement::class)->getInformationElement([
                         "idFactDetail" => $element["id"]
                     ]) ;
     
-                    // dd($detailBatiment) ;
+                    $element["designation"] = $detailBatiment["designation"] ;
+                    $element["mesure"] = $detailBatiment["mesure"] ;
 
-                    // if($detailBatiment) 
-                    // {
-                        $element["designation"] = $detailBatiment["designation"] ;
-                        $element["mesure"] = $detailBatiment["mesure"] ;
-                    // }
-                    // else
-                    // {
-                    //     $element["designation"] = "-" ;
-                    //     $element["mesure"] = "-" ;
-                    // }
-
-                    $newTabFactureDetls[$key1][$key2][] = $element ;
+                    $newTabFactureDetls[$key1][$key2][$key3][] = $element ;
                 }
+
+                $surfaces = $this->entityManager->getRepository(BtpSurface::class)->findBy([
+                    "agence" => $this->agence,
+                    "statut" => True,
+                ]) ;
                 
                 return $this->render('facture/batiment/detailsFactureBatiment.html.twig', [
                     "filename" => "facture",
@@ -1721,6 +1719,7 @@ class FactureController extends AbstractController
                     "factureCreer" => $factureCreer,
                     "paiements" => $paiements,
                     "dataAvoir" => $dataAvoir,
+                    "surfaces" => $surfaces,
                 ]) ;
             }
         }
@@ -2134,7 +2133,6 @@ class FactureController extends AbstractController
         } 
         else if($modeleRef == "PBAT")
         {
-            
             $fact_enr_btp_categorie_id = $request->request->get('fact_enr_btp_categorie_id') ;
             $fact_enr_btp_element_id = $request->request->get('fact_enr_btp_element_id') ;
             $fact_enr_btp_designation = $request->request->get('fact_enr_btp_designation') ;
@@ -2143,6 +2141,7 @@ class FactureController extends AbstractController
             $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
             $fact_enr_btp_info_sup = $request->request->get('fact_enr_btp_info_sup') ;
             $fact_enr_btp_forfait = $request->request->get('fact_enr_btp_forfait') ;
+            $fact_enr_btp_surface_id = $request->request->get('fact_enr_btp_surface_id') ;
             
             foreach ($fact_enr_btp_enonce_id as $key => $value) {
                 $dtlsTvaVal = empty($fact_enr_btp_tva[$key]) ? null : $fact_enr_btp_tva[$key] ;
@@ -2165,11 +2164,13 @@ class FactureController extends AbstractController
 
                 $enoncee = $this->entityManager->getRepository(BtpEnoncee::class)->find($fact_enr_btp_enonce_id[$key]) ;
                 $categorie = $this->entityManager->getRepository(BtpCategorie::class)->find($fact_enr_btp_categorie_id[$key]) ;
+                $surface = $this->entityManager->getRepository(BtpSurface::class)->find($fact_enr_btp_surface_id[$key]) ;
 
                 $factSupDetailsPbat = new FactSupDetailsPbat() ;
-
+                
                 $factSupDetailsPbat->setEnonce($enoncee) ;
                 $factSupDetailsPbat->setCategorie($categorie) ;
+                $factSupDetailsPbat->setSurface($surface) ;
                 $factSupDetailsPbat->setDetail($factDetail) ; 
                 $factSupDetailsPbat->setInfoSup($fact_enr_btp_info_sup[$key]) ;
 
@@ -2406,6 +2407,7 @@ class FactureController extends AbstractController
             $fact_enr_btp_quantite = $request->request->get('fact_enr_btp_quantite') ;
             $fact_enr_btp_tva = $request->request->get('fact_enr_btp_tva') ;
             $fact_enr_btp_info_sup = $request->request->get('fact_enr_btp_info_sup') ;
+            $fact_enr_btp_surface_id = $request->request->get('fact_enr_btp_surface_id') ;
             
             foreach ($fact_enr_btp_enonce_id as $key => $value) {
 
@@ -2430,11 +2432,13 @@ class FactureController extends AbstractController
 
                 $enoncee = $this->entityManager->getRepository(BtpEnoncee::class)->find($fact_enr_btp_enonce_id[$key]) ;
                 $categorie = $this->entityManager->getRepository(BtpCategorie::class)->find($fact_enr_btp_categorie_id[$key]) ;
+                $surface = $this->entityManager->getRepository(BtpSurface::class)->find($fact_enr_btp_surface_id[$key]) ;
 
                 $factSupDetailsPbat = new FactSupDetailsPbat() ;
 
                 $factSupDetailsPbat->setEnonce($enoncee) ;
                 $factSupDetailsPbat->setCategorie($categorie) ;
+                $factSupDetailsPbat->setSurface($surface) ;
                 $factSupDetailsPbat->setDetail($factDetail) ; 
                 $factSupDetailsPbat->setInfoSup($fact_enr_btp_info_sup[$key]) ;
 

@@ -2418,6 +2418,13 @@ class StockController extends AbstractController
                 $item["type"] = "Approvisionnement" ;
                 $item["indice"] = "DEBIT" ;
 
+                if($appro->isIsAuto())
+                {
+                    $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
+                    $appro->setIsAuto(False) ;
+                    $this->entityManager->flush() ;
+                }
+
                 array_push($listes,$item) ; 
             }
 
@@ -2428,10 +2435,28 @@ class StockController extends AbstractController
             $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
                 "type" => $typeFacture,
                 "agence" => $this->agence,
+                "ticketCaisse" => null,
                 "statut" => True
             ]) ; 
 
-                // dd($factureDefinitives) ;
+            // $detailFactureVariation = $this->entityManager->getRepository(FactDetails::class)->stockTotalFactureVariation([
+            //     "agence" => $this->agence->getId(),
+            //     "variationPrix" => $variationPrix->getId(),
+            // ]) ;
+
+            // $item = [] ;
+            // $item["date"] = date("d/m/Y");
+            // $item["entrepot"] = "-" ;
+            // $item["produit"] = "-" ;
+            // $item["quantite"] = $detailFactureVariation["totalFactureVariation"] ;
+            // $item["prix"] = 0 ;
+            // $item["total"] = 0 ;
+            // $item["type"] = "Facture Definitif" ;
+            // $item["indice"] = "CREDIT" ;
+
+            // array_push($listes,$item) ;
+
+            // dd($factureDefinitives) ;
             foreach ($factureDefinitives as $factureDefinitive) {
                 $factureVariations = $this->entityManager->getRepository(FactDetails::class)->findBy([
                     "facture" => $factureDefinitive,    
@@ -2817,7 +2842,7 @@ class StockController extends AbstractController
 
         if(isset($reduc_val_entrepot))
         {
-            $reduc_val_qte = $request->request->get("reduc_val_qte") ;
+            $reduc_val_qte = $request->request->get("reduc_val_entrepot") ;
             $reduc_val_type = $request->request->get("reduc_val_type") ;
             $reduc_val_cause = $request->request->get("reduc_val_cause") ;
 

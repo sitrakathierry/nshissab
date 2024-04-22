@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BtpSurfaceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BtpSurfaceRepository::class)]
@@ -27,6 +29,14 @@ class BtpSurface
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\OneToMany(mappedBy: 'surface', targetEntity: FactSupDetailsPbat::class)]
+    private Collection $factSupDetailsPbats;
+
+    public function __construct()
+    {
+        $this->factSupDetailsPbats = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,6 +99,36 @@ class BtpSurface
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactSupDetailsPbat>
+     */
+    public function getFactSupDetailsPbats(): Collection
+    {
+        return $this->factSupDetailsPbats;
+    }
+
+    public function addFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if (!$this->factSupDetailsPbats->contains($factSupDetailsPbat)) {
+            $this->factSupDetailsPbats->add($factSupDetailsPbat);
+            $factSupDetailsPbat->setSurface($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactSupDetailsPbat(FactSupDetailsPbat $factSupDetailsPbat): self
+    {
+        if ($this->factSupDetailsPbats->removeElement($factSupDetailsPbat)) {
+            // set the owning side to null (unless already changed)
+            if ($factSupDetailsPbat->getSurface() === $this) {
+                $factSupDetailsPbat->setSurface(null);
+            }
+        }
 
         return $this;
     }

@@ -56,9 +56,22 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
     public function stockTotalVariationPrix($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? AND `histo_entrepot_id` = ? ";
+        $sql = "SELECT SUM(`quantite`) as stockTotalVariation FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? ";
+        // $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? AND `histo_entrepot_id` = ? ";
         $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
+        $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
+        // $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
+        return $resultSet->fetchAssociative();
+    }
+
+    public function stockTotalHistoEntrepot($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `histo_entrepot_id` = ? ";
+        // $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? AND `histo_entrepot_id` = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["histoEntrepot"]]);
+        // $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
         return $resultSet->fetchAssociative();
     }
 

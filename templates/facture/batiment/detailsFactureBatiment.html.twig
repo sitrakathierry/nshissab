@@ -143,21 +143,37 @@
                     <div class="row">
                         <div class="col-md-4">
                             <label for="fact_btp_enoncee" class="font-weight-bold">Enoncée</label>
-                            <select class="custom-select custom-select-sm chosen_select" name="fact_btp_enoncee" id="fact_btp_enoncee" >
-                                <option value="">-</option> 
-                                {% for enoncee in enoncees %}
-                                    <option value="{{enoncee.id}}">{{enoncee.nom|upper}}</option> 
-                                {% endfor %}
-                            </select>
+                            <div class= " w-100 d-flex flex-row">
+                                <select class="custom-select custom-select-sm chosen_select" name="fact_btp_enoncee" id="fact_btp_enoncee" >
+                                    <option value="">-</option>
+                                    {% for enoncee in enoncees %}
+                                        <option value="{{enoncee.id}}">{{enoncee.nom|upper}}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" data-value="NEW" class="btn font-weight-bold font-smaller btn-primary btn-sm ml-2" style="width: 50px; height: 33px;"><i class="fa fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label for="fact_btp_categorie" class="font-weight-bold">Catégorie</label>
-                            <select class="custom-select custom-select-sm chosen_select" name="fact_btp_categorie" id="fact_btp_categorie" >
-                            </select>
+                            <div class="d-flex flex-row">
+                                <select class="custom-select custom-select-sm chosen_select" name="fact_btp_categorie" id="fact_btp_categorie" >
+                                </select>
+                                <button type="button" data-value="NEW" class="btn font-weight-bold font-smaller btn-primary btn-sm ml-2" style="width: 50px; height: 33px;"><i class="fa fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label for="fact_btp_info_sup" class="font-weight-bold">Info Supplementaire</label>
                             <input type="text" name="fact_btp_info_sup" class="form-control" id="fact_btp_info_sup" placeholder="Ex : Surface 10.6, Quantite 2.24 ...">
+                        </div>
+                        <div class="col-5">
+                            <label for="fact_btp_surface" class="mt-2 font-weight-bold">Surface de travail</label>
+                            <select name="fact_btp_surface" class="custom-select chosen_select custom-select-sm" id="fact_btp_surface">
+                                <option value="">-</option>
+                                {% for surface in surfaces %}
+                                    <option value="{{surface.id}}">{{surface.nom|upper}}</option>
+                                {% endfor %}
+                            </select> 
+                            {# <input type="text" name="fact_btp_description" id="fact_btp_description" class="form-control" placeholder=". . ."> #}
                         </div>
                         <div class="col-md-5">
                             <div class="w-100 pbat_content_designation">
@@ -173,10 +189,6 @@
                                 </div>
                             </div>
                             <input type="hidden" id="fact_text_designation">
-                        </div>
-                        <div class="col-5">
-                            <label for="fact_btp_description" class="mt-2 font-weight-bold">Description</label>
-                            <input type="text" name="fact_btp_description" id="fact_btp_description" class="form-control" placeholder=". . .">
                         </div>
                         <div class="col-md-2">
                             <label for="fact_btp_mesure" class="mt-2 font-weight-bold">Mésure</label>
@@ -214,22 +226,29 @@
             </div>
         {% endif %}
         <div class="barre_dashed w-100 pb-3 px-3">
-            
-                <input type="hidden" name="fact_id_facture" id="fact_id_facture" value="{{facture.id}}" >
-                <input type="hidden" name="fact_detail_modele" id="fact_detail_modele" value="{{facture.refModele}}" >
-                <div id="detailPrestBatiment">
-                    {% set tabTotalEnonce = [] %}
-                    {% for key1, detail1 in detailFactures %}
-                        {% set dataEnonce = key1|split("#|#") %}
-                        <div class="table-responsive mt-3">
-                            <h5 class="title_form text-black text-uppercase" id="enoncee{{dataEnonce[0]}}">Enonceée : {{dataEnonce[1]}}</h5>
-                           {% set totalEnonce = 0 %}
-                            {% for key2, detail2 in detail1 %}
-                                {% set dataCategorie = key2|split("#|#") %}
-                                <table class="table table-sm table-bordered table-hover">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th colspan="7" class="text-uppercase" id="categorie{{dataCategorie[0]}}">CATEGORIE : {{dataCategorie[1]}} ; INFO SUPPLEMENTAIRE : {{detail2[0].infoSup}}</th>
+            <input type="hidden" name="fact_id_facture" id="fact_id_facture" value="{{facture.id}}" >
+            <input type="hidden" name="fact_detail_modele" id="fact_detail_modele" value="{{facture.refModele}}" >
+            <div id="detailPrestBatiment">
+                {% set tabTotalEnonce = [] %}
+                {% for key1, detail1 in detailFactures %}
+                    {% set dataEnonce = key1|split("#|#") %}
+                    <div class="table-responsive mt-3">
+                        <h5 class="title_form text-black text-uppercase" id="enoncee{{dataEnonce[0]}}">Enonceée : {{dataEnonce[1]}}</h5>
+                        {% set totalEnonce = 0 %}
+                        {% for key2, detail2 in detail1 %}
+                            {% set dataCategorie = key2|split("#|#") %}
+                            <table class="table table-sm table-bordered table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th colspan="7" class="text-uppercase">CATEGORIE : {{dataCategorie[1]}} </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categorie{{dataCategorie[0]}}">
+                                    {% set totalCategorie = 0 %}
+                                    {% for key3, detail3 in detail2 %}
+                                        {% set dataSurface = key3|split("#|#") %}
+                                        <tr class="thead-light">
+                                            <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : {{dataSurface[1]}} ; INFO SUPPLEMENTAIRE : {{detail3[0].infoSup}}</th>
                                         </tr>
                                         <tr>
                                             <th>Désignation</th>
@@ -240,11 +259,8 @@
                                             <th>Montant Total</th>
                                             <th></th>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% set totalCategorie = 0 %}
-                                        {% for itemDetail in detail2 %}
-                                            <tr>
+                                        {% for itemDetail in detail3 %}
+                                            <tr class="surface{{dataSurface[0]}}">
                                                 <td>
                                                 {{itemDetail.designation}}
                                                 <input type="hidden" name="fact_enr_btp_enonce_id[]" value="-">
@@ -280,24 +296,24 @@
                                             </tr>
                                             {% set totalCategorie = totalCategorie + itemDetail.total %}
                                         {% endfor %}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th colspan="5">Total Catégorie</th>
-                                            <th colspan="2" class="bg-secondary text-white">
-                                                <span id="totalCatText{{dataCategorie[0]}}">{{totalCategorie}}</span>
-                                                <input type="hidden" id="totalCat{{dataCategorie[0]}}`" value="{{totalCategorie}}">
-                                            </th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                                {% set totalEnonce = totalEnonce + totalCategorie %}
-                            {% endfor %}
-                        </div>
-                        {% set tabTotalEnonce = tabTotalEnonce|merge([totalEnonce]) %}
-                    {% endfor %}
-                </div>
-            
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5">Total Catégorie</th>
+                                        <th colspan="2" class="bg-secondary text-white">
+                                            <span id="totalCatText{{dataCategorie[0]}}">{{totalCategorie}}</span>
+                                            <input type="hidden" id="totalCat{{dataCategorie[0]}}`" value="{{totalCategorie}}">
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            {% set totalEnonce = totalEnonce + totalCategorie %}
+                        {% endfor %}
+                    </div>
+                    {% set tabTotalEnonce = tabTotalEnonce|merge([totalEnonce]) %}
+                {% endfor %}
+            </div>
             <div class="table-responsive mt-3">
                 <h5 class="title_form text-black text-uppercase">Récapitulatif</h5>
                 <table class="table-sm table table-bordered">
@@ -327,7 +343,7 @@
                         <tr>
                             <th>Total HT</th>
                             <th class="bg-light"><span id="fact_btp_total_ht"></span></th>
-                        </tr> 
+                        </tr>
                         <tr>
                             <th>Total TVA</th>
                             <th class="align-middle bg-light">

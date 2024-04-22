@@ -155,12 +155,12 @@ $(document).ready(function(){
                 <table class="table table-sm table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
-                            <th colspan="7" class="text-uppercase">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+` </th>
+                            <th colspan="7" class="text-uppercase">CATEGORIE : `+categorieText+` </th>
                         </tr>
                     </thead>
                     <tbody id="categorie`+categorieId+`">
                         <tr class="thead-light">
-                            <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+`</th>
+                            <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+` ; INFO SUPPLEMENTAIRE : `+infoSup+`</th>
                         </tr>
                         <tr>
                             <th>Désignation</th>
@@ -206,12 +206,12 @@ $(document).ready(function(){
                     <table class="table table-sm table-bordered table-hover">
                         <thead class="thead-dark">
                             <tr>
-                                <th colspan="7" class="text-uppercase">CATEGORIE : `+categorieText+` ; INFO SUPPLEMENTAIRE : `+infoSup+` </th>
+                                <th colspan="7" class="text-uppercase">CATEGORIE : `+categorieText+` </th>
                             </tr>
                         </thead>
                         <tbody id="categorie`+categorieId+`">
                             <tr class="thead-light">
-                                <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+`</th>
+                                <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+` ; INFO SUPPLEMENTAIRE : `+infoSup+`</th>
                             </tr>
                             <tr>
                                 <th>Désignation</th>
@@ -249,7 +249,7 @@ $(document).ready(function(){
                 if (lastSurfaceItem.length == 0 ) {
                     var itemSurface = `
                     <tr class="thead-light">
-                        <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+`</th>
+                        <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : `+surfaceText+` ; INFO SUPPLEMENTAIRE : `+infoSup+`</th>
                     </tr>
                     <tr>
                         <th>Désignation</th>
@@ -324,7 +324,7 @@ $(document).ready(function(){
             // "Information Supplémentaire",
             "Prix",
             "Quantié",
-        ])
+        ]) ;
 
         if(!result["allow"])
         {
@@ -341,7 +341,6 @@ $(document).ready(function(){
             insertBatElementDesignation($("#fact_btp_designation").val()) ;
         else if($(".btn_designation_plus").data("value") == "NEW")
             displayElementInTable() ;
-        
     })
 
     $(document).on('click',".supprLigneCat",function(){
