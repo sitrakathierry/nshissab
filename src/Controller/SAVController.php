@@ -9,6 +9,9 @@ use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
 use App\Entity\Facture;
 use App\Entity\HistoHistorique;
+use App\Entity\PrdDeduction;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
 use App\Entity\SavDetails;
 use App\Entity\SavMotif;
@@ -54,7 +57,7 @@ class SAVController extends AbstractController
     
     #[Route('/sav', name: 'app_s_a_v')]
     public function index(): Response
-    {
+    { 
         // $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
 
         // if(!file_exists($filename))
@@ -720,6 +723,10 @@ class SAVController extends AbstractController
                 $this->filename."annulation(agence)/".$this->nameAgence,
                 "files/systeme/facture/facture(agence)/".$this->nameAgence,
             ] ;
+
+            $refFacture = $facture->getModele()->getReference() ;
+
+            $isProd = $refFacture == "PROD" ? True : False ;
         }
         else
         {
@@ -732,6 +739,8 @@ class SAVController extends AbstractController
                 $this->filename."annulation(agence)/".$this->nameAgence,
                 "files/systeme/caisse/panierCommande(agence)/".$this->nameAgence,
             ] ;
+
+            $isProd = True ;
         }
 
         foreach ($dataFilenames as $dataFilename) {
@@ -754,7 +763,82 @@ class SAVController extends AbstractController
 
         // FIN SAUVEGARDE HISTORIQUE
 
+        $result = [
+            "message" => "Annulation effectué",
+            "type" => "green",
+            "idAnnule" => $annulation->getId(),
+            "isProd" => $isProd
+        ] ;
+
         return new JsonResponse($result) ;
+    }
+
+    #[Route('/sav/annulation/update', name: 'sav_update_fact_annulation')]
+    public function savUpdateAnnulation(Request $request)
+    {
+        $typeAction = $request->request->get("typeAction") ;
+        $idAnnulation = $request->request->get("idAnnulation") ;
+        $reduc_val_cause = $request->request->get("reduc_val_cause") ;
+
+        $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($idAnnulation) ;
+
+        $savDetails = $this->entityManager->getRepository(SavDetails::class)->findBy(
+        [
+            "annulation" => $annulation,
+            "statut" => True,
+        ]) ;
+
+        foreach ($savDetails as $savDetail) {
+            
+            if(!is_null($savDetail->getFactureDetail()))
+            {
+                $variationId = $savDetail->getFactureDetail()->getEntite() ;
+                $quantite = $savDetail->getFactureDetail()->getQuantite() ;
+            }
+            else
+            {
+                $variationId = $savDetail->getCaisseDetail()->getVariationPrix()->getId() ;
+                $quantite = $savDetail->getCaisseDetail()->getQuantite() ;
+            }
+
+            $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($variationId) ;
+
+            $variationPrix->getProduit()->setToUpdate(True) ;
+            $this->entityManager->flush() ;
+
+            if($typeAction == "DEDUIRE")
+            {
+                $deduction = new PrdDeduction() ;
+    
+                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    "variationPrix" => $variationPrix,
+                    "statut" => True
+                ]) ;
+    
+                $deduction->setAgence($this->agence) ;
+                $deduction->setVariationPrix($variationPrix) ;
+                $deduction->setHistoEntrepot($histoEntrepot) ;
+                $deduction->setQuantite($quantite) ;
+                $deduction->setCause($reduc_val_cause) ;
+                $deduction->setSavDetail($savDetail) ;
+                $deduction->setType("Par défaut") ;
+                $deduction->setCreatedAt(new \DateTimeImmutable) ;
+                $deduction->setUpdatedAt(new \DateTimeImmutable) ;
+                
+                $this->entityManager->persist($deduction) ;
+                $this->entityManager->flush() ;
+            }
+            else
+            {
+                $savDetail->setInStock(True) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
+        return new JsonResponse([
+            "message" => $typeAction == "DEDUIRE" ? "Déduction effectuée" : "Retour sur stock effectuée",
+            "type" => "green"
+        ]) ;
     }
 
     #[Route('/sav/annulation/details/{id}', name: 'sav_details_annulation')]

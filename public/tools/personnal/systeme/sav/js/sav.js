@@ -362,13 +362,13 @@ $(document).ready(function(){
         $(".sav_annule_editor").val(sav_annule_editor.getEditorText('.sav_annule_editor'))
         var self = $(this)
         $.confirm({
-            title: "Confirmation",
+            title: "Confirmation", 
             content:"Etes-vous sûre ?",
             type:"blue",
             theme:"modern",
             buttons:{
                 btn1:{
-                    text: 'Non',
+                    text: 'Annuler',
                     action: function(){}
                 },
                 btn2:{
@@ -385,6 +385,7 @@ $(document).ready(function(){
                         dataType:"json",
                         success : function(json){
                             realinstance.close()
+                            // idAnnule
                             $.alert({
                                 title: 'Message',
                                 content: json.message,
@@ -393,7 +394,172 @@ $(document).ready(function(){
                                     OK: function(){
                                         if(json.type == "green")
                                         {
-                                            location.reload()
+                                            if(!json.isProd)
+                                                return false ;
+
+                                            var idAnnulation = json.idAnnule ;
+                                            $.confirm({
+                                                title: "Retourner ou Déduction",
+                                                content:"Voulez-vous retourner le produit sur le stock ou déduire le produit du stock ?",
+                                                type:"red",
+                                                buttons:{
+                                                    btn0:{
+                                                        text: 'Annuler',
+                                                        action: function(){
+                                                            location.reload() ;
+                                                        }
+                                                    },
+                                                    btn1:{
+                                                        text: 'Retourner',
+                                                        btnClass: 'btn-green',
+                                                        keys: ['enter'],
+                                                        action: function(){
+                                                            $.confirm({
+                                                                title: "Confirmation",
+                                                                content:"Êtes-vous sûre ?",
+                                                                type:"blue",
+                                                                theme:"modern",
+                                                                buttons:{
+                                                                    btn1:{
+                                                                        text: 'Non',
+                                                                        action: function(){}
+                                                                    },
+                                                                    btn2:{
+                                                                        text: 'Oui',
+                                                                        btnClass: 'btn-blue',
+                                                                        keys: ['enter'],
+                                                                        action: function(){
+                                                                            var realinstance = instance.loading()
+                                                                            $.ajax({
+                                                                                url: routes.sav_update_fact_annulation,
+                                                                                type:'post',
+                                                                                cache: false,
+                                                                                data:{
+                                                                                    typeAction:"RETOUR",
+                                                                                    idAnnulation:idAnnulation,
+                                                                                    reduc_val_cause:"-",
+                                                                                },
+                                                                                dataType: 'json',
+                                                                                success: function(json){
+                                                                                    realinstance.close()
+                                                                                    $.alert({
+                                                                                        title: 'Message',
+                                                                                        content: json.message,
+                                                                                        type: json.type,
+                                                                                        buttons: {
+                                                                                            OK: function(){
+                                                                                                if(json.type == "green")
+                                                                                                {
+                                                                                                    location.reload()
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                                },
+                                                                                error: function(resp){
+                                                                                    realinstance.close()
+                                                                                    $.alert(JSON.stringify(resp)) ;
+                                                                                }
+                                                                            })
+                                                                        }
+                                                                    }
+                                                                }
+                                                            })
+                                                            return false ;
+                                                        }
+                                                    },
+                                                    btn2:{
+                                                        text: 'Déduire',
+                                                        btnClass: 'btn-red',
+                                                        action: function(){
+                                                            $.confirm({
+                                                                title: 'A Remplir',
+                                                                content: `
+                                                                    <label for="reduc_val_cause" class="mt-2 font-weight-bold">Cause</label>
+                                                                    <input type="text" name="reduc_val_cause" id="reduc_val_cause" class="form-control" placeholder=". . .">
+                                                                `,
+                                                                type: "black",
+                                                                buttons: {
+                                                                    Annuler: function(){
+                                                                        if(json.type == "green")
+                                                                        {
+                                                                            location.reload()
+                                                                        }
+                                                                    },
+                                                                    Valider: function()
+                                                                    {
+                                                                        var reduc_val_cause = $("#reduc_val_cause").val()
+                                                                        if(reduc_val_cause == "")
+                                                                        {
+                                                                            $.alert({
+                                                                                title: 'Message',
+                                                                                content: "La cause obligatoire, veuiller remplir s'il vous plait",
+                                                                                type: "red",
+                                                                            });
+
+                                                                            return false ;
+                                                                        }
+                                                                        $.confirm({
+                                                                            title: "Confirmation",
+                                                                            content:"Êtes-vous sûre ?",
+                                                                            type:"blue",
+                                                                            theme:"modern",
+                                                                            buttons:{
+                                                                                btn1:{
+                                                                                    text: 'Non',
+                                                                                    action: function(){}
+                                                                                },
+                                                                                btn2:{
+                                                                                    text: 'Oui',
+                                                                                    btnClass: 'btn-blue',
+                                                                                    keys: ['enter'],
+                                                                                    action: function(){
+                                                                                        var realinstance = instance.loading()
+                                                                                        $.ajax({
+                                                                                            url: routes.sav_update_fact_annulation,
+                                                                                            type:'post',
+                                                                                            cache: false,
+                                                                                            data:{
+                                                                                                typeAction:"DEDUIRE",
+                                                                                                idAnnulation:idAnnulation,
+                                                                                                reduc_val_cause:reduc_val_cause,
+                                                                                            },
+                                                                                            dataType: 'json',
+                                                                                            success: function(json){
+                                                                                                realinstance.close()
+                                                                                                $.alert({
+                                                                                                    title: 'Message',
+                                                                                                    content: json.message,
+                                                                                                    type: json.type,
+                                                                                                    buttons: {
+                                                                                                        OK: function(){
+                                                                                                            if(json.type == "green")
+                                                                                                            {
+                                                                                                                location.reload()
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                });
+                                                                                            },
+                                                                                            error: function(resp){
+                                                                                                realinstance.close()
+                                                                                                $.alert(JSON.stringify(resp)) ;
+                                                                                            }
+                                                                                        })
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        })
+                                                                        return false ;
+                                                                    }
+                                                                }
+                                                            });
+                                                            
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                            return false ;
                                         }
                                     }
                                 }

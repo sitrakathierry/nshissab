@@ -3606,17 +3606,6 @@ class AppService extends AbstractController
             "statut" => True
         ]) ;
 
-        $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
-            "reference" => "DF"
-        ]) ;
-
-        // $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
-        //     "type" => $typeFacture,
-        //     "agence" => $this->agence,
-        //     "ticketCaisse" => null,
-        //     "statut" => True
-        // ]) ; 
-
         foreach($produits as $produit)
         {
             $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
@@ -3626,28 +3615,17 @@ class AppService extends AbstractController
 
             $stockRemoveProduit = 0 ;
             $stockAddProduit = 0 ;
+
             foreach ($variationPrixs as $variationPrix) {
                 $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
                     "variationPrix" => $variationPrix,
                     "statut" => True
                 ],["stock" => "DESC"]) ; 
 
-                
                 foreach ($histoEntrepots as $histoEntrepot) {
-                    // $approvisionnements = $this->entityManager->getRepository(PrdApprovisionnement::class)->find([
-                    //     "variationPrix" => $variationPrix
-                    // ]) ;
-
                     $stockTotalEntrepot = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalHistoEntrepot([
-                        // "variationPrix" => $variationPrix->getId(),
                         "histoEntrepot" => $histoEntrepot->getId(),
                     ]) ;
-
-                    // if ($produit->getCodeProduit() == "FF04") {
-                    //     dd($stockTotalEntrepot) ;
-                    // }
-
-                    // $stockAddVariation += $stockTotalEntrepot["stockTotalEntrepot"] ;
                     
                     $updateHistoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($histoEntrepot->getId()) ;
                     $updateHistoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
@@ -3658,66 +3636,40 @@ class AppService extends AbstractController
                     $deductionEntrepot = $this->entityManager->getRepository(PrdDeduction::class)->getSommeDeductionEntrepot([
                         "histoEntrepot" => $histoEntrepot->getId()
                     ]) ;
-        
-                    // if($variationPrix->getId() == 12) 
-                    // {
-                    //     dd(floatval($deductionEntrepot["sommeStock"])) ;
-                    // }
 
                     $totalHistoEntrepot = floatval($updateHistoEntrepot->getStock()) ;
                     $totalDeductionEntrepot = floatval($deductionEntrepot["sommeStock"]) ;
-                    // $histoEntrepotActif->setStock(floatval($histoEntrepotActif->getStock()) - floatval($deductionEntrepot["sommeStock"])) ;
-                    // $this->entityManager->flush() ;
-        
-                    // if($deductionEntrepot["sommeStock"] >= $totalHistoEntrepot)
-                    // {
-                    //     // $histoEntrepotActif->setStock(0) ;
-                    //     // $this->entityManager->flush() ;
-                    //     $totalDeductionEntrepot = $totalHistoEntrepot;
-                    // }
-        
+
                     $updateHistoEntrepot->setStock($totalHistoEntrepot - $totalDeductionEntrepot) ;
                     $this->entityManager->flush() ;
-                    
-                    // $produitEntrepotActif = $histoEntrepot->getVariationPrix()->getProduit() ;
-                    // $produitEntrepotActif->setStock($produitEntrepotActif->getStock() - $totalDeductionEntrepot) ;
-                    // $this->entityManager->flush() ;
 
                     $stockRemoveProduit += $totalDeductionEntrepot ;
 
                     // DEBUT DEDUCTION HISTO ENTREPOT
                 }
 
-
                 $stockTotalVariation = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalVariationPrix([
                     "variationPrix" => $variationPrix->getId(),
-                    // "histoEntrepot" => $histoEntrepot->getId(),
                 ]) ;
                 
-                $stockAddVariation = $stockTotalVariation["stockTotalVariation"] ;
-                
-                // if($variationPrix->getId() == 12)
-                // {
-                //     dd($stockAddVariation) ;
-                // }
+                $savDetail = $this->entityManager->getRepository(SavDetails::class)->calculQuantiteVariationSav(
+                [
+                    "variationPrix" => $variationPrix->getId(),
+                ]) ;
 
-                // $stockRemoveVariation = 0 ;
+                // if($variationPrix->getId() == 11)
+                //     dd(floatval($savDetail["totalSavVariation"])) ;
+
+                $stockAddVariation = $stockTotalVariation["stockTotalVariation"] ;
 
                 // DEBUT CALCUL FACTURE
 
-                // foreach ($factureDefinitives as $factureDefinitive) {
-                // }
                 $detailFactureVariation = $this->entityManager->getRepository(FactDetails::class)->stockTotalFactureVariation([
                     "agence" => $this->agence->getId(),
                     "variationPrix" => $variationPrix->getId(),
                 ]) ;
 
                 $stockRemoveVariation = $detailFactureVariation["totalFactureVariation"] ;
-
-                // if($variationPrix->getId() == 12)
-                // {
-                //     dd($stockRemoveVariation) ;
-                // }
 
                 $caisseVariation = $this->entityManager->getRepository(CaissePanier::class)->stockTotalCaisseVariationPrix([
                     "variationPrix" => $variationPrix->getId(),
@@ -3726,10 +3678,7 @@ class AppService extends AbstractController
 
                 $stockRemoveVariation += $caisseVariation["totalCaisseVariation"] ;
 
-                // if($variationPrix->getId() == 12)
-                // {
-                //     dd($caisseVariation["totalCaisseVariation"]) ;
-                // }
+                $stockRemoveVariation -= floatval($savDetail["totalSavVariation"]) ;
 
                 // REPARTITION de la diminution
     
@@ -3760,40 +3709,22 @@ class AppService extends AbstractController
                     }
                 }
     
-                // if($variationPrix->getId() == 12)
-                // {
-                //     dd($histoEntrepots) ;
-                // }
-
                 $repartitionDeduction = $stockRemoveVariation ;
                 foreach ($histoEntrepots as $histoElsEntrepot) { 
-                    // dd($histoEntrepot) ;
+
                     $totalStockEntrepot = $histoElsEntrepot->getStock() ; 
                     $aDeduire = $repartitionDeduction ; 
-                    // if($repartitionDeduction >= $totalStockEntrepot)
-                    // {
-                    //     $aDeduire = $totalStockEntrepot ;
-                    //     // $histoEntrepot->setStock(0) ;
-                    // }
 
                     $updateHistoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($histoElsEntrepot->getId()) ;
-                    // $updateHistoEntrepot->setStock($stockTotalEntrepot["stockTotalEntrepot"]) ;
+    
                     $updateHistoEntrepot->setStock($histoElsEntrepot->getStock() - $aDeduire) ;
                     $this->entityManager->flush() ;
-
-                    // if($updateHistoEntrepot->getId() == 12)
-                    // {
-                    //     dd($updateHistoEntrepot->getStock()) ;
-                    // }
 
                     $repartitionDeduction -= $aDeduire ; 
 
                     if($repartitionDeduction <= 0)
                         break ;
                 }
-    
-                // $variationPrix->setStock($variationPrix->getStock() - ) ;
-                // $this->entityManager->flush() ;
 
                 // FIN CALCUL FACTURE
 
@@ -3807,11 +3738,6 @@ class AppService extends AbstractController
                 ]) ;
 
                 $totalDeduction = $deductionVariation["sommeVariation"] ;
-
-                // if($totalDeduction >= $variationPrix->getStock())
-                // {
-                //     $totalDeduction = $variationPrix->getStock() ;
-                // }
 
                 $variationPrix->setStock($variationPrix->getStock() - $totalDeduction) ;
                 $this->entityManager->flush() ;
@@ -3857,96 +3783,14 @@ class AppService extends AbstractController
             $produit->setToUpdate(null) ;
             $this->entityManager->flush() ;
 
-            // if($produit->getStock() < 0)
-            // {
-            //     $produit->setStock(0) ;
-            //     $this->entityManager->flush() ;
-            // }
-
             $filename = "files/systeme/stock/variationProduit(agence)/vartPrd_".$produit->getId()."_".$this->nameAgence  ;
+            
             if(file_exists($filename))
                 unlink($filename) ;
         }
 
         if(empty($produits))
             return ;
-
-        // $histoEntrepotActifs = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-        //     "statut" => True,
-        //     "agence" => $this->agence
-        // ]) ; 
-        
-        // // $histoEntrepotActifs = $histoEntTos ;
-
-        // foreach($histoEntrepotActifs as $histoEntrepotActif)
-        // {
-            
-        // }
-
-        // DEBUT SOUSTRACTION 
-
-        // foreach($produits as $produit)
-        // {
-        //     $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-        //         "produit" => $produit,
-        //         "statut" => True
-        //     ]) ; 
-
-        //     $stockRemoveVariation = 0 ;
-        //     foreach ($variationPrixs as $variationPrix) {
-                
-        //     }
-
-        //     // if($this->agence->getId() == 28)
-        //     //     dd($stockRemoveVariation) ;
-
-        //     $produit->setStock($produit->getStock() - $stockRemoveVariation) ;
-        //     $this->entityManager->flush() ;
-
-            
-        // }
-
-        // $produitActives = $this->entityManager->getRepository(Produit::class)->findBy([
-        //     "agence" => $this->agence,
-        //     "statut" => True
-        // ]) ;
-
-        // foreach($produitActives as $produitActive)
-        // {
-        //     $variationPrixActives = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
-        //         "produit" => $produit,
-        //         "statut" => True
-        //     ]) ; 
-
-        //     foreach ($variationPrixActives as $variationPrixActive)
-        //     {
-        //         $histoEntrepotActives = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-        //             "variationPrix" => $variationPrix,
-        //             "statut" => True
-        //         ]) ; 
-
-        //         foreach($histoEntrepotActives as $histoEntrepotActive)
-        //         {
-        //             if($histoEntrepotActive->getStock() <= 0)
-        //             {
-        //                 $histoEntrepotActive->setStock(0) ;
-        //                 $this->entityManager->flush() ;
-        //             }
-        //         }
-
-        //         if($variationPrixActive->getStock() <= 0)
-        //         {
-        //             $variationPrixActive->setStock(0) ;
-        //             $this->entityManager->flush() ;
-        //         }
-        //     }
-
-        //     if($produitActive->getStock() <= 0)
-        //     {
-        //         $produitActive->setStock(0) ;
-        //         $this->entityManager->flush() ;
-        //     }
-        // }
 
         $dataFilenames = [
             "files/systeme/stock/stock_general(agence)/".$this->nameAgence,
@@ -3957,7 +3801,8 @@ class AppService extends AbstractController
             "files/systeme/stock/stockParCategorie(agence)/".$this->nameAgence
         ] ;
 
-        foreach ($dataFilenames as $dataFilename) {
+        foreach ($dataFilenames as $dataFilename) 
+        {
             if(file_exists($dataFilename))
                 unlink($dataFilename) ;
         }

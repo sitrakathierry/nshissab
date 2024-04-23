@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SavDetailsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SavDetailsRepository::class)]
@@ -27,6 +29,17 @@ class SavDetails
 
     #[ORM\ManyToOne(inversedBy: 'savDetails')]
     private ?CaissePanier $caisseDetail = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $inStock = null;
+
+    #[ORM\OneToMany(mappedBy: 'savDetail', targetEntity: PrdDeduction::class)]
+    private Collection $prdDeductions;
+
+    public function __construct()
+    {
+        $this->prdDeductions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,6 +102,48 @@ class SavDetails
     public function setCaisseDetail(?CaissePanier $caisseDetail): self
     {
         $this->caisseDetail = $caisseDetail;
+
+        return $this;
+    }
+
+    public function isInStock(): ?bool
+    {
+        return $this->inStock;
+    }
+
+    public function setInStock(?bool $inStock): self
+    {
+        $this->inStock = $inStock;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdDeduction>
+     */
+    public function getPrdDeductions(): Collection
+    {
+        return $this->prdDeductions;
+    }
+
+    public function addPrdDeduction(PrdDeduction $prdDeduction): self
+    {
+        if (!$this->prdDeductions->contains($prdDeduction)) {
+            $this->prdDeductions->add($prdDeduction);
+            $prdDeduction->setSavDetail($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdDeduction(PrdDeduction $prdDeduction): self
+    {
+        if ($this->prdDeductions->removeElement($prdDeduction)) {
+            // set the owning side to null (unless already changed)
+            if ($prdDeduction->getSavDetail() === $this) {
+                $prdDeduction->setSavDetail(null);
+            }
+        }
 
         return $this;
     }

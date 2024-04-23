@@ -25,6 +25,7 @@ use App\Entity\PrdSolde;
 use App\Entity\PrdType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
+use App\Entity\SavDetails;
 use App\Entity\User;
 use App\Service\AppService;
 use App\Service\ExcelGenService;
@@ -2509,6 +2510,15 @@ class StockController extends AbstractController
 
                 array_push($listes,$item) ;
             }
+
+            $savDetails = $this->entityManager->getRepository(SavDetails::class)->getHistoVariationSav(
+            [
+                "variationPrix" => $variationPrix->getId(),
+            ]) ;
+
+            // dd($variationPrix) ;
+
+            $listes = array_merge($listes,$savDetails) ;
         }
 
         // dd($factureVariations) ;

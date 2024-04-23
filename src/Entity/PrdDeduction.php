@@ -38,6 +38,9 @@ class PrdDeduction
     #[ORM\ManyToOne(inversedBy: 'prdDeductions')]
     private ?Agence $agence = null;
 
+    #[ORM\ManyToOne(inversedBy: 'prdDeductions')]
+    private ?SavDetails $savDetail = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -135,6 +138,18 @@ class PrdDeduction
     public function setAgence(?Agence $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    public function getSavDetail(): ?SavDetails
+    {
+        return $this->savDetail;
+    }
+
+    public function setSavDetail(?SavDetails $savDetail): self
+    {
+        $this->savDetail = $savDetail;
 
         return $this;
     }
