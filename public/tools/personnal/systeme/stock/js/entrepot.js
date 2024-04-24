@@ -110,6 +110,7 @@ $(document).ready(function(){
     $(document).on("click",".trans_entrepot_ajouter",function(){
         var trans_entrepot_dest = $("#trans_entrepot_dest").val() ;
         var trans_produit_source = $("#trans_produit_source").val() ;
+        var trans_entrepot_source = $("#trans_entrepot_source").val() ;
 
         result = appBase.verificationElement([
             trans_entrepot_dest,
@@ -130,8 +131,6 @@ $(document).ready(function(){
             return result["allow"] ;
         }
 
-        var trans_entrepot_source = $("#trans_entrepot_source").val() ;
-
         if(trans_entrepot_source == trans_entrepot_dest)
         {
             $.alert({
@@ -143,7 +142,8 @@ $(document).ready(function(){
             return false ;
         }
 
-        var optionEntrepotDest = $("#trans_entrepot_dest").find("option:selected")
+        var optionEntrepotSource = $("#trans_entrepot_source").find("option:selected") ;
+        var optionEntrepotDest = $("#trans_entrepot_dest").find("option:selected") ;
         var optionProduitSource = $("#trans_produit_source").find("option:selected") ;
         var stockProduit = parseFloat(optionProduitSource.data("stock")) ;
 
@@ -181,6 +181,7 @@ $(document).ready(function(){
 
         var item = `
             <tr>
+                <td class="align-middle" >`+optionEntrepotSource.text()+`</td>
                 <td class="align-middle" >`+optionEntrepotDest.text()+`</td>
                 <td class="align-middle" >`+optionProduitSource.text()+`</td>
                 <td class="align-middle" >`+stockProduit+`</td>

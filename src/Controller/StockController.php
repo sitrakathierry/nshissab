@@ -1314,13 +1314,6 @@ class StockController extends AbstractController
             ]) ; 
 
             foreach ($variationPrixs as $variationPrix) {
-
-                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                    "entrepot" => $entrepot,
-                    "variationPrix" => $variationPrix,
-                    "statut" => True
-                ]) ; 
-                
                 $entrepotSource = $this->entityManager->getRepository(PrdEntrepot::class)->find($depot_enr_entrepot_source[$key]) ;
                 
                 $histoEntrepotSource = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
@@ -1329,46 +1322,55 @@ class StockController extends AbstractController
                     "statut" => True
                 ]) ;
 
-                if(is_null($histoEntrepot))
+                if(!is_null($histoEntrepotSource))
                 {
-                    $histoEntrepot = new PrdHistoEntrepot() ;
+                    $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                        "entrepot" => $entrepot,
+                        "variationPrix" => $variationPrix,
+                        "statut" => True
+                    ]) ; 
+                    
+                    if(is_null($histoEntrepot))
+                    {
+                        $histoEntrepot = new PrdHistoEntrepot() ;
+        
+                        $histoEntrepot->setEntrepot($entrepot) ;
+                        $histoEntrepot->setVariationPrix($variationPrix) ;
+                        $histoEntrepot->setStock($histoEntrepotSource->getStock()) ;
+                        $histoEntrepot->setStatut(True) ;
+                        $histoEntrepot->setAgence($this->agence) ;
+                        $histoEntrepot->setAnneeData(date('Y')) ;
+                        $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+                        $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+        
+                        $this->entityManager->persist($histoEntrepot) ;
+                        $this->entityManager->flush() ;
+                    }
     
-                    $histoEntrepot->setEntrepot($entrepot) ;
-                    $histoEntrepot->setVariationPrix($variationPrix) ;
-                    $histoEntrepot->setStock($histoEntrepotSource->getStock()) ;
-                    $histoEntrepot->setStatut(True) ;
-                    $histoEntrepot->setAgence($this->agence) ;
-                    $histoEntrepot->setAnneeData(date('Y')) ;
-                    $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
-                    $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+                    $approvisionnement = new PrdApprovisionnement() ;
     
-                    $this->entityManager->persist($histoEntrepot) ;
+                    $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ;
+    
+                    $approvisionnement->setAgence($this->agence) ;
+                    $approvisionnement->setUser($this->userObj) ;
+                    $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                    $approvisionnement->setVariationPrix($variationPrix) ;
+                    $approvisionnement->setMargeType($margeType) ;
+                    $approvisionnement->setQuantite($histoEntrepotSource->getStock()) ;
+                    $approvisionnement->setPrixAchat(NULL) ;
+                    $approvisionnement->setCharge(NULL) ;
+                    $approvisionnement->setMargeValeur(NULL) ;
+                    $approvisionnement->setPrixRevient(NULL) ;
+                    $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+                    $approvisionnement->setExpireeLe(NULL) ;
+                    $approvisionnement->setDateAppro(null) ;
+                    $approvisionnement->setDescription("Dépôt-Dépôt de Produit Code : ".$produit->getCodeProduit()) ;
+                    $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                    $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                    $this->entityManager->persist($approvisionnement) ;
                     $this->entityManager->flush() ;
                 }
-
-                $approvisionnement = new PrdApprovisionnement() ;
-
-                $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ;
-
-                $approvisionnement->setAgence($this->agence) ;
-                $approvisionnement->setUser($this->userObj) ;
-                $approvisionnement->setHistoEntrepot($histoEntrepot) ;
-                $approvisionnement->setVariationPrix($variationPrix) ;
-                $approvisionnement->setMargeType($margeType) ;
-                $approvisionnement->setQuantite($histoEntrepotSource->getStock()) ;
-                $approvisionnement->setPrixAchat(NULL) ;
-                $approvisionnement->setCharge(NULL) ;
-                $approvisionnement->setMargeValeur(NULL) ;
-                $approvisionnement->setPrixRevient(NULL) ;
-                $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
-                $approvisionnement->setExpireeLe(NULL) ;
-                $approvisionnement->setDateAppro(null) ;
-                $approvisionnement->setDescription("Dépôt-Dépôt de Produit Code : ".$produit->getCodeProduit()) ;
-                $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
-                $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
-
-                $this->entityManager->persist($approvisionnement) ;
-                $this->entityManager->flush() ;
             }
 
             $produit->setToUpdate(True) ;
