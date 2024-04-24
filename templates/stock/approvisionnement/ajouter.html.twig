@@ -14,6 +14,7 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/impression.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/detailStock.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/creation.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/entrepot.js')}}" ></script>
     {# stock_variation_produit_save #}
 {% endblock %}
 {% block body %}
@@ -26,9 +27,11 @@
             <button type="button" caption="Nouveau" data-class="btn-info" class="btn btn-sm btn-outline-info appr_ajout px-3"><i class="fa fa-plus-circle"></i>&nbsp;Nouveau</button>
             <button type="button" caption="Existant" data-class="btn-primary" class="btn btn-sm btn-outline-primary ml-2 appr_ajout px-3"><i class="fa fa-plus"></i>&nbsp;Existant</button>
             <button type="button" data-class="btn-warning" class="btn btn-sm btn-outline-warning ml-2 entrepot_transfert px-3" style="display: none;"><i class="fa fa-exchange"></i>&nbsp;Transfert / Migration</button>
+            <button type="button" class="btn btn-sm btn-outline-warning ml-2 px-3 depot_vers_entrepot"><i class="fa fa-cubes"></i>&nbsp;Depôt-Dépot Produit</button>
             <h5 class="title_form text-black ml-auto text-uppercase">Type d'approvisionnement : <span class="text-warning font-weight-bold appro_caption">Default</span></h5>
         </div>
         <div class="content_transfert"></div>
+        <div class="content_operation mt-4"></div>
         <div id="elemAppro" class="w-100 mb-3 container-fluid">
             <div class="row">
                 <div class="col-md-3">

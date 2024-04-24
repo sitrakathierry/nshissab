@@ -1,0 +1,61 @@
+<div class="w-100 pb-3">
+    <h5 class="title_form text-black mt-3 text-uppercase">Produit Entrepot vers Entrepot</h5>
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label for="trans_entrepot_source" class="font-weight-bold">Entrepôt Source</label>
+            <select name="trans_entrepot_source" class="custom-select chosen_select custom-select-sm" id="trans_entrepot_source">
+                <option value="">-</option>
+                {% for entrepot in entrepots %}
+                    <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+<div class="w-100">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="trans_entrepot_dest" class="font-weight-bold">Entrepôt de Destination</label>
+            <select name="trans_entrepot_dest" class="custom-select chosen_select custom-select-sm" id="trans_entrepot_dest">
+                <option value="">-</option>
+                {% for entrepot in entrepots %}
+                    <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-4">
+            <label for="trans_produit_source" class="font-weight-bold">Produit Source</label>
+            <select name="trans_produit_source" class="custom-select chosen_select custom-select-sm" id="trans_produit_source">
+                <option value="">-</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="" class="font-weight-bold">&nbsp;</label>
+            <button type="button" class="btn btn-success btn-sm btn-block trans_entrepot_ajouter"><i class="fa fa-plus"></i>&nbsp;Ajouter</button>
+        </div>
+    </div>
+</div>
+<form id="formDepotEntrepot">
+<div class="table-responsive mt-4">
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Produit </th>
+                <th>Entrepot de Destination</th>
+                <th>Quantité</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody class="content_depot_produit">
+        </tbody>
+    </table>
+</div>
+<div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+    <button type="submit" class="btn btn-sm ml-3 btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+</div>
+</form>
+<script>
+    $(".chosen_select").chosen({
+        no_results_text: "Aucun resultat trouvé : "
+    });
+</script>

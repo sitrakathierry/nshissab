@@ -1239,13 +1239,25 @@ class StockController extends AbstractController
     public function stockFindProduitInEntrepot(Request $request)
     {
         $idE = $request->request->get('idE') ;
+        // $spec_input = $request->request->get('spec_input') ;
 
         $produitEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getProduitsInEntrepots($idE) ;
         
-        $result = [] ;
-        $result["vide"] = empty($produitEntrepots) ;
-        $result["produitEntrepots"] = $produitEntrepots ;
-        return new JsonResponse($result) ;
+        // if(!isset($spec_input))
+        // {
+            $result = [] ;
+            $result["vide"] = empty($produitEntrepots) ;
+            $result["produitEntrepots"] = $produitEntrepots ;
+            return new JsonResponse($result) ;
+        // }
+        // else
+        // {
+        //     $response = $this->renderView("stock/entrepot/getResultEntrepot.html.twig",[
+        //         "produitEntrepots" => $produitEntrepots 
+        //     ]) ;
+
+        //     return new Response($response) ;
+        // }
     }
 
     #[Route('/stock/entrepot', name: 'stock_entrepot')]
@@ -1263,9 +1275,110 @@ class StockController extends AbstractController
             "filename" => "stock",
             "titlePage" => "Entrepot",
             "with_foot" => true,
-            "entrepots" => $entrepots,
+            "entrepots" => $entrepots, 
             "role" => $role
         ]);
+    }
+
+    #[Route('/stock/entrepot/record/get', name: 'stock_get_record_entrepot')]
+    public function stockGetRecordEntrepot()
+    {
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
+        $response = $this->renderView("stock/entrepot/getRecordsEntrepot.html.twig",[
+            "entrepots" => $entrepots
+        ]) ;
+
+        return new Response($response) ;
+    }
+
+    #[Route('/stock/entrepot/record/save', name: 'stock_record_entrepot_save')]
+    public function stockSaveRecordEntrepot(Request $request)
+    {
+        $depot_enr_entrepot_source = $request->request->get("depot_enr_entrepot_source") ;
+        $depot_enr_entrepot_dest = (array)$request->request->get("depot_enr_entrepot_dest") ;
+        $depot_enr_produit_source = $request->request->get("depot_enr_produit_source") ;
+        // $depot_enr_quantite = $request->request->get("depot_enr_quantite") ;
+
+        foreach ($depot_enr_entrepot_dest as $key => $value) {
+            $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($value) ;
+            $produit = $this->entityManager->getRepository(Produit::class)->find($depot_enr_produit_source[$key]) ;
+            
+            $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+                "produit" => $produit,
+                "statut" => True
+            ]) ; 
+
+            foreach ($variationPrixs as $variationPrix) {
+
+                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    "entrepot" => $entrepot,
+                    "variationPrix" => $variationPrix,
+                    "statut" => True
+                ]) ; 
+                
+                $entrepotSource = $this->entityManager->getRepository(PrdEntrepot::class)->find($depot_enr_entrepot_source[$key]) ;
+                
+                $histoEntrepotSource = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    "entrepot" => $entrepotSource,
+                    "variationPrix" => $variationPrix,
+                    "statut" => True
+                ]) ;
+
+                if(is_null($histoEntrepot))
+                {
+                    $histoEntrepot = new PrdHistoEntrepot() ;
+    
+                    $histoEntrepot->setEntrepot($entrepot) ;
+                    $histoEntrepot->setVariationPrix($variationPrix) ;
+                    $histoEntrepot->setStock($histoEntrepotSource->getStock()) ;
+                    $histoEntrepot->setStatut(True) ;
+                    $histoEntrepot->setAgence($this->agence) ;
+                    $histoEntrepot->setAnneeData(date('Y')) ;
+                    $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+                    $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                    $this->entityManager->persist($histoEntrepot) ;
+                    $this->entityManager->flush() ;
+                }
+
+                $approvisionnement = new PrdApprovisionnement() ;
+
+                $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ;
+
+                $approvisionnement->setAgence($this->agence) ;
+                $approvisionnement->setUser($this->userObj) ;
+                $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                $approvisionnement->setVariationPrix($variationPrix) ;
+                $approvisionnement->setMargeType($margeType) ;
+                $approvisionnement->setQuantite($histoEntrepotSource->getStock()) ;
+                $approvisionnement->setPrixAchat(NULL) ;
+                $approvisionnement->setCharge(NULL) ;
+                $approvisionnement->setMargeValeur(NULL) ;
+                $approvisionnement->setPrixRevient(NULL) ;
+                $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+                $approvisionnement->setExpireeLe(NULL) ;
+                $approvisionnement->setDateAppro(null) ;
+                $approvisionnement->setDescription("Dépôt-Dépôt de Produit Code : ".$produit->getCodeProduit()) ;
+                $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->entityManager->persist($approvisionnement) ;
+                $this->entityManager->flush() ;
+            }
+
+            $produit->setToUpdate(True) ;
+            $this->entityManager->flush() ;
+        }
+
+        return new JsonResponse([
+            "message" => "Transfert Dépôt-Dépôt effectué" ,
+            "type" => "green"
+        ]) ;
     }
 
     #[Route('/stock/entrepot/save', name: 'stock_save_entrepot')]

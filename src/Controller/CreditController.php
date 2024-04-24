@@ -92,6 +92,10 @@ class CreditController extends AbstractController
     #[Route('/credit/suivi/general', name: 'crd_suivi_credit_general')]
     public function crdSuiviCreditGeneral(): Response
     {
+        $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ;
 
         return $this->render('credit/suiviCreditGeneral.html.twig', [ 
             "filename" => "credit",
@@ -282,7 +286,7 @@ class CreditController extends AbstractController
             }
 
             if(!is_null($currentAdmin))
-            {
+            { 
                 $dataAdmin = [
                     "nameuser" => $currentAdmin->getUsername(),
                     "iduser" => base64_encode(urlencode($currentAdmin->getId())),

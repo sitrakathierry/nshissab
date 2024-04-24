@@ -9,6 +9,7 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/entrepot.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
@@ -42,7 +43,7 @@
                 </div>
             {% endif %} 
             </form>
-        {% endif %} 0332181588 
+        {% endif %}  
         <div class="w-100 barre_dashed">
             <h5 class="title_form mt-4 text-black text-uppercase">Liste des entrepôts</h5>
         </div>
@@ -74,12 +75,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="font-weight-bold">&nbsp;</label>
-                <button type="button" data-class="btn-warning" class="btn btn-block btn-sm btn-outline-warning entrepot_transfert"><i class="fa fa-exchange"></i>&nbsp;Transfert / Migration</button>
-            </div>
         </div>
-        <div class="content_transfert"></div>
         <div class="table-responsive limit_tbody overflow-auto mt-3">
             <table class="table table-bordered table-hover table-sm">
                 <thead class="thead-light">
