@@ -1744,6 +1744,10 @@ class StockController extends AbstractController
         $id = $this->appService->decoderChiffre($id) ;
 
         $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
+        
+        if(!file_exists($filename))
+            $this->appService->generateStockPreferences($filename,$this->userObj) ;
+
         $preferences = json_decode(file_get_contents($filename)) ;
 
         $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
