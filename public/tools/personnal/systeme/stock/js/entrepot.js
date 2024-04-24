@@ -112,7 +112,7 @@ $(document).ready(function(){
         var trans_produit_source = $("#trans_produit_source").val() ;
         var trans_entrepot_source = $("#trans_entrepot_source").val() ;
         var trans_prix_produit = $("#trans_prix_produit").val() ;
-        var trans_quantite = parseFloat($("#trans_quantite").val()) ;
+        var trans_quantite = $("#trans_quantite").val() ;
 
         result = appBase.verificationElement([
             trans_entrepot_dest,
@@ -197,7 +197,7 @@ $(document).ready(function(){
 
             return false ;
         }
-
+        
         var item = `
             <tr>
                 <td class="align-middle" >`+optionEntrepotSource.text()+`</td>
