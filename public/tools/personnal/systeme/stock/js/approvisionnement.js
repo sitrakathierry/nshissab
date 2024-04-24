@@ -10,7 +10,7 @@ $(document).ready(function(){
         "#appro_search_entrepot",
         "#appro_search_produit",
         "#appro_prix_produit",
-        "#appro_indice",
+        "#appro_indice", 
         "#appro_quantite",
         "#appro_prix_achat",
         "#appro_charge",
