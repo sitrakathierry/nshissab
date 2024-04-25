@@ -1075,7 +1075,7 @@ class FactureController extends AbstractController
         $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
             "facture" => $facture,
             "statut" => True,
-        ]) ;
+        ],["statut" => "DESC"]) ;
 
         $dataDetails = [] ;
         $totalHt = 0 ;
