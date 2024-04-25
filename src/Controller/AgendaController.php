@@ -516,6 +516,12 @@ class AgendaController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
+        $filename = "files/systeme/credit/suiviCredit(agence)/".$this->nameAgence ;
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        // 034 47 543 35
+
         // DEBUT SAUVEGARDE HISTORIQUE
 
         $this->entityManager->getRepository(HistoHistorique::class)
@@ -530,6 +536,8 @@ class AgendaController extends AbstractController
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
+
+
 
         return new JsonResponse($result) ;
     }

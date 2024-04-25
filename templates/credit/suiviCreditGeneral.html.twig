@@ -69,12 +69,11 @@
                             </tr>
                                 {% set isFirst = true %}
                                 {% for detail in finance.details %}
-                                    {# {% if detail.type == 'PAIEMENT' or (detail.type == 'ECHEANCE' and detail.statut != 'DNONE') %} #}
                                         <tr>
-                                            <td>{{detail.description}}</td>
-                                            <td>{{detail.date}}</td>
-                                            <td>{{detail.montant}}</td>
-                                            <td>{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
+                                            <td class="align-middle">{{detail.description}}</td>
+                                            <td class="align-middle">{{detail.date}}</td>
+                                            <td class="align-middle">{{detail.montant}}</td>
+                                            <td class="align-middle">{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
                                             {% if isFirst %}
                                                 <td rowspan="{{finance.nbRow}}" class="text-center align-middle">
                                                     <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
@@ -82,7 +81,6 @@
                                                 {% set isFirst = false %}
                                             {% endif %}
                                         </tr>
-                                    {# {% endif %} #}
                                 {% endfor %}
                             <tr>
 

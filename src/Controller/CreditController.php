@@ -982,6 +982,11 @@ class CreditController extends AbstractController
             $histoMessage = "Modification Ligne acompte N° : ".$finance->getNumFnc() ;
         }
 
+        $filename = $this->filename."suiviCredit(agence)/".$this->nameAgence ;
+         
+        if(file_exists($filename))
+            unlink($filename) ;
+
         // DEBUT SAUVEGARDE HISTORIQUE
 
         $this->entityManager->getRepository(HistoHistorique::class)
@@ -1052,6 +1057,11 @@ class CreditController extends AbstractController
         else
             $filename = $this->filename."credit(agence)/".$this->nameAgence ;
             
+        if(file_exists($filename))
+            unlink($filename) ;
+
+        $filename = $this->filename."suiviCredit(agence)/".$this->nameAgence ;
+        
         if(file_exists($filename))
             unlink($filename) ;
 

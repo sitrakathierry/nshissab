@@ -90,6 +90,9 @@ class CrdFinanceRepository extends ServiceEntityRepository
     
                 foreach ($echeances as $echeance) 
                 {
+                    if(!$echeance->isStatut())
+                        continue ;
+
                     $item = [
                         "id" => $echeance->getId() ,
                         "description" => $echeance->getDescription() ,
