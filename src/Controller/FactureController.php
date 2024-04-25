@@ -1111,6 +1111,8 @@ class FactureController extends AbstractController
             $element["enonce"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getEnonce()->getNom() ;
             $element["idCategorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getId() ;
             $element["categorie"] = is_null($infoSupDetail) ? "" : $infoSupDetail->getCategorie()->getNom() ;
+            $element["idSurface"] = is_null($infoSupDetail) ? "-" : (is_null($infoSupDetail->getSurface()) ? "-" : $infoSupDetail->getSurface()->getId()) ;
+            $element["surface"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getSurface()) ? "-" : $infoSupDetail->getSurface()->getNom()) ;
             $element["infoSup"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getInfoSup()) ? "" : $infoSupDetail->getInfoSup()) ;
             
             array_push($dataDetails,$element) ;
@@ -1156,7 +1158,8 @@ class FactureController extends AbstractController
 
                 $key1 = $dataDetail["idEnonce"]."#|#".$dataDetail["enonce"] ;
                 $key2 = $dataDetail["idCategorie"]."#|#".$dataDetail["categorie"] ;
-                
+                $key3 = $dataDetail["idSurface"]."#|#".$dataDetail["surface"] ;
+
                 $detailBatiment = $this->entityManager->getRepository(BtpElement::class)->getInformationElement([
                     "idFactDetail" => $dataDetail["id"]
                 ]) ;
@@ -1164,7 +1167,7 @@ class FactureController extends AbstractController
                 $dataDetail["designation"] = $detailBatiment["designation"] ;
                 $dataDetail["mesure"] = $detailBatiment["mesure"] ;
 
-                $newTabFactureDetls[$key1][$key2][] = $dataDetail ;
+                $newTabFactureDetls[$key1][$key2][$key3][] = $dataDetail ;
             }
 
             $contentIMpression = $this->renderView('facture/impression/impressionFactureBatiment.html.twig', [

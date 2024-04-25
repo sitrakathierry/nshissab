@@ -229,7 +229,7 @@
             <input type="hidden" name="fact_id_facture" id="fact_id_facture" value="{{facture.id}}" >
             <input type="hidden" name="fact_detail_modele" id="fact_detail_modele" value="{{facture.refModele}}" >
             <div id="detailPrestBatiment">
-                {% set tabTotalEnonce = [] %}
+                {% set tabTotalEnonce = [] %} 
                 {% for key1, detail1 in detailFactures %}
                     {% set dataEnonce = key1|split("#|#") %}
                     <div class="table-responsive mt-3">

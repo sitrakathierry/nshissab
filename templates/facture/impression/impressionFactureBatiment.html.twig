@@ -10141,67 +10141,72 @@ footer {
         <div id="detailPrestBatiment">
             {% set tabTotalEnonce = [] %}
             {% for key1, detail1 in detailFactures %}
-                {% set dataEnonce = key1|split("#|#") %}
-                <div class="table-responsive mt-2">
-                    <h5 class="title_form text-black text-uppercase" id="enoncee{{dataEnonce[0]}}">Enoncée : {{dataEnonce[1]}}</h5>
-                    {% set totalEnonce = 0 %}
-                    {% for key2, detail2 in detail1 %}
-                        {% set dataCategorie = key2|split("#|#") %}
-                        <table class="table sizePdf table-sm">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th colspan="6" class="text-uppercase" id="categorie{{dataCategorie[0]}}">CATEGORIE : {{dataCategorie[1]}} ; INFO SUPPLEMENTAIRE : {{detail2[0].infoSup}}</th>
-                                </tr>
-                                <tr>
-                                    <th>Désignation</th>
-                                    <th>Mésure</th>
-                                    <th>Prix Unitaire HT</th>
-                                    <th>Qte</th>
-                                    <th>Montant TVA</th>
-                                    <th>Montant Total</th>
-                                </tr>
-                            </thead>
-                            <tbody> 
-                                {% set totalCategorie = 0 %}
-                                {% for itemDetail in detail2 %}
+                    {% set dataEnonce = key1|split("#|#") %}
+                    <div class="table-responsive mt-3">
+                        <h5 class="title_form text-black text-uppercase" id="enoncee{{dataEnonce[0]}}">Enonceée : {{dataEnonce[1]}}</h5>
+                        {% set totalEnonce = 0 %}
+                        {% for key2, detail2 in detail1 %}
+                            {% set dataCategorie = key2|split("#|#") %}
+                            <table class="table table-sm table-bordered table-hover">
+                                <thead class="thead-dark">
                                     <tr>
-                                        <td>
-                                        {{itemDetail.designation | raw}}
-                                        </td>
-                                        <td>{{itemDetail.mesure}}</td>
-                                        <td>
-                                        {{itemDetail.prix}}
-                                        </td>
-                                        <td>
-                                        {% if itemDetail.isForfait %}
-                                          U
-                                        {% else %}
-                                          {{itemDetail.quantite}}
-                                        {% endif %}
-                                        </td>
-                                        <td>
-                                            {{itemDetail.tva}}
-                                        </td>
-                                        <td>{{itemDetail.total}}</td>
+                                        <th colspan="6" class="text-uppercase">CATEGORIE : {{dataCategorie[1]}} </th>
                                     </tr>
-                                    {% set totalCategorie = totalCategorie + itemDetail.total %}
-                                {% endfor %}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="5">Total Catégorie</th>
-                                    <th class="bg-secondary text-white">
-                                        <span id="totalCatText{{dataCategorie[0]}}">{{totalCategorie}}</span>
-                                        <input type="hidden" id="totalCat{{dataCategorie[0]}}`" value="{{totalCategorie}}">
-                                    </th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        {% set totalEnonce = totalEnonce + totalCategorie %}
-                    {% endfor %}
-                </div>
-                {% set tabTotalEnonce = tabTotalEnonce|merge([totalEnonce]) %}
-            {% endfor %}
+                                </thead>
+                                <tbody id="categorie{{dataCategorie[0]}}">
+                                    {% set totalCategorie = 0 %}
+                                    {% for key3, detail3 in detail2 %}
+                                        {% set dataSurface = key3|split("#|#") %}
+                                        <tr class="thead-light">
+                                            <th colspan="6" class="text-uppercase">SURFACE DE TRAVAIL : {{dataSurface[1]}} ; INFO SUPPLEMENTAIRE : {{detail3[0].infoSup}}</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Désignation</th>
+                                            <th>Mésure</th>
+                                            <th>Prix Unitaire HT</th>
+                                            <th>Qte</th>
+                                            <th>Montant TVA</th>
+                                            <th>Montant Total</th>
+                                        </tr>
+                                        {% for itemDetail in detail3 %}
+                                            <tr class="surface{{dataSurface[0]}}">
+                                                <td>
+                                                {{itemDetail.designation | raw }}
+                                                </td>
+                                                <td>{{itemDetail.mesure}}</td>
+                                                <td>
+                                                {{itemDetail.prix}}
+                                                </td>
+                                                <td>
+                                                    {% if itemDetail.isForfait %}
+                                                        U
+                                                    {% else %}
+                                                        {{itemDetail.quantite}}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {{itemDetail.tva}}
+                                                </td>
+                                                <td>{{itemDetail.total}}</td>
+                                            </tr>
+                                            {% set totalCategorie = totalCategorie + itemDetail.total %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5">Total Catégorie</th>
+                                        <th class="bg-secondary text-white">
+                                            <span id="totalCatText{{dataCategorie[0]}}">{{totalCategorie}}</span>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            {% set totalEnonce = totalEnonce + totalCategorie %}
+                        {% endfor %}
+                    </div>
+                    {% set tabTotalEnonce = tabTotalEnonce|merge([totalEnonce]) %}
+                {% endfor %}
         </div>
         <div class="table-responsive mt-2">
             <h5 class="title_form text-black text-uppercase">Récapitulatif</h5>
