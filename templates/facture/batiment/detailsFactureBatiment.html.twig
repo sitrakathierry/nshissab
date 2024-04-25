@@ -248,7 +248,12 @@
                                     {% for key3, detail3 in detail2 %}
                                         {% set dataSurface = key3|split("#|#") %}
                                         <tr class="thead-light">
-                                            <th colspan="7" class="text-uppercase">SURFACE DE TRAVAIL : {{dataSurface[1]}} ; INFO SUPPLEMENTAIRE : {{detail3[0].infoSup}}</th>
+                                            <th colspan="7" class="text-uppercase">
+                                                <div class="d-flex justify-content-center">
+                                                    <span>SURFACE DE TRAVAIL : {{dataSurface[1]}} ; INFO SUPPLEMENTAIRE : {{detail3[0].infoSup}}</span> 
+                                                    <span class="ml-auto"><button type="button" class="btn btn-outline-warning btn_btp_modif_surface btn-sm font-smaller"><i class="fa fa-edit"></i></button></span>
+                                                </div>
+                                            </th>
                                         </tr>
                                         <tr>
                                             <th>Désignation</th>
