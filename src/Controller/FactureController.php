@@ -1397,7 +1397,7 @@ class FactureController extends AbstractController
     {
         $this->appService->synchronisationFacture($this->agence) ;
 
-        if ($nature == "ANL")  
+        if ($nature == "ANL") 
         {
             $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
             $facture = $annulation->getFacture() ;
@@ -1534,7 +1534,6 @@ class FactureController extends AbstractController
         $infoFacture["remise"] = $remiseG ;
         $infoFacture["lettre"] = $this->appService->NumberToLetter($facture->getTotal()) ;
         
-
         if ($nature == "ANL") {
             $total = $annulation->getMontant() ;
 

@@ -784,4 +784,48 @@ $(document).ready(function(){
     }
   }) ;
 
+  function getSearch()
+  {
+    var realinstance = instance.loading()
+    $.ajax({
+        url: routes.credit_element_update,
+        type:'post',
+        cache: false,
+        data: {},
+        dataType: 'html',
+        processData: false,
+        contentType: false,
+        success: function(response){
+            realinstance.close()
+            $.alert({
+                title: 'Message',
+                content: json.message,
+                type: json.type,
+                buttons: {
+                    OK: function(){
+                        if(json.type == "green")
+                        {
+                            location.reload()
+                        }
+                    }
+                }
+            });
+        },
+        error: function(resp){
+            realinstance.close()
+            $.alert(JSON.stringify(resp)) ;
+        }
+    })
+  }
+
+  $("#fact_search_client").change(function(){
+    getSearch() ;
+  })
+  $("#fact_search_entrepot").change(function(){
+    getSearch()
+  })
+  $("#fact_search_date").change(function(){
+    getSearch()
+  })
+
 })

@@ -151,7 +151,7 @@ $(document).ready(function(){
         var optionEntrepotSource = $("#trans_entrepot_source").find("option:selected") ;
         var optionEntrepotDest = $("#trans_entrepot_dest").find("option:selected") ;
         var optionProduitSource = $("#trans_produit_source").find("option:selected") ;
-        var optionPrixProduit = $("#trans_produit_source").find("option:selected") ;
+        var optionPrixProduit = $("#trans_prix_produit").find("option:selected") ;
         
         var stockProduit = parseFloat(optionProduitSource.data("stock")) ;
 
@@ -219,7 +219,10 @@ $(document).ready(function(){
         $(".content_depot_produit").append(item) ;
 
         $("#trans_produit_source").val("") ;
-        $("#trans_produit_source").trigger("chosen:updated"); 
+        $("#trans_quantite").val("") ;
+        $("#trans_prix_produit").val("") ;
+        
+        $(".chosen_select").trigger("chosen:updated"); 
     })
 
     $(document).on("click",".depot_delete_ligne",function(){

@@ -2,7 +2,16 @@
 
 namespace App\Repository;
 
+use App\Entity\AgdCategorie;
+use App\Entity\AgdEcheance;
+use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
+use App\Entity\FactDetails;
+use App\Entity\FactPaiement;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdVariationPrix;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -37,6 +46,166 @@ class CrdFinanceRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public static function comparaisonDates($a, $b) {
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        return $dateB <=> $dateA;
+    }
+
+    public function generateSuiviGeneralCredit($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $paiement = $this->getEntityManager()->getRepository(FactPaiement::class)->findOneBy([
+                "reference" => "CR"
+            ]) ;
+    
+            $finances = $this->getEntityManager()->getRepository(CrdFinance::class)->findBy([
+                "agence" => $params["agence"],
+                "paiement" => $paiement,
+            ]) ; 
+    
+            // dd($finances) ;
+
+            $elements = [] ;
+    
+            foreach ($finances as $finance) {
+                $facture = $finance->getFacture() ;
+
+                if(!$facture->isStatut())
+                    continue ;
+
+                $categorie = $this->getEntityManager()->getRepository(AgdCategorie::class)->findOneBy([
+                    "reference" => "CRD"
+                ]) ;
+    
+                $echeances = $this->getEntityManager()->getRepository(AgdEcheance::class)->findBy([
+                    "categorie" => $categorie,
+                    "catTable" => $finance,
+                ]) ;
+    
+                $item1 = [] ;
+    
+                foreach ($echeances as $echeance) 
+                {
+                    $item = [
+                        "id" => $echeance->getId() ,
+                        "description" => $echeance->getDescription() ,
+                        "date" => $echeance->getDate()->format('d/m/Y') ,
+                        "montant" => $echeance->getMontant(),
+                        "type" => "ECHEANCE",
+                        "statut" => $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE"),
+                    ] ;
+    
+                    array_push($item1,$item) ;
+                }
+
+                $financeDetails = $this->getEntityManager()->getRepository(CrdDetails::class)->findBy([
+                    "finance" => $finance
+                ]) ;
+    
+                $item2 = [] ;
+    
+                foreach ($financeDetails as $financeDetail) 
+                {
+                    $item = [
+                        "id" => $financeDetail->getId() ,
+                        "description" => empty($financeDetail->getDescription()) ? "-" : $financeDetail->getDescription() ,
+                        "date" => $financeDetail->getDate()->format('d/m/Y') ,
+                        "montant" => $financeDetail->getMontant(),
+                        "type" => "PAIEMENT",
+                        "statut" => "OK"
+                    ] ;
+    
+                    array_push($item2,$item) ;
+                }
+    
+                $details = array_merge($item1,$item2) ;
+
+                usort($details, [self::class, 'comparaisonDates']);
+
+                $affectEntrepot = $this->getEntityManager()->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                    "agent" => $facture->getUser(),
+                    "statut" => True
+                ]) ;
+
+                $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneBy([
+                    "facture" => $facture,
+                    "statut" => True
+                ]) ;
+
+                if($factDetail->getActivite() != "Produit")
+                {
+                    $idVariation = $factDetail->getEntite() ;
+        
+                    $variation = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+        
+                    if(!is_null($affectEntrepot))
+                    {
+                        $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                            "variationPrix" => $factDetail->get,
+                            "entrepot" => $affectEntrepot->getEntrepot(),
+                            "statut" => True
+                        ]) ;
+                    }
+                    else
+                    {
+                        $entrepot = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
+                            "nom" => strtoupper($facture->getLieu()),
+                            "statut" => True
+                        ]) ;
+                        
+                        $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                            "variationPrix" => $variation,
+                            "entrepot" => $entrepot,
+                            "statut" => True
+                        ]) ;
+        
+                        if(is_null($histoEntrepot))
+                        {
+                            $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                "variationPrix" => $variation,
+                                "statut" => True
+                            ]) ;
+                        }
+                    }
+
+                    $entrepot = $histoEntrepot->getEntrepot()->getNom() ;
+                    $idEntrepot = $histoEntrepot->getEntrepot()->getId() ;
+
+                }
+                else
+                {
+                    $entrepot = "-" ;
+                    $idEntrepot = "-" ;
+                }
+                
+    
+
+                if($facture->getClient()->getType()->getId() == 2)
+                    $client = $facture->getClient()->getClient()->getNom() ;
+                else
+                    $client = $facture->getClient()->getSociete()->getNom() ;
+
+                $financeArray = [
+                    "id" => $finance->getId(),
+                    "num_credit" => $finance->getNumFnc(),
+                    "client" => $client,
+                    "entrepot" => $entrepot,
+                    "idEntrepot" => $idEntrepot,
+                    "nbRow" => count($details) + 1,
+                    "details" => $details
+                ] ;
+
+                array_push($elements,$financeArray)  ;
+            }
+
+            file_put_contents($params["filename"],json_encode($elements)) ;
+        }
+        
+        return json_decode(file_get_contents($params["filename"])) ;
     }
 
 //    /**

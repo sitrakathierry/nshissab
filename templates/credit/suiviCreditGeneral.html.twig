@@ -28,8 +28,8 @@
                     </select>
                 </div>
                 <div class="col-3">
-                    <label for="fact_search_client" class="mt-2 font-weight-bold w-100 text-uppercase">Entrepôt</label>
-                    <select name="fact_search_client" class="custom-select chosen_select custom-select-sm" id="fact_search_client">
+                    <label for="fact_search_entrepot" class="mt-2 font-weight-bold w-100 text-uppercase">Entrepôt</label>
+                    <select name="fact_search_entrepot" class="custom-select chosen_select custom-select-sm" id="fact_search_entrepot">
                         <option value="">TOUS</option>
                         {# {% for client in clients %}
                             <option value="{{client.id}}">{{client.nom|upper}}</option>
@@ -37,8 +37,8 @@
                     </select>
                 </div>
                 <div class="col-3">
-                    <label for="fact_search_client" class="mt-2 font-weight-bold w-100 text-uppercase">Date</label>
-                    <select name="fact_search_client" class="custom-select chosen_select custom-select-sm" id="fact_search_client">
+                    <label for="fact_search_date" class="mt-2 font-weight-bold w-100 text-uppercase">Date</label>
+                    <select name="fact_search_date" class="custom-select chosen_select custom-select-sm" id="fact_search_date">
                         <option value="">TOUS</option>
                         {# {% for client in clients %}
                             <option value="{{client.id}}">{{client.nom|upper}}</option>
@@ -47,13 +47,13 @@
                 </div>
             </div>
             <div class="table-responsive mt-4">
-                <table class="table table-bordered table-sm">
+                <table class="table table-bordered table-hover table-sm">
                     <thead class="thead-dark">
                         <tr>
                             <th>N° Crédit</th>
-                            <th>Date</th>
                             <th>Client</th>
                             <th>Entrepot</th>
+                            <th>Description</th>
                             <th>Date Paiement/Echéance</th>
                             <th>Montant</th>
                             <th>Type</th>
@@ -61,16 +61,47 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
+                        {% for finance in finances %}
+                            <tr>
+                                <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.num_credit}}</td>
+                                <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.client|upper}}</td>
+                                <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.entrepot|upper}}</td>
+                            </tr>
+                                {% set isFirst = true %}
+                                {% for detail in finance.details %}
+                                    {# {% if detail.type == 'PAIEMENT' or (detail.type == 'ECHEANCE' and detail.statut != 'DNONE') %} #}
+                                        <tr>
+                                            <td>{{detail.description}}</td>
+                                            <td>{{detail.date}}</td>
+                                            <td>{{detail.montant}}</td>
+                                            <td>{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
+                                            {% if isFirst %}
+                                                <td rowspan="{{finance.nbRow}}" class="text-center align-middle">
+                                                    <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                                </td>
+                                                {% set isFirst = false %}
+                                            {% endif %}
+                                        </tr>
+                                    {# {% endif %} #}
+                                {% endfor %}
+                            <tr>
+
+                            </tr>
+                        {% endfor %}
+                        {# <tr>
+                            <td rowspan="3">LIGNE A0</td>
                         </tr>
+                        <tr>
+                            <td>LIGNE Aa0</td>
+                            <td>LIGNE Aa0</td>
+                            <td>LIGNE Aa0</td>
+                            <td rowspan="2">LIGNE A1</td>
+                        </tr>
+                        <tr>
+                            <td>LIGNE Aa1</td>
+                            <td>LIGNE Aa1</td>
+                            <td>LIGNE Aa1</td>
+                        </tr> #}
                     </tbody>
                 </table>
             </div>

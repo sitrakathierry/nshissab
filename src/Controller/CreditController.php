@@ -13,6 +13,7 @@ use App\Entity\CrdStatut;
 use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactHistoPaiement;
+use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\HistoHistorique;
 use App\Entity\ModModelePdf;
@@ -92,14 +93,17 @@ class CreditController extends AbstractController
     #[Route('/credit/suivi/general', name: 'crd_suivi_credit_general')]
     public function crdSuiviCreditGeneral(): Response
     {
-        $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
+        $finances = $this->entityManager->getRepository(CrdFinance::class)->generateSuiviGeneralCredit([
+            "filename" => $this->filename."suiviCredit(agence)/".$this->nameAgence,
             "agence" => $this->agence,
-            "statut" => True
-        ]) ;
+        ]) ; 
+
+        // dd($finances) ;
 
         return $this->render('credit/suiviCreditGeneral.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Suivi Crédit Général",
+            "finances" => $finances,
             "with_foot" => false
         ]);
     }
@@ -450,6 +454,13 @@ class CreditController extends AbstractController
         return $this->redirectToRoute('display_pdf');
     }
 
+    public static function comparaisonDates($a, $b) {
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        return $dateB <=> $dateA;
+    }
+
+
     #[Route('/credit/paiement/credit/save', name: 'crd_paiement_credit_save')]
     public function crdSavePaiementCredit(Request $request)
     {
@@ -502,7 +513,7 @@ class CreditController extends AbstractController
 
             $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
                 "reference" => $refCategorie
-                ]) ;
+            ]) ;
 
             $echeance = new AgdEcheance() ;
 
