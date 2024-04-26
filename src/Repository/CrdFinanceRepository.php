@@ -214,7 +214,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         "description" => empty($financeDetail->getDescription()) ? "-" : $financeDetail->getDescription() ,
                         "date" => $financeDetail->getDate()->format('d/m/Y') ,
                         "currentDate" => $facture->getDate()->format('d/m/Y') ,
-                        "dateFacture" => $facture->getDate()->format('d/m/Y') ,
+                        "dateSuivi" => $facture->getDate()->format('d/m/Y') ,
                         "dateDebut" => $facture->getDate()->format('d/m/Y') ,
                         "dateFin" => $facture->getDate()->format('d/m/Y') ,
                         "annee" => $facture->getDate()->format('Y') ,

@@ -841,7 +841,7 @@ $(document).ready(function(){
       selector: "#date_actuel",
     },
     {
-      name: "dateFacture",
+      name: "dateSuivi",
       action: "change",
       selector: "#date_specifique",
     },
@@ -875,7 +875,7 @@ $(document).ready(function(){
         $(".elem_date").html("")
         if(option.text() == "TOUS")
         {
-            searchFacture()
+          searchSuiviCredit()
         }
         else
         {

@@ -143,7 +143,7 @@ class CreditController extends AbstractController
         $idEntrepot = $request->request->get('idEntrepot') ;
         $idFinance = $request->request->get('idFinance') ;
         $currentDate = $request->request->get('currentDate') ;
-        $dateFacture = $request->request->get('dateFacture') ;
+        $dateSuivi = $request->request->get('dateSuivi') ;
         $dateDebut = $request->request->get('dateDebut') ;
         $dateFin = $request->request->get('dateFin') ;
         $annee = $request->request->get('annee') ;
@@ -154,7 +154,7 @@ class CreditController extends AbstractController
             "idEntrepot" => $idEntrepot,
             "idF" => $idFinance,
             "currentDate" => $currentDate,
-            "dateFacture" => $dateFacture,
+            "dateSuivi" => $dateSuivi,
             "dateDebut" => $dateDebut,
             "dateFin" => $dateFin,
             "annee" => $annee,
@@ -170,52 +170,49 @@ class CreditController extends AbstractController
 
         $financeDetails = $this->appService->searchData($financeDetails,$search) ;
 
+        // dd($financeDetails) ;
+
         if(!empty($financeDetails))
         {
-            $details = [] ;
+            // $details = [] ;
             $finances = [] ;
             foreach ($financeDetails as $financeDetail) {
-                $financeUn[$financeDetail->idF] = [
+                $details[$financeDetail->idF][] = [
+                    "id" => $financeDetail->id ,
+                    "idF" => $financeDetail->idF,
+                    "description" => $financeDetail->description,
+                    "date" => $financeDetail->date ,
+                    "currentDate" => $financeDetail->currentDate ,
+                    "dateFacture" => $financeDetail->dateFacture ,
+                    "dateDebut" => $financeDetail->dateDebut ,
+                    "dateFin" => $financeDetail->dateFin ,
+                    "annee" => $financeDetail->annee ,
+                    "mois" => $financeDetail->mois ,
+                    "montant" => $financeDetail->montant,
+                    "num_credit" => $financeDetail->num_credit,
+                    "client" => $financeDetail->client,
+                    "idClient" => $financeDetail->idClient,
+                    "entrepot" => $financeDetail->entrepot,
+                    "idEntrepot" => $financeDetail->idEntrepot,
+                    "type" => "PAIEMENT",
+                    "statut" => "OK"
+                ] ;
+
+                $finances[$financeDetail->idF] = [
                     "id" => $financeDetail->idF,
                     "num_credit" => $financeDetail->num_credit,
                     "client" => $financeDetail->client,
                     "idClient" => $financeDetail->idClient,
                     "entrepot" => $financeDetail->entrepot,
                     "idEntrepot" => $financeDetail->idEntrepot,
-                    "nbRow" => count($details) + 2,
-                    "details" => $details
+                    "nbRow" => count($details[$financeDetail->idF]) + 2,
+                    "details" => $details[$financeDetail->idF]
                 ] ;
-                
-                if(isset($financeUn[$financeDetail->idF]))
-                {
-                    array_push($finances, $financeUn) ;
-                }
-                else
-                {
-                    $itemDtl = [
-                        "id" => $financeDetail->id ,
-                        "idF" => $financeDetail->idF,
-                        "description" => $financeDetail->description,
-                        "date" => $financeDetail->date ,
-                        "currentDate" => $financeDetail->currentDate ,
-                        "dateFacture" => $financeDetail->dateFacture ,
-                        "dateDebut" => $financeDetail->dateDebut ,
-                        "dateFin" => $financeDetail->dateFin ,
-                        "annee" => $financeDetail->annee ,
-                        "mois" => $financeDetail->mois ,
-                        "montant" => $financeDetail->montant,
-                        "num_credit" => $financeDetail->num_credit,
-                        "client" => $financeDetail->client,
-                        "idClient" => $financeDetail->idClient,
-                        "entrepot" => $financeDetail->entrepot,
-                        "idEntrepot" => $financeDetail->idEntrepot,
-                        "type" => "PAIEMENT",
-                        "statut" => "OK"
-                    ] ;
-    
-                    array_push($details, $itemDtl) ;
-                }
             }   
+        }
+        else
+        {
+            $finances = [] ;
         }
 
         $response = $this->renderView("credit/searchSuiviCredit.html.twig", [
