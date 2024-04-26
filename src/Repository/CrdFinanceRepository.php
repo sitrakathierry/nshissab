@@ -124,7 +124,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     if(!is_null($affectEntrepot))
                     {
                         $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                            "variationPrix" => $factDetail->get,
+                            "variationPrix" => $factDetail->getId(),
                             "entrepot" => $affectEntrepot->getEntrepot(),
                             "statut" => True
                         ]) ;
