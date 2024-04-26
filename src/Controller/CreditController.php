@@ -183,7 +183,7 @@ class CreditController extends AbstractController
                     "description" => $financeDetail->description,
                     "date" => $financeDetail->date ,
                     "currentDate" => $financeDetail->currentDate ,
-                    "dateFacture" => $financeDetail->dateFacture ,
+                    "dateSuivi" => $financeDetail->dateSuivi ,
                     "dateDebut" => $financeDetail->dateDebut ,
                     "dateFin" => $financeDetail->dateFin ,
                     "annee" => $financeDetail->annee ,
