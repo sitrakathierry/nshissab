@@ -130,7 +130,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                                 "statut" => True
                             ]) ;
 
-                            if(is_null($histoEntrepot))
+                            if(!is_null($histoEntrepot))
                                 break ;
                         }
 
