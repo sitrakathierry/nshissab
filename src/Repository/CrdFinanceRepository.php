@@ -128,6 +128,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                             "entrepot" => $affectEntrepot->getEntrepot(),
                             "statut" => True
                         ]) ;
+
+                        dd($histoEntrepot) ;
                     }
                     else
                     {
