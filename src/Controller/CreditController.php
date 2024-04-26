@@ -587,9 +587,12 @@ class CreditController extends AbstractController
              
             $filename = "files/systeme/agenda/agenda(agence)/".$this->nameAgence ;
             if(file_exists($filename))
-            {
                 unlink($filename) ;
-            }
+
+            $filename = $this->filename."suiviCredit(agence)/".$this->nameAgence ;
+            if(file_exists($filename))
+                unlink($filename) ;
+            
             return new JsonResponse($result) ;
         }
 

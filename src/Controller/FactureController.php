@@ -2632,7 +2632,7 @@ class FactureController extends AbstractController
             {
                 $search[$key] = "" ;
             }
-        } 
+        }
 
         $factures = $this->appService->searchData($factures,$search) ;
 
