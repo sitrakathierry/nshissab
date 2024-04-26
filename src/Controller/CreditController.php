@@ -100,14 +100,69 @@ class CreditController extends AbstractController
 
         // dd($finances) ;
 
+        $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
+        
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
+        $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateCltClient($filename, $this->agence) ;
+
+        $clients = json_decode(file_get_contents($filename)) ;
+
         return $this->render('credit/suiviCreditGeneral.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Suivi Crédit Général",
             "finances" => $finances,
+            "entrepots" => $entrepots,
+            "clients" => $clients,
             "with_foot" => false
         ]);
     }
 
+    #[Route('/credit/suivi/general/items/search', name: 'credit_search_suivi_items')]
+    public function crdSearchItemsSuiviCreditGeneral(Request $request)
+    {
+        $finances = $this->entityManager->getRepository(CrdFinance::class)->generateSuiviGeneralCredit([
+            "filename" => $this->filename."suiviCredit(agence)/".$this->nameAgence,
+            "agence" => $this->agence,
+        ]) ; 
+
+        // $details = [] ;
+
+        // foreach ($finances as $finance) {
+        //     $details = array_merge($details,$finance->details) ;
+        // }
+
+        $idClient = $request->request->get('idClient') ;
+        $idEntrepot = $request->request->get('idEntrepot') ;
+        $idFinance = $request->request->get('idFinance') ;
+
+        $search = [
+            "idClient" => $idClient,
+            "idEntrepot" => $idEntrepot,
+            "id" => $idFinance,
+        ] ;
+
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
+        } 
+
+        $finances = $this->appService->searchData($finances,$search) ;
+
+        $response = $this->renderView("credit/searchSuiviCredit.html.twig", [
+            "finances" => $finances
+        ]) ;
+
+        return new Response($response) ; 
+    }
+    
     #[Route('/credit/details/{id}/{updated}', name: 'crd_details_credit', defaults: ["id" => null,"updated" => false] )]
     public function crdDetailsCredit($id,$updated)
     {
@@ -1062,9 +1117,9 @@ class CreditController extends AbstractController
 
         $filename = $this->filename."suiviCredit(agence)/".$this->nameAgence ;
         
-        if(file_exists($filename))
+        if(file_exists($filename)) 
             unlink($filename) ;
-
+ 
         return new JsonResponse([
             "type" => "green",
             "message" => "Suppression effectué"

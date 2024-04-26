@@ -818,14 +818,52 @@ $(document).ready(function(){
     })
   }
 
-  $("#fact_search_client").change(function(){
-    getSearch() ;
-  })
-  $("#fact_search_entrepot").change(function(){
-    getSearch()
-  })
-  $("#fact_search_date").change(function(){
-    getSearch()
-  })
+  var elemSearch = [
+    {
+        name: "idClient",
+        action:"change",
+        selector : "#fact_search_client"
+    },
+    {
+        name: "idEntrepot",
+        action:"change",
+        selector : "#fact_search_entrepot"
+    },
+    {
+      name: "idFinance",
+      action:"change",
+      selector : "#fact_search_credit"
+    }
+  ]
+
+  function searchSuiviCredit()
+    {
+        var instance = new Loading(files.search) ;
+        $(".contentSuiviCredit").html(instance.search(9)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemSearch.length; j++) {
+            const search = elemSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+
+        $.ajax({
+            url: routes.credit_search_suivi_items , 
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".contentSuiviCredit").html(response) ;
+            }
+        })
+    }
+
+    elemSearch.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            searchSuiviCredit()
+        })
+    })
 
 })

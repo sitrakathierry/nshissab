@@ -19,32 +19,41 @@
         <div class="container-fluid px-3">
             <div class="row">
                 <div class="col-3">
+                    <label for="fact_search_credit" class="mt-2 font-weight-bold w-100 text-uppercase">N° Crédit</label>
+                    <select name="fact_search_credit" class="custom-select chosen_select custom-select-sm" id="fact_search_credit">
+                        <option value="">TOUS</option>
+                        {% for finance in finances %}
+                            <option value="{{finance.id}}">{{finance.num_credit}} | {{finance.client}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-3">
                     <label for="fact_search_client" class="mt-2 font-weight-bold w-100 text-uppercase">Client</label>
                     <select name="fact_search_client" class="custom-select chosen_select custom-select-sm" id="fact_search_client">
                         <option value="">TOUS</option>
-                        {# {% for client in clients %}
+                        {% for client in clients %}
                             <option value="{{client.id}}">{{client.nom|upper}}</option>
-                        {% endfor %} #}
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-3">
                     <label for="fact_search_entrepot" class="mt-2 font-weight-bold w-100 text-uppercase">Entrepôt</label>
                     <select name="fact_search_entrepot" class="custom-select chosen_select custom-select-sm" id="fact_search_entrepot">
                         <option value="">TOUS</option>
-                        {# {% for client in clients %}
-                            <option value="{{client.id}}">{{client.nom|upper}}</option>
-                        {% endfor %} #}
+                        {% for entrepot in entrepots %}
+                            <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                        {% endfor %}
                     </select>
                 </div>
-                <div class="col-3">
+                {# <div class="col-3">
                     <label for="fact_search_date" class="mt-2 font-weight-bold w-100 text-uppercase">Date</label>
                     <select name="fact_search_date" class="custom-select chosen_select custom-select-sm" id="fact_search_date">
                         <option value="">TOUS</option>
-                        {# {% for client in clients %}
+                        {% for client in clients %}
                             <option value="{{client.id}}">{{client.nom|upper}}</option>
-                        {% endfor %} #}
+                        {% endfor %}
                     </select>
-                </div>
+                </div> #}
             </div>
             <div class="table-responsive mt-4">
                 <table class="table table-bordered table-hover table-sm">
@@ -60,7 +69,7 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="contentSuiviCredit">
                         {% for finance in finances %}
                             <tr>
                                 <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.num_credit}}</td>
@@ -68,6 +77,7 @@
                                 <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.entrepot|upper}}</td>
                             </tr>
                                 {% set isFirst = true %}
+                                {% set totalPayee = 0 %}
                                 {% for detail in finance.details %}
                                         <tr>
                                             <td class="align-middle">{{detail.description}}</td>
@@ -81,25 +91,13 @@
                                                 {% set isFirst = false %}
                                             {% endif %}
                                         </tr>
+                                        {% set totalPayee = totalPayee + detail.montant %}
                                 {% endfor %}
                             <tr>
-
+                                <th colspan="2" class="bg-light">Total</th>
+                                <th colspan="2"  class="bg-success text-white">{{totalPayee}}</th>
                             </tr>
                         {% endfor %}
-                        {# <tr>
-                            <td rowspan="3">LIGNE A0</td>
-                        </tr>
-                        <tr>
-                            <td>LIGNE Aa0</td>
-                            <td>LIGNE Aa0</td>
-                            <td>LIGNE Aa0</td>
-                            <td rowspan="2">LIGNE A1</td>
-                        </tr>
-                        <tr>
-                            <td>LIGNE Aa1</td>
-                            <td>LIGNE Aa1</td>
-                            <td>LIGNE Aa1</td>
-                        </tr> #}
                     </tbody>
                 </table>
             </div>

@@ -1,0 +1,28 @@
+{% for finance in finances %}
+    <tr>
+        <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.num_credit}}</td>
+        <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.client|upper}}</td>
+        <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.entrepot|upper}}</td>
+    </tr>
+        {% set isFirst = true %}
+        {% set totalPayee = 0 %}
+        {% for detail in finance.details %}
+                <tr>
+                    <td class="align-middle">{{detail.description}}</td>
+                    <td class="align-middle">{{detail.date}}</td>
+                    <td class="align-middle">{{detail.montant}}</td>
+                    <td class="align-middle">{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
+                    {% if isFirst %}
+                        <td rowspan="{{finance.nbRow}}" class="text-center align-middle">
+                            <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                        </td>
+                        {% set isFirst = false %}
+                    {% endif %}
+                </tr>
+                {% set totalPayee = totalPayee + detail.montant %}
+        {% endfor %}
+    <tr>
+        <th colspan="2" class="bg-light">Total</th>
+        <th colspan="2"  class="bg-success text-white">{{totalPayee}}</th>
+    </tr>
+{% endfor %}

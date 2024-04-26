@@ -74,36 +74,36 @@ class CrdFinanceRepository extends ServiceEntityRepository
             foreach ($finances as $finance) {
                 $facture = $finance->getFacture() ;
 
-                if(!$facture->isStatut())
+                if(!$facture->isStatut()) 
                     continue ;
 
-                $categorie = $this->getEntityManager()->getRepository(AgdCategorie::class)->findOneBy([
-                    "reference" => "CRD"
-                ]) ;
+                // $categorie = $this->getEntityManager()->getRepository(AgdCategorie::class)->findOneBy([
+                //     "reference" => "CRD"
+                // ]) ;
     
-                $echeances = $this->getEntityManager()->getRepository(AgdEcheance::class)->findBy([
-                    "categorie" => $categorie,
-                    "catTable" => $finance,
-                ]) ;
+                // $echeances = $this->getEntityManager()->getRepository(AgdEcheance::class)->findBy([
+                //     "categorie" => $categorie,
+                //     "catTable" => $finance,
+                // ]) ;
     
-                $item1 = [] ;
+                // $item1 = [] ;
     
-                foreach ($echeances as $echeance) 
-                {
-                    if(!$echeance->isStatut())
-                        continue ;
+                // foreach ($echeances as $echeance) 
+                // {
+                //     if(!$echeance->isStatut())
+                //         continue ;
 
-                    $item = [
-                        "id" => $echeance->getId() ,
-                        "description" => $echeance->getDescription() ,
-                        "date" => $echeance->getDate()->format('d/m/Y') ,
-                        "montant" => $echeance->getMontant(),
-                        "type" => "ECHEANCE",
-                        "statut" => $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE"),
-                    ] ;
+                //     $item = [
+                //         "id" => $echeance->getId() ,
+                //         "description" => $echeance->getDescription() ,
+                //         "date" => $echeance->getDate()->format('d/m/Y') ,
+                //         "montant" => $echeance->getMontant(),
+                //         "type" => "ECHEANCE",
+                //         "statut" => $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE"),
+                //     ] ;
     
-                    array_push($item1,$item) ;
-                }
+                //     array_push($item1,$item) ;
+                // }
 
                 $financeDetails = $this->getEntityManager()->getRepository(CrdDetails::class)->findBy([
                     "finance" => $finance
@@ -115,6 +115,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 {
                     $item = [
                         "id" => $financeDetail->getId() ,
+                        "idF" => $financeDetail->getFinance()->getId() ,
                         "description" => empty($financeDetail->getDescription()) ? "-" : $financeDetail->getDescription() ,
                         "date" => $financeDetail->getDate()->format('d/m/Y') ,
                         "montant" => $financeDetail->getMontant(),
@@ -125,7 +126,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     array_push($item2,$item) ;
                 }
     
-                $details = array_merge($item1,$item2) ;
+                $details = $item2 ;
 
                 usort($details, [self::class, 'comparaisonDates']);
 
@@ -139,7 +140,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     "statut" => True
                 ]) ;
 
-                if($factDetail->getActivite() != "Produit")
+                if($factDetail->getActivite() == "Produit")
                 {
                     $idVariation = $factDetail->getEntite() ;
         
@@ -185,20 +186,25 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     $idEntrepot = "-" ;
                 }
                 
-    
-
                 if($facture->getClient()->getType()->getId() == 2)
+                {
                     $client = $facture->getClient()->getClient()->getNom() ;
+                    $idClient = $facture->getClient()->getId() ;
+                }
                 else
+                {
                     $client = $facture->getClient()->getSociete()->getNom() ;
+                    $idClient = $facture->getClient()->getId() ;
+                }
 
                 $financeArray = [
                     "id" => $finance->getId(),
                     "num_credit" => $finance->getNumFnc(),
                     "client" => $client,
+                    "idClient" => $idClient,
                     "entrepot" => $entrepot,
                     "idEntrepot" => $idEntrepot,
-                    "nbRow" => count($details) + 1,
+                    "nbRow" => count($details) + 2,
                     "details" => $details
                 ] ;
 
