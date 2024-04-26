@@ -77,40 +77,15 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 if(!$facture->isStatut()) 
                     continue ;
 
-                // $categorie = $this->getEntityManager()->getRepository(AgdCategorie::class)->findOneBy([
-                //     "reference" => "CRD"
-                // ]) ;
-    
-                // $echeances = $this->getEntityManager()->getRepository(AgdEcheance::class)->findBy([
-                //     "categorie" => $categorie,
-                //     "catTable" => $finance,
-                // ]) ;
-    
-                // $item1 = [] ;
-    
-                // foreach ($echeances as $echeance) 
-                // {
-                //     if(!$echeance->isStatut())
-                //         continue ;
-
-                //     $item = [
-                //         "id" => $echeance->getId() ,
-                //         "description" => $echeance->getDescription() ,
-                //         "date" => $echeance->getDate()->format('d/m/Y') ,
-                //         "montant" => $echeance->getMontant(),
-                //         "type" => "ECHEANCE",
-                //         "statut" => $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE"),
-                //     ] ;
-    
-                //     array_push($item1,$item) ;
-                // }
-
                 $financeDetails = $this->getEntityManager()->getRepository(CrdDetails::class)->findBy([
                     "finance" => $finance
                 ]) ;
     
+                if(empty($financeDetails))
+                    continue ;
+
                 $item2 = [] ;
-    
+                    
                 foreach ($financeDetails as $financeDetail) 
                 {
                     $item = [
