@@ -105,7 +105,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
 
                 usort($details, [self::class, 'comparaisonDates']);
 
-                $affectEntrepot = $this->getEntityManager()->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                $affectEntrepots = $this->getEntityManager()->getRepository(PrdEntrpAffectation::class)->findBy([
                     "agent" => $facture->getUser(),
                     "statut" => True
                 ]) ;
@@ -121,13 +121,18 @@ class CrdFinanceRepository extends ServiceEntityRepository
         
                     $variation = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($idVariation) ;
         
-                    if(!is_null($affectEntrepot))
+                    if(!empty($affectEntrepots))
                     {
-                        $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                            "variationPrix" => $factDetail->getId(),
-                            "entrepot" => $affectEntrepot->getEntrepot(),
-                            "statut" => True
-                        ]) ;
+                        foreach ($affectEntrepots as $affectEntrepot) {
+                            $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                "variationPrix" => $factDetail->getId(),
+                                "entrepot" => $affectEntrepot->getEntrepot(),
+                                "statut" => True
+                            ]) ;
+
+                            if(is_null($histoEntrepot))
+                                break ;
+                        }
 
                         dd($histoEntrepot) ;
                     }
