@@ -84,27 +84,6 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 if(empty($financeDetails))
                     continue ;
 
-                $item2 = [] ;
-                    
-                foreach ($financeDetails as $financeDetail) 
-                {
-                    $item = [
-                        "id" => $financeDetail->getId() ,
-                        "idF" => $financeDetail->getFinance()->getId() ,
-                        "description" => empty($financeDetail->getDescription()) ? "-" : $financeDetail->getDescription() ,
-                        "date" => $financeDetail->getDate()->format('d/m/Y') ,
-                        "montant" => $financeDetail->getMontant(),
-                        "type" => "PAIEMENT",
-                        "statut" => "OK"
-                    ] ;
-    
-                    array_push($item2,$item) ;
-                }
-    
-                $details = $item2 ;
-
-                usort($details, [self::class, 'comparaisonDates']);
-
                 $affectEntrepots = $this->getEntityManager()->getRepository(PrdEntrpAffectation::class)->findBy([
                     "agent" => $facture->getUser(),
                     "statut" => True
@@ -223,9 +202,42 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     "idClient" => $idClient,
                     "entrepot" => $entrepot,
                     "idEntrepot" => $idEntrepot,
-                    "nbRow" => count($details) + 2,
-                    "details" => $details
                 ] ;
+
+                $item2 = [] ;
+                    
+                foreach ($financeDetails as $financeDetail) 
+                {
+                    $item = [
+                        "id" => $financeDetail->getId() ,
+                        "idF" => $financeDetail->getFinance()->getId(),
+                        "description" => empty($financeDetail->getDescription()) ? "-" : $financeDetail->getDescription() ,
+                        "date" => $financeDetail->getDate()->format('d/m/Y') ,
+                        "currentDate" => $facture->getDate()->format('d/m/Y') ,
+                        "dateFacture" => $facture->getDate()->format('d/m/Y') ,
+                        "dateDebut" => $facture->getDate()->format('d/m/Y') ,
+                        "dateFin" => $facture->getDate()->format('d/m/Y') ,
+                        "annee" => $facture->getDate()->format('Y') ,
+                        "mois" => $facture->getDate()->format('m') ,
+                        "montant" => $financeDetail->getMontant(),
+                        "num_credit" => $finance->getNumFnc(),
+                        "client" => $client,
+                        "idClient" => $idClient,
+                        "entrepot" => $entrepot,
+                        "idEntrepot" => $idEntrepot,
+                        "type" => "PAIEMENT",
+                        "statut" => "OK"
+                    ] ;
+    
+                    array_push($item2,$item) ;
+                }
+    
+                $details = $item2 ;
+
+                usort($details, [self::class, 'comparaisonDates']);
+                
+                $financeArray["nbRow"] = count($details) + 2 ; 
+                $financeArray["details"] = $details ;
 
                 array_push($elements,$financeArray)  ;
             }

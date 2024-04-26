@@ -98,8 +98,6 @@ class CreditController extends AbstractController
             "agence" => $this->agence,
         ]) ; 
 
-        // dd($finances) ;
-
         $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
         
         if(!file_exists($filename))  
@@ -113,12 +111,15 @@ class CreditController extends AbstractController
 
         $clients = json_decode(file_get_contents($filename)) ;
 
+        $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
+
         return $this->render('credit/suiviCreditGeneral.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Suivi Crédit Général",
             "finances" => $finances,
             "entrepots" => $entrepots,
             "clients" => $clients,
+            "critereDates" => $critereDates,
             "with_foot" => false
         ]);
     }
@@ -131,20 +132,33 @@ class CreditController extends AbstractController
             "agence" => $this->agence,
         ]) ; 
 
-        // $details = [] ;
+        $financeDetails = [] ;
 
-        // foreach ($finances as $finance) {
-        //     $details = array_merge($details,$finance->details) ;
-        // }
+        foreach ($finances as $finance) 
+        {
+            $financeDetails = array_merge($financeDetails,$finance->details) ;
+        }
 
         $idClient = $request->request->get('idClient') ;
         $idEntrepot = $request->request->get('idEntrepot') ;
         $idFinance = $request->request->get('idFinance') ;
+        $currentDate = $request->request->get('currentDate') ;
+        $dateFacture = $request->request->get('dateFacture') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $annee = $request->request->get('annee') ;
+        $mois = $request->request->get('mois') ;
 
         $search = [
             "idClient" => $idClient,
             "idEntrepot" => $idEntrepot,
-            "id" => $idFinance,
+            "idF" => $idFinance,
+            "currentDate" => $currentDate,
+            "dateFacture" => $dateFacture,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
         ] ;
 
         foreach ($search as $key => $value) {
@@ -154,7 +168,55 @@ class CreditController extends AbstractController
             }
         } 
 
-        $finances = $this->appService->searchData($finances,$search) ;
+        $financeDetails = $this->appService->searchData($financeDetails,$search) ;
+
+        if(!empty($financeDetails))
+        {
+            $details = [] ;
+            $finances = [] ;
+            foreach ($financeDetails as $financeDetail) {
+                $financeUn[$financeDetail->idF] = [
+                    "id" => $financeDetail->idF,
+                    "num_credit" => $financeDetail->num_credit,
+                    "client" => $financeDetail->client,
+                    "idClient" => $financeDetail->idClient,
+                    "entrepot" => $financeDetail->entrepot,
+                    "idEntrepot" => $financeDetail->idEntrepot,
+                    "nbRow" => count($details) + 2,
+                    "details" => $details
+                ] ;
+                
+                if(isset($financeUn[$financeDetail->idF]))
+                {
+                    array_push($finances, $financeUn) ;
+                }
+                else
+                {
+                    $itemDtl = [
+                        "id" => $financeDetail->id ,
+                        "idF" => $financeDetail->idF,
+                        "description" => $financeDetail->description,
+                        "date" => $financeDetail->date ,
+                        "currentDate" => $financeDetail->currentDate ,
+                        "dateFacture" => $financeDetail->dateFacture ,
+                        "dateDebut" => $financeDetail->dateDebut ,
+                        "dateFin" => $financeDetail->dateFin ,
+                        "annee" => $financeDetail->annee ,
+                        "mois" => $financeDetail->mois ,
+                        "montant" => $financeDetail->montant,
+                        "num_credit" => $financeDetail->num_credit,
+                        "client" => $financeDetail->client,
+                        "idClient" => $financeDetail->idClient,
+                        "entrepot" => $financeDetail->entrepot,
+                        "idEntrepot" => $financeDetail->idEntrepot,
+                        "type" => "PAIEMENT",
+                        "statut" => "OK"
+                    ] ;
+    
+                    array_push($details, $itemDtl) ;
+                }
+            }   
+        }
 
         $response = $this->renderView("credit/searchSuiviCredit.html.twig", [
             "finances" => $finances
@@ -515,7 +577,6 @@ class CreditController extends AbstractController
         return $dateB <=> $dateA;
     }
 
-
     #[Route('/credit/paiement/credit/save', name: 'crd_paiement_credit_save')]
     public function crdSavePaiementCredit(Request $request)
     {
@@ -592,7 +653,7 @@ class CreditController extends AbstractController
             $filename = $this->filename."suiviCredit(agence)/".$this->nameAgence ;
             if(file_exists($filename))
                 unlink($filename) ;
-            
+
             return new JsonResponse($result) ;
         }
 
@@ -847,7 +908,6 @@ class CreditController extends AbstractController
 
     }
 
-    
     #[Route('/credit/echeance/description/update', name: 'credit_echeance_update_description')]
     public function crdUpdateDescriptionEcheance(Request $request)
     {

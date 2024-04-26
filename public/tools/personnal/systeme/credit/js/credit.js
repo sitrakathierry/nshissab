@@ -4,7 +4,8 @@ $(document).ready(function(){
   var facture_editor = new LineEditor(".facture_editor") ;
   
   var instance = new Loading(files.loading)
-  
+  var appBase = new AppBase() ;
+
   $("#formPaiementCredit").submit(function(){
     var crd_paiement_montant = parseFloat($("#crd_paiement_montant").val())
     var credit_total_restant = parseFloat($("#credit_total_restant").val())
@@ -818,7 +819,7 @@ $(document).ready(function(){
     })
   }
 
-  var elemSearch = [
+  var elemSearchSuivi = [
     {
         name: "idClient",
         action:"change",
@@ -833,16 +834,94 @@ $(document).ready(function(){
       name: "idFinance",
       action:"change",
       selector : "#fact_search_credit"
-    }
+    },
+    {
+      name: "currentDate",
+      action: "change",
+      selector: "#date_actuel",
+    },
+    {
+      name: "dateFacture",
+      action: "change",
+      selector: "#date_specifique",
+    },
+    {
+      name: "dateDebut",
+      action: "change",
+      selector: "#date_fourchette_debut",
+    },
+    {
+      name: "dateFin",
+      action: "change",
+      selector: "#date_fourchette_fin",
+    },
+    {
+      name: "annee",
+      action: "keyup",
+      selector: "#date_annee",
+    },
+    {
+      name: "mois",
+      action: "change",
+      selector: "#date_mois",
+    },
   ]
+
+  $("#credit_search_date_suivi").change(function(){
+    var option = $(this).find("option:selected") ;
+    var critere = option.data("critere") ;
+    if(critere == "")
+    {
+        $(".elem_date").html("")
+        if(option.text() == "TOUS")
+        {
+            searchFacture()
+        }
+        else
+        {
+            var currentDate = new Date();
+            var day = currentDate.getDate();
+            var month = currentDate.getMonth() + 1; // Les mois sont indexés à partir de zéro, donc nous ajoutons 1
+            var year = currentDate.getFullYear();
+            if (month < 10) {
+                month = '0' + month;
+              }
+            var formattedDate = day + '/' + month + '/' + year;
+
+            $(".elem_date").html(`
+                <input type="hidden" id="date_actuel" name="date_actuel" value="`+formattedDate+`">
+            `)
+            $("#date_actuel").change();
+        }
+        return false;
+    }
+
+    if(critere.length == 2)
+    {
+        $(".elem_date").html(appBase.getItemsDate(critere))
+    }
+    else
+    {
+        var index = critere.split(",")
+        var elements = ''
+
+        index.forEach(elem => {
+            elements += appBase.getItemsDate(elem)
+        })
+
+        $(".elem_date").html(elements)
+        
+    }
+    searchSuiviCredit()
+  })
 
   function searchSuiviCredit()
     {
         var instance = new Loading(files.search) ;
         $(".contentSuiviCredit").html(instance.search(9)) ;
         var formData = new FormData() ;
-        for (let j = 0; j < elemSearch.length; j++) {
-            const search = elemSearch[j];
+        for (let j = 0; j < elemSearchSuivi.length; j++) {
+            const search = elemSearchSuivi[j];
             formData.append(search.name,$(search.selector).val());
         }
 
@@ -860,7 +939,7 @@ $(document).ready(function(){
         })
     }
 
-    elemSearch.forEach(elem => {
+    elemSearchSuivi.forEach(elem => {
         $(document).on(elem.action,elem.selector,function(){
             searchSuiviCredit()
         })

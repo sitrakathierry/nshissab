@@ -45,16 +45,17 @@
                         {% endfor %}
                     </select>
                 </div>
-                {# <div class="col-3">
-                    <label for="fact_search_date" class="mt-2 font-weight-bold w-100 text-uppercase">Date</label>
-                    <select name="fact_search_date" class="custom-select chosen_select custom-select-sm" id="fact_search_date">
-                        <option value="">TOUS</option>
-                        {% for client in clients %}
-                            <option value="{{client.id}}">{{client.nom|upper}}</option>
+                <div class="col-md-3">
+                    <label for="credit_search_date_suivi" class="mt-2 font-weight-bold text-uppercase">Date</label>
+                    <select name="credit_search_date_suivi" class="custom-select chosen_select custom-select-sm" id="credit_search_date_suivi">
+                        <option value="" data-critere="">TOUS</option>
+                        {% for critereDate in critereDates %}
+                            <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
                         {% endfor %}
                     </select>
-                </div> #}
+                </div> 
             </div>
+            <div class="row mt-2 elem_date"></div>
             <div class="table-responsive mt-4">
                 <table class="table table-bordered table-hover table-sm">
                     <thead class="thead-dark">
