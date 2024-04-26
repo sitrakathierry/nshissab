@@ -123,6 +123,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
         
                     if(!empty($affectEntrepots))
                     {
+                        $histoEntrepot = null ;
+
                         foreach ($affectEntrepots as $affectEntrepot) {
                             $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
                                 "variationPrix" => $factDetail->getId(),
@@ -134,7 +136,41 @@ class CrdFinanceRepository extends ServiceEntityRepository
                                 break ;
                         }
 
-                        dd($histoEntrepot) ;
+                        if(is_null($histoEntrepot))
+                        {
+                            $entrepot = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
+                                "nom" => strtoupper($facture->getLieu()),
+                                "statut" => True
+                            ]) ;
+                            
+                            // $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                            //     "variationPrix" => $variation,
+                            //     "entrepot" => $entrepot,
+                            //     "statut" => True
+                            // ]) ;
+            
+                            if(is_null($entrepot))
+                            {
+                                $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                    "variationPrix" => $variation,
+                                    "statut" => True
+                                ]) ;
+
+                                $entrepot = $histoEntrepot->getEntrepot()->getNom() ;
+                                $idEntrepot = $histoEntrepot->getEntrepot()->getId() ;
+                            }
+                            else
+                            {
+                                $entrepot = $entrepot->getNom() ;
+                                $idEntrepot = $entrepot->getId() ;
+                            }
+                        }
+                        else
+                        {
+                            $entrepot = $histoEntrepot->getEntrepot()->getNom() ;
+                            $idEntrepot = $histoEntrepot->getEntrepot()->getId() ;
+                        }
+                        // dd($histoEntrepot) ;
                     }
                     else
                     {
@@ -156,10 +192,11 @@ class CrdFinanceRepository extends ServiceEntityRepository
                                 "statut" => True
                             ]) ;
                         }
+
+                        $entrepot = $histoEntrepot->getEntrepot()->getNom() ;
+                        $idEntrepot = $histoEntrepot->getEntrepot()->getId() ;
                     }
 
-                    $entrepot = $histoEntrepot->getEntrepot()->getNom() ;
-                    $idEntrepot = $histoEntrepot->getEntrepot()->getId() ;
 
                 }
                 else
