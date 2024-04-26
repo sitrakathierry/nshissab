@@ -138,7 +138,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
 
                         if(is_null($histoEntrepot))
                         {
-                            $entrepot = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
+                            $entrepotObj = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
                                 "nom" => strtoupper($facture->getLieu()),
                                 "statut" => True
                             ]) ;
@@ -149,7 +149,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                             //     "statut" => True
                             // ]) ;
             
-                            if(is_null($entrepot))
+                            if(is_null($entrepotObj))
                             {
                                 $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
                                     "variationPrix" => $variation,
@@ -161,8 +161,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                             }
                             else
                             {
-                                $entrepot = $entrepot->getNom() ;
-                                $idEntrepot = $entrepot->getId() ;
+                                $entrepot = $entrepotObj->getNom() ;
+                                $idEntrepot = $entrepotObj->getId() ;
                             }
                         }
                         else
