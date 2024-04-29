@@ -80,7 +80,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 ]) ;
     
                 if(empty($financeDetails))
-                    continue ;
+                    continue ; 
 
                 $refModele = $facture->getModele()->getReference() ; 
 

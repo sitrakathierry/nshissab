@@ -826,7 +826,7 @@ $(document).ready(function(){
         selector : "#fact_search_client"
     },
     {
-        name: "idEntrepot",
+        name: "idEntrepot", 
         action:"change",
         selector : "#fact_search_entrepot"
     },

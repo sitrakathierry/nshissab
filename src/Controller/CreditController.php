@@ -132,7 +132,7 @@ class CreditController extends AbstractController
             "agence" => $this->agence,
         ]) ; 
 
-        $financeDetails = [] ;
+        $financeDetails = [] ; 
 
         foreach ($finances as $finance) 
         {
@@ -170,7 +170,7 @@ class CreditController extends AbstractController
 
         $financeDetails = $this->appService->searchData($financeDetails,$search) ;
 
-        // dd($financeDetails) ;
+        dd($financeDetails) ;
 
         if(!empty($financeDetails))
         {
