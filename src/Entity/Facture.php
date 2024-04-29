@@ -103,6 +103,9 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?bool $isImported = null;
 
+    #[ORM\ManyToOne(inversedBy: 'factures')]
+    private ?PrdEntrepot $entrepot = null;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -570,6 +573,18 @@ class Facture
     public function setIsImported(?bool $isImported): self
     {
         $this->isImported = $isImported;
+
+        return $this;
+    }
+
+    public function getEntrepot(): ?PrdEntrepot
+    {
+        return $this->entrepot;
+    }
+
+    public function setEntrepot(?PrdEntrepot $entrepot): self
+    {
+        $this->entrepot = $entrepot;
 
         return $this;
     }

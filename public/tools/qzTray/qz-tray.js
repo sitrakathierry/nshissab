@@ -11,14 +11,17 @@ var qz = (function() {
 
 ///// POLYFILLS /////
 
-    if (!Array.isArray) {
+    if (!Array.isArray) 
+    {
         Array.isArray = function(arg) {
             return Object.prototype.toString.call(arg) === '[object Array]';
         };
     }
 
-    if (!Number.isInteger) {
-        Number.isInteger = function(value) {
+    if (!Number.isInteger) 
+    {
+        Number.isInteger = function(value) 
+        {
             return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
         };
     }

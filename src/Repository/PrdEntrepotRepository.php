@@ -39,6 +39,33 @@ class PrdEntrepotRepository extends ServiceEntityRepository
         }
     }
 
+    public function generateStockEntrepot($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $entrepots = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findBy([
+                "statut" => True,
+                "agence" => $params["agence"]
+            ]) ;
+    
+            $elements = [] ;
+            
+            foreach ($entrepots as $entrepot) {
+                $element = [] ;
+                $element["id"] = $entrepot->getId() ;
+                $element["nom"] = $entrepot->getNom() ;
+                $element["adresse"] = $entrepot->getAdresse() ;
+                $element["telephone"] = $entrepot->getTelephone() ;
+                $element["agence"] = $entrepot->getAgence()->getId() ;
+                array_push($elements,$element) ;
+            } 
+    
+            file_put_contents($params["filename"],json_encode($elements)) ;
+        }
+
+        return json_decode(file_get_contents($params["filename"])) ;  ;
+    }
+
 //    /**
 //     * @return PrdEntrepot[] Returns an array of PrdEntrepot objects
 //     */

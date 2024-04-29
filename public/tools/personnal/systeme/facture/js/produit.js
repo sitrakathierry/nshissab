@@ -114,6 +114,7 @@ $(document).ready(function(){
 
     
     $(document).on("click",".ajout_fact_element",function(){
+        var fact_mod_prod_entrepot = $("#fact_mod_prod_entrepot").val()
         var fact_mod_prod_designation = $("#fact_mod_prod_designation").val()
         var fact_mod_prod_prix = $("#fact_mod_prod_prix").val()
         var fact_mod_prod_qte = $("#fact_mod_prod_qte").val()
@@ -124,6 +125,7 @@ $(document).ready(function(){
             fact_mod_prod_prix,
             fact_mod_prod_qte,
         ],[
+            "Entrepot",
             "Désignation",
             "Prix",
             "Quantité"
@@ -196,6 +198,37 @@ $(document).ready(function(){
         //         return result["allow"] ;
         //     }
         // }
+
+        if(fact_mod_prod_type != "autre" && fact_mod_prod_entrepot == "" && $(".fact_btn_modele.btn-warning").data("indice") == "PROD")
+        {
+            $.alert({
+                title: 'Entrepot vide',
+                content: "Veuillez seléctionner un entrepot",
+                type:'orange',
+            })
+            return false ;
+        }
+
+        isDifferent = false ;
+
+        $(".elem_facture_produit tr").each(function(){
+            if($(this).find(".fact_enr_prod_entrepot").val() != fact_mod_prod_entrepot)
+            {
+                isDifferent = true ;
+                return false ;
+            }
+        }) ;
+
+        if(isDifferent)
+        {
+            $.alert({
+                title: 'Entrepot Différent',
+                content: "Un seul entrepot pour une facture. Ne changez pas d'entrepot",
+                type:'orange',
+            }) ;
+
+            return false ;
+        }
 
         var fact_text_type = fact_mod_prod_type == "autre" ? "Autre" : fact_mod_prod_type
         var fact_text_designation = fact_mod_prod_type == "autre" ? `<div class='text-center px-3 py-2'>`+$('#fact_mod_prod_autre').val()+`</div>` : $("#fact_mod_prod_designation").find("option:selected").text() ;
@@ -304,10 +337,11 @@ $(document).ready(function(){
                 <td>
                     `+fact_text_type.toUpperCase()+`
                     <input type="hidden" value="`+fact_mod_prod_type+`" name="fact_enr_prod_type[]" class="fact_enr_prod_type">  
+                    <input type="hidden" value="`+fact_mod_prod_entrepot+`" name="fact_enr_prod_entrepot[]" class="fact_enr_prod_entrepot">  
                 </td>
                 <td>
                     `+fact_text_designation+`
-                    <input type="hidden" value="`+fact_text_designation+`" name="fact_enr_prod_designation[]" class="fact_enr_prod_designation"> 
+                    <input type="hidden" value="`+fact_text_designation+`" name="fact_enr_prod_designation[]" class="fact_enr_prod_designation">  
                     <input type="hidden" value="`+fact_mod_prod_designation+`" class="fact_enr_prod_produit"> 
                     </td>
                     <td>
@@ -454,5 +488,37 @@ $(document).ready(function(){
 
     $(document).on("change","#fact_type_remise_prod_general",function(){
         calculFacture()
+    }) ;
+
+
+    $(document).on("change","#fact_mod_prod_entrepot",function(){
+        var realinstance = instance.loading() ;
+        var self = $(this) ;
+        $.ajax({
+            url: routes.stock_find_produit_in_entrepot,
+            type:'post',
+            cache: false,
+            data: {idE:self.val()} ,
+            dataType: 'json',
+            success: function(response){
+                realinstance.close() ;
+
+                var options = '<option value="">-</option>'
+                for (let i = 0; i < response.produitEntrepots.length; i++) {
+                    const elementP = response.produitEntrepots[i];
+                    options += '<option value="'+elementP.id+'" data-stock="'+elementP.stock+'" >'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                }
+
+                $("#fact_mod_prod_designation").html(options) ;
+                $(".chosen_select").trigger("chosen:updated"); 
+
+                var textEntrepot = $("#fact_mod_prod_entrepot").find("option:selected").text() ;
+                $("#fact_lieu").val(textEntrepot == "undefined" ? "-" : textEntrepot) ;
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
     })
 })

@@ -25,10 +25,10 @@ class ApiController extends AbstractController
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
         header("Access-Control-Allow-Headers: Origin, Content-Type, Accept");
 
-        $servername = "51.195.220.197"; // ou votre adresse IP du serveur de base de données
-        $username = "debian"; // votre nom d'utilisateur de base de données
-        $password = "yQYRQqe9zFuB"; // votre mot de passe de base de données
-        $dbname = "bazarbdd"; // le nom de votre base de données
+        $servername = "51.195.220.197"; 
+        $username = "debian"; 
+        $password = "yQYRQqe9zFuB"; 
+        $dbname = "bazarbdd"; 
 
         try {
             $this->connection = new \PDO("mysql:host=$servername;dbname=$dbname", $username, $password);

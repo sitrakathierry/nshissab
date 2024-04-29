@@ -432,7 +432,7 @@ $(document).ready(function(){
                                 }
                             }
                         })
-                    }
+                    } 
                     else
                     {
                         $("#appro_indice").attr("readonly","true") ;

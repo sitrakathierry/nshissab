@@ -393,8 +393,14 @@ $(document).ready(function(){
                 }
                 else
                 {
-                    $("#detailFacture").empty().html(response)
+                    $("#detailFacture").empty().html(response) ;
                     sessionStorage.setItem('optionP',$(".fact_mod_prod_designation").html()) ;
+
+                    if(indice == "PROD")
+                    {
+                        var textEntrepot = $("#fact_mod_prod_entrepot").find("option:selected").text() ;
+                        $("#fact_lieu").val(textEntrepot == "undefined" ? "-" : textEntrepot) ;
+                    }
                 }
                 
             },
@@ -976,7 +982,7 @@ $(document).ready(function(){
                             }
                         }
                     }
-                })
+                }) 
             },
             error: function(resp){
                 realinstance.close()

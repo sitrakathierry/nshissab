@@ -37,6 +37,8 @@ use App\Entity\LctRepartition;
 use App\Entity\LctStatutLoyer;
 use App\Entity\ModModelePdf;
 use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
+use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
 use App\Entity\SavAvoirUse;
@@ -110,7 +112,7 @@ class FactureController extends AbstractController
             "paiements" => $paiements,
             "clients" => $clients,
         ]); 
-    }
+    } 
 
     #[Route('/facture/ticket/caisse/get', name: 'fact_get_ticket_de_caisse')]
     public function factureGetTicketCaisse()
@@ -259,12 +261,69 @@ class FactureController extends AbstractController
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
         
         $stockGenerales = json_decode(file_get_contents($filename)) ;
+        
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
+            "agent" => $this->userObj,
+            "statut" => True
+        ]) ;
+
+        if(empty($affectEntrepots))
+        {
+            // Si l'utilisateur n'a aucun entrepots
+            $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                "filename" => "files/systeme/stock/entrepot(agence)/".$this->nameAgence ,
+                "agence" => $this->agence
+            ]) ;
+        }
+        else
+        {
+            $entrepots = [] ;
+            foreach ($affectEntrepots as $affectEntrepot) {
+                $entrepot = $affectEntrepot->getEntrepot() ;
+                if($entrepot->isStatut())
+                {
+                    $entrepots[] = [
+                        "id" => $entrepot->getId(),
+                        "nom" => $entrepot->getNom(),
+                        "adresse" => $entrepot->getAdresse(),
+                        "telephone" => $entrepot->getTelephone(),
+                    ] ;
+                }
+            }
+
+            if(empty($entrepots))
+            {
+                $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                    "filename" => "files/systeme/stock/entrepot(agence)/".$this->nameAgence ,
+                    "agence" => $this->agence
+                ]) ;
+            }
+            else
+            {
+                if(count($entrepots) == 1)
+                {
+                    $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+                        "agence" => $this->agence,
+                        "filename" => "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
+                    ]) ;
+                    
+                    $search = [
+                        "idE" => $entrepots[0]["id"],
+                    ] ;
+            
+                    $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
+                    $stockGenerales = array_values($stockEntrepots) ;
+                }
+            }
+        }
 
         $responses = $this->renderView("facture/produit.html.twig",[
             "stockGenerales" => $stockGenerales,
             "devises" => $devises, 
             "agcDevise" => $agcDevise,
+            "entrepots" => $entrepots,
             "typeRemises" => $typeRemises,
         ]) ;
 
@@ -1758,6 +1817,7 @@ class FactureController extends AbstractController
         $fact_num = $request->request->get('fact_num') ;
         $fact_libelle = $request->request->get('fact_libelle') ;
         $fact_ticket_caisse = $request->request->get("fact_ticket_caisse") ;
+        $fact_mod_prod_entrepot = $request->request->get("fact_mod_prod_entrepot") ;
         
         $fact_enr_total_general = $request->request->get('fact_enr_total_general') ;
 
@@ -1807,7 +1867,8 @@ class FactureController extends AbstractController
                 $result["message"] = "Veuiller insérer un élément" ;
                 return new JsonResponse($result) ;
             }
-        }else if($modele->getReference() == "PBAT")
+        }
+        else if($modele->getReference() == "PBAT")
         {
             $fact_enr_btp_enonce_id = (array)$request->request->get('fact_enr_btp_enonce_id') ;
             if(empty($fact_enr_btp_enonce_id))
@@ -1946,6 +2007,8 @@ class FactureController extends AbstractController
             $facture->setTicketCaisse($caisseCommande) ;
         }
 
+        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($fact_mod_prod_entrepot) ;
+
         $facture->setAgence($this->agence) ;
         $facture->setUser($this->userObj) ;
         $facture->setClient($client) ;
@@ -1956,6 +2019,7 @@ class FactureController extends AbstractController
         $facture->setNumFact($numFacture) ;
         $facture->setDescription($facture_editor) ;
         $facture->setTvaVal(floatval($fact_enr_total_tva)) ;
+        $facture->setEntrepot($entrepot) ;
         $facture->setLieu($fact_lieu) ;
 
         $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $fact_date);

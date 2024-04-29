@@ -1255,25 +1255,27 @@ class StockController extends AbstractController
     public function stockFindProduitInEntrepot(Request $request)
     {
         $idE = $request->request->get('idE') ;
-        // $spec_input = $request->request->get('spec_input') ;
 
-        $produitEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getProduitsInEntrepots($idE) ;
+        // $produitEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getProduitsInEntrepots($idE) ;
         
-        // if(!isset($spec_input))
-        // {
-            $result = [] ;
-            $result["vide"] = empty($produitEntrepots) ;
-            $result["produitEntrepots"] = $produitEntrepots ;
-            return new JsonResponse($result) ;
-        // }
-        // else
-        // {
-        //     $response = $this->renderView("stock/entrepot/getResultEntrepot.html.twig",[
-        //         "produitEntrepots" => $produitEntrepots 
-        //     ]) ;
+        $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+            "agence" => $this->agence,
+            "filename" => "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
+        ]) ;
+        
+        $search = [
+            "idE" => $idE,
+        ] ;
 
-        //     return new Response($response) ;
-        // }
+        $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
+        
+        $stockEntrepots = array_values($stockEntrepots) ;
+
+        $result = [] ;
+        $result["vide"] = empty($stockEntrepots) ;
+        $result["produitEntrepots"] = $stockEntrepots ;
+        return new JsonResponse($result) ;
+
     }
 
     #[Route('/stock/entrepot', name: 'stock_entrepot')]
@@ -1299,11 +1301,10 @@ class StockController extends AbstractController
     #[Route('/stock/entrepot/record/get', name: 'stock_get_record_entrepot')]
     public function stockGetRecordEntrepot()
     {
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-
-        $entrepots = json_decode(file_get_contents($filename)) ; 
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $response = $this->renderView("stock/entrepot/getRecordsEntrepot.html.twig",[
             "entrepots" => $entrepots
@@ -1799,14 +1800,13 @@ class StockController extends AbstractController
         $currentEntrepot = $this->appService->searchData($entrepots,$search) ;
         $currentEntrepot = array_values($currentEntrepot) ;
 
-        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockInEntrepot($filename, $this->agence);
-        
-        $stockEntrepots = json_decode(file_get_contents($filename)) ; 
+        $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+            "agence" => $this->agence,
+            "filename" => $this->filename."stock_entrepot(agence)/".$this->nameAgence,
+        ]) ;
         
         $search = [
-            "idE" => is_null($id)? "" : $id,
+            "idE" => is_null($id) ? "" : $id,
         ] ;
 
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;

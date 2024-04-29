@@ -70,6 +70,71 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public static function comparaisonMultiple($a, $b) {
+        // Comparaison par entrepot
+        $result = strcmp($a['nomType'], $b['nomType']);
+        
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        // Comparaison par categorie
+        $result = strcmp($a['categorie'], $b['categorie']);
+        
+        if ($result !== 0) {
+            return $result;
+        }
+        
+        // Comparaison par nomType
+        return strcmp($a['entrepot'], $b['entrepot']);
+    }
+
+    public function encodeChiffre($chiffre) {
+        $result = dechex($chiffre) ;
+        return base64_encode($result) ;
+        // return $this->chiffrementCesar($result,7) ; 
+    }
+
+    public function generateStockInEntrepot($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $stockEntrepots = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findBy([
+                "agence" => $params["agence"],
+                "statut" => True,
+            ],[
+                "entrepot" => "ASC"
+            ]) ;
+            
+            $elements = [] ;
+    
+            foreach ($stockEntrepots as $stockEntrepot) {
+                $element = [] ;
+                $element["id"] = $stockEntrepot->getId() ;
+                $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
+                $element["idC"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getId() ;
+                $element["idP"] = $stockEntrepot->getVariationPrix()->getProduit()->getId() ;
+                $element["encodedIdVar"] = $this->encodeChiffre($stockEntrepot->getVariationPrix()->getId()) ;
+                $element["entrepot"] = $stockEntrepot->getEntrepot()->getNom() ;
+                $element["code"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
+                $element["codeProduit"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
+                $element["indice"] = !empty($stockEntrepot->getVariationPrix()->getIndice()) ? $stockEntrepot->getVariationPrix()->getIndice() : "-" ;
+                $element["categorie"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getCategorie()->getNom() ;
+                $element["nom"] = $stockEntrepot->getVariationPrix()->getProduit()->getNom() ;
+                $element["nomType"] = is_null($stockEntrepot->getVariationPrix()->getProduit()->getType()) ? "NA" : $stockEntrepot->getVariationPrix()->getProduit()->getType()->getNom() ;
+                $element["stock"] = $stockEntrepot->getStock() ;
+                $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
+                array_push($elements,$element) ;
+            }
+    
+            usort($elements, [self::class,'comparaisonMultiple']);
+    
+            file_put_contents($params["filename"],json_encode($elements)) ;
+        }
+
+        return json_decode(file_get_contents($params["filename"])) ; 
+    }
+
 //    /**
 //     * @return PrdHistoEntrepot[] Returns an array of PrdHistoEntrepot objects
 //     */

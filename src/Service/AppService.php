@@ -1463,121 +1463,127 @@ class AppService extends AbstractController
 
         foreach ($factures as $facture) {
 
-            $itemEntrepot = [] ;
+            // $itemEntrepot = [] ;
 
             $refModele = $facture->getModele()->getReference() ; 
 
+            // if($refModele == "PROD")
+            // {
+            //     $factDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            //         "facture" => $facture,
+            //         "statut" => True
+            //     ]) ;
+    
+            //     $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+            //         "agent" => $facture->getUser(),
+            //         "statut" => True
+            //     ]) ; 
+
+            //     // dd($factDetails) ;
+
+            //     foreach($factDetails as $factDetail)
+            //     {
+            //         if($factDetail->getActivite() != "Produit")
+            //             continue ;
+    
+            //         $idVariation = $factDetail->getEntite() ;
+        
+            //         $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+        
+            //         // dd($variation) ;
+
+            //         if(!is_null($affectEntrepot))
+            //         {
+            //             $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            //                 "variationPrix" => $variation,
+            //                 "entrepot" => $affectEntrepot->getEntrepot(),
+            //                 "statut" => True
+            //             ]) ;
+            //         }
+            //         else
+            //         {
+            //             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+            //                 "nom" => strtoupper($facture->getLieu()),
+            //                 "statut" => True
+            //             ]) ;
+                        
+            //             $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            //                 "variationPrix" => $variation,
+            //                 "entrepot" => $entrepot,
+            //                 "statut" => True
+            //             ]) ;
+
+            //             if(empty($histoEntrepots))
+            //             {
+            //                 $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            //                     "variationPrix" => $variation,
+            //                     "statut" => True
+            //                 ]) ;
+            //             }
+            //         }
+
+        
+            //         // dd($histoEntrepots) ;
+
+            //         $item = [] ;
+                    
+            //         $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
+
+            //         $cle = $indice."|".$variation->getPrixVente() ;
+                    
+            //         foreach($histoEntrepots as $histoEntrepot)
+            //         {
+            //             if (array_key_exists($cle, $item))
+            //             {
+            //                 $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
+            //                 $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
+            //             }
+            //             else
+            //             {
+            //                 $item[$cle] = [] ;
+            
+            //                 $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
+            //                 $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
+            //             }
+            //         }
+
+            //         if(isset($item[$cle]))
+            //         {
+            //             if(!isset($itemEntrepot["idEntrepot"]))
+            //                 $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
+            //             else
+            //                 $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
+            //         }
+            //     }
+
+            //     if(isset($itemEntrepot["idEntrepot"]))
+            //     {
+            //         // dd($itemEntrepot["idEntrepot"]) ;
+
+            //         $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
+        
+    
+            //         foreach ($itemEntrepot["idEntrepot"] as $ident) {
+            //             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
+        
+            //             if(!isset($itemEntrepot["entrepot"]))
+            //                 $itemEntrepot["entrepot"] = $entrepot->getNom() ;
+            //             else
+            //                 $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
+            //         }
+            //     }
+            // }
+
+            $entrepot = "-" ;
+            $idEntrepot = "-" ;
+
             if($refModele == "PROD")
             {
-                $factDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-                    "facture" => $facture,
-                    "statut" => True
-                ]) ;
-    
-                $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
-                    "agent" => $facture->getUser(),
-                    "statut" => True
-                ]) ;
-
-                // dd($factDetails) ;
-
-                foreach($factDetails as $factDetail)
-                {
-                    if($factDetail->getActivite() != "Produit")
-                        continue ;
-    
-                    $idVariation = $factDetail->getEntite() ;
-        
-                    $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
-        
-                    // dd($variation) ;
-
-                    if(!is_null($affectEntrepot))
-                    {
-                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                            "variationPrix" => $variation,
-                            "entrepot" => $affectEntrepot->getEntrepot(),
-                            "statut" => True
-                        ]) ;
-                    }
-                    else
-                    {
-                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
-                            "nom" => strtoupper($facture->getLieu()),
-                            "statut" => True
-                        ]) ;
-                        
-                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                            "variationPrix" => $variation,
-                            "entrepot" => $entrepot,
-                            "statut" => True
-                        ]) ;
-
-                        if(empty($histoEntrepots))
-                        {
-                            $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                                "variationPrix" => $variation,
-                                "statut" => True
-                            ]) ;
-                        }
-                    }
-
-        
-                    // dd($histoEntrepots) ;
-
-                    $item = [] ;
-                    
-                    $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
-
-                    $cle = $indice."|".$variation->getPrixVente() ;
-                    
-                    foreach($histoEntrepots as $histoEntrepot)
-                    {
-                        if (array_key_exists($cle, $item))
-                        {
-                            $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
-                        }
-                        else
-                        {
-                            $item[$cle] = [] ;
-            
-                            $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
-                        }
-                    }
-
-                    if(isset($item[$cle]))
-                    {
-                        if(!isset($itemEntrepot["idEntrepot"]))
-                            $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
-                        else
-                            $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
-                    }
-                }
-
-                if(isset($itemEntrepot["idEntrepot"]))
-                {
-                    // dd($itemEntrepot["idEntrepot"]) ;
-
-                    $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
-        
-    
-                    foreach ($itemEntrepot["idEntrepot"] as $ident) {
-                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
-        
-                        if(!isset($itemEntrepot["entrepot"]))
-                            $itemEntrepot["entrepot"] = $entrepot->getNom() ;
-                        else
-                            $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
-                    }
-                }
+                $entrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getNom();
+                $idEntrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getId();
             }
 
             $element = [] ;
-
-            $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
-            $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "-" ;
 
             $specification = "NONE" ; 
             $element["id"] = $facture->getId() ;
@@ -3206,109 +3212,117 @@ class AppService extends AbstractController
                 "statut" => True
             ]) ;
 
-            $itemEntrepot = [] ;
+            // $itemEntrepot = [] ;
+
+            // if($refModele == "PROD")
+            // {
+            //     $factDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
+            //         "facture" => $facture,
+            //         "statut" => True
+            //     ]) ;
+    
+            //     // dd($factDetails) ;
+
+            //     foreach($factDetails as $factDetail)
+            //     {
+            //         if($factDetail->getActivite() != "Produit")
+            //             continue ;
+    
+            //         $idVariation = $factDetail->getEntite() ;
+        
+            //         $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+        
+            //         // dd($variation) ;
+
+            //         if(!is_null($affectEntrepot))
+            //         {
+            //             $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            //                 "variationPrix" => $variation,
+            //                 "entrepot" => $affectEntrepot->getEntrepot(),
+            //                 "statut" => True
+            //             ]) ;
+            //         }
+            //         else
+            //         {
+            //             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+            //                 "nom" => strtoupper($facture->getLieu()),
+            //                 "statut" => True
+            //             ]) ;
+                        
+            //             $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            //                 "variationPrix" => $variation,
+            //                 "entrepot" => $entrepot,
+            //                 "statut" => True
+            //             ]) ;
+
+            //             if(empty($histoEntrepots))
+            //             {
+            //                 $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            //                     "variationPrix" => $variation,
+            //                     "statut" => True
+            //                 ]) ;
+            //             }
+            //         }
+
+        
+            //         // dd($histoEntrepots) ;
+
+            //         $item = [] ;
+                    
+            //         $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
+
+            //         $cle = $indice."|".$variation->getPrixVente() ;
+                    
+            //         foreach($histoEntrepots as $histoEntrepot)
+            //         {
+            //             if (array_key_exists($cle, $item))
+            //             {
+            //                 $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
+            //                 $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
+            //             }
+            //             else
+            //             {
+            //                 $item[$cle] = [] ;
+            
+            //                 $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
+            //                 $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
+            //             }
+            //         }
+
+            //         if(!isset($itemEntrepot["idEntrepot"]))
+            //             $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
+            //         else
+            //             $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
+            //     }
+
+            //     if(isset($itemEntrepot["idEntrepot"]))
+            //     {
+            //         // dd($itemEntrepot["idEntrepot"]) ;
+
+            //         $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
+        
+            //         foreach ($itemEntrepot["idEntrepot"] as $ident) {
+            //             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
+        
+            //             if(!isset($itemEntrepot["entrepot"]))
+            //                 $itemEntrepot["entrepot"] = $entrepot->getNom() ;
+            //             else
+            //                 $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
+            //         }
+            //     } 
+            // }
+
+            // $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
+            // $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "-" ;
+
+            $entrepot = "-" ;
+            $idEntrepot = "-" ;
 
             if($refModele == "PROD")
             {
-                $factDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
-                    "facture" => $facture,
-                    "statut" => True
-                ]) ;
-    
-                // dd($factDetails) ;
-
-                foreach($factDetails as $factDetail)
-                {
-                    if($factDetail->getActivite() != "Produit")
-                        continue ;
-    
-                    $idVariation = $factDetail->getEntite() ;
-        
-                    $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
-        
-                    // dd($variation) ;
-
-                    if(!is_null($affectEntrepot))
-                    {
-                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                            "variationPrix" => $variation,
-                            "entrepot" => $affectEntrepot->getEntrepot(),
-                            "statut" => True
-                        ]) ;
-                    }
-                    else
-                    {
-                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
-                            "nom" => strtoupper($facture->getLieu()),
-                            "statut" => True
-                        ]) ;
-                        
-                        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                            "variationPrix" => $variation,
-                            "entrepot" => $entrepot,
-                            "statut" => True
-                        ]) ;
-
-                        if(empty($histoEntrepots))
-                        {
-                            $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                                "variationPrix" => $variation,
-                                "statut" => True
-                            ]) ;
-                        }
-                    }
-
-        
-                    // dd($histoEntrepots) ;
-
-                    $item = [] ;
-                    
-                    $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
-
-                    $cle = $indice."|".$variation->getPrixVente() ;
-                    
-                    foreach($histoEntrepots as $histoEntrepot)
-                    {
-                        if (array_key_exists($cle, $item))
-                        {
-                            $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
-                        }
-                        else
-                        {
-                            $item[$cle] = [] ;
-            
-                            $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
-                            $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
-                        }
-                    }
-
-                    if(!isset($itemEntrepot["idEntrepot"]))
-                        $itemEntrepot["idEntrepot"] = $item[$cle]["idEntrepot"] ;
-                    else
-                        $itemEntrepot["idEntrepot"] = array_merge($itemEntrepot["idEntrepot"],$item[$cle]["idEntrepot"]) ;
-                }
-
-                if(isset($itemEntrepot["idEntrepot"]))
-                {
-                    // dd($itemEntrepot["idEntrepot"]) ;
-
-                    $itemEntrepot["idEntrepot"] = array_unique($itemEntrepot["idEntrepot"]) ;
-        
-                    foreach ($itemEntrepot["idEntrepot"] as $ident) {
-                        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($ident) ;
-        
-                        if(!isset($itemEntrepot["entrepot"]))
-                            $itemEntrepot["entrepot"] = $entrepot->getNom() ;
-                        else
-                            $itemEntrepot["entrepot"] .= ", ".$entrepot->getNom() ;
-                    }
-                } 
+                $entrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getNom();
+                $idEntrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getId();
             }
-
-
-            $entrepot = !empty($itemEntrepot) ? $itemEntrepot["entrepot"] : "-" ;
-            $idEntrepot = !empty($itemEntrepot) ? $itemEntrepot["idEntrepot"] : "-" ;
 
             $element["id"] = $annulation->id ;
             $element["idC"] = $facture->getClient()->getId() ;
