@@ -91,7 +91,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 {
                     // DEBUT VRAI
     
-                    $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+                    $entrepotObj = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
                         "nom" => strtoupper($facture->getLieu()),
                         "statut" => True
                     ]) ;
