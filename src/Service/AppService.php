@@ -152,7 +152,7 @@ class AppService extends AbstractController
     public function checkUrl()
     {
         ini_set('memory_limit', '1024M');
-        ini_set('max_execution_time', '600');
+        ini_set('max_execution_time', '1600');
         $allowUrl = true ;
         $user = $this->session->get("user") ;
         if(!isset($user))
@@ -880,9 +880,15 @@ class AppService extends AbstractController
         {
             $prefProd = $stockGenerale->getPreference() ;
             if(!isset($stockCats[strtolower($prefProd->getCategorie()->getNom())]))
+            {
                 $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"] = $stockGenerale->getStock() ;
+                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["encodedId"] = $this->encodeChiffre($prefProd->getId()) ;
+            }
             else
+            {
                 $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"]  += $stockGenerale->getStock() ;
+                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["encodedId"] = $this->encodeChiffre($prefProd->getId()) ;
+            }
         }
 
         file_put_contents($filename,json_encode($stockCats)) ;

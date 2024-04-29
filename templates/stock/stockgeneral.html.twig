@@ -13,7 +13,7 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/listStock.js')}}" ></script>
 {% endblock %}
 {% block body %}
-<div class="barre_top rounded shadow mb-5">
+<div class="barre_top rounded shadow mb-5"> 
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
             {{titlePage}}
@@ -52,8 +52,8 @@
             </div> #}
         </div>
         <div class="w-100 contentTableStock mt-4">
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered table-hover">
+            <div class="table-responsive limit_tbody overflow-auto ">
+                <table class="table table-sm table-bordered  table-hover">
                     <thead class="thead-light">
                         <tr>
                             <th>Catégorie</th>
