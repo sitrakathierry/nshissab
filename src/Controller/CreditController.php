@@ -84,6 +84,8 @@ class CreditController extends AbstractController
 
         $entrepots = json_decode(file_get_contents($filename)) ; 
 
+        dd($credits) ;
+
         return $this->render('credit/consultationCredit.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Consultation Credit",

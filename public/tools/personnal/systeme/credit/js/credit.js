@@ -150,7 +150,7 @@ $(document).ready(function(){
     {
       name: "idE",
       action: "change",
-      selector: "#fact_search_entrepot",
+      selector: "#fact_search_entrepot_credit",
     },
     {
       name: "currentDate",
@@ -202,8 +202,7 @@ $(document).ready(function(){
         var formattedDate = day + "/" + month + "/" + year;
 
         $(".elem_date").html(
-          `
-                    <input type="hidden" id="date_actuel" name="date_actuel" value="` +
+          ` <input type="hidden" id="date_actuel" name="date_actuel" value=" ` +
             formattedDate +
             `">
                 `
@@ -231,7 +230,7 @@ $(document).ready(function(){
   function searchFinance() {
     var instance = new Loading(files.search);
     $(".elem_finance").html(instance.search(11));
-    var formData = new FormData();
+    var formData = new FormData(); 
     for (let j = 0; j < elemSearch.length; j++) {
       const search = elemSearch[j];
       formData.append(search.name, $(search.selector).val());

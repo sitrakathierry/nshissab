@@ -44,8 +44,8 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="fact_search_entrepot" class="mt-2 font-weight-bold w-100 text-uppercase">Entrepot</label>
-                <select name="fact_search_entrepot" class="custom-select chosen_select custom-select-sm" id="fact_search_entrepot">
+                <label for="fact_search_entrepot_credit" class="mt-2 font-weight-bold w-100 text-uppercase">Entrepot</label>
+                <select name="fact_search_entrepot_credit" class="custom-select chosen_select custom-select-sm" id="fact_search_entrepot_credit">
                     <option value="">TOUS</option>
                     {% for entrepot in entrepots %}
                         <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
@@ -207,7 +207,7 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </div> 
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
