@@ -103,7 +103,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     }
                     else
                     {
-                        $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                        $affectEntrepot = $this->getEntityManager()->getRepository(PrdEntrpAffectation::class)->findOneBy([
                             "agent" => $facture->getUser(),
                             "statut" => True
                         ]) ; 
@@ -115,7 +115,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         }
                         else
                         {
-                            $factDetail = $this->entityManager->getRepository(FactDetails::class)->findOneBy([
+                            $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneBy([
                                 "facture" => $facture,
                                 "statut" => True
                             ]) ;
@@ -124,7 +124,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                             {
                                 $idVariation = $factDetail->getEntite() ;
             
-                                $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+                                $variation = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($idVariation) ;
     
                                 $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
                                     "variationPrix" => $variation,
@@ -136,13 +136,13 @@ class CrdFinanceRepository extends ServiceEntityRepository
                             }
                             else
                             {
-                                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
                                     "agence" => $this->agence,
                                     "statut" => True
                                 ]) ;
     
-                                $entrepot = $histoEntrepot->getEntrepot()->getNom();
-                                $idEntrepot = $histoEntrepot->getEntrepot()->getId();
+                                $entrepot = $histoEntrepot->getEntrepot()->getNom() ;
+                                $idEntrepot = $histoEntrepot->getEntrepot()->getId() ;
                             }
                         }
     
