@@ -204,6 +204,7 @@ $(document).ready(function(){
         var appro_indice = $("#appro_indice").val() == "" ? "-" : $("#appro_indice").val()
         var appro_quantite = $("#appro_quantite").val()
         var appro_fournisseur = $("#appro_fournisseur").val()
+
         appro_fournisseur = appro_fournisseur.filter(function(element) {
             return element !== ""; // Retourne true si l'élément n'est pas une chaîne vide
         });
@@ -442,7 +443,7 @@ $(document).ready(function(){
                         var options = '<option value=""></option>'
                         for (let i = 0; i < resp.produitEntrepots.length; i++) {
                             const elementP = resp.produitEntrepots[i];
-                            options += '<option value="'+elementP.id+'">'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                            options += '<option value="'+elementP.idP+'">'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
                         }
 
                         $("#appro_search_produit").html(options) ;
@@ -452,6 +453,7 @@ $(document).ready(function(){
             })
         })
     }
+
     approSearchEntrepot()
 
     $("#appro_search_produit").change(function(){

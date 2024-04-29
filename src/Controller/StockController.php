@@ -1264,7 +1264,7 @@ class StockController extends AbstractController
         ]) ;
         
         $search = [
-            "idE" => $idE,
+            "idE" => $idE, 
         ] ;
 
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
@@ -2257,7 +2257,7 @@ class StockController extends AbstractController
 
         return $this->render('stock/approvisionnement/ajouter.html.twig', [
             "filename" => "stock",
-            "titlePage" => "Approvisionnement des Produits",
+            "titlePage" => "Approvisionnement des Produits", 
             "with_foot" => true,
             "stockGenerales" => $stockGenerales,
             "entrepots" => $entrepots,

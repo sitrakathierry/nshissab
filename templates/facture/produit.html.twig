@@ -32,7 +32,8 @@
                     <select class="custom-select custom-select-sm chosen_select fact_mod_prod_designation" name="fact_mod_prod_designation" id="fact_mod_prod_designation" >
                         <option value="">-</option>
                         {% for stockGeneral in stockGenerales %}
-                            <option value="{{stockGeneral.id}}" data-stock="{{stockGeneral.stock}}" >{{stockGeneral.codeProduit}} | {{stockGeneral.nomType|upper}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
+                            {% set idProduit = indiceEntrepot ? stockGeneral.idP : stockGeneral.id %}
+                            <option value="{{idProduit}}" data-stock="{{stockGeneral.stock}}" >{{stockGeneral.codeProduit}} | {{stockGeneral.nomType|upper}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
                         {% endfor %}
                     </select>  
                 </div>

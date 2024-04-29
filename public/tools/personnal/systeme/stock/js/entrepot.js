@@ -94,7 +94,7 @@ $(document).ready(function(){
                 var options = '<option value="">-</option>'
                 for (let i = 0; i < response.produitEntrepots.length; i++) {
                     const elementP = response.produitEntrepots[i];
-                    options += '<option value="'+elementP.id+'" data-stock="'+elementP.stock+'" >'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                    options += '<option value="'+elementP.idP+'" data-stock="'+elementP.stock+'" >'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
                 }
 
                 $("#trans_produit_source").html(options) ;
