@@ -93,6 +93,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
     
                     $entrepotObj = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
                         "nom" => strtoupper($facture->getLieu()),
+                        "agence" => $params["agence"],
                         "statut" => True
                     ]) ;
     

@@ -1479,6 +1479,7 @@ class AppService extends AbstractController
 
                 $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
                     "nom" => strtoupper($facture->getLieu()),
+                    "agence" => $agence,
                     "statut" => True
                 ]) ;
 
@@ -1852,6 +1853,7 @@ class AppService extends AbstractController
 
                 $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
                     "nom" => strtoupper($facture->getLieu()),
+                    "agence" => $agence,
                     "statut" => True
                 ]) ;
 
@@ -1904,7 +1906,6 @@ class AppService extends AbstractController
                             $idEntrepot = $histoEntrepot->getEntrepot()->getId();
                         }
                     }
-
                 }
 
                 // FIN VRAI
@@ -3259,6 +3260,7 @@ class AppService extends AbstractController
 
                 $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
                     "nom" => strtoupper($facture->getLieu()),
+                    "agence" => $facture->getAgence(),
                     "statut" => True
                 ]) ;
 
