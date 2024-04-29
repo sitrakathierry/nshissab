@@ -77,12 +77,20 @@ class CreditController extends AbstractController
             "classement" => "CR"
         ],["rang" => "ASC"]) ;
 
+        $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
+        
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
         return $this->render('credit/consultationCredit.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Consultation Credit",
             "with_foot" => false,
             "clients" => $clients, 
             "critereDates" => $critereDates,
+            "entrepots" => $entrepots,
             "credits" => $credits,
             "crdStatuts" => $crdStatuts,
             "refPaiement" => "CR"
@@ -125,7 +133,7 @@ class CreditController extends AbstractController
     }
 
     #[Route('/credit/suivi/general/items/search', name: 'credit_search_suivi_items')]
-    public function crdSearchItemsSuiviCreditGeneral(Request $request)
+    public function crdSearchItemsSuiviCreditGeneral(Request $request) 
     {
         $finances = $this->entityManager->getRepository(CrdFinance::class)->generateSuiviGeneralCredit([
             "filename" => $this->filename."suiviCredit(agence)/".$this->nameAgence,
@@ -745,6 +753,13 @@ class CreditController extends AbstractController
             "classement" => "AC"
         ],["rang" => "ASC"]) ;
 
+        $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
+        
+        if(!file_exists($filename))  
+            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+
+        $entrepots = json_decode(file_get_contents($filename)) ; 
+
         return $this->render('credit/consultationCredit.html.twig', [
             "filename" => "credit",
             "titlePage" => "Consultation Acompte",
@@ -752,6 +767,7 @@ class CreditController extends AbstractController
             "clients" => $clients,
             "critereDates" => $critereDates,
             "credits" => $credits,
+            "entrepots" => $entrepots,
             "crdStatuts" => $crdStatuts,
             "refPaiement" => "AC"
         ]);
@@ -817,6 +833,7 @@ class CreditController extends AbstractController
 
         $statut = $request->request->get('statut') ;
         $idC = $request->request->get('idC') ;
+        $idE = $request->request->get('idE') ;
         $currentDate = $request->request->get('currentDate') ;
         $dateFacture = $request->request->get('dateFacture') ;
         $dateDebut = $request->request->get('dateDebut') ;
@@ -828,6 +845,7 @@ class CreditController extends AbstractController
             "refPaiement" => $refPaiement,
             "idStatut" => $statut,
             "idC" => $idC,
+            "idE" => $idE,
             "currentDate" => $currentDate,
             "dateFacture" => $dateFacture,
             "dateDebut" => $dateDebut,
@@ -851,7 +869,7 @@ class CreditController extends AbstractController
         ]) ;
 
         return new Response($response) ; 
-    }
+    } 
 
     #[Route('/credit/definitif/switch', name: 'crd_credit_basculer_definitif')]
     public function crdSwitchDefinitif($acompte)

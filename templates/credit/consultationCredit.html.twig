@@ -43,6 +43,15 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="col-md-3">
+                <label for="fact_search_entrepot" class="mt-2 font-weight-bold w-100 text-uppercase">Entrepot</label>
+                <select name="fact_search_entrepot" class="custom-select chosen_select custom-select-sm" id="fact_search_entrepot">
+                    <option value="">TOUS</option>
+                    {% for entrepot in entrepots %}
+                        <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
              <div class="col-md-3">
                 <label for="fact_search_date" class="mt-2 font-weight-bold w-100 text-uppercase">Date</label>
                 <select name="fact_search_date" class="custom-select chosen_select fact_search_date custom-select-sm" id="fact_search_date">
@@ -69,6 +78,7 @@
                         <th>Date</th>
                         <th>N° Credit</th>
                         <th>Client</th>
+                        <th>Entrepot</th>
                         <th>Designation</th>
                         <th>Qte</th>
                         <th>Prix HT</th>

@@ -148,6 +148,11 @@ $(document).ready(function(){
       selector: "#fact_search_client",
     },
     {
+      name: "idE",
+      action: "change",
+      selector: "#fact_search_entrepot",
+    },
+    {
       name: "currentDate",
       action: "change",
       selector: "#date_actuel",

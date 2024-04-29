@@ -1841,6 +1841,84 @@ class AppService extends AbstractController
             $facture = $finance->getFacture() ;
             $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;
 
+            $refModele = $facture->getModele()->getReference() ; 
+
+            $entrepot = "-" ;
+            $idEntrepot = "-" ;
+
+            if($refModele == "PROD")
+            {
+                // DEBUT VRAI
+
+                $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+                    "nom" => strtoupper($facture->getLieu()),
+                    "statut" => True
+                ]) ;
+
+                if(!is_null($entrepotObj))
+                {
+                    $entrepot = $entrepotObj->getNom();
+                    $idEntrepot = $entrepotObj->getId();
+                }
+                else
+                {
+                    $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                        "agent" => $facture->getUser(),
+                        "statut" => True
+                    ]) ; 
+    
+                    if(!is_null($affectEntrepot))
+                    {
+                        $entrepot = $affectEntrepot->getEntrepot()->getNom();
+                        $idEntrepot = $affectEntrepot->getEntrepot()->getId();
+                    }
+                    else
+                    {
+                        $factDetail = $this->entityManager->getRepository(FactDetails::class)->findOneBy([
+                            "facture" => $facture,
+                            "statut" => True
+                        ]) ;
+
+                        if(!is_null($factDetail))
+                        {
+                            $idVariation = $factDetail->getEntite() ;
+        
+                            $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+
+                            $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                "variationPrix" => $variation,
+                                "statut" => True
+                            ]) ;
+
+                            $entrepot = $histoEntrepot->getEntrepot()->getNom();
+                            $idEntrepot = $histoEntrepot->getEntrepot()->getId();
+                        }
+                        else
+                        {
+                            $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                "agence" => $this->agence,
+                                "statut" => True
+                            ]) ;
+
+                            $entrepot = $histoEntrepot->getEntrepot()->getNom();
+                            $idEntrepot = $histoEntrepot->getEntrepot()->getId();
+                        }
+                    }
+
+                }
+
+                // FIN VRAI
+            }
+
+            if(!is_null($facture->getEntrepot()))
+            {
+                if($refModele == "PROD")
+                {
+                    $entrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getNom();
+                    $idEntrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getId();
+                }
+            }
+
             $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findBy([
                 "statut" => True,
                 "facture" => $finance->getFacture()
@@ -1864,6 +1942,8 @@ class AppService extends AbstractController
                 $element["idStatut"] = $finance->getStatut()->getId() ;
                 $element["refPaiement"] = $finance->getPaiement()->getReference() ;
                 $element["idC"] = $facture->getClient()->getId() ;
+                $element["entrepot"] = $entrepot;
+                $element["idE"] = $idEntrepot ;
                 $element["mois"] = $facture->getDate()->format('m')   ;
                 $element["annee"] = $facture->getDate()->format('Y')   ;
                 $element["currentDate"] = $facture->getDate()->format('d/m/Y')  ;
