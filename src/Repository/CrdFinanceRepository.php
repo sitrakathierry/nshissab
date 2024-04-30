@@ -118,6 +118,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         {
                             $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneBy([
                                 "facture" => $facture,
+                                "activite" => "Produit",
                                 "statut" => True
                             ]) ;
     
