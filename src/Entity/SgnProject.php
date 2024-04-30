@@ -23,14 +23,8 @@ class SgnProject
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $dateSignal = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updatedAt = null;
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $dateSignal = null;
 
     public function getId(): ?int
     {
@@ -73,38 +67,14 @@ class SgnProject
         return $this;
     }
 
-    public function getDateSignal(): ?\DateTimeInterface
+    public function getDateSignal(): ?string
     {
         return $this->dateSignal;
     }
 
-    public function setDateSignal(?\DateTimeInterface $dateSignal): self
+    public function setDateSignal(?string $dateSignal): self
     {
         $this->dateSignal = $dateSignal;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }
