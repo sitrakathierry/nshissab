@@ -1492,7 +1492,6 @@ class AppService extends AbstractController
                 {
                     $affectEntrepot = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
                         "agent" => $facture->getUser(),
-                        "activite" => "Produit",
                         "statut" => True
                     ]) ; 
     
@@ -1880,6 +1879,7 @@ class AppService extends AbstractController
                     {
                         $factDetail = $this->entityManager->getRepository(FactDetails::class)->findOneBy([
                             "facture" => $facture,
+                            "activite" => "Produit",
                             "statut" => True
                         ]) ;
 
