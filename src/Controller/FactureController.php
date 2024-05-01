@@ -2011,7 +2011,10 @@ class FactureController extends AbstractController
             $facture->setTicketCaisse($caisseCommande) ;
         }
 
-        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($fact_mod_prod_entrepot) ;
+        if(isset($fact_mod_prod_entrepot) || !empty($fact_mod_prod_entrepot))
+            $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($fact_mod_prod_entrepot) ;
+        else
+            $entrepot = null ;
 
         $facture->setAgence($this->agence) ;
         $facture->setUser($this->userObj) ;
