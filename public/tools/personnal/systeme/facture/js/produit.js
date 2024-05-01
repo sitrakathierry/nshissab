@@ -199,35 +199,37 @@ $(document).ready(function(){
         //     }
         // }
 
-        if(fact_mod_prod_type != "autre" && fact_mod_prod_entrepot == "" && $(".fact_btn_modele.btn-warning").data("indice") == "PROD")
+        if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
         {
-            $.alert({
-                title: 'Entrepot vide',
-                content: "Veuillez seléctionner un entrepot",
-                type:'orange',
-            })
-            return false ;
-        }
-
-        isDifferent = false ;
-
-        $(".elem_facture_produit tr").each(function(){
-            if($(this).find(".fact_enr_prod_entrepot").val() != fact_mod_prod_entrepot)
+            if(fact_mod_prod_type != "autre" && fact_mod_prod_entrepot == "" && $(".fact_btn_modele.btn-warning").data("indice") == "PROD")
             {
-                isDifferent = true ;
+                $.alert({
+                    title: 'Entrepot vide',
+                    content: "Veuillez seléctionner un entrepot",
+                    type:'orange',
+                })
                 return false ;
             }
-        }) ;
-
-        if(isDifferent)
-        {
-            $.alert({
-                title: 'Entrepot Différent',
-                content: "Un seul entrepot pour une facture. Ne changez pas d'entrepot",
-                type:'orange',
+    
+            isDifferent = false ;
+            $(".elem_facture_produit tr").each(function(){
+                if($(this).find(".fact_enr_prod_entrepot").val() != fact_mod_prod_entrepot)
+                {
+                    isDifferent = true ;
+                    return false ;
+                }
             }) ;
-
-            return false ;
+    
+            if(isDifferent)
+            {
+                $.alert({
+                    title: 'Entrepot Différent',
+                    content: "Un seul entrepot pour une facture. Ne changez pas d'entrepot",
+                    type:'orange',
+                }) ;
+    
+                return false ;
+            }
         }
 
         var fact_text_type = fact_mod_prod_type == "autre" ? "Autre" : fact_mod_prod_type
