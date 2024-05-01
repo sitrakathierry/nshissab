@@ -269,6 +269,8 @@ class FactureController extends AbstractController
             "statut" => True
         ]) ;
 
+        $stockEntrepots = [] ;
+
         if(empty($affectEntrepots))
         {
             // Si l'utilisateur n'a aucun entrepots
@@ -315,14 +317,14 @@ class FactureController extends AbstractController
             
                     $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
 
-                    $stockGenerales = array_values($stockEntrepots) ;
+                    $stockEntrepots = array_values($stockEntrepots) ;
                 }
             }
         }
 
         $responses = $this->renderView("facture/produit.html.twig",[
-            "stockGenerales" => $stockGenerales,
-            "indiceEntrepot" => count($entrepots) == 1 ? True : False,
+            "stockGenerales" => empty($stockEntrepots) ? $stockGenerales : $stockEntrepots,
+            "indiceEntrepot" => !empty($stockEntrepots) ? True : False,
             "devises" => $devises, 
             "agcDevise" => $agcDevise,
             "entrepots" => $entrepots,

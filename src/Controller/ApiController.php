@@ -341,8 +341,6 @@ class ApiController extends AbstractController
             return new Response("") ;
         }
 
-
-
         // $clientId = empty($request->request->get("userId")) ? NULL : $request->request->get("userId") ;
         $clientId = null ;
 
