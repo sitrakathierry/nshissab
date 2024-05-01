@@ -818,8 +818,8 @@ class ApiController extends AbstractController
         // Décodez le chemin du fichier PDF
         // $pdfFilePath = 'files/FICHE_DE_PAIE.pdf';
 
-        $motDePasse = rawurlencode("2yzt4Z7pprzC") ;
-        $userName = rawurlencode("contact.hikamsm@hikamsm.com") ;
+        $motDePasse = rawurlencode("Hikammadamayottemoroni022") ;
+        $userName = rawurlencode("hikamsocietemultiple@gmail.com") ;
 
         // Create a Transport object
         $transport = Transport::fromDsn('smtp://'.$userName.':'.$motDePasse.'@ssl0.ovh.net:587');
@@ -831,7 +831,7 @@ class ApiController extends AbstractController
         $email = (new Email());
         
         // Set the "From address"
-        $email->from('contact.hikamsm@hikamsm.com');
+        $email->from('hikamsocietemultiple@gmail.com');
         
         // Set the "From address"
         $email->to($mailDestinataire);
