@@ -9,8 +9,13 @@ use Stancer\Config;
 use Stancer\Customer;
 use Stancer\Payment;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\Email;
+
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
@@ -794,6 +799,7 @@ class ApiController extends AbstractController
     public function apiDownloadFilePdf(Request $request)
     {
         $fichiersHtml = $request->request->get("fichiersHtml") ;
+        $mailDestinataire = $request->request->get("mailDestinataire") ;
 
         $contentIMpression = $this->renderView("api/commande/resumeeCommande.html.twig",[
             "fichiersHtml" => $fichiersHtml,
@@ -803,11 +809,55 @@ class ApiController extends AbstractController
 
         $pdfGenService = new PdfGenService() ;
 
-        $filePath = $pdfGenService->generateApiPdf($contentIMpression) ;
+        $pdfFilePath = $pdfGenService->generateApiPdf($contentIMpression) ;
 
-        echo $filePath ;
+        // $destinataire = $request->request->get("destinataire") ;
 
-        return new Response() ;
+        $message = $request->request->get("message") ;
+
+        // Décodez le chemin du fichier PDF
+        // $pdfFilePath = 'files/FICHE_DE_PAIE.pdf';
+
+        $motDePasse = rawurlencode("HMayotte@00") ;
+        $userName = rawurlencode("contactmayotte@hikamsm.com") ;
+
+        // Create a Transport object
+        $transport = Transport::fromDsn('smtp://'.$userName.':'.$motDePasse.'@ssl0.ovh.net:587');
+        
+        // Create a Mailer object
+        $mailer = new Mailer($transport); 
+        
+        // Create an Email object
+        $email = (new Email());
+        
+        // Set the "From address"
+        $email->from('contactmayotte@hikamsm.com');
+        
+        // Set the "From address"
+        $email->to($mailDestinataire);
+        
+        // Set a "subject"
+        $email->subject('');
+        
+        // Set the plain-text "Body"
+        $email->text($message);
+        
+        // Set HTML "Body"
+        // $email->html('This is the HTML version of the message.<br>Example of inline image:<br><img src="cid:nature" width="200" height="200"><br>Thanks,<br>Admin');
+        
+        // Add an "Attachment"
+        $email->attachFromPath($pdfFilePath);
+        
+        // Add an "Image"
+        // $email->embed(fopen('/path/to/mailor.jpg', 'r'), 'nature');
+        
+        // Send the message
+        $mailer->send($email);
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "fichier envoyé"
+        ]) ;
     }
 
     #[Route('/files/tempPdf/file_api_pdf.pdf', name: 'app_api_valid_file_pdf_download')]

@@ -325,7 +325,7 @@ class FactureController extends AbstractController
         $responses = $this->renderView("facture/produit.html.twig",[
             "stockGenerales" => empty($stockEntrepots) ? $stockGenerales : $stockEntrepots,
             "indiceEntrepot" => !empty($stockEntrepots) ? True : False,
-            "devises" => $devises, 
+            "devises" => $devises,
             "agcDevise" => $agcDevise,
             "entrepots" => $entrepots,
             "typeRemises" => $typeRemises,
