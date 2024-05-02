@@ -822,7 +822,7 @@ class ApiController extends AbstractController
         $motDePasse = rawurlencode("Hikammadamayottemoroni022") ;
 
         // Create a Transport object
-        $transport = Transport::fromDsn('smtp://'.$userName.':'.$motDePasse.'@mail.hikamsm.com:587');
+        $transport = Transport::fromDsn('smtp://'.$userName.':'.$motDePasse.'@smtp.gmail.com:587');
         
         // Create a Mailer object
         $mailer = new Mailer($transport); 
@@ -831,7 +831,7 @@ class ApiController extends AbstractController
         $email = (new Email());
         
         // Set the "From address"
-        $email->from('contactmayotte@hikamsm.com');
+        $email->from('hikamsocietemultiple@gmail.com');
         
         // Set the "From address"
         $email->to($mailDestinataire);
