@@ -550,7 +550,7 @@ class StockController extends AbstractController
         $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
             "agence" => $this->agence,
         ]) ;
-        
+
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generatePrdType($filename,$this->agence) ;
@@ -3104,16 +3104,17 @@ class StockController extends AbstractController
             "statut" => True
         ]) ;
     
-        $variation["entrepots"] = [] ;
+        // $variation["entrepots"] = [] ;
     
-        foreach ($histoEntrepots as $histoEntrepot) {
+        foreach ($histoEntrepots as $histoEntrepot) 
+        {
             $item = [] ;
 
             $item["id"] = $histoEntrepot->getId();
             $item["entrepot"] = $histoEntrepot->getEntrepot()->getNom() ;
             $item["stock"] = $histoEntrepot->getStock() ;
 
-            array_push($variation["entrepots"],$item) ;
+            $variation["entrepots"][] = $item ;
         }
 
         $response = $this->renderView("stock/general/detailsVariation.html.twig",[
