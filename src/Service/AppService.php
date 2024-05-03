@@ -3934,10 +3934,6 @@ class AppService extends AbstractController
     
                 $stockAddVariation += floatval($savDetail["totalSavVariation"]) ;
 
-                $variationPrixToUpdate = $this->entityManager->getRepository(PrdVariationPrix::class)->find($variationPrix->getId()) ;
-                $variationPrixToUpdate->setStock($stockAddVariation - $stockRemoveVariation) ;
-                $this->entityManager->flush() ;
-
                 foreach ($arrHistoEntrepots as $arrHistoEntrepot) {
                     $histoEntrepotToUpdate = $this->entityManager->getRepository(PrdHistoEntrepot::class)->find($arrHistoEntrepot["id"]) ;
                     
@@ -3973,6 +3969,8 @@ class AppService extends AbstractController
                         $histoEntrepotToUpdate->setStock(0) ;
 
                         $this->entityManager->flush() ;
+
+                        $stockAddVariation += $totalStockEntrepot ;
                     }
                     else
                     {
@@ -3981,6 +3979,10 @@ class AppService extends AbstractController
                     
                     $this->entityManager->flush() ;
                 }
+
+                $variationPrixToUpdate = $this->entityManager->getRepository(PrdVariationPrix::class)->find($variationPrix->getId()) ;
+                $variationPrixToUpdate->setStock($stockAddVariation - $stockRemoveVariation) ;
+                $this->entityManager->flush() ;
                 
                 $stockRemoveProduit += $stockRemoveVariation ;
                 $stockAddProduit += $stockAddVariation ;
