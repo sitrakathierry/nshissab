@@ -125,8 +125,8 @@ class FactureRepository extends ServiceEntityRepository
                         "statut" => True
                     ]) ;
 
-                    if($agence->getId() == 24)
-                        dd($variation) ;
+                    // if($agence->getId() == 24)
+                    //     dd($variation) ;
 
                     // if(is_null($histoEntrepot))
                     // {
