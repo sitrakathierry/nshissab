@@ -2685,7 +2685,7 @@ class StockController extends AbstractController
             // dd($variationPrix) ;
 
             $listes = array_merge($listes,$savDetails) ;
-        }
+        } 
 
         // dd($factureVariations) ;
         
