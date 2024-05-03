@@ -2638,11 +2638,18 @@ class StockController extends AbstractController
                 //     "facture" => $factureDefinitive->getId(),
                 //     "variationPrix" => $variationPrix->getId(),
                 // ]) ;
+
+                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    "variationPrix" => $variationPrix->getId(),
+                    "entrepot" => $factureDefinitive->getEntrepot(),
+                    "statut" => True
+                ]) ;
+
                 foreach($factureVariations as $factureVariation)
                 {
                     $item = [] ;
                     $item["date"] = $factureVariation->getFacture()->getDate()->format("d/m/Y");
-                    $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                    $item["entrepot"] = $histoEntrepot->getEntrepot()->getNom() ; ;
                     $item["produit"] = $factureVariation->getDesignation() ;
                     $item["quantite"] = $factureVariation->getQuantite() ;
                     $item["prix"] = $factureVariation->getPrix() ;
