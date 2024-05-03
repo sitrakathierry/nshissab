@@ -3710,7 +3710,34 @@ class AppService extends AbstractController
                         $this->entityManager->persist($approvisionnement) ;
                         $this->entityManager->flush() ;
                     }
+                    else if($histoEntrepot->getStock() < 0)
+                    {
+                        $approvisionnement = new PrdApprovisionnement() ;
     
+                        $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ; // Par défaut Montant
+    
+                        $approvisionnement->setAgence($this->agence) ;
+                        $approvisionnement->setUser($this->userObj) ;
+                        $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                        $approvisionnement->setVariationPrix($variationPrix) ;
+                        $approvisionnement->setMargeType($margeType) ;
+                        $approvisionnement->setQuantite(abs($histoEntrepot->getStock())) ;
+                        $approvisionnement->setPrixAchat(NULL) ;
+                        $approvisionnement->setCharge(NULL) ;
+                        $approvisionnement->setMargeValeur(NULL) ;
+                        $approvisionnement->setPrixRevient(NULL) ;
+                        $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+                        $approvisionnement->setExpireeLe(NULL) ;
+                        $approvisionnement->setIsAuto(True) ;
+                        $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+                        $approvisionnement->setDescription("Rééquilibrage de Produit Code : ".$produit->getCodeProduit()) ;
+                        $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                        $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                        $this->entityManager->persist($approvisionnement) ;
+                        $this->entityManager->flush() ;
+                    }
+
                     $histoEntrepot->setStock($histoEntrepot->getStock() - $detailFactureVariation["totalFactureVariation"]) ;
                     $this->entityManager->flush() ;
                 }
