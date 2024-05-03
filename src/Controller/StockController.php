@@ -2673,7 +2673,7 @@ class StockController extends AbstractController
             foreach ($deductionVariations as $deductionVariation) {
                 $item = [] ;
                 $item["date"] = $deductionVariation->getCreatedAt()->format("d/m/Y");
-                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+                $item["entrepot"] = $deductionVariation->getHistoEntrepot()->getEntrepot()->getNom() ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $deductionVariation->getQuantite() ;
                 $item["prix"] = $deductionVariation->getVariationPrix()->getPrixVente() ;
