@@ -1519,6 +1519,9 @@ class AppService extends AbstractController
                                 "statut" => True
                             ]) ;
 
+                            if($this->agence->getId() == 24)
+                                dd($variation) ;
+
                             $entrepot = $histoEntrepot->getEntrepot()->getNom();
                             $idEntrepot = $histoEntrepot->getEntrepot()->getId();
                         }
