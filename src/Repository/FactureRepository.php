@@ -125,13 +125,16 @@ class FactureRepository extends ServiceEntityRepository
                         "statut" => True
                     ]) ;
 
-                    if(is_null($histoEntrepot))
-                    {
-                        $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                            "agence" => $agence,
-                            "statut" => True
-                        ]) ;
-                    }
+                    if($agence->getId() == 24)
+                        dd($variation) ;
+
+                    // if(is_null($histoEntrepot))
+                    // {
+                    //     $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    //         "agence" => $agence,
+                    //         "statut" => True
+                    //     ]) ;
+                    // }
                     
                     $entrepotObj = $histoEntrepot->getEntrepot() ;
                 }
