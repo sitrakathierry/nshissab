@@ -1520,7 +1520,7 @@ class AppService extends AbstractController
                             ]) ;
 
                             if($this->agence->getId() == 24)
-                                dd($variation) ;
+                                dd($histoEntrepot) ;
 
                             $entrepot = $histoEntrepot->getEntrepot()->getNom();
                             $idEntrepot = $histoEntrepot->getEntrepot()->getId();
