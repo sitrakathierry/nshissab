@@ -125,7 +125,7 @@ class FactureRepository extends ServiceEntityRepository
                         "statut" => True
                     ]) ;
 
-                    if(is_null($histoEntrepot->getEntrepot()))
+                    if(is_null($histoEntrepot))
                     {
                         $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
                             "agence" => $agence,
