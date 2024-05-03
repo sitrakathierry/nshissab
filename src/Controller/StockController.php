@@ -3182,7 +3182,8 @@ class StockController extends AbstractController
     public function stockDisplayVariationProduit($idVar)
     {
         $idVar = $this->appService->decoderChiffre($idVar) ;
-
+        $this->appService->synchronisationGeneral() ;
+        
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVar) ; 
 
         $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
