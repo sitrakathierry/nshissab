@@ -486,6 +486,10 @@ class FactureController extends AbstractController
         $this->appService->synchronisationFacture($this->agence) ;
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
 
+        $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
+            "agence" => $this->agence,
+        ]) ;
+
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
  
         if(!file_exists($filename))
@@ -504,7 +508,7 @@ class FactureController extends AbstractController
         if(!file_exists($filename))
             $this->appService->generateSavAnnulation($filename,$this->agence) ;
         
-        $annulations = json_decode(file_get_contents($filename)) ;
+        $annulations = json_decode(file_get_contents($filename)) ; 
 
         $search = [ 
             "refSpec" => "AVR"

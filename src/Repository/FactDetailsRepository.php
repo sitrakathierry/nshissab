@@ -42,19 +42,20 @@ class FactDetailsRepository extends ServiceEntityRepository
     public function stockTotalFactureVariation($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(fd.quantite) as totalFactureVariation FROM `fact_details` fd 
-                JOIN facture f ON fd.facture_id = f.id 
+        // A CORRIGER 
+        $sql = "SELECT SUM(fd.quantite) as totalFactureVariation, pe.id as idEntrepot FROM `fact_details` fd 
+                JOIN facture f ON fd.facture_id = f.id
+                JOIN prd_entrepot pe ON f.entrepot_id = pe.id 
                 WHERE f.agence_id = ? AND f.type_id = ? AND f.ticket_caisse_id IS NULL 
-                AND f.statut = ? AND fd.activite = ? AND fd.entite = ? AND fd.statut = ? ";
+                AND f.statut = ? AND fd.activite = ? AND fd.entite = ? 
+                AND fd.statut = ? " ;
 
-        // $sql = "SELECT SUM(`quantite`) as totalFactureVariation FROM `fact_details` WHERE `activite` = 'Produit' AND `statut` = 1 AND `facture_id` = ? AND `entite` = ? ";
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare($sql) ;
         $resultSet = $stmt->executeQuery([
             $params["agence"],
-            1,
+            1, 
             1,
             'Produit',
-            // $params["facture"],
             $params["variationPrix"],
             1
         ]);

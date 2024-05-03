@@ -2,7 +2,13 @@
 
 namespace App\Repository;
 
+use App\Entity\FactDetails;
 use App\Entity\Facture;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdVariationPrix;
+use App\Entity\SavAnnulation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -37,6 +43,107 @@ class FactureRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function updateFactureToEntrepot($params = [])
+    {
+        $factures = $this->getEntityManager()->getRepository(Facture::class)->findBy([
+            "agence" => $params["agence"],
+            "statut" => True,
+        ],[
+            "id" => "DESC"
+            ]
+        ) ; 
+
+        foreach ($factures as $facture) {
+            $refModele = $facture->getModele()->getReference() ; 
+
+            if($refModele != "PROD" || !is_null($facture->getEntrepot()))
+                continue ;
+
+            $this->validUpdateFacture($facture, $params["agence"]) ;
+        }
+
+        $annulations = $this->getEntityManager()->getRepository(SavAnnulation::class)->findBy([
+            "statut" => True,
+            "agence" => $params["agence"],
+        ]) ;
+
+        foreach ($annulations as $annulation) {
+            $facture = $annulation->getFacture() ;
+
+            if(is_null($facture))
+                continue ;
+
+            $refModele = $facture->getModele()->getReference() ; 
+
+            if($refModele != "PROD" || !is_null($facture->getEntrepot()))
+                continue ;
+
+            $this->validUpdateFacture($facture, $params["agence"]) ;
+        }
+
+    }
+
+    public function validUpdateFacture($facture, $agence)
+    {
+        // DEBUT VRAI
+
+        $entrepotObj = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findOneBy([
+            "nom" => strtoupper($facture->getLieu()),
+            "agence" => $agence,
+            "statut" => True
+        ]) ;
+
+        if(is_null($entrepotObj))
+        {
+            $affectEntrepot = $this->getEntityManager()->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                "agent" => $facture->getUser(),
+                "statut" => True
+            ]) ; 
+
+            if(!is_null($affectEntrepot))
+            {
+                $entrepotObj = $affectEntrepot->getEntrepot() ;
+            }
+            else
+            {
+                $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneBy([
+                    "facture" => $facture,
+                    "activite" => "Produit",
+                    "statut" => True
+                ]) ;
+
+                if(!is_null($factDetail))
+                {
+                    $idVariation = $factDetail->getEntite() ;
+
+                    $variation = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+
+                    $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                        "variationPrix" => $variation,
+                        "statut" => True
+                    ]) ;
+
+                    $entrepotObj = $histoEntrepot->getEntrepot() ;
+                }
+                else
+                {
+                    $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                        "agence" => $agence,
+                        "statut" => True
+                    ]) ;
+
+                    $entrepotObj = $histoEntrepot->getEntrepot() ;
+                }
+            }
+
+        }
+
+        // FIN VRAI
+
+        $facture->setEntrepot($entrepotObj) ;
+        $this->getEntityManager()->flush() ;
     }
 
 //    /**

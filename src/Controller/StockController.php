@@ -547,7 +547,10 @@ class StockController extends AbstractController
     {   
         $this->appService->updateAnneeData() ;
         $this->appService->synchronisationGeneral() ;
-
+        $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
+            "agence" => $this->agence,
+        ]) ;
+        
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generatePrdType($filename,$this->agence) ;
@@ -577,6 +580,22 @@ class StockController extends AbstractController
             $this->appService->generateProduitParategorie($filename, $this->agence,$this->userObj);
 
         $stockParCategories = json_decode(file_get_contents($filename)) ; 
+
+        $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
+            "agence" => $this->agence
+        ],
+        [
+            "id" => "DESC"
+        ]) ;
+
+        foreach ($appros as $appro) {
+            if(!$appro->isIsAuto())
+                continue ;
+            
+            $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
+            $appro->setIsAuto(False) ;
+            $this->entityManager->flush() ;
+        }
 
         // dd($stockParCategories) ;
 
