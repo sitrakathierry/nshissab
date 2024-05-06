@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\FactDetails;
+use App\Entity\FactModele;
 use App\Entity\Facture;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdEntrepot;
@@ -49,8 +50,13 @@ class FactureRepository extends ServiceEntityRepository
 
     public function updateFactureToEntrepot($params = [])
     {
+        $factModele = $this->getEntityManager()->getRepository(FactModele::class)->findOneBy([
+            "reference" => "PROD"
+        ]) ;
+
         $factures = $this->getEntityManager()->getRepository(Facture::class)->findBy([
             "agence" => $params["agence"],
+            "modele" => $factModele,
             "statut" => True,
         ],[
             "id" => "DESC"
@@ -59,11 +65,7 @@ class FactureRepository extends ServiceEntityRepository
 
         foreach ($factures as $facture) {
             $refModele = $facture->getModele()->getReference() ; 
-
-            if($refModele != "PROD")
-                continue ;
-
-
+            
             if(!is_null($facture->getEntrepot()))
                 $this->verifyEntrepotFacture($facture,$params["agence"],$params["user"]);
             else
