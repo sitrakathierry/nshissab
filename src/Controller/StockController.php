@@ -546,7 +546,7 @@ class StockController extends AbstractController
     public function stockGeneral(): Response
     {   
         // TEST 
-        if($this->agence->getId() == 9)
+        if($this->agence->getId() == 6)
         {
             $this->entityManager->getRepository(PrdEntrepot::class)->testHistoEntrepot() ;
         }
