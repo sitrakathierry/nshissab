@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CaissePanier;
+use App\Entity\PrdHistoEntrepot;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -63,10 +64,38 @@ class CaissePanierRepository extends ServiceEntityRepository
     public function stockTotalCaisseVariationPrix($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(`quantite`) as totalCaisseVariation FROM `caisse_panier` WHERE `variation_prix_id` = ? AND `statut` = 1";
+        $sql = "SELECT SUM(`quantite`) as totalCaisseVariation FROM `caisse_panier` WHERE `variation_prix_id` = ? AND `statut` = 1 ";
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
         return $resultSet->fetchAssociative();
+    }
+
+    public function stockTotalCaisseEntrepot($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`quantite`) as totalCaisseEntrepot FROM `caisse_panier` WHERE `histo_entrepot_id` = ? AND `variation_prix_id` = ?  AND `statut` = 1 ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["histoEntrepot"],$params["variationPrix"]]);
+        return $resultSet->fetchAssociative();
+    }
+
+    public function updateHistoEntrepotCaisse($params = [])
+    {
+        $panierCommandes = $this->getEntityManager()->getRepository(CaissePanier::class)->findBy([
+            "agence" => $params["agence"],
+            "histoEntrepot" => NULL,
+            // "statut" => True,
+        ]) ;
+
+        foreach ($panierCommandes as $panierCommande) {
+            $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                "variationPrix" => $panierCommande->getVariationPrix(),
+                "statut" => True
+            ]) ;
+
+            $panierCommande->setHistoEntrepot($histoEntrepot) ;
+            $this->getEntityManager()->flush() ;
+        }
     }
 //    /**
 //     * @return CaissePanier[] Returns an array of CaissePanier objects

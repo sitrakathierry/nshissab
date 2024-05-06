@@ -25,6 +25,25 @@
             </div>
         {% endif %} 
         <div class="barre_dashed w-100"></div>
+        <div class="p-2 {{ entrepots|length == 1 ? "d-none" : "" }}">
+            <div class="row">
+                <div class="col-md-3" >
+                    <label for="caisse_search_entrepot" class="font-weight-bold">Entrepot</label>
+                    <select class="custom-select custom-select-sm chosen_select" name="caisse_search_entrepot" id="caisse_search_entrepot" >
+                        {% if entrepots|length > 1 %}
+                            <option value="">-</option>
+                            {% for entrepot in entrepots %}
+                                <option value="{{entrepot.id}}" >{{entrepot.nom}}</option>
+                            {% endfor %}
+                        {% else %}
+                            {% for entrepot in entrepots %}
+                                <option value="{{entrepot.id}}" selected="true" >{{entrepot.nom}}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select> 
+                </div>
+            </div>
+        </div>
         <div class="row pt-2 mt-2 ">
             <div class="col-md-9 border-right px-4 ">
                 <form id="formCaisse">
@@ -124,9 +143,14 @@
                 <select name="caisse_search_produit" class="custom-select chosen_select caisse_search_produit custom-select-sm" id="caisse_search_produit">
                     <option value=""></option>
                     {% for stockGeneral in stockGenerales %} 
+                        {% set idProduit = indiceEntrepot ? stockGeneral.idP : stockGeneral.id %}
                         {% set nomProduit = stockGeneral.codeProduit ~ " | " ~ stockGeneral.nomType|upper ~ " | " ~ stockGeneral.nom|upper ~ " | stock : " ~ stockGeneral.stock %}
-                        {% set imageP = stockGeneral.images is empty ? asset('data/images/default.jpg') : stockGeneral.images %}
-                        <option value="{{stockGeneral.id}}" data-stock="{{stockGeneral.stock}}" data-code="{{stockGeneral.codeProduit}}" data-images="{{imageP}}">{{nomProduit}}</option>
+                        {% if indiceEntrepot %}
+                            {% set imageP = stockGeneral.images == "-" ? asset('data/images/default.jpg') : stockGeneral.images %}
+                        {% else %}
+                            {% set imageP = stockGeneral.images is empty ? asset('data/images/default.jpg') : stockGeneral.images %}
+                        {% endif %}
+                        <option value="{{idProduit}}" data-stock="{{stockGeneral.stock}}" data-code="{{stockGeneral.codeProduit}}" data-images="{{imageP}}">{{nomProduit}}</option>
                     {% endfor %}
                 </select>
                 {# <input type="text" name="caisse_search_produit" id="caisse_search_produit" class="form-control caisse_search_produit" placeholder="Rechercher un produit"> #}

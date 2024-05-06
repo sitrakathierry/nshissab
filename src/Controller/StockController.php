@@ -545,10 +545,20 @@ class StockController extends AbstractController
     #[Route('/stock/general', name: 'stock_general')]
     public function stockGeneral(): Response
     {   
+        // TEST 
+        if($this->agence->getId() == 9)
+        {
+            $this->entityManager->getRepository(PrdEntrepot::class)->testHistoEntrepot() ;
+        }
+        // TEST
         $this->appService->updateAnneeData() ;
         $this->appService->synchronisationGeneral() ;
         $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
             "agence" => $this->agence,
+            "user" => $this->userObj,
+        ]) ;
+        $this->entityManager->getRepository(CaissePanier::class)->updateHistoEntrepotCaisse([
+            "agence" => $this->agence
         ]) ;
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
@@ -3025,7 +3035,7 @@ class StockController extends AbstractController
 
         if(isset($reduc_val_entrepot))
         {
-            $reduc_val_qte = $request->request->get("reduc_val_entrepot") ;
+            $reduc_val_qte = $request->request->get("reduc_val_qte") ;
             $reduc_val_type = $request->request->get("reduc_val_type") ;
             $reduc_val_cause = $request->request->get("reduc_val_cause") ;
 
@@ -3183,7 +3193,7 @@ class StockController extends AbstractController
     {
         $idVar = $this->appService->decoderChiffre($idVar) ;
         $this->appService->synchronisationGeneral() ;
-        
+
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVar) ; 
 
         $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([

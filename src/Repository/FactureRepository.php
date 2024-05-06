@@ -4,9 +4,11 @@ namespace App\Repository;
 
 use App\Entity\FactDetails;
 use App\Entity\Facture;
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdEntrpAffectation;
 use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdMargeType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -58,7 +60,13 @@ class FactureRepository extends ServiceEntityRepository
         foreach ($factures as $facture) {
             $refModele = $facture->getModele()->getReference() ; 
 
-            if($refModele != "PROD" || !is_null($facture->getEntrepot()))
+            if($refModele != "PROD")
+                continue ;
+
+
+            if(!is_null($facture->getEntrepot()))
+                $this->verifyEntrepotFacture($facture,$params["agence"],$params["user"]);
+            else
                 continue ;
 
             $this->validUpdateFacture($facture, $params["agence"]) ;
@@ -77,10 +85,113 @@ class FactureRepository extends ServiceEntityRepository
 
             $refModele = $facture->getModele()->getReference() ; 
 
-            if($refModele != "PROD" || !is_null($facture->getEntrepot()))
+            if($refModele != "PROD")
+                continue ;
+
+            if(!is_null($facture->getEntrepot()))
+                $this->verifyEntrepotFacture($facture,$params["agence"],$params["user"]);
+            else
                 continue ;
 
             $this->validUpdateFacture($facture, $params["agence"]) ;
+        }
+
+    }
+
+    public function verifyEntrepotFacture($facture, $agence, $user)
+    {
+        $factDetails = $this->getEntityManager()->getRepository(FactDetails::class)->findBy([
+            "facture" => $facture,
+            "statut" => True
+        ]) ;
+
+        foreach ($factDetails as $factDetail) {
+            
+            try
+            {
+                $variationPrix = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($factDetail->getEntite()) ;
+            }
+            catch(\Exception $e)
+            {
+                continue ;
+            }
+
+            $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                "variationPrix" => $variationPrix,
+                "entrepot" => $facture->getEntrepot(),
+                "statut" => True
+            ]) ;
+
+            // DEBUT REQUILIBRAGE
+            if(is_null($histoEntrepot))
+            {
+                $histoEntrepot = new PrdHistoEntrepot() ;
+
+                $histoEntrepot->setEntrepot($facture->getEntrepot()) ;
+                $histoEntrepot->setVariationPrix($variationPrix) ;
+                $histoEntrepot->setStock(1) ;
+                $histoEntrepot->setStatut(True) ;
+                $histoEntrepot->setAgence($agence) ;
+                $histoEntrepot->setAnneeData(date('Y')) ;
+                $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+                $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->getEntityManager()->persist($histoEntrepot) ;
+                $this->getEntityManager()->flush() ;
+
+                $approvisionnement = new PrdApprovisionnement() ;
+
+                $margeType = $this->getEntityManager()->getRepository(PrdMargeType::class)->find(1) ; // Par défaut Montant
+
+                $approvisionnement->setAgence($agence) ;
+                $approvisionnement->setUser($user) ;
+                $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                $approvisionnement->setVariationPrix($variationPrix) ;
+                $approvisionnement->setMargeType($margeType) ;
+                $approvisionnement->setQuantite($factDetail->getQuantite()) ;
+                $approvisionnement->setPrixAchat(NULL) ;
+                $approvisionnement->setCharge(NULL) ;
+                $approvisionnement->setMargeValeur(NULL) ;
+                $approvisionnement->setPrixRevient(NULL) ;
+                $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+                $approvisionnement->setExpireeLe(NULL) ;
+                $approvisionnement->setIsAuto(True) ;
+                $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+                $approvisionnement->setDescription("Rééquilibrage de Produit Code : ".$variationPrix->getProduit()->getCodeProduit()) ;
+                $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->getEntityManager()->persist($approvisionnement) ;
+                $this->getEntityManager()->flush() ;
+            }
+            // else if($histoEntrepot->getStock() < 0)
+            // {
+            //     $approvisionnement = new PrdApprovisionnement() ;
+
+            //     $margeType = $this->getEntityManager()->getRepository(PrdMargeType::class)->find(1) ; // Par défaut Montant
+
+            //     $approvisionnement->setAgence($agence) ;
+            //     $approvisionnement->setUser($user) ;
+            //     $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+            //     $approvisionnement->setVariationPrix($variationPrix) ;
+            //     $approvisionnement->setMargeType($margeType) ;
+            //     $approvisionnement->setQuantite(abs($histoEntrepot->getStock())) ;
+            //     $approvisionnement->setPrixAchat(NULL) ;
+            //     $approvisionnement->setCharge(NULL) ;
+            //     $approvisionnement->setMargeValeur(NULL) ;
+            //     $approvisionnement->setPrixRevient(NULL) ;
+            //     $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+            //     $approvisionnement->setExpireeLe(NULL) ;
+            //     $approvisionnement->setIsAuto(True) ;
+            //     $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+            //     $approvisionnement->setDescription("Rééquilibrage de Produit Code : ".$variationPrix->getProduit()->getCodeProduit()) ;
+            //     $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+            //     $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+            //     $this->getEntityManager()->persist($approvisionnement) ;
+            //     $this->getEntityManager()->flush() ;
+            // }
+            // FIN REQUILIBRAGE
         }
 
     }
@@ -108,7 +219,7 @@ class FactureRepository extends ServiceEntityRepository
             }
             else
             {
-                $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneBy([
+                $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneByEntite([
                     "facture" => $facture,
                     "activite" => "Produit",
                     "statut" => True
@@ -140,15 +251,16 @@ class FactureRepository extends ServiceEntityRepository
                 }
                 else
                 {
-                    $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                        "agence" => $agence,
-                        "statut" => True
-                    ]) ;
+                    $entrepotObj = NULL ; 
 
-                    $entrepotObj = $histoEntrepot->getEntrepot() ;
+                    // $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                    //     "agence" => $agence,
+                    //     "statut" => True
+                    // ]) ;
+
+                    // $entrepotObj = $histoEntrepot->getEntrepot() ;
                 }
             }
-
         }
 
         // FIN VRAI

@@ -3,6 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\PrdEntrepot;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdVariationPrix;
+use App\Entity\Produit;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -64,6 +67,41 @@ class PrdEntrepotRepository extends ServiceEntityRepository
         }
 
         return json_decode(file_get_contents($params["filename"])) ;  ;
+    }
+
+    public function testHistoEntrepot()
+    {
+        $entrepots = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findBy([
+            "statut" => True
+        ]) ;
+
+        foreach ($entrepots as $entrepot) {
+            $produits = $this->getEntityManager()->getRepository(Produit::class)->findBy([
+                "statut" => True
+            ]) ;
+
+            foreach ($produits as $produit) {
+                $variationPrixs = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->findBy([
+                    "produit" => $produit,
+                    "statut" => True
+                ]) ;
+
+                foreach ($variationPrixs as $variationPrix) {
+                    $histoEntrepots = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findBy([
+                        "variationPrix" => $variationPrix,
+                        "entrepot" => $entrepot,
+                        "statut" => True
+                    ]) ;
+
+                    if(count($histoEntrepots) > 1)
+                    {
+                        dd($histoEntrepots) ;
+                    }
+                }
+
+
+            }
+        }
     }
 
 //    /**

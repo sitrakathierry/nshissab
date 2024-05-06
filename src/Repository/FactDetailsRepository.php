@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\FactDetails;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdVariationPrix;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -73,6 +75,85 @@ class FactDetailsRepository extends ServiceEntityRepository
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([$params["facture"],$params["variationPrix"]]);
         return $resultSet->fetchAllAssociative();
+    }
+
+    public function findOneByEntite($params = [])
+    {
+        // $conn = $this->getEntityManager()->getConnection();
+        // // A CORRIGER 
+        // $sql = "SELECT * FROM `fact_details` 
+        // WHERE `facture_id` = ? AND `activite` = ? AND `statut` = ? 
+        // AND `entite` IS NOT NULL ORDER BY `id` ASC LIMIT 1" ;
+
+        // $stmt = $conn->prepare($sql) ;
+        // $resultSet = $stmt->executeQuery([
+        //     $params["facture"]->getId(),
+        //     $params["activite"],
+        //     $params["statut"],
+        // ]);
+        // dd($resultSet->fetchAssociative()) ;
+        // return $resultSet->fetchAssociative(); 
+
+        // Dans votre méthode de contrôleur ou de service
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('fd')
+            ->from(FactDetails::class, 'fd')
+            ->where('fd.facture = :factureId')
+            ->andWhere('fd.activite = :activite')
+            ->andWhere('fd.statut = :statut')
+            ->andWhere('fd.entite IS NOT NULL')
+            ->orderBy('fd.id', 'ASC')
+            ->setParameter('factureId', $params['facture']->getId())
+            ->setParameter('activite', $params['activite'])
+            ->setParameter('statut', $params['statut'])
+            ->getQuery() ;
+            
+            // ->getSingleResult();
+        try {
+            $result = $query->getOneOrNullResult();
+        } catch (\Exception $e) {
+            $result = $query->getResult()[0];
+        }
+        
+        return $result ;
+    }
+
+    public function stockTotalFactureInEntrepot($params = [])
+    {
+        $result = 0 ;
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('fd')
+            ->from(FactDetails::class, 'fd')
+            ->where('fd.activite = :activite')
+            ->andWhere('fd.statut = :statut')
+            ->andWhere('fd.entite IS NOT NULL')
+            ->orderBy('fd.id', 'ASC')
+            ->setParameter('activite', 'Produit')
+            ->setParameter('statut', True)
+            ->getQuery() ;
+
+        $facDetails = $query->getResult();
+
+        foreach ($facDetails as $facDetail) {
+            $variationPrix = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($facDetail->getEntite()) ;
+
+            $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                "entrepot" => $facDetail->getFacture()->getEntrepot(),
+                "variationPrix" => $variationPrix,
+                "statut" => True
+            ],["id" => "ASC"]) ;
+
+            if($histoEntrepot->getId() == $params["histoEntrepot"])
+            {
+                $result += $facDetail->getQuantite() ;
+            }
+        }
+
+        return $result ;
     }
 //    /**
 //     * @return FactDetails[] Returns an array of FactDetails objects

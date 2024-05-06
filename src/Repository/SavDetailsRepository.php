@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrdHistoEntrepot;
 use App\Entity\SavDetails;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -47,14 +48,12 @@ class SavDetailsRepository extends ServiceEntityRepository
             LEFT JOIN fact_details fd ON fd.id = sd.facture_detail_id 
             RIGHT JOIN caisse_panier cp ON cp.id = sd.caisse_detail_id 
             WHERE (cp.variation_prix_id = ? OR fd.entite = ? ) AND sd.in_stock = ? ";
-        // $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? AND `histo_entrepot_id` = ? ";
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([
             $params["variationPrix"],
             $params["variationPrix"],
-            1
+            True
         ]);
-        // $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
         return $resultSet->fetchAssociative();
     }
 
@@ -83,6 +82,66 @@ class SavDetailsRepository extends ServiceEntityRepository
         ]);
         // $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
         return $resultSet->fetchAllAssociative();
+    }
+
+    public function calculSavStockEntrepot($params = [])
+    {
+        $savDetails = $this->getEntityManager()->getRepository(SavDetails::class)->findBy([
+            "inStock" => True,
+            "agence" => $params["agence"]
+        ]) ;
+
+        $result = 0 ;
+
+        foreach ($savDetails as $savDetail) {
+            if(!is_null($savDetail->getFactureDetail()))
+            {
+                if($savDetail->getFactureDetail()->getactivite() == 'Produit' && !is_null($savDetail->getFactureDetail()->getEntite()))
+                {
+                    $entrepot = $savDetail->getFactureDetail()->getFacture()->getEntrepot() ;
+                    $idVariation = $savDetail->getFactureDetail()->getEntite() ;
+                    $variationPrix = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->find($idVariation);
+
+                    if(is_null($entrepot))
+                    {
+                        $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                            "variationPrix" => $variationPrix,
+                            "statut" => True
+                        ],["id" => "ASC"]) ;
+                        
+                        if($histoEntrepot->getId() == $params["histoEntrepot"])
+                        {
+                            $result += $savDetail->getFactureDetail()->getQuantite() ;
+                        }
+                    }
+                    else
+                    {
+                        $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                            "variationPrix" => $params["agence"],
+                            "entrepot" => $entrepot,
+                            "statut" => True
+                        ]) ;
+
+                        if(!is_null($histoEntrepot))
+                        {
+                            if($histoEntrepot->getId() == $params["histoEntrepot"])
+                            {
+                                $result += $savDetail->getFactureDetail()->getQuantite() ;
+                            }
+                        }
+                    }
+                }
+            }
+            else if(!is_null($savDetail->getCaisseDetail()))
+            {
+                if($savDetail->getCaisseDetail()->getHistoEntrepot()->getId() == $params["histoEntrepot"])
+                {
+                    $result += $savDetail->getCaisseDetail()->getQuantite() ;
+                }
+            }
+        }
+
+        return $result ;
     }
 //    /**
 //     * @return SavDetails[] Returns an array of SavDetails objects

@@ -201,7 +201,7 @@ $(document).ready(function(){
 
         if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
         {
-            if(fact_mod_prod_type != "autre" && fact_mod_prod_entrepot == "" && $(".fact_btn_modele.btn-warning").data("indice") == "PROD")
+            if(fact_mod_prod_type != "autre" && fact_mod_prod_entrepot == "")
             {
                 $.alert({
                     title: 'Entrepot vide',

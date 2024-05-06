@@ -106,7 +106,7 @@ class FactureController extends AbstractController
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Création Facture", 
-            "with_foot" => true,
+            "with_foot" => true, 
             "modeles" => $modeles,
             "types" => $types, 
             "paiements" => $paiements,
@@ -264,6 +264,8 @@ class FactureController extends AbstractController
         
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
 
+        // debut gestion des entrepot
+
         $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
             "agent" => $this->userObj,
             "statut" => True
@@ -321,6 +323,8 @@ class FactureController extends AbstractController
                 }
             }
         }
+
+        // fin gestion des entrepot
 
         $responses = $this->renderView("facture/produit.html.twig",[
             "stockGenerales" => empty($stockEntrepots) ? $stockGenerales : $stockEntrepots,
@@ -482,12 +486,21 @@ class FactureController extends AbstractController
     #[Route('/facture/consultation', name: 'ftr_consultation')]
     public function factureConsultation(): Response
     {
+        // TEST 
+        if($this->agence->getId() == 9)
+        {
+            $this->entityManager->getRepository(PrdEntrepot::class)->testHistoEntrepot() ;
+        }
+        // TEST
+
         $this->appService->updateAnneeData() ;
         $this->appService->synchronisationFacture($this->agence) ;
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
 
+
         $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
             "agence" => $this->agence,
+            "user" => $this->userObj,
         ]) ;
 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;

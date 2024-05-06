@@ -6,6 +6,9 @@ use App\Entity\Agence;
 use App\Entity\CaisseCommande;
 use App\Entity\CaissePanier;
 use App\Entity\HistoHistorique;
+use App\Entity\PrdApprovisionnement;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdMargeType;
 use App\Entity\PrdVariationPrix;
@@ -50,25 +53,90 @@ class CaisseController extends AbstractController
     #[Route('/caisse', name: 'caisse_activity')]
     public function index(): Response
     {
+        $this->appService->synchronisationGeneral() ;
+        $this->entityManager->getRepository(CaissePanier::class)->updateHistoEntrepotCaisse([
+            "agence" => $this->agence
+        ]) ;
         $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
             $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
-        
-        $this->appService->synchronisationGeneral() ;
-
         $margeTypes = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
+
+        // debut gestion des entrepot
+
+        $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
+            "agent" => $this->userObj,
+            "statut" => True
+        ]) ;
+
+        $stockEntrepots = [] ;
+
+        if(empty($affectEntrepots))
+        {
+            // Si l'utilisateur n'a aucun entrepots
+            $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                "filename" => "files/systeme/stock/entrepot(agence)/".$this->nameAgence ,
+                "agence" => $this->agence
+            ]) ;
+        }
+        else
+        {
+            $entrepots = [] ;
+            foreach ($affectEntrepots as $affectEntrepot) {
+                $entrepot = $affectEntrepot->getEntrepot() ;
+                if($entrepot->isStatut())
+                {
+                    $entrepots[] = [
+                        "id" => $entrepot->getId(),
+                        "nom" => $entrepot->getNom(),
+                        "adresse" => $entrepot->getAdresse(),
+                        "telephone" => $entrepot->getTelephone(),
+                    ] ;
+                }
+            }
+
+            if(empty($entrepots))
+            {
+                $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                    "filename" => "files/systeme/stock/entrepot(agence)/".$this->nameAgence ,
+                    "agence" => $this->agence
+                ]) ;
+            }
+            else
+            {
+                if(count($entrepots) == 1)
+                {
+                    $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+                        "agence" => $this->agence,
+                        "filename" => "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
+                    ]) ;
+                    
+                    $search = [
+                        "idE" => $entrepots[0]["id"],
+                    ] ;
+            
+                    $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
+
+                    $stockEntrepots = array_values($stockEntrepots) ;
+                }
+            }
+        }
+
+        // fin gestion des entrepot
 
         return $this->render('caisse/caisse.html.twig', [ 
             "filename" => "caisse",
             "titlePage" => "Vente des Produits",
             "with_foot" => true,
-            "stockGenerales" => $stockGenerales,
-            "margeTypes" => $margeTypes
+            "margeTypes" => $margeTypes,
+            "entrepots" => $entrepots,
+            "stockGenerales" => empty($stockEntrepots) ? $stockGenerales : $stockEntrepots,
+            "indiceEntrepot" => !empty($stockEntrepots) ? True : False,
         ]);
     }
-
+ 
     
     #[Route('/caisse/activity/save', name: 'caisse_save_activites')]
     public function caisseSaveActivity(Request $request)
@@ -127,6 +195,7 @@ class CaisseController extends AbstractController
         $this->entityManager->persist($commande) ;
         $this->entityManager->flush() ;
 
+        $csenr_entrepot = $request->request->get('csenr_entrepot') ; 
         $csenr_produit = (array)$request->request->get('csenr_produit') ; 
         $csenr_prix = $request->request->get('csenr_prix') ; 
         $csenr_prixText = $request->request->get('csenr_prixText') ; 
@@ -137,10 +206,60 @@ class CaisseController extends AbstractController
             $panier = new CaissePanier() ;
 
             $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($csenr_prix[$key]) ;
+            
+            $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($csenr_entrepot[$key]) ;
+
+            $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                "entrepot" => $entrepot,
+                "variationPrix" => $variationPrix,
+                "statut" => True
+            ]) ;
+
+            if(is_null($histoEntrepot))
+            {
+                $histoEntrepot = new PrdHistoEntrepot() ;
+
+                $histoEntrepot->setEntrepot($entrepot) ;
+                $histoEntrepot->setVariationPrix($variationPrix) ;
+                $histoEntrepot->setStock(1) ;
+                $histoEntrepot->setStatut(True) ;
+                $histoEntrepot->setAgence($this->agence) ;
+                $histoEntrepot->setAnneeData(date('Y')) ;
+                $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+                $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->entityManager->persist($histoEntrepot) ;
+                $this->entityManager->flush() ;
+
+                $approvisionnement = new PrdApprovisionnement() ;
+
+                $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find(1) ; // Par défaut Montant
+
+                $approvisionnement->setAgence($this->agence) ;
+                $approvisionnement->setUser($this->userObj) ;
+                $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                $approvisionnement->setVariationPrix($variationPrix) ;
+                $approvisionnement->setMargeType($margeType) ;
+                $approvisionnement->setQuantite($csenr_quantite[$key]) ;
+                $approvisionnement->setPrixAchat(NULL) ;
+                $approvisionnement->setCharge(NULL) ;
+                $approvisionnement->setMargeValeur(NULL) ;
+                $approvisionnement->setPrixRevient(NULL) ;
+                $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+                $approvisionnement->setExpireeLe(NULL) ;
+                $approvisionnement->setIsAuto(NULL) ;
+                $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+                $approvisionnement->setDescription("Rééquilibrage de Produit Code : ".$variationPrix->getProduit()->getCodeProduit()) ;
+                $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->entityManager->persist($approvisionnement) ;
+                $this->entityManager->flush() ;
+            }
 
             $panier->setAgence($this->agence) ;
             $panier->setCommande($commande) ;
-            $panier->setHistoEntrepot(null) ;
+            $panier->setHistoEntrepot($histoEntrepot) ;
             $panier->setVariationPrix($variationPrix) ;
             $panier->setPrix(floatval(explode(" | ",$csenr_prixText[$key])[0])) ;
             $panier->setQuantite($csenr_quantite[$key]) ;
