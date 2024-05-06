@@ -147,9 +147,12 @@ class FactDetailsRepository extends ServiceEntityRepository
                 "statut" => True
             ],["id" => "ASC"]) ;
 
-            if($histoEntrepot->getId() == $params["histoEntrepot"])
+            if(!is_null($histoEntrepot))
             {
-                $result += $facDetail->getQuantite() ;
+                if($histoEntrepot->getId() == $params["histoEntrepot"])
+                {
+                    $result += $facDetail->getQuantite() ;
+                }
             }
         }
 
