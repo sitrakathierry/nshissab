@@ -2589,7 +2589,7 @@ class StockController extends AbstractController
 
             foreach($appros as $appro)
             { 
-                try {
+                if(!is_null($appro->getHistoEntrepot()->getEntrepot())) {
                     $item = [] ;
                     $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
                     $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
@@ -2600,8 +2600,8 @@ class StockController extends AbstractController
                     $item["total"] = ($prixVente * $appro->getQuantite());
                     $item["type"] = "Approvisionnement" ;
                     $item["indice"] = "DEBIT" ;
-                } catch (\Exception $th) {
-                    dd($appro->getHistoEntrepot()->getEntrepot()) ;
+                } else {
+                    dd($appro->getHistoEntrepot()) ;
                 }
 
                 if($appro->isIsAuto())
