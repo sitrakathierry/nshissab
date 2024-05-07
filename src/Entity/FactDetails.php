@@ -60,6 +60,9 @@ class FactDetails
     #[ORM\Column(nullable: true)]
     private ?bool $isForfait = null;
 
+    #[ORM\ManyToOne(inversedBy: 'factDetails')]
+    private ?PrdHistoEntrepot $histoEntrepot = null;
+
     public function __construct()
     {
         $this->lvrDetails = new ArrayCollection();
@@ -302,6 +305,18 @@ class FactDetails
     public function setIsForfait(?bool $isForfait): self
     {
         $this->isForfait = $isForfait;
+
+        return $this;
+    }
+
+    public function getHistoEntrepot(): ?PrdHistoEntrepot
+    {
+        return $this->histoEntrepot;
+    }
+
+    public function setHistoEntrepot(?PrdHistoEntrepot $histoEntrepot): self
+    {
+        $this->histoEntrepot = $histoEntrepot;
 
         return $this;
     }

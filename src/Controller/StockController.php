@@ -553,13 +553,13 @@ class StockController extends AbstractController
         // TEST
         $this->appService->updateAnneeData() ;
         $this->appService->synchronisationGeneral() ;
-        $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
-            "agence" => $this->agence,
-            "user" => $this->userObj,
-        ]) ;
-        $this->entityManager->getRepository(CaissePanier::class)->updateHistoEntrepotCaisse([
-            "agence" => $this->agence
-        ]) ;
+        // $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
+        //     "agence" => $this->agence,
+        //     "user" => $this->userObj,
+        // ]);
+        // $this->entityManager->getRepository(CaissePanier::class)->updateHistoEntrepotCaisse([
+        //     "agence" => $this->agence
+        // ]) ;
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))

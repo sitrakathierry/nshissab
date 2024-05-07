@@ -493,15 +493,18 @@ class FactureController extends AbstractController
         }
         // TEST
 
-        $this->appService->updateAnneeData() ;
-        $this->appService->synchronisationFacture($this->agence) ;
-        $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
-
-
         $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
             "agence" => $this->agence,
             "user" => $this->userObj,
         ]) ;
+        $this->entityManager->getRepository(FactDetails::class)->updateFactDetailsHistoEntrepot([
+            "agence" => $this->agence,
+            "user" => $this->userObj,
+        ]) ;
+        $this->appService->updateAnneeData() ;
+        $this->appService->synchronisationFacture($this->agence) ;
+        $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
+
 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
  

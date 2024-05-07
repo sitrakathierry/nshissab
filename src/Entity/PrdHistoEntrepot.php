@@ -51,11 +51,15 @@ class PrdHistoEntrepot
     #[ORM\Column(nullable: true)]
     private ?int $anneeData = null;
 
+    #[ORM\OneToMany(mappedBy: 'histoEntrepot', targetEntity: FactDetails::class)]
+    private Collection $factDetails;
+
     public function __construct()
     {
         $this->prdDeductions = new ArrayCollection();
         $this->prdApprovisionnements = new ArrayCollection();
         $this->caissePaniers = new ArrayCollection();
+        $this->factDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -257,6 +261,36 @@ class PrdHistoEntrepot
     public function setAnneeData(?int $anneeData): self
     {
         $this->anneeData = $anneeData;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactDetails>
+     */
+    public function getFactDetails(): Collection
+    {
+        return $this->factDetails;
+    }
+
+    public function addFactDetail(FactDetails $factDetail): self
+    {
+        if (!$this->factDetails->contains($factDetail)) {
+            $this->factDetails->add($factDetail);
+            $factDetail->setHistoEntrepot($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactDetail(FactDetails $factDetail): self
+    {
+        if ($this->factDetails->removeElement($factDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($factDetail->getHistoEntrepot() === $this) {
+                $factDetail->setHistoEntrepot(null);
+            }
+        }
 
         return $this;
     }

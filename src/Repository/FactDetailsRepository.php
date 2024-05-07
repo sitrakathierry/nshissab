@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\FactDetails;
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdMargeType;
 use App\Entity\PrdVariationPrix;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -122,7 +124,47 @@ class FactDetailsRepository extends ServiceEntityRepository
 
     public function stockTotalFactureInEntrepot($params = [])
     {
-        $result = 0 ;
+       
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('SUM(fd.quantite) as totalFactureEntrepot')
+            ->from(FactDetails::class, 'fd')
+            ->where('fd.activite = :activite')
+            ->andWhere('fd.statut = :statut')
+            ->andWhere('fd.entite IS NOT NULL')
+            ->andWhere('fd.histoEntrepot = :histoEntrepot')
+            ->orderBy('fd.id', 'ASC')
+            ->setParameter('activite', 'Produit')
+            ->setParameter('histoEntrepot', $params["histoEntrepot"] )
+            ->setParameter('statut', True)
+            ->getQuery() ;
+
+        // $result = $query->getSingleScalarResult();
+
+        // foreach ($facDetails as $facDetail) {
+        //     $variationPrix = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($facDetail->getEntite()) ;
+
+        //     $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
+        //         "entrepot" => $facDetail->getFacture()->getEntrepot(),
+        //         "variationPrix" => $variationPrix,
+        //         "statut" => True
+        //     ],["id" => "ASC"]) ;
+
+        //     if(!is_null($histoEntrepot))
+        //     {
+        //         if($histoEntrepot->getId() == $params["histoEntrepot"])
+        //         {
+        //             $result += $facDetail->getQuantite() ;
+        //         }
+        //     }
+        // }
+
+        return $query->getSingleScalarResult() ;
+    }
+
+    public function updateFactDetailsHistoEntrepot($params = [])
+    {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 
         $query = $queryBuilder
@@ -131,6 +173,7 @@ class FactDetailsRepository extends ServiceEntityRepository
             ->where('fd.activite = :activite')
             ->andWhere('fd.statut = :statut')
             ->andWhere('fd.entite IS NOT NULL')
+            ->andWhere('fd.histoEntrepot IS NULL')
             ->orderBy('fd.id', 'ASC')
             ->setParameter('activite', 'Produit')
             ->setParameter('statut', True)
@@ -147,16 +190,51 @@ class FactDetailsRepository extends ServiceEntityRepository
                 "statut" => True
             ],["id" => "ASC"]) ;
 
-            if(!is_null($histoEntrepot))
+            if(is_null($histoEntrepot))
             {
-                if($histoEntrepot->getId() == $params["histoEntrepot"])
-                {
-                    $result += $facDetail->getQuantite() ;
-                }
-            }
-        }
+                $histoEntrepot = new PrdHistoEntrepot() ;
 
-        return $result ;
+                $histoEntrepot->setEntrepot($facDetail->getFacture()->getEntrepot()) ;
+                $histoEntrepot->setVariationPrix($variationPrix) ;
+                $histoEntrepot->setStock(1) ;
+                $histoEntrepot->setStatut(True) ;
+                $histoEntrepot->setAgence($params["agence"]) ;
+                $histoEntrepot->setAnneeData(date('Y')) ;
+                $histoEntrepot->setCreatedAt(new \DateTimeImmutable) ;
+                $histoEntrepot->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->getEntityManager()->persist($histoEntrepot) ;
+                $this->getEntityManager()->flush() ;
+
+                $approvisionnement = new PrdApprovisionnement() ;
+
+                $margeType = $this->getEntityManager()->getRepository(PrdMargeType::class)->find(1) ; // Par défaut Montant
+
+                $approvisionnement->setAgence($params["agence"]) ;
+                $approvisionnement->setUser($params["user"]) ;
+                $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+                $approvisionnement->setVariationPrix($variationPrix) ;
+                $approvisionnement->setMargeType($margeType) ;
+                $approvisionnement->setQuantite($facDetail->getQuantite()) ;
+                $approvisionnement->setPrixAchat(NULL) ;
+                $approvisionnement->setCharge(NULL) ;
+                $approvisionnement->setMargeValeur(NULL) ;
+                $approvisionnement->setPrixRevient(NULL) ;
+                $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+                $approvisionnement->setExpireeLe(NULL) ;
+                $approvisionnement->setIsAuto(True) ;
+                $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+                $approvisionnement->setDescription("Rééquilibrage de Produit Code : ".$variationPrix->getProduit()->getCodeProduit()) ;
+                $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+                $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+
+                $this->getEntityManager()->persist($approvisionnement) ;
+                $this->getEntityManager()->flush() ;
+            }
+
+            $facDetail->setHistoEntrepot($histoEntrepot) ;
+            $this->getEntityManager()->flush() ;
+        }
     }
 //    /**
 //     * @return FactDetails[] Returns an array of FactDetails objects
