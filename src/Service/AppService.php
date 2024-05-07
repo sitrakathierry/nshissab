@@ -151,8 +151,8 @@ class AppService extends AbstractController
 
     public function checkUrl()
     {
-        ini_set('memory_limit', '1024M');
-        ini_set('max_execution_time', '1600');
+        ini_set('memory_limit', '2048M');
+        ini_set('max_execution_time', '3200');
         $allowUrl = true ;
         $user = $this->session->get("user") ;
         if(!isset($user))
@@ -3657,16 +3657,6 @@ class AppService extends AbstractController
 
                 $stockAddVariation = 0 ; 
                 $stockRemoveVariation = 0 ;
-
-                // DEBUT AJOUT VARIATION
-
-                // $stockTotalVariation = $this->entityManager->getRepository(PrdApprovisionnement::class)->stockTotalVariationPrix([
-                //     "variationPrix" => $variationPrix->getId(),
-                // ]) ;
-
-                // $stockAddVariation = $stockTotalVariation["stockTotalVariation"] ;
-                
-                // FIN AJOUT VARIATION
 
                 $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
                     "variationPrix" => $variationPrix,

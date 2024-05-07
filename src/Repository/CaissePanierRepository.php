@@ -73,9 +73,9 @@ class CaissePanierRepository extends ServiceEntityRepository
     public function stockTotalCaisseEntrepot($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(`quantite`) as totalCaisseEntrepot FROM `caisse_panier` WHERE `histo_entrepot_id` = ? AND `variation_prix_id` = ?  AND `statut` = 1 ";
+        $sql = "SELECT SUM(`quantite`) as totalCaisseEntrepot FROM `caisse_panier` WHERE `histo_entrepot_id` = ? AND `variation_prix_id` = ?  AND `statut` = ? ";
         $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery([$params["histoEntrepot"],$params["variationPrix"]]);
+        $resultSet = $stmt->executeQuery([$params["histoEntrepot"],$params["variationPrix"],True]);
         return $resultSet->fetchAssociative();
     }
 

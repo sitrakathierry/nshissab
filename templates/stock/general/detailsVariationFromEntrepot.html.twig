@@ -5,7 +5,6 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
-    
 {% endblock %}
 
 {% block javascripts %}
@@ -14,6 +13,9 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/impression.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/detailStock.js')}}" ></script>
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/creation.js')}}" ></script>
+    <script>
+        $("#modif_inpt_solde_date").datepicker()
+    </script>  
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
@@ -30,5 +32,4 @@
     </div>
 </div>
 {% endblock %}
-
 
