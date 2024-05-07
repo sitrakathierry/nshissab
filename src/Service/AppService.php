@@ -762,7 +762,6 @@ class AppService extends AbstractController
                 {
                     $item[$cle]["stock"] += $histoEntrepot->getStock() ;
                     $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
-
                     // $elements[$cle] = $item[$cle] ;
                 }
                 else

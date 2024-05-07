@@ -3,18 +3,18 @@ $(document).ready(function(){
     var appBase = new AppBase() ;
 
     $("#search_affichage").change(function(){
-        searchStockGen() ;
+        searchStockGen($(this)) ;
     })
 
     $("#search_gen_produit").change(function(){
-        searchStockGen() ;
+        searchStockGen($(this)) ;
     })
 
-    function searchStockGen()
+    function searchStockGen(self)
     {
         $(".contentTableStock").html(instance.otherSearch()) ;
         var formData = new FormData() ;
-        formData.append("contenu",$(this).val()) ;
+        formData.append("contenu",self.val()) ;
         $.ajax({
             url: routes.stock_display_content_stock,
             type:'post',
