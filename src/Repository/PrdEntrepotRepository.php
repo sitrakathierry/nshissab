@@ -71,37 +71,35 @@ class PrdEntrepotRepository extends ServiceEntityRepository
 
     public function testHistoEntrepot()
     {
-        $entrepots = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findBy([
-            "statut" => True
-        ]) ;
+        // $entrepots = $this->getEntityManager()->getRepository(PrdEntrepot::class)->findBy([
+        //     "statut" => True
+        // ]) ;
 
-        foreach ($entrepots as $entrepot) {
-            $produits = $this->getEntityManager()->getRepository(Produit::class)->findBy([
-                "statut" => True
-            ]) ;
+        // foreach ($entrepots as $entrepot) {
+        //     $produits = $this->getEntityManager()->getRepository(Produit::class)->findBy([
+        //         "statut" => True
+        //     ]) ;
 
-            foreach ($produits as $produit) {
-                $variationPrixs = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->findBy([
-                    "produit" => $produit,
-                    "statut" => True
-                ]) ;
+        //     foreach ($produits as $produit) {
+        //         $variationPrixs = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->findBy([
+        //             "produit" => $produit,
+        //             "statut" => True
+        //         ]) ;
 
-                foreach ($variationPrixs as $variationPrix) {
-                    $histoEntrepots = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findBy([
-                        "variationPrix" => $variationPrix,
-                        "entrepot" => $entrepot,
-                        "statut" => True
-                    ]) ;
+        //         foreach ($variationPrixs as $variationPrix) {
+        //             $histoEntrepots = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findBy([
+        //                 "variationPrix" => $variationPrix,
+        //                 "entrepot" => $entrepot,
+        //                 "statut" => True
+        //             ]) ;
 
-                    if(count($histoEntrepots) > 1)
-                    {
-                        dd($histoEntrepots) ;
-                    }
-                }
-
-
-            }
-        }
+        //             if(count($histoEntrepots) > 1)
+        //             {
+        //                 dd($histoEntrepots) ;
+        //             }
+        //         }
+        //     }
+        // }
     }
 
 //    /**

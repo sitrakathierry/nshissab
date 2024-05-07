@@ -24,24 +24,23 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="search_affichage" class="mt-2 font-weight-bold text-uppercase">Afficher par</label>
+                <label for="search_affichage" class="mt-2 font-weight-bold text-uppercase">Categorie / Entrepot</label>
                 <select name="search_affichage" class="custom-select search_affichage chosen_select custom-select-sm" id="search_affichage">
                     <option value="">{{"-"}}</option>
                     <option value="1">{{"Catégorie"|upper}}</option>
                     <option value="2">{{"Entrepôt"|upper}}</option>
                 </select>
             </div>
-            {# <div class="col-md-3">
-                <label for="search_nom_produit" class="mt-2 font-weight-bold text-uppercase">Nom Produit</label>
-                <select name="search_nom_produit" class="custom-select search_nom_produit chosen_select custom-select-sm" id="search_nom_produit">
+            <div class="col-md-5">
+                <label for="search_gen_produit" class="mt-2 font-weight-bold text-uppercase">Désignation Produit</label>
+                <select name="search_gen_produit" class="custom-select custom-select-sm" id="search_gen_produit">
                     <option value="">TOUS</option>
-                    <option value="NA">NON ASSIGNEE</option>
-                    {% for type in types %}
-                        <option value="{{type.id}}">{{type.nom|upper}}</option>
+                    {% for stockGenerale in stockGenerales %}
+                        <option value="{{stockGenerale.id}}">{{stockGenerale.codeProduit}} | {{stockGenerale.nomType}}  | {{stockGenerale.nom}} | stock : {{stockGenerale.stock}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
+            {# <div class="col-md-3">
                 <label for="search_gen_entrepot" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
                 <select name="search_gen_entrepot" class="custom-select search_gen_entrepot chosen_select custom-select-sm" id="search_gen_entrepot">
                     <option value="">TOUS</option>
@@ -61,7 +60,7 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody> 
                         {% set total = 0 %}
                         {% for key, item in stockParCategories %}
                             <tr>

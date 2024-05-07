@@ -3,6 +3,15 @@ $(document).ready(function(){
     var appBase = new AppBase() ;
 
     $("#search_affichage").change(function(){
+        searchStockGen() ;
+    })
+
+    $("#search_gen_produit").change(function(){
+        searchStockGen() ;
+    })
+
+    function searchStockGen()
+    {
         $(".contentTableStock").html(instance.otherSearch()) ;
         var formData = new FormData() ;
         formData.append("contenu",$(this).val()) ;
@@ -21,5 +30,5 @@ $(document).ready(function(){
                 $.alert(JSON.stringify(resp)) ;
             }
         })
-    })
+    }
 })

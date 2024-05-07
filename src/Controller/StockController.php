@@ -559,7 +559,7 @@ class StockController extends AbstractController
         // ]);
         // $this->entityManager->getRepository(CaissePanier::class)->updateHistoEntrepotCaisse([
         //     "agence" => $this->agence
-        // ]) ;
+        // ]) ; 
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -609,13 +609,19 @@ class StockController extends AbstractController
 
         // dd($stockParCategories) ;
 
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
         return $this->render('stock/stockgeneral.html.twig', [
             "filename" => "stock",
             "titlePage" => "Stock Général",
             "with_foot" => false,
             "types" => $types,
             "entrepots" => $entrepots,
-            // "stockGenerales" => (array)$stockGenerales,
+            "stockGenerales" => $stockGenerales,
             "stockGEntrepots" => $stockGEntrepots,
             "stockParCategories" => (array)$stockParCategories,
         ]);
@@ -635,7 +641,7 @@ class StockController extends AbstractController
 
         $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
-            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ; 
 
         $stockTypes = json_decode(file_get_contents($filename)) ;
 
