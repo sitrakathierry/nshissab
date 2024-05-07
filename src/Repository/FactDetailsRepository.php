@@ -123,6 +123,31 @@ class FactDetailsRepository extends ServiceEntityRepository
         return $result ;
     }
 
+    public function findAllByVariation($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('fd')
+            ->from(FactDetails::class, 'fd')
+            ->join(Facture::class, 'f', 'WITH', 'f.id = fd.facture')
+            ->leftJoin(PrdHistoEntrepot::class, 'phe', 'WITH', 'phe.id = fd.histoEntrepot')
+            ->where('f.agence = :agence')
+            ->andWhere('fd.activite = :activite')
+            ->andWhere('fd.statut = :statut')
+            // ->andWhere('fd.entite IS NOT NULL')
+            ->andWhere('fd.entite = :entite')
+            ->andWhere('phe.statut = :statutEnt')
+            ->setParameter('agence', $params['agence']->getId())
+            ->setParameter('activite', 'Produit')
+            ->setParameter('statutEnt', True)
+            ->setParameter('entite', $params['variationPrix']->getId())
+            ->setParameter('statut', $params['statut'])
+            ->getQuery() ;
+        
+        return $query->getResult();
+    }
+
     public function stockTotalFactureInEntrepot($params = [])
     {
        

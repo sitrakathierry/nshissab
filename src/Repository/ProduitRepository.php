@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrdType;
 use App\Entity\Produit;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -37,6 +38,43 @@ class ProduitRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function generateProduitStockGeneral($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $stockGenerales = $this->entityManager->getRepository(Produit::class)->findBy([
+                "agence" => $params["agence"],
+                "statut" => True,
+            ]) ;
+            
+            $elements = [] ;
+    
+            foreach ($stockGenerales as $stockGeneral) {
+                $element = [] ;
+    
+                $element["id"] = $stockGeneral->getId() ;
+                $element["encodedId"] = $this->encodeChiffre($stockGeneral->getId()) ;
+                $element["idC"] = $stockGeneral->getPreference()->getId() ;
+                $element["idCat"] = $stockGeneral->getPreference()->getCategorie()->getId() ;
+                $element["codeProduit"] = $stockGeneral->getCodeProduit() ;
+                $element["categorie"] = $stockGeneral->getPreference()->getCategorie()->getNom() ;
+                $element["nom"] = $stockGeneral->getNom() ;
+                $element["stock"] = $stockGeneral->getStock() ;
+                $element["tvaType"] = is_null($stockGeneral->getTvaType()) ? "-" : $stockGeneral->getTvaType()->getId() ;
+                $element["agence"] = $stockGeneral->getAgence()->getId() ;
+                $element["type"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getId() ;
+                $element["nomType"] = is_null($stockGeneral->getType()) ? "NA" : $stockGeneral->getType()->getNom() ;
+                $element["images"] = is_null($stockGeneral->getImages()) ? "-" : $stockGeneral->getImages() ;
+    
+                array_push($elements,$element) ;
+            }
+    
+            file_put_contents($params["filename"],json_encode($elements)) ;
+        }
+
+        return json_decode(file_get_contents($params["filename"])) ;
     }
 
 //    /**

@@ -3,18 +3,21 @@ $(document).ready(function(){
     var appBase = new AppBase() ;
 
     $("#search_affichage").change(function(){
-        searchStockGen($(this)) ;
+        $("#search_gen_produit").val("")
+        $(".chosen_select").trigger("chosen:updated") ;
+        searchStockGen($(this),'GLOBAL') ;
     })
 
     $("#search_gen_produit").change(function(){
-        searchStockGen($(this)) ;
+        searchStockGen($(this),'SPEC') ;
     })
 
-    function searchStockGen(self)
+    function searchStockGen(self,type)
     {
         $(".contentTableStock").html(instance.otherSearch()) ;
         var formData = new FormData() ;
         formData.append("contenu",self.val()) ;
+        formData.append("type",type) ;
         $.ajax({
             url: routes.stock_display_content_stock,
             type:'post',

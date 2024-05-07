@@ -1816,12 +1816,6 @@ class StockController extends AbstractController
 
         $preferences = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
-            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
-
-        $stockGenerales = json_decode(file_get_contents($filename)) ;
-
         $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
         $this->appService->generateStockEntrepot($filename,$this->agence) ;
@@ -1854,8 +1848,8 @@ class StockController extends AbstractController
             "with_foot" => false,
             "entrepots" => $entrepots,
             "categories" => $preferences,
-            "stockGenerales" => $stockGenerales,
-            "stockEntrepots" => $stockEntrepots,
+            "stockGenerales" => $stockEntrepots,
+            "stockEntrepots" => $stockEntrepots, 
             "idEntrepot" => $id,
             "currentEntrepot" => $currentEntrepot[0],
         ]);
@@ -1870,6 +1864,7 @@ class StockController extends AbstractController
 
         $stockEntrepots = json_decode(file_get_contents($filename)) ;
 
+        $interface = $request->request->get('interface') ;
         $idE = $request->request->get('idE') ;
         $idC = $request->request->get('idC') ;
         $idP = $request->request->get('idP') ;
@@ -1882,9 +1877,18 @@ class StockController extends AbstractController
 
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
 
-        $response = $this->renderView("stock/searchStockEntrepots.html.twig", [
-            "stockEntrepots" => $stockEntrepots
-        ]) ;
+        if($interface == "YES")
+        {
+            $response = $this->renderView("stock/entrepot/searchStockUniqueEntrepots.html.twig", [
+                "stockEntrepots" => $stockEntrepots
+            ]) ;
+        }
+        else
+        {
+            $response = $this->renderView("stock/searchStockEntrepots.html.twig", [
+                "stockEntrepots" => $stockEntrepots
+            ]) ;
+        }
 
         return new Response($response) ; 
     }
@@ -2552,7 +2556,7 @@ class StockController extends AbstractController
         $variationPrixs = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
             "produit" => $produit,
             "statut" => True,
-        ]) ;
+        ]) ; 
         $listes = [] ;
         $newArray = [] ;
         foreach($variationPrixs as $variationPrix)
@@ -2564,15 +2568,10 @@ class StockController extends AbstractController
 
             foreach($caissePaniers as $caissePanier)
             {
-                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                    "variationPrix" => $variationPrix,
-                    "statut" => True 
-                ]) ;
-
                 $item = [] ;
                 $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
                 $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
-                $item["entrepot"] = $histoEntrepot->getEntrepot()->getNom() ;
+                $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
                 // $item["entrepot"] = "-" ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $caissePanier->getQuantite() ;
@@ -2611,73 +2610,27 @@ class StockController extends AbstractController
                 array_push($listes,$item) ; 
             }
 
-            $typeFacture = $this->entityManager->getRepository(FactType::class)->findBy([
-                "reference" => "DF"
-            ]) ; 
-            
-            $factureDefinitives = $this->entityManager->getRepository(Facture::class)->findBy([
-                "type" => $typeFacture,
-                "agence" => $this->agence,
-                "ticketCaisse" => null,
-                "statut" => True
-            ]) ; 
+            $factureDetails = $this->entityManager->getRepository(FactDetails::class)->findAllByVariation([
+                "agence" => $this->agence,    
+                "variationPrix" => $variationPrix,    
+                "statut" => True    
+            ]) ;
 
-            // $detailFactureVariation = $this->entityManager->getRepository(FactDetails::class)->stockTotalFactureVariation([
-            //     "agence" => $this->agence->getId(),
-            //     "variationPrix" => $variationPrix->getId(),
-            // ]) ;
+            // dd($factureDetails) ;
 
-            // $item = [] ;
-            // $item["date"] = date("d/m/Y");
-            // $item["entrepot"] = "-" ;
-            // $item["produit"] = "-" ;
-            // $item["quantite"] = $detailFactureVariation["totalFactureVariation"] ;
-            // $item["prix"] = 0 ;
-            // $item["total"] = 0 ;
-            // $item["type"] = "Facture Definitif" ;
-            // $item["indice"] = "CREDIT" ;
+            foreach($factureDetails as $factureDetail)
+            {
+                $item = [] ;
+                $item["date"] = $factureDetail->getFacture()->getDate()->format("d/m/Y");
+                $item["entrepot"] = $factureDetail->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                $item["produit"] = $factureDetail->getDesignation() ;
+                $item["quantite"] = $factureDetail->getQuantite() ;
+                $item["prix"] = $factureDetail->getPrix() ;
+                $item["total"] = ($factureDetail->getPrix() * $factureDetail->getQuantite());
+                $item["type"] = "Facture Definitif" ;
+                $item["indice"] = "CREDIT" ;
 
-            // array_push($listes,$item) ;
-
-            // dd($factureDefinitives) ;
-            foreach ($factureDefinitives as $factureDefinitive) {
-                $factureVariations = $this->entityManager->getRepository(FactDetails::class)->findBy([
-                    "facture" => $factureDefinitive,    
-                    "activite" => 'Produit',    
-                    "entite" => $variationPrix->getId(),    
-                    "statut" => True    
-                ]) ;
-                
-                if(empty($factureVariations))
-                    continue;
-                // ->displayFactureVariation([
-                //     "facture" => $factureDefinitive->getId(),
-                //     "variationPrix" => $variationPrix->getId(),
-                // ]) ;
-
-                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                    "variationPrix" => $variationPrix->getId(),
-                    "entrepot" => $factureDefinitive->getEntrepot(),
-                    "statut" => True
-                ]) ;
-
-                foreach($factureVariations as $factureVariation)
-                {
-                    $item = [] ;
-                    $item["date"] = $factureVariation->getFacture()->getDate()->format("d/m/Y");
-                    $item["entrepot"] = $histoEntrepot->getEntrepot()->getNom() ; ;
-                    $item["produit"] = $factureVariation->getDesignation() ;
-                    $item["quantite"] = $factureVariation->getQuantite() ;
-                    $item["prix"] = $factureVariation->getPrix() ;
-                    $item["total"] = ($factureVariation->getPrix() * $factureVariation->getQuantite());
-                    $item["type"] = "Facture Definitif" ;
-                    $item["indice"] = "CREDIT" ;
-    
-                    array_push($listes,$item) ;
-                }
-
-                // $factureVariations
-                // $newArray = array_merge($listes,$factureVariations) ;
+                array_push($listes,$item) ;
             }
 
             $deductionVariations = $this->entityManager->getRepository(PrdDeduction::class)->findBy([
@@ -3152,42 +3105,54 @@ class StockController extends AbstractController
     public function stockDisplayContentStock(Request $request)
     { 
         $content = $request->request->get("contenu") ;
+        $type = $request->request->get("type") ;
         
-        $filename = $this->filename."stockType(agence)/".$this->nameAgence ;
-
-        if(!file_exists($filename))
-            $this->appService->generatePrdStockType($filename,$this->agence) ;
+        if($type == 'GLOBAL')
+        {
+            $filename = $this->filename."stockParCategorie(agence)/".$this->nameAgence ;
+            if(!file_exists($filename))  
+                $this->appService->generateProduitParategorie($filename, $this->agence,$this->userObj);
+    
+            $stockParCategories = json_decode(file_get_contents($filename)) ; 
             
-        $stockGenerales = json_decode(file_get_contents($filename)) ;
-        
-        $filename = $this->filename."stockParCategorie(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateProduitParategorie($filename, $this->agence,$this->userObj);
-
-        $stockParCategories = json_decode(file_get_contents($filename)) ; 
-        
-        $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generatePrdGenEntrepot($filename, $this->agence);
-
-        $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
-
-        if($content == "")
+            $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;
+            if(!file_exists($filename))  
+                $this->appService->generatePrdGenEntrepot($filename, $this->agence);
+    
+            $stockGEntrepots = json_decode(file_get_contents($filename)) ; 
+    
+            if($content == "")
+            {
+                $response = '<div class="alert alert-warning w-100">Aucune Affichage Disponible</div>' ;
+            }
+            else if($content == 1)
+            {
+                $response = $this->renderView("stock/general/displayStockByPreference.html.twig",[
+                    "stockParCategories" => (array)$stockParCategories,
+                ]) ;
+            }
+            else  if($content == 2)
+            {
+                $response = $this->renderView("stock/general/displayStockByEntrepot.html.twig",[
+                    "stockGEntrepots" => $stockGEntrepots
+                ]) ;
+            }
+        }
+        else if($type == 'SPEC')
         {
-            $response = '<div class="alert alert-warning w-100">Aucune Affichage Disponible</div>' ;
+            $stockGenerales = $this->entityManager->getRepository(Produit::class)->generateProduitStockGeneral([
+                "agence" => $this->agence,
+                "filename" => $this->filename."stock_general(agence)/".$this->nameAgence,
+            ]) ;   
 
-        }else if($content == 1)
-        {
-            // $response = $this->renderView("stock/general/displayStockByNameProduct.html.twig",[
-            //     "stockGenerales" => (array)$stockGenerales,
-            // ]) ;
-            $response = $this->renderView("stock/general/displayStockByPreference.html.twig",[
-                "stockParCategories" => (array)$stockParCategories,
-            ]) ;
-        }else  if($content == 2)
-        {
-            $response = $this->renderView("stock/general/displayStockByEntrepot.html.twig",[
-                "stockGEntrepots" => $stockGEntrepots
+            $search = [
+                "id" => $content,
+            ] ;
+    
+            $stockGenerales = $this->appService->searchData($stockGenerales,$search) ;
+
+            $response = $this->renderView("stock/general/displayStockByNameProduct.html.twig",[
+                "stockGenerales" => (array)$stockGenerales,
             ]) ;
         }
 
@@ -3256,51 +3221,48 @@ class StockController extends AbstractController
     #[Route('/stock/general/produit/historique', name: 'stock_general_histo_produit')]
     public function stockHistoriqueProduit(Request $request)
     {
-        $filename = $this->filename."approvisionnement(agence)/".$this->nameAgence ;
+        // $produitExpirees = $this->entityManager->getRepository(PrdApprovisionnement::class)->generateProduitExpiree([
+        //     "agence" => $this->agence,
+        //     "nameAgence" => $this->nameAgence,
+        //     "filename" => "files/systeme/stock/produitExpiree(agence)/".$this->nameAgence ,
+        // ]) ;
 
-        if(!file_exists($filename))
-            $this->appService->generatePrdListeApprovisionnement($filename, $this->agence) ;
-
-        $appros = json_decode(file_get_contents($filename)) ;
-
-        $groupedData = [];
-
-        foreach ($appros as $item) {
-            $key = $item->dateExpiration . '-' . $item->indice . '-' . $item->prixVente;
-
-            if (!isset($groupedData[$key])) {
-                $groupedData[$key] = [];
-                $groupedData[$key]["prixVente"] = $item->prixVente ;
-                $groupedData[$key]["dateExpiration"] = $item->dateExpiration ;
-                $groupedData[$key]["nomProduit"] = $item->nomProduit ;
-                $groupedData[$key]["codeProduit"] = $item->codeProduit ;
-                $groupedData[$key]["nomType"] = $item->nomType ;
-                $groupedData[$key]["indice"] = $item->indice ;
-                $groupedData[$key]["variation"] = $item->variation ;
-                $groupedData[$key]["stock"] = 0 ;
-            }
-            $groupedData[$key]["stock"] += $item->stock ;
-        }
-
-        $produitExpirees = [] ;
-
-        foreach ($groupedData as $produitExpiree) {
-            if($produitExpiree["dateExpiration"] == "-")
-                continue ;
-            
-            $compareDate = $this->appService->compareDates($produitExpiree["dateExpiration"],date("d/m/Y"),'P') ;
-            if($compareDate)
-            {
-                $produitExpirees[] = $produitExpiree ;
-            }
-        }
-
+        $produitDeduits = $this->entityManager->getRepository(PrdDeduction::class)->generateProduiDeduit([
+            "agence" => $this->agence,
+            "filename" => "files/systeme/stock/produitDeduit(agence)/".$this->nameAgence ,
+        ]) ;
+        
         return $this->render('stock/general/historiqueProduit.html.twig', [
             "filename" => "stock",
             "titlePage" => "Historique Produit",
             "with_foot" => false,
-            "stockExpirees" => $produitExpirees,
+            "produitDeduits" => $produitDeduits,
         ]);
+    }
+
+    #[Route('/stock/historique/produit/search', name: 'stock_search_histo_produit')]
+    public function stockSearchHistoriqueProduit(Request $request)
+    {
+        $specHisto = $request->request->get("specHisto") ;
+
+        $produitExpirees = $this->entityManager->getRepository(PrdApprovisionnement::class)->generateProduitExpiree([
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "filename" => "files/systeme/stock/produitExpiree(agence)/".$this->nameAgence ,
+        ]) ;
+
+        $produitDeduits = $this->entityManager->getRepository(PrdDeduction::class)->generateProduiDeduit([
+            "agence" => $this->agence,
+            "filename" => "files/systeme/stock/produitDeduit(agence)/".$this->nameAgence ,
+        ]) ;
+
+        $response = $this->renderView("stock/general/searchHistoProduit.html.twig",[
+            "specHisto" => $specHisto,
+            "produitExpirees" => $produitExpirees,
+            "produitDeduits" => $produitDeduits,
+        ]) ;
+
+        return new Response($response) ;
     }
 
     #[Route('/stock/general/produit/delete', name: 'stock_general_produit_delete')]

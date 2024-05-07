@@ -56,6 +56,36 @@ class PrdDeductionRepository extends ServiceEntityRepository
         $resultSet = $stmt->executeQuery([$params["variationPrix"]]);
         return $resultSet->fetchAssociative();
     }
+
+    public function generateProduiDeduit($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $elements = [] ;
+            
+            $deductionProduits = $this->getEntityManager()->getRepository(PrdDeduction::class)->findBy([
+                "agence" => $params["agence"],
+            ],["created_at" => "DESC"]) ;
+            
+            foreach ($deductionProduits as $deductionProduit) {
+                $nomProduit = is_null($deductionProduit->getVariationPrix()->getProduit()->getType()) ? "NA" :$deductionProduit->getVariationPrix()->getProduit()->getType()->getNom() ;
+                $elements[] = [
+                    "id" => $deductionProduit->getId() ,
+                    "date" => $deductionProduit->getCreatedAt()->format("d/m/Y") ,
+                    "entrepot" => $deductionProduit->getHistoEntrepot()->getEntrepot()->getNom() ,
+                    "nomProduit" => $nomProduit ,
+                    "designation" => $deductionProduit->getVariationPrix()->getProduit()->getNom() ,
+                    "codeProduit" => $deductionProduit->getVariationPrix()->getProduit()->getCodeProduit() ,
+                    "indice" => is_null($deductionProduit->getVariationPrix()->getIndice()) ? "-" : $deductionProduit->getVariationPrix()->getIndice()  ,
+                    "quantite" => $deductionProduit->getQuantite() ,
+                ] ;
+            }
+
+            file_put_contents($params["filename"],json_encode($elements)) ;
+        }   
+
+        return json_decode(file_get_contents($params["filename"])) ;
+    }
 //    /**
 //     * @return PrdDeduction[] Returns an array of PrdDeduction objects
 //     */

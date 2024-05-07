@@ -1,0 +1,19 @@
+{% set total = 0 %}
+{% for stockEntrepot in stockEntrepots %}
+    <tr>
+        <td>{{stockEntrepot.entrepot}}</td>
+        <td>{{stockEntrepot.code}}</td>
+        <td>{{stockEntrepot.categorie|upper}}</td>
+        <td>{{stockEntrepot.nom}}</td>
+        <td>{{stockEntrepot.indice}}</td>
+        <td>{{stockEntrepot.stock}}</td>
+        <td class="text-center align-middle">
+            <a href="{{path('stock_display_variation_produit',{'idVar':stockEntrepot.encodedIdVar})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+        </td>
+    </tr>
+    {% set total = total + stockEntrepot.stock %}
+{% endfor %}
+<tr>
+    <th colspan="5">Total</th>
+    <th colspan="2" class="bg-purple text-white">{{total}}</th>
+</tr>  

@@ -31,12 +31,12 @@
                     <option value="2">{{"Entrepôt"|upper}}</option>
                 </select>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-5"> 
                 <label for="search_gen_produit" class="mt-2 font-weight-bold text-uppercase">Désignation Produit</label>
-                <select name="search_gen_produit" class="custom-select custom-select-sm" id="search_gen_produit">
+                <select name="search_gen_produit" class="custom-select chosen_select custom-select-sm" id="search_gen_produit">
                     <option value="">TOUS</option>
                     {% for stockGenerale in stockGenerales %}
-                        <option value="{{stockGenerale.id}}">{{stockGenerale.codeProduit}} | {{stockGenerale.nomType}}  | {{stockGenerale.nom}} | stock : {{stockGenerale.stock}}</option>
+                        <option value="{{stockGenerale.id}}">{{stockGenerale.codeProduit}} | {{stockGenerale.nomType|upper}}  | {{stockGenerale.nom|upper}} | stock : {{stockGenerale.stock}}</option>
                     {% endfor %}
                 </select>
             </div>

@@ -19,42 +19,43 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Affichage</label>
-                <select name="prod_categorie" class="custom-select custom-select-sm" id="prod_categorie">
-                    <option value="EXP">{{"Produit Expirée"|upper}}</option>
+                <label for="produit_search_histo" class="mt-2 font-weight-bold text-uppercase">Produit Expirée / Déduit</label>
+                <select name="produit_search_histo" class="custom-select chosen_select custom-select-sm" id="produit_search_histo">
                     <option value="DDI">{{"Produit Déduit"|upper}}</option>
+                    <option value="EXP">{{"Produit Expirée"|upper}}</option>
                 </select>
             </div>
         </div>
-        <div class="table-responsive limit_tbody overflow-auto mt-4">
-            <table class="table table-sm table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Date d'expiration</th>
-                        <th>Nom Produit</th>
-                        <th>Désignation Produit</th>
-                        <th>Code</th>
-                        <th>Indice</th>
-                        <th>Quantité</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stockExpiree in stockExpirees %}
+        <div class="content_historique py-4">
+            <h5 class="title_form text-black text-uppercase text-center">Produit Déduit</h5>
+            <div class="table-responsive limit_tbody overflow-auto mt-2">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark">
                         <tr>
-                            <td>{{stockExpiree.dateExpiration}}</td>
-                            <td>{{stockExpiree.nomType|upper}}</td>
-                            <td>{{stockExpiree.nomProduit}}</td>
-                            <td>{{stockExpiree.codeProduit}}</td>
-                            <td>{{stockExpiree.indice}}</td>
-                            <td>{{stockExpiree.stock}}</td>
-                            <td class="text-center align-middle">
-                                <button value="{{stockExpiree.variation}}" class="btn btn-sm btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
-                            </td>
+                            <th>Date de déduction</th>
+                            <th>Entrepot</th>
+                            <th>Nom Produit</th>
+                            <th>Désignation Produit</th>
+                            <th>Code</th>
+                            <th>Indice</th>
+                            <th>Quantité Déduit</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for produitDeduit in produitDeduits %}
+                            <tr>
+                                <td class="align-middle">{{produitDeduit.date}}</td>
+                                <td class="align-middle">{{produitDeduit.entrepot}}</td>
+                                <td class="align-middle">{{produitDeduit.nomProduit}}</td>
+                                <td class="align-middle">{{produitDeduit.designation}}</td>
+                                <td class="align-middle">{{produitDeduit.codeProduit}}</td>
+                                <td class="align-middle">{{produitDeduit.indice}}</td>
+                                <td class="align-middle">{{produitDeduit.quantite}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

@@ -1191,8 +1191,12 @@ $(document).ready(function(){
         {
             name: "idP",
             selector : "search_produit_ste"
+        },
+        {
+            name: "interface",
+            selector : "search_ent_unique_ste"
         }
-    ]
+    ] ;
 
     function searchStockEntrepot()
     {
@@ -1228,7 +1232,7 @@ $(document).ready(function(){
     stock_entrepot.forEach(elem => {
         $(elem).change(function()
         {
-            searchStockEntrepot()
+            searchStockEntrepot() ; 
         })
     }) ;
 
@@ -1339,5 +1343,44 @@ $(document).ready(function(){
         return false ;
     }) ;
 
+    var elemhistoP = [
+        {
+            name: "specHisto",
+            selector : "produit_search_histo"
+        },
+    ] ;
+
+    elemhistoP.forEach(elem => {
+        $("#"+elem.selector).change(function()
+        {
+            searchHistoProduit() ; 
+        })
+    }) ;
+
+    function searchHistoProduit()
+    {
+        var myinstance = new Loading(files.search) ;
+        $(".content_historique").html(myinstance.otherSearch()) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemhistoP.length; j++) {
+            const search = elemhistoP[j];
+            formData.append(search.name,$("#"+search.selector).val());
+        }
+        $.ajax({
+            url: routes.stock_search_histo_produit ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".content_historique").html(response) ;
+            },
+            error: function(resp){
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }
 })
 

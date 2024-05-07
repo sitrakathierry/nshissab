@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\PrdApprovisionnement;
+use App\Service\AppService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,9 +17,13 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PrdApprovisionnementRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $appService ;
+
+    public function __construct(ManagerRegistry $registry, AppService $appService)
     {
         parent::__construct($registry, PrdApprovisionnement::class);
+
+        $this->appService = $appService ;
     }
 
     public function save(PrdApprovisionnement $entity, bool $flush = false): void
@@ -78,6 +83,56 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
         ]);
         // $resultSet = $stmt->executeQuery([$params["variationPrix"],$params["histoEntrepot"]]);
         return $resultSet->fetchAssociative();
+    }
+
+    public function generateProduitExpiree($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $filename = "files/systeme/stock/approvisionnement(agence)/".$params["nameAgence"] ;
+            
+            if(!file_exists($filename))
+                $this->appService->generatePrdListeApprovisionnement($filename, $params["agence"]) ;
+
+    
+            $appros = json_decode(file_get_contents($filename)) ;
+    
+            $groupedData = [];
+    
+            foreach ($appros as $item) {
+                $key = $item->dateExpiration . '-' . $item->indice . '-' . $item->prixVente;
+    
+                if (!isset($groupedData[$key])) {
+                    $groupedData[$key] = [];
+                    $groupedData[$key]["prixVente"] = $item->prixVente ;
+                    $groupedData[$key]["dateExpiration"] = $item->dateExpiration ;
+                    $groupedData[$key]["nomProduit"] = $item->nomProduit ;
+                    $groupedData[$key]["codeProduit"] = $item->codeProduit ;
+                    $groupedData[$key]["nomType"] = $item->nomType ;
+                    $groupedData[$key]["indice"] = $item->indice ;
+                    $groupedData[$key]["variation"] = $item->variation ;
+                    $groupedData[$key]["stock"] = 0 ;
+                }
+                $groupedData[$key]["stock"] += $item->stock ;
+            }
+    
+            $produitExpirees = [] ;
+    
+            foreach ($groupedData as $produitExpiree) {
+                if($produitExpiree["dateExpiration"] == "-")
+                    continue ;
+                
+                $compareDate = $this->appService->compareDates($produitExpiree["dateExpiration"],date("d/m/Y"),'P') ;
+                if($compareDate)
+                {
+                    $produitExpirees[] = $produitExpiree ;
+                }
+            }
+
+            file_put_contents($params["filename"],json_encode($produitExpirees)) ;
+        }
+
+        return json_decode(file_get_contents($params["filename"])) ;
     }
 
 //    /**
