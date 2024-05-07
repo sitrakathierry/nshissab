@@ -666,10 +666,22 @@ class FactureController extends AbstractController
 
         foreach ($detailFactures as $detailFacture) {
 
+            $histoEntrepot = NULL ;
+
+            if($detailFacture->getActivite() == 'Produit' && is_null($detailFacture->getEntite()))
+            {
+                $histoEntrepot = $this->entityManager->getRepository(FactDetails::class)->findHistoEntrepotInFacture([
+                    "factDetail" => $detailFacture,
+                    "agence" => $this->agence,
+                    "user" => $this->userObj,
+                ]) ;
+            }
+
             $factDetail = new FactDetails() ;
 
             $factDetail->setActivite($detailFacture->getActivite()) ;
             $factDetail->setEntite($detailFacture->getEntite()) ;
+            $factDetail->setHistoEntrepot($histoEntrepot) ;
             $factDetail->setFacture($newFacture) ; 
             $factDetail->setRemiseType($detailFacture->getRemiseType()) ;
             $factDetail->setRemiseVal($detailFacture->getRemiseVal()) ;
@@ -2160,6 +2172,7 @@ class FactureController extends AbstractController
                     $factDetail->setRemiseVal(null) ;
                     $factDetail->setActivite("Produit") ;
                     $factDetail->setEntite($caissePanier->getVariationPrix()->getId()) ;
+                    $factDetail->setHistoEntrepot($caissePanier->getHistoEntrepot()) ;
                     $factDetail->setDesignation($caissePanier->getVariationPrix()->getProduit()->getNom()) ;
                     $factDetail->setQuantite($caissePanier->getQuantite()) ;
                     $factDetail->setPrix($caissePanier->getPrix()) ;
@@ -2194,13 +2207,23 @@ class FactureController extends AbstractController
                     }
                     else
                         $remiseVal = null ;
-        
+
+                    $histoEntrepot = NULL ;
+
                     if($fact_enr_prod_type[$key] != "autre")
                     {
                         $factDetail->setActivite($fact_enr_prod_type[$key]) ;
                         $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
                         if($fact_enr_prod_type[$key] == "Produit")
                         {
+                            $histoEntrepot = $this->entityManager->getRepository(FactDetails::class)->findHistoEntrepotInFacture([
+                                "factDetail" => NULL,
+                                "variationPrix" => $fact_enr_prod_prix[$key],
+                                "entrepot" => $entrepot,
+                                "agence" => $this->agence,
+                                "user" => $this->userObj,
+                            ]) ;
+
                             $detailEntite = $this->entityManager->getRepository(PrdVariationPrix::class)->find($fact_enr_prod_prix[$key]) ;
                             $detailEntite->getProduit()->setToUpdate(True) ;
                             $this->entityManager->flush() ;
@@ -2209,6 +2232,7 @@ class FactureController extends AbstractController
                     
                     $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
                     
+                    $factDetail->setHistoEntrepot($histoEntrepot) ;
                     $factDetail->setFacture($facture) ; 
                     $factDetail->setRemiseType($typeRemiseUnit) ;
                     $factDetail->setRemiseVal($remiseVal) ;
@@ -2469,14 +2493,28 @@ class FactureController extends AbstractController
                 else
                     $remiseVal = null ;
     
+                $histoEntrepot = NULL ;
+
                 if($fact_enr_prod_type[$key] != "autre")
                 {
+                    if($fact_detail_modele == "PROD")
+                    {
+                        $histoEntrepot = $this->entityManager->getRepository(FactDetails::class)->findHistoEntrepotInFacture([
+                            "factDetail" => NULL,
+                            "variationPrix" => $fact_enr_prod_prix[$key],
+                            "entrepot" => $facture->getEntrepot(),
+                            "agence" => $this->agence,
+                            "user" => $this->userObj,
+                        ]) ;
+                    }
+
                     $factDetail->setActivite($fact_enr_prod_type[$key]) ;
                     $factDetail->setEntite($fact_enr_prod_prix[$key]) ;
                 }
                 
                 $dtlsTvaVal = empty($fact_enr_prod_tva_val[$key]) ? null : $fact_enr_prod_tva_val[$key] ;
-    
+                
+                $factDetail->setHistoEntrepot($histoEntrepot) ;
                 $factDetail->setFacture($facture) ; 
                 $factDetail->setRemiseType($typeRemiseUnit) ;
                 $factDetail->setRemiseVal($remiseVal) ;
