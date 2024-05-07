@@ -133,7 +133,7 @@ class FactDetailsRepository extends ServiceEntityRepository
             ->from(FactDetails::class, 'fd')
             // ->join(Facture::class, 'f', 'WITH', 'a.someField = b.someField')
             ->where('fd.activite = :activite')
-            ->andWhere('fd.agence = :histoEntrepot')
+            // ->andWhere('fd.agence = :histoEntrepot')
             ->andWhere('fd.statut = :statut')
             ->andWhere('fd.entite IS NOT NULL')
             ->andWhere('fd.histoEntrepot = :histoEntrepot')
