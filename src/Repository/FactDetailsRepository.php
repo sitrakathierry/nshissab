@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\FactDetails;
+use App\Entity\Facture;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdMargeType;
@@ -130,7 +131,9 @@ class FactDetailsRepository extends ServiceEntityRepository
         $query = $queryBuilder
             ->select('SUM(fd.quantite) as totalFactureEntrepot')
             ->from(FactDetails::class, 'fd')
+            // ->join(Facture::class, 'f', 'WITH', 'a.someField = b.someField')
             ->where('fd.activite = :activite')
+            ->andWhere('fd.agence = :histoEntrepot')
             ->andWhere('fd.statut = :statut')
             ->andWhere('fd.entite IS NOT NULL')
             ->andWhere('fd.histoEntrepot = :histoEntrepot')
@@ -170,12 +173,15 @@ class FactDetailsRepository extends ServiceEntityRepository
         $query = $queryBuilder
             ->select('fd')
             ->from(FactDetails::class, 'fd')
+            ->join(Facture::class, 'f', 'WITH', 'f.id = fd.facture')
             ->where('fd.activite = :activite')
+            ->andWhere('f.agence = :agence')
             ->andWhere('fd.statut = :statut')
             ->andWhere('fd.entite IS NOT NULL')
             ->andWhere('fd.histoEntrepot IS NULL')
             ->orderBy('fd.id', 'ASC')
             ->setParameter('activite', 'Produit')
+            ->setParameter('agence', $params["agence"]->getId())
             ->setParameter('statut', True)
             ->getQuery() ;
 
