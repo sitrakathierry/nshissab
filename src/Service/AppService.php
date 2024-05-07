@@ -1307,8 +1307,8 @@ class AppService extends AbstractController
         
         foreach($entrepots as $entrepot)
         {
-            $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-                "entrepot" => $entrepot,
+            $stockEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->getTotalStockInEntrepot([
+                "entrepot" => $entrepot->getId(),
                 "statut" => True
             ]) ;
 
@@ -1317,10 +1317,10 @@ class AppService extends AbstractController
             $element["id"] = $entrepot->getId() ;
             $element["encodedId"] = $this->encodeChiffre($entrepot->getId()) ;
             $element["nom"] = $entrepot->getNom() ;
-            $element["stock"] = 0 ;
-            foreach ($stockEntrepots as $stockEntrepot) {
-                $element["stock"] += $stockEntrepot->getStock() ;
-            }
+            $element["stock"] = $stockEntrepot["stockTotal"] ;
+            // foreach ($stockEntrepots as $stockEntrepot) {
+            //     $element["stock"] += $stockEntrepot->getStock() ;
+            // }
             array_push($elements,$element) ;
         }
         file_put_contents($filename,json_encode($elements)) ;
@@ -4010,65 +4010,65 @@ class AppService extends AbstractController
 
     public function updateAnneeData()
     {
-        $factures = $this->entityManager->getRepository(Facture::class)->findBy([
-            "agence" => $this->agence,
-            "anneeData" => NULL,
-        ]) ; 
+        // $factures = $this->entityManager->getRepository(Facture::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "anneeData" => NULL,
+        // ]) ; 
 
-        foreach ($factures as $facture) {
-            $facture->setAnneeData($facture->getDate()->format('Y')) ;
-            $this->entityManager->flush() ;
-        }
+        // foreach ($factures as $facture) {
+        //     $facture->setAnneeData($facture->getDate()->format('Y')) ;
+        //     $this->entityManager->flush() ;
+        // }
 
-        $annulations = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
-            "agence" => $this->agence,
-            "anneeData" => NULL,
-        ]) ; 
+        // $annulations = $this->entityManager->getRepository(SavAnnulation::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "anneeData" => NULL,
+        // ]) ; 
 
-        foreach ($annulations as $annulation) {
-            $annulation->setAnneeData($annulation->getDate()->format('Y')) ;
-            $this->entityManager->flush() ;
-        }
+        // foreach ($annulations as $annulation) {
+        //     $annulation->setAnneeData($annulation->getDate()->format('Y')) ;
+        //     $this->entityManager->flush() ;
+        // }
 
-        $produits = $this->entityManager->getRepository(Produit::class)->findBy([
-            "agence" => $this->agence,
-            "anneeData" => NULL,
-        ]) ; 
+        // $produits = $this->entityManager->getRepository(Produit::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "anneeData" => NULL,
+        // ]) ; 
 
-        foreach ($produits as $produit) {
-            $produit->setAnneeData($produit->getCreatedAt()->format('Y')) ;
-            $this->entityManager->flush() ;
-        }
+        // foreach ($produits as $produit) {
+        //     $produit->setAnneeData($produit->getCreatedAt()->format('Y')) ;
+        //     $this->entityManager->flush() ;
+        // }
 
-        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
-            "agence" => $this->agence,
-            "anneeData" => NULL,
-        ]) ; 
+        // $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "anneeData" => NULL,
+        // ]) ; 
 
-        foreach ($histoEntrepots as $histoEntrepot) {
-            $histoEntrepot->setAnneeData($histoEntrepot->getCreatedAt()->format('Y')) ;
-            $this->entityManager->flush() ;
-        }
+        // foreach ($histoEntrepots as $histoEntrepot) {
+        //     $histoEntrepot->setAnneeData($histoEntrepot->getCreatedAt()->format('Y')) ;
+        //     $this->entityManager->flush() ;
+        // }
 
-        $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
-            "agence" => $this->agence,
-            "anneeData" => NULL,
-        ]) ; 
+        // $caissePaniers = $this->entityManager->getRepository(CaissePanier::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "anneeData" => NULL,
+        // ]) ; 
 
-        foreach ($caissePaniers as $caissePanier) {
-            $caissePanier->setAnneeData($caissePanier->getCommande()->getDate()->format('Y')) ;
-            $this->entityManager->flush() ;
-        }
+        // foreach ($caissePaniers as $caissePanier) {
+        //     $caissePanier->setAnneeData($caissePanier->getCommande()->getDate()->format('Y')) ;
+        //     $this->entityManager->flush() ;
+        // }
 
-        $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
-            "agence" => $this->agence,
-            "anneeData" => NULL,
-        ]) ; 
+        // $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
+        //     "agence" => $this->agence,
+        //     "anneeData" => NULL,
+        // ]) ; 
 
-        foreach ($finances as $finance) {
-            $finance->setAnneeData($finance->getCreatedAt()->format('Y')) ;
-            $this->entityManager->flush() ;
-        }
+        // foreach ($finances as $finance) {
+        //     $finance->setAnneeData($finance->getCreatedAt()->format('Y')) ;
+        //     $this->entityManager->flush() ;
+        // }
     }
 
     public function timeToDate($timestamp)

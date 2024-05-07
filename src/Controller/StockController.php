@@ -591,21 +591,21 @@ class StockController extends AbstractController
 
         $stockParCategories = json_decode(file_get_contents($filename)) ; 
 
-        $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
-            "agence" => $this->agence
-        ],
-        [
-            "id" => "DESC"
-        ]) ;
+        // $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
+        //     "agence" => $this->agence
+        // ],
+        // [
+        //     "id" => "DESC"
+        // ]) ;
 
-        foreach ($appros as $appro) {
-            if(!$appro->isIsAuto())
-                continue ;
+        // foreach ($appros as $appro) {
+        //     if(!$appro->isIsAuto())
+        //         continue ;
             
-            $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
-            $appro->setIsAuto(False) ;
-            $this->entityManager->flush() ;
-        }
+        //     $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
+        //     $appro->setIsAuto(False) ;
+        //     $this->entityManager->flush() ;
+        // }
 
         // dd($stockParCategories) ;
 

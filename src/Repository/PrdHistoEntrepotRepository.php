@@ -141,6 +141,15 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
         return json_decode(file_get_contents($params["filename"])) ; 
     }
 
+    public function getTotalStockInEntrepot($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT SUM(`stock`) as stockTotal FROM `prd_histo_entrepot` WHERE `entrepot_id` = ? AND `statut` = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([$params["entrepot"], $params["statut"]]);
+        return $resultSet->fetchAssociative();
+    }
+
 //    /**
 //     * @return PrdHistoEntrepot[] Returns an array of PrdHistoEntrepot objects
 //     */
