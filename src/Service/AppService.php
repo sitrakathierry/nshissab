@@ -3620,8 +3620,8 @@ class AppService extends AbstractController
 
             foreach ($variationPrixTrues as $variationPrixTrue) {
 
-                if(!$variationPrixTrue->isStatut())
-                    continue ;
+                // if(!$variationPrixTrue->isStatut())
+                //     continue ;
 
                 $variationPrixTrue->setStatut(False) ;
                 $this->entityManager->flush() ;
