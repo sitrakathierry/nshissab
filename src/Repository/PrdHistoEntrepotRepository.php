@@ -111,7 +111,7 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
             
             foreach ($stockEntrepots as $stockEntrepot) {
                 
-                $images = $stockEntrepot->getVariationPrix()->getProduit()->getImages() ;
+                // $images = $stockEntrepot->getVariationPrix()->getProduit()->getImages() ;
 
                 $element = [] ;
                 $element["id"] = $stockEntrepot->getId() ;
@@ -126,7 +126,7 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
                 $element["indice"] = !empty($stockEntrepot->getVariationPrix()->getIndice()) ? $stockEntrepot->getVariationPrix()->getIndice() : "-" ;
                 $element["categorie"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getCategorie()->getNom() ;
                 $element["nom"] = $stockEntrepot->getVariationPrix()->getProduit()->getNom() ;
-                $element["images"] = is_null($images) ? "-" : $images ;
+                $element["images"] = "-" ;
                 $element["nomType"] = is_null($stockEntrepot->getVariationPrix()->getProduit()->getType()) ? "NA" : $stockEntrepot->getVariationPrix()->getProduit()->getType()->getNom() ;
                 $element["stock"] = $stockEntrepot->getStock() ;
                 $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
