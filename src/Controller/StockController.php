@@ -16,6 +16,7 @@ use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdCategories;
 use App\Entity\PrdDeduction;
 use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
 use App\Entity\PrdFournisseur;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdHistoFournisseur;
@@ -77,10 +78,10 @@ class StockController extends AbstractController
 
         $preferences = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
-            $this->appService->generateStockEntrepot($filename, $this->agence) ;
-        $entrepots = (json_decode(file_get_contents($filename))) ;
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -573,11 +574,10 @@ class StockController extends AbstractController
         
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-
-        $entrepots = json_decode(file_get_contents($filename)) ; 
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;
         if(!file_exists($filename))  
@@ -1148,11 +1148,10 @@ class StockController extends AbstractController
 
         $stockEntrepots = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ; 
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-        
-        $entrepots = json_decode(file_get_contents($filename)) ;
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $filename = $this->filename."preference(user)/".$this->nameUser."_".$this->userObj->getId().".json" ;
 
@@ -1181,11 +1180,10 @@ class StockController extends AbstractController
     #[Route('/stock/entrepot/produit/get', name: 'stock_get_produit_et_entrepot')]
     public function stockGetEntrepotProduit()
     {
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-        
-        $entrepots = json_decode(file_get_contents($filename)) ;
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -1316,11 +1314,10 @@ class StockController extends AbstractController
     #[Route('/stock/entrepot', name: 'stock_entrepot')]
     public function stockEntrepot(): Response
     {
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-        
-        $entrepots = json_decode(file_get_contents($filename)) ; 
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $role = $this->userObj->getRoles()[0] ;
 
@@ -1336,10 +1333,36 @@ class StockController extends AbstractController
     #[Route('/stock/entrepot/record/get', name: 'stock_get_record_entrepot')]
     public function stockGetRecordEntrepot()
     {
-        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
-            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
-            "agence" => $this->agence
-        ]) ;
+        if($this->userObj->getRoles()[0] == "MANAGER")
+        {
+            $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+                "agence" => $this->agence
+            ]) ;
+        }
+        else
+        {
+            $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
+                "agent" => $this->userObj,
+                "statut" => True
+            ]) ;
+            
+            $entrepots = [] ;
+            foreach ($affectEntrepots as $affectEntrepot) 
+            {
+                $entrepot = $affectEntrepot->getEntrepot() ;
+                if($entrepot->isStatut())
+                {
+                    $entrepots[] = 
+                    [
+                        "id" => $entrepot->getId(),
+                        "nom" => $entrepot->getNom(),
+                        "adresse" => $entrepot->getAdresse(),
+                        "telephone" => $entrepot->getTelephone(),
+                    ] ;
+                }
+            }
+        }
 
         $response = $this->renderView("stock/entrepot/getRecordsEntrepot.html.twig",[
             "entrepots" => $entrepots
@@ -1492,7 +1515,15 @@ class StockController extends AbstractController
         $this->entityManager->persist($entrepot);
         $this->entityManager->flush();
         
-        $this->appService->generateStockEntrepot($this->filename."entrepot(agence)/".$this->nameAgence,$this->agence) ;
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
+        
+        $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         // DEBUT SAUVEGARDE HISTORIQUE
 
@@ -1541,8 +1572,16 @@ class StockController extends AbstractController
         $entrepot->setUpdatedAt(new \DateTimeImmutable) ;
         $this->entityManager->flush();
 
-        $this->appService->generateStockEntrepot($this->filename."entrepot(agence)/".$this->nameAgence,$this->agence) ;
+        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
         
+        $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
+
         // DEBUT SAUVEGARDE HISTORIQUE
 
         $this->entityManager->getRepository(HistoHistorique::class)
@@ -1816,11 +1855,10 @@ class StockController extends AbstractController
 
         $preferences = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-        $this->appService->generateStockEntrepot($filename,$this->agence) ;
-        
-        $entrepots = json_decode(file_get_contents($filename)) ; 
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $search = [
             "id" => is_null($id)? "" : $id,
@@ -2282,11 +2320,10 @@ class StockController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-
-        $entrepots = json_decode(file_get_contents($filename)) ; 
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -2307,11 +2344,10 @@ class StockController extends AbstractController
     #[Route('/stock/entrepot/transfert', name: 'stock_entrepot_to_transfert')]
     public function stockTransfertEntrepot()
     {
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-
-        $entrepots = json_decode(file_get_contents($filename)) ; 
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $response = $this->renderView('stock/entrepot/formulaireTransfert.html.twig',[
             "entrepots" => $entrepots
@@ -2477,12 +2513,10 @@ class StockController extends AbstractController
     #[Route('/stock/approvisionnement/liste', name: 'stock_appr_liste')]
     public function stockApprListe(): Response
     {
-        $filename = $this->filename."approvisionnement(agence)/".$this->nameAgence ;
-
-        if(!file_exists($filename))
-            $this->appService->generatePrdListeApprovisionnement($filename, $this->agence) ;
-
-        $appros = json_decode(file_get_contents($filename)) ;
+        $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->generatePrdListeApprovisionnement([
+            "agence" => $this->agence,
+            "filename" => $this->filename."approvisionnement(agence)/".$this->nameAgence
+        ]) ;
 
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
@@ -2528,11 +2562,10 @@ class StockController extends AbstractController
 
         $produit = $this->entityManager->getRepository(Produit::class)->find($id) ;
 
-        $filename = $this->filename."entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
-        
-        $entrepots = json_decode(file_get_contents($filename)) ;
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
 
         $filename = $this->filename."fournisseur(agence)/".$this->nameAgence ;
         if(!file_exists($filename))

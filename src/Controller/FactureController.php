@@ -284,11 +284,13 @@ class FactureController extends AbstractController
         else
         {
             $entrepots = [] ;
-            foreach ($affectEntrepots as $affectEntrepot) {
+            foreach ($affectEntrepots as $affectEntrepot) 
+            {
                 $entrepot = $affectEntrepot->getEntrepot() ;
                 if($entrepot->isStatut())
                 {
-                    $entrepots[] = [
+                    $entrepots[] = 
+                    [
                         "id" => $entrepot->getId(),
                         "nom" => $entrepot->getNom(),
                         "adresse" => $entrepot->getAdresse(),

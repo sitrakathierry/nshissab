@@ -829,7 +829,7 @@ class AppService extends AbstractController
             "statut" => True
         ]) ;
 
-        $stocks = [] ;
+        $stocks = [] ; 
         $stocks["Non Assignee"]["stock"] = 0 ;
         $stocks["Non Assignee"]["encodedId"] = "NA" ;
 

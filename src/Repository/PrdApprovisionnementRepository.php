@@ -89,15 +89,12 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
     {
         if(!file_exists($params["filename"]))
         {
-            $filename = "files/systeme/stock/approvisionnement(agence)/".$params["nameAgence"] ;
-            
-            if(!file_exists($filename))
-                $this->appService->generatePrdListeApprovisionnement($filename, $params["agence"]) ;
-
+            $appros = $this->generatePrdListeApprovisionnement([
+                "agence" => $params["agence"],
+                "filename" => "files/systeme/stock/approvisionnement(agence)/".$params["nameAgence"],
+            ]) ;
     
-            $appros = json_decode(file_get_contents($filename)) ;
-    
-            $groupedData = [];
+            $groupedData = [] ;
     
             foreach ($appros as $item) {
                 $key = $item->dateExpiration . '-' . $item->indice . '-' . $item->prixVente;
@@ -130,6 +127,84 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
             }
 
             file_put_contents($params["filename"],json_encode($produitExpirees)) ;
+        }
+
+        return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function generatePrdListeApprovisionnement($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $repository = $this->getEntityManager()->getRepository(PrdApprovisionnement::class);
+
+            $query = $repository->createQueryBuilder('pa')
+                ->select("pa,CASE 
+                                WHEN pa.description LIKE :depot THEN 'DEPOT'
+                                WHEN pa.description LIKE :reequilibrage THEN 'AUTO'
+                                ELSE 'APPRO'
+                        END AS type")
+                // ->select('pa.description')
+                ->where('pa.agence = :agence')
+                ->orderBy('pa.id', 'DESC')
+                ->setParameter('agence', $params['agence'])
+                ->setParameter('depot', '%Dépôt-Dépôt%')
+                ->setParameter('reequilibrage', '%Rééquilibrage%')
+                ->getQuery();
+
+            $appros = $query->getResult();
+
+            // dd($appros) ;
+
+            // $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->findBy([
+            //     "agence" => $params["agence"]
+            // ],
+            // [
+            //     "id" => "DESC"
+            // ]) ;
+            
+            $tabTypeAppro = [
+                "AUTO" => "Automatique",
+                "DEPOT" => "Dépôt-Dépôt",
+                "APPRO" => "Approvisionnement",
+            ] ;
+
+            $elements = [] ;
+            
+            foreach ($appros as $approData) {
+                $appro = $approData[0] ; 
+                $element = [] ;
+    
+                $nomProduit = $appro->getVariationPrix()->getProduit()->getNom() ;
+                $codeProduit = $appro->getVariationPrix()->getProduit()->getCodeProduit() ;
+                $nomType = is_null($appro->getVariationPrix()->getProduit()->getType()) ? "NA" :$appro->getVariationPrix()->getProduit()->getType()->getNom() ;
+                $prixVente = is_null($appro->getPrixVente()) ? $appro->getVariationPrix()->getPrixVente() : $appro->getPrixVente() ; 
+                
+                $element["id"] = $appro->getId() ;
+                $element["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
+                $element["annee"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("Y") : $appro->getDateAppro()->format("Y") ;
+                $element["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+                $element["idEntrepot"] = $appro->getHistoEntrepot()->getId() ;
+                $element["produit"] = $codeProduit." | ".$nomType." | ".$nomProduit ;
+                $element["prixVente"] = $prixVente ;
+                $element["quantite"] = $appro->getQuantite() ;
+                $element["total"] = $appro->getQuantite() * $prixVente ;
+                $element["dateExpiration"] = is_null($appro->getExpireeLe()) ? "-" : $appro->getExpireeLe()->format("d/m/Y") ;
+                $element["nomProduit"] = $nomProduit ;
+                $element["codeProduit"] = $codeProduit ;
+                $element["nomType"] = $nomType ;
+                $element["refTypeAppro"] = $approData["type"] ;
+                $element["nomTypeAppro"] = $tabTypeAppro[$approData["type"]] ;
+                $element["indice"] = is_null($appro->getVariationPrix()->getIndice()) ? "-" : $appro->getVariationPrix()->getIndice() ;
+                $element["variation"] = $appro->getVariationPrix()->getId() ;
+                $element["stock"] = $appro->getQuantite() ;
+    
+                array_push($elements,$element) ;
+            } 
+    
+            // usort($elements, [self::class, 'comparaisonDates']);
+    
+            file_put_contents($params["filename"],json_encode($elements)) ;
         }
 
         return json_decode(file_get_contents($params["filename"])) ;
