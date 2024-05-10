@@ -2513,20 +2513,58 @@ class StockController extends AbstractController
     #[Route('/stock/approvisionnement/liste', name: 'stock_appr_liste')]
     public function stockApprListe(): Response
     {
-        $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->generatePrdListeApprovisionnement([
-            "agence" => $this->agence,
-            "filename" => $this->filename."approvisionnement(agence)/".$this->nameAgence
-        ]) ;
+        // $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->generatePrdListeApprovisionnement([
+        //     "agence" => $this->agence,
+        //     "filename" => $this->filename."approvisionnement(agence)/".$this->nameAgence
+        // ]) ;
 
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
+        $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
+
+        $stockGenerales = json_decode(file_get_contents($filename)) ;
+
         return $this->render('stock/approvisionnement/liste.html.twig', [
             "filename" => "stock",
             "titlePage" => "Liste des approvisionnements",
             "with_foot" => false,
-            "appros" => $appros,
+            // "appros" => $appros,
             "tabMois" => $tabMois,
+            "stockGenerales" => $stockGenerales,
         ]);
+    }
+
+    #[Route('/stock/produit/suivi/search', name: 'stock_produit_suivi_search')]
+    public function stockSeachSuiviProduit(Request $request)
+    {
+        $idProduit = $request->request->get("idProduit") ;
+
+        $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduit([
+            "agence" => $this->agence,
+            "idProduit" => $idProduit,
+        ]) ;
+
+        $produit = $this->entityManager->getRepository(Produit::class)->find($idProduit) ;
+
+        $codeProduit = $produit->getCodeProduit() ;
+        $nom = $produit->getNom() ;
+        $nomType = is_null($produit->getType()) ? "NA" : $produit->getType()->getNom() ;
+        $stock = $produit->getStock() ;
+
+        $nomProduit = $codeProduit . " | " . strtoupper($nomType) . " | " . strtoupper($nom) . " | STOCK : " . $stock ;
+
+        // $search = [
+        //     "idE"
+        // ] ;
+
+        $response = $this->renderView('stock/general/suiviProduit.html.twig',[
+            "suiviProduits" => $suiviProduits,
+            "nomProduit" => $nomProduit,
+        ]) ;
+
+        return new Response($response) ;
     }
 
     public static function compareDates($a, $b) {
@@ -2605,7 +2643,6 @@ class StockController extends AbstractController
                 $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
                 $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
                 $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
-                // $item["entrepot"] = "-" ;
                 $item["produit"] = $produit->getNom() ;
                 $item["quantite"] = $caissePanier->getQuantite() ;
                 $item["prix"] = $caissePanier->getPrix() ;
@@ -2621,7 +2658,7 @@ class StockController extends AbstractController
             ]) ;
 
             foreach($appros as $appro)
-            { 
+            {
                 if(!$appro->getHistoEntrepot()->isStatut())
                     continue ;
 
@@ -3273,6 +3310,7 @@ class StockController extends AbstractController
             "titlePage" => "Historique Produit",
             "with_foot" => false,
             "produitDeduits" => $produitDeduits,
+            // "stockGenerales" => $stockGenerales,
         ]);
     }
 

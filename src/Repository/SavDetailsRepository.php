@@ -60,7 +60,7 @@ class SavDetailsRepository extends ServiceEntityRepository
     public function getHistoVariationSav($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT DATE_FORMAT(sa.date,'%d/%m/%Y') as date, 
+        $sql = "SELECT p.id as idProduit, DATE_FORMAT(sa.date,'%d/%m/%Y') as date, 
 		IF(sd.facture_detail_id IS NOT NULL, (SELECT pe.nom FROM `prd_histo_entrepot` phe 
 		JOIN prd_entrepot pe ON pe.id = phe.entrepot_id WHERE phe.variation_prix_id = fd.entite LIMIT 1),(SELECT 		pe.nom FROM `prd_histo_entrepot` phe 
 		JOIN prd_entrepot pe ON pe.id = phe.entrepot_id  

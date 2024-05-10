@@ -17,67 +17,65 @@
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
     <div class="container-fluid px-3 pt-3">
-        <div class="row">
-            {# <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
-                </select>
-            </div> #}
-            {# <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
-                <select name="type_societe" class="custom-select custom-select-sm" id="type_societe">
-                    <option value="">Tous</option>
-                </select>
-            </div> #}
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-            {# <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date Début</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div> #}
-            {# <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Date fin</label>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                    </div>
-                    <input type="text" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div> #} 
-            <div class="col-md-3">
-                {% set i = 1 %}
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois</label>
-                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+        <div class="d-flex flex-row align-items-center">
+            <button class="btn btn-sm search_btn_suivi_type btn-outline-primary mx-2 px-3 text-uppercase">TOUS</button>
+            <button class="btn btn-sm search_btn_suivi_type btn-outline-primary mx-2 px-3 text-uppercase">APPROVISIONNEMENT</button>
+            <button class="btn btn-sm search_btn_suivi_type btn-outline-primary mx-2 px-3 text-uppercase">VENTE</button>
+            <button class="btn btn-sm search_btn_suivi_type btn-outline-primary mx-2 px-3 text-uppercase">DEDUCTION</button>
+            <button class="btn btn-sm search_btn_suivi_type btn-outline-primary mx-2 px-3 text-uppercase">FACTURE DEFINITIF</button>
+        </div>
+        <input type="hidden" name="search_suivi_type" id="search_suivi_type" >
+        <div class="row mt-3">
+            <div class="col-md-5"> 
+                <label for="search_suivi_produit" class="mt-2 font-weight-bold text-uppercase">Désignation Produit</label>
+                <select name="search_suivi_produit" class="custom-select chosen_select custom-select-sm" id="search_suivi_produit">
                     <option value="">TOUS</option>
-                    {% for tabMois in tabMois %}
-                        <option value="{{i}}">{{tabMois|upper}}</option>
-                        {% set i = i + 1 %}
+                    {% for stockGenerale in stockGenerales %}
+                        <option value="{{stockGenerale.id}}">{{stockGenerale.codeProduit}} | {{stockGenerale.nomType|upper}}  | {{stockGenerale.nom|upper}} | stock : {{stockGenerale.stock}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Année</label>
-                <input type="number" name="nom" id="nom" class="form-control" placeholder="{{'now'|date('Y')}}">
+            <div class="col-md-4">
+                <label for="search_suivi_entrepot" class="mt-2 font-weight-bold text-uppercase">Entrepot</label>
+                <select name="search_suivi_entrepot" class="custom-select chosen_select custom-select-sm" id="search_suivi_entrepot">
+                    <option value="">TOUS</option>
+                </select>
             </div>
-            {# <div class="col-md-3">
-                <label for="nom" class="mt-2 font-weight-bold">&nbsp;</label>
-                <button class="btn btn-perso-one btn-sm btn-block"><i class="fa fa-search"></i>&nbsp;Rechercher</button>
-            </div> #}
+            <div class="col-md-3">
+                <label for="search_suivi_entrepot" class="mt-2 font-weight-bold text-uppercase">Date</label>
+                <select name="search_suivi_entrepot" class="custom-select chosen_select custom-select-sm" id="search_suivi_entrepot">
+                    <option value="">TOUS</option>
+                </select>
+            </div>
         </div>
-        <div class="table-responsive mt-3">
+        <div class="content_suivi_produit">
+            <div class="table-responsive mt-4">
+                <table class="table-sm table table-hover table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Entrepot</th>
+                            <th>Indice</th>
+                            <th>Quantité</th>
+                            <th>Prix de vente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6">
+                                <div class="alert alert-info text-center h6 mb-0">
+                                    <i class="fa fa-info-circle"></i><br>
+                                    Le fichier est trop volumineux pour être traité dans son ensemble.<br>
+                                    Veuillez sélectionner un produit spécifique ci-dessus pour effectuer votre recherche
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {# <div class="table-responsive mt-3">
             <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                     <tr>
@@ -143,7 +141,7 @@
                     </tr>
                 </tfoot>
             </table>
-        </div>
+        </div> #}
 
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

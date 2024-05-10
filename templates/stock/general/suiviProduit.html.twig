@@ -1,0 +1,44 @@
+
+<h5 class="title_form text-black text-uppercase text-center mt-4">Produit : <span class="text-success">{{nomProduit}}</span></h5>
+<div class="table-responsive mt-3">
+    <table class="table-sm table table-hover table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Entrepot</th>
+                <th>Indice</th>
+                <th>Quantité</th>
+                <th>Prix de vente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set totalCredit = 0 %}
+            {% set totalDebit = 0 %}
+            {% set totalQte = 0 %}
+            {% for suiviProduit in suiviProduits %}
+                <tr>
+                    <td class="align-middle">{{suiviProduit.date}}</td>
+                    <td class="align-middle">{{suiviProduit.type|upper}}</td>
+                    <td class="align-middle">{{suiviProduit.entrepot|upper}}</td>
+                    <td class="align-middle">{{"-"}}</td>
+                    <td class="align-middle">{{suiviProduit.quantite}}</td>
+                    <td class="align-middle">{{suiviProduit.prix}}</td>
+                </tr>
+                {% if suiviProduit.indice == "CREDIT" %}
+                    {% set totalCredit = totalCredit + suiviProduit.quantite %}
+                    {% set totalQte = totalQte - suiviProduit.quantite %}
+                {% else %}
+                    {% set totalDebit = totalDebit + suiviProduit.quantite %}
+                    {% set totalQte = totalQte + suiviProduit.quantite %}
+                {% endif %}
+            {% endfor %}
+            <tfoot>
+                <tr> 
+                    <th colspan="4">Total</th>
+                    <th colspan="2">{{totalQte}}</th>
+                </tr>
+            </tfoot>
+        </tbody>
+    </table>
+</div>

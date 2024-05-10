@@ -1382,5 +1382,48 @@ $(document).ready(function(){
             }
         })
     }
+
+    var elemSearchSuivi = [
+        {
+            name: "idProduit",
+            action:"change",
+            selector : "#search_suivi_produit"
+        },
+        {
+            name: "idE",
+            action:"change",
+            selector : "#search_suivi_entrepot"
+        },
+    ]
+
+    elemSearchSuivi.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            searchSuiviProduit()
+        })
+    }) ;
+
+    function searchSuiviProduit()
+    {
+        var instance = new Loading(files.search) ;
+        $(".content_suivi_produit").html(instance.otherSearch()) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemSearchSuivi.length; j++) {
+            const search = elemSearchSuivi[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+
+        $.ajax({
+            url: routes.stock_produit_suivi_search , 
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".content_suivi_produit").html(response) ;
+            }
+        })
+    }
 })
 
