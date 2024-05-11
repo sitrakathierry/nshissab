@@ -5,8 +5,8 @@
         <thead class="thead-dark">
             <tr>
                 <th>Date</th>
-                <th>Type</th>
                 <th>Entrepot</th>
+                <th>Type</th>
                 <th>Indice</th>
                 <th>Quantité</th>
                 <th>Prix de vente</th>
@@ -19,19 +19,20 @@
             {% for suiviProduit in suiviProduits %}
                 <tr>
                     <td class="align-middle">{{suiviProduit.date}}</td>
-                    <td class="align-middle">{{suiviProduit.type|upper}}</td>
                     <td class="align-middle">{{suiviProduit.entrepot|upper}}</td>
-                    <td class="align-middle">{{"-"}}</td>
+                    <td class="align-middle">{{suiviProduit.type|upper}}</td>
+                    <td class="align-middle">{{suiviProduit.indiceP}}</td>
                     <td class="align-middle">{{suiviProduit.quantite}}</td>
                     <td class="align-middle">{{suiviProduit.prix}}</td>
                 </tr>
-                {% if suiviProduit.indice == "CREDIT" %}
+                {# {% if suiviProduit.indice == "CREDIT" %}
                     {% set totalCredit = totalCredit + suiviProduit.quantite %}
                     {% set totalQte = totalQte - suiviProduit.quantite %}
                 {% else %}
                     {% set totalDebit = totalDebit + suiviProduit.quantite %}
                     {% set totalQte = totalQte + suiviProduit.quantite %}
-                {% endif %}
+                {% endif %} #}
+                {% set totalQte = totalQte + suiviProduit.quantite %}
             {% endfor %}
             <tfoot>
                 <tr> 

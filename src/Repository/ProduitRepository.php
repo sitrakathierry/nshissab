@@ -98,119 +98,166 @@ class ProduitRepository extends ServiceEntityRepository
 
         foreach($variationPrixs as $variationPrix)
         {
-            $caissePaniers = $this->getEntityManager()->getRepository(CaissePanier::class)->findBy([
-                "variationPrix" => $variationPrix,
-                "statut" => True 
-            ]) ;
-
-            foreach($caissePaniers as $caissePanier)
+            if($params["typeSuivi"] == "VENTE")
             {
-                $item = [] ;
-                $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
-                $item["idProduit"] = $produit->getId() ;
-                $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
-                $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
-                $item["produit"] = $produit->getNom() ;
-                $item["quantite"] = $caissePanier->getQuantite() ;
-                $item["prix"] = $caissePanier->getPrix() ;
-                $item["total"] = ($caissePanier->getPrix() * $caissePanier->getQuantite()) + $tva ;
-                $item["type"] = "Vente" ;
-                $item["indice"] = "CREDIT" ;
-
-                array_push($listes,$item) ;
-            }
-
-            $appros = $this->getEntityManager()->getRepository(PrdApprovisionnement::class)->findBy([
-                "variationPrix" => $variationPrix
-            ]) ;
-
-            foreach($appros as $appro)
-            {
-                if(!$appro->getHistoEntrepot()->isStatut())
-                    continue ;
-
-                $item = [] ;
-                $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
-                $item["idProduit"] = $produit->getId() ;
-                $item["date"] = is_null($appro->getDateAppro()) ? $appro->getCreatedAt()->format("d/m/Y") : $appro->getDateAppro()->format("d/m/Y") ;
-                $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
-                $item["produit"] = $produit->getNom() ;
-                $item["quantite"] = $appro->getQuantite() ;
-                $item["prix"] = $prixVente ;
-                $item["total"] = ($prixVente * $appro->getQuantite());
-                $item["type"] = "Approvisionnement" ;
-                $item["indice"] = "DEBIT" ;
-
-                if($appro->isIsAuto())
+                $caissePaniers = $this->getEntityManager()->getRepository(CaissePanier::class)->findBy([
+                    "variationPrix" => $variationPrix,
+                    "statut" => True 
+                ]) ;
+    
+                foreach($caissePaniers as $caissePanier)
                 {
-                    $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
-                    $appro->setIsAuto(False) ;
-                    $this->getEntityManager()->flush() ;
+                    $item = [] ;
+                    $tva = $caissePanier->getTva() != 0 ? ($caissePanier->getPrix() * $caissePanier->getQuantite() * $caissePanier->getTva())/100 : 0 ;
+                    $item["idProduit"] = $produit->getId() ;
+                    $item["date"] = $caissePanier->getCommande()->getDate()->format("d/m/Y") ;
+                    $item["currentDate"] = $caissePanier->getCommande()->getDate()->format('d/m/Y') ;
+                    $item["dateFacture"] = $caissePanier->getCommande()->getDate()->format('d/m/Y')  ;
+                    $item["dateDebut"] = $caissePanier->getCommande()->getDate()->format('d/m/Y') ;
+                    $item["dateFin"] = $caissePanier->getCommande()->getDate()->format('d/m/Y') ;
+                    $item["annee"] = $caissePanier->getCommande()->getDate()->format('Y') ;
+                    $item["mois"] = $caissePanier->getCommande()->getDate()->format('m') ;
+                    $item["entrepot"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
+                    $item["idE"] = $caissePanier->getHistoEntrepot()->getEntrepot()->getId() ;
+                    $item["produit"] = $produit->getNom() ;
+                    $item["indiceP"] = $variationPrix->getIndice() ;
+                    $item["quantite"] = $caissePanier->getQuantite() ;
+                    $item["prix"] = $caissePanier->getPrix() ;
+                    $item["total"] = ($caissePanier->getPrix() * $caissePanier->getQuantite()) + $tva ;
+                    $item["type"] = "Vente" ;
+                    $item["indice"] = "CREDIT" ;
+    
+                    array_push($listes,$item) ;
                 }
 
-                array_push($listes,$item) ; 
+                $factureDetails = $this->getEntityManager()->getRepository(FactDetails::class)->findAllByVariation([
+                    "agence" => $params["agence"],    
+                    "variationPrix" => $variationPrix,    
+                    "statut" => True    
+                ]) ;
+        
+                foreach($factureDetails as $factureDetail)
+                {
+                    $item = [] ;
+                    $item["idProduit"] = $produit->getId() ;
+                    $item["date"] = $factureDetail->getFacture()->getDate()->format("d/m/Y");
+                    $item["currentDate"] = $factureDetail->getFacture()->getDate()->format('d/m/Y') ;
+                    $item["dateFacture"] = $factureDetail->getFacture()->getDate()->format('d/m/Y')  ;
+                    $item["dateDebut"] = $factureDetail->getFacture()->getDate()->format('d/m/Y') ;
+                    $item["dateFin"] = $factureDetail->getFacture()->getDate()->format('d/m/Y') ;
+                    $item["annee"] = $factureDetail->getFacture()->getDate()->format('Y') ;
+                    $item["mois"] = $factureDetail->getFacture()->getDate()->format('m') ;
+                    $item["entrepot"] = $factureDetail->getHistoEntrepot()->getEntrepot()->getNom() ; ;
+                    $item["idE"] = $factureDetail->getHistoEntrepot()->getEntrepot()->getId() ; ;
+                    $item["produit"] = $factureDetail->getDesignation() ;
+                    $item["indiceP"] = $variationPrix->getIndice() ;
+                    $item["quantite"] = $factureDetail->getQuantite() ;
+                    $item["prix"] = $factureDetail->getPrix() ;
+                    $item["total"] = ($factureDetail->getPrix() * $factureDetail->getQuantite());
+                    $item["type"] = "Vente" ;
+                    $item["indice"] = "CREDIT" ;
+    
+                    array_push($listes,$item) ;
+                }
             }
 
-            $factureDetails = $this->getEntityManager()->getRepository(FactDetails::class)->findAllByVariation([
-                "agence" => $params["agence"],    
-                "variationPrix" => $variationPrix,    
-                "statut" => True    
-            ]) ;
-
-            // dd($factureDetails) ;
-
-            foreach($factureDetails as $factureDetail)
+            if($params["typeSuivi"] == "APPRO")
             {
-                $item = [] ;
-                $item["idProduit"] = $produit->getId() ;
-                $item["date"] = $factureDetail->getFacture()->getDate()->format("d/m/Y");
-                $item["entrepot"] = $factureDetail->getHistoEntrepot()->getEntrepot()->getNom() ; ;
-                $item["produit"] = $factureDetail->getDesignation() ;
-                $item["quantite"] = $factureDetail->getQuantite() ;
-                $item["prix"] = $factureDetail->getPrix() ;
-                $item["total"] = ($factureDetail->getPrix() * $factureDetail->getQuantite());
-                $item["type"] = "Facture Definitif" ;
-                $item["indice"] = "CREDIT" ;
+                $appros = $this->getEntityManager()->getRepository(PrdApprovisionnement::class)->findBy([
+                    "variationPrix" => $variationPrix
+                ]) ;
+    
+                foreach($appros as $appro)
+                {
+                    if(!$appro->getHistoEntrepot()->isStatut())
+                        continue ;
+                    
+                    $dateAppro = is_null($appro->getDateAppro()) ? $appro->getCreatedAt() : $appro->getDateAppro() ;
 
-                array_push($listes,$item) ;
+                    $item = [] ;
+                    $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
+                    $item["idProduit"] = $produit->getId() ;
+                    $item["date"] = $dateAppro->format("d/m/Y") ;
+                    $item["currentDate"] = $dateAppro->format('d/m/Y') ;
+                    $item["dateFacture"] = $dateAppro->format('d/m/Y')  ;
+                    $item["dateDebut"] = $dateAppro->format('d/m/Y') ;
+                    $item["dateFin"] = $dateAppro->format('d/m/Y') ;
+                    $item["annee"] = $dateAppro->format('Y') ;
+                    $item["mois"] = $dateAppro->format('m') ;
+                    $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+                    $item["idE"] = $appro->getHistoEntrepot()->getEntrepot()->getId() ;
+                    $item["produit"] = $produit->getNom() ;
+                    $item["indiceP"] = $variationPrix->getIndice() ;
+                    $item["quantite"] = $appro->getQuantite() ;
+                    $item["prix"] = $prixVente ;
+                    $item["total"] = ($prixVente * $appro->getQuantite());
+                    $item["type"] = "Approvisionnement" ;
+                    $item["indice"] = "DEBIT" ;
+    
+                    if($appro->isIsAuto())
+                    {
+                        $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
+                        $appro->setIsAuto(False) ;
+                        $this->getEntityManager()->flush() ;
+                    }
+    
+                    array_push($listes,$item) ; 
+                }
+
+                $savDetails = $this->getEntityManager()->getRepository(SavDetails::class)->getHistoVariationSav(
+                [
+                    "variationPrix" => $variationPrix->getId(),
+                ]) ;
+    
+                $listes = array_merge($listes,$savDetails) ;
             }
 
-            $deductionVariations = $this->getEntityManager()->getRepository(PrdDeduction::class)->findBy([
-                "variationPrix" => $variationPrix
-            ]) ;
-
-            // dd($deductionVariations) ;
-            
-            foreach ($deductionVariations as $deductionVariation) {
-                $item = [] ;
-                $item["idProduit"] = $produit->getId() ;
-                $item["date"] = $deductionVariation->getCreatedAt()->format("d/m/Y");
-                $item["entrepot"] = $deductionVariation->getHistoEntrepot()->getEntrepot()->getNom() ;
-                $item["produit"] = $produit->getNom() ;
-                $item["quantite"] = $deductionVariation->getQuantite() ;
-                $item["prix"] = $deductionVariation->getVariationPrix()->getPrixVente() ;
-                $item["total"] = ($deductionVariation->getQuantite() * $deductionVariation->getVariationPrix()->getPrixVente());
-                $item["type"] = "Déduction" ;
-                $item["indice"] = "CREDIT" ;
-
-                array_push($listes,$item) ;
+            if($params["typeSuivi"] == "DEDUIT")
+            {
+                $deductionVariations = $this->getEntityManager()->getRepository(PrdDeduction::class)->findBy([
+                    "variationPrix" => $variationPrix
+                ]) ;
+                    
+                foreach ($deductionVariations as $deductionVariation) {
+                    $item = [] ;
+                    $item["idProduit"] = $produit->getId() ;
+                    $item["date"] = $deductionVariation->getCreatedAt()->format("d/m/Y");
+                    $item["currentDate"] = $deductionVariation->getCreatedAt()->format('d/m/Y') ;
+                    $item["dateFacture"] = $deductionVariation->getCreatedAt()->format('d/m/Y')  ;
+                    $item["dateDebut"] = $deductionVariation->getCreatedAt()->format('d/m/Y') ;
+                    $item["dateFin"] = $deductionVariation->getCreatedAt()->format('d/m/Y') ;
+                    $item["annee"] = $deductionVariation->getCreatedAt()->format('Y') ;
+                    $item["mois"] = $deductionVariation->getCreatedAt()->format('m') ;
+                    $item["entrepot"] = $deductionVariation->getHistoEntrepot()->getEntrepot()->getNom() ;
+                    $item["idE"] = $deductionVariation->getHistoEntrepot()->getEntrepot()->getId() ;
+                    $item["produit"] = $produit->getNom() ;
+                    $item["indiceP"] = $variationPrix->getIndice() ;
+                    $item["quantite"] = $deductionVariation->getQuantite() ;
+                    $item["prix"] = $deductionVariation->getVariationPrix()->getPrixVente() ;
+                    $item["total"] = ($deductionVariation->getQuantite() * $deductionVariation->getVariationPrix()->getPrixVente());
+                    $item["type"] = "Déduction" ;
+                    $item["indice"] = "CREDIT" ;
+    
+                    array_push($listes,$item) ;
+                }
             }
-
-            $savDetails = $this->getEntityManager()->getRepository(SavDetails::class)->getHistoVariationSav(
-            [
-                "variationPrix" => $variationPrix->getId(),
-            ]) ;
-
-            // dd($variationPrix) ;
-
-            $listes = array_merge($listes,$savDetails) ;
         } 
-
-        // dd($factureVariations) ;
         
         usort($listes, [self::class, 'compareDates']);
 
         return $listes ;
+    }
+
+    public function findLastId($params = [])
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT * FROM `produit` WHERE `agence_id` = ? AND `statut` = ? ORDER BY id DESC LIMIT 1 ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([
+            $params["agence"]->getId(),
+            $params["statut"]
+        ]);
+        return $resultSet->fetchAssociative();
     }
 
     public static function compareDates($a, $b) {

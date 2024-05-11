@@ -63,6 +63,7 @@ $(document).ready(function(){
             selector : "#fact_search_entrepôt"
         }
     ] 
+    
     $("#fact_search_date").change(function(){
         var option = $(this).find("option:selected") ;
         var critere = option.data("critere") ;

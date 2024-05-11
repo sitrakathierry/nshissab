@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading)
+    var appBase = new AppBase() ;
+
     $("#search_categorie_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $("#search_produit_ste").chosen({no_results_text: "Aucun resultat trouvé : "});
     $(".chosen_select").chosen({
@@ -1394,6 +1396,41 @@ $(document).ready(function(){
             action:"change",
             selector : "#search_suivi_entrepot"
         },
+        {
+            name: "currentDate",
+            action:"change",
+            selector : "#date_actuel"
+        },
+        {
+            name: "dateFacture",
+            action:"change",
+            selector : "#date_specifique"
+        },
+        {
+            name: "dateDebut",
+            action:"change",
+            selector : "#date_fourchette_debut"
+        },
+        {
+            name: "dateFin",
+            action:"change",
+            selector : "#date_fourchette_fin"
+        },
+        {
+            name: "annee",
+            action:"keyup",
+            selector : "#date_annee"
+        },
+        {
+            name: "annee",
+            action:"change",
+            selector : "#date_annee"
+        },
+        {
+            name: "mois",
+            action:"change",
+            selector : "#date_mois"
+        }
     ]
 
     elemSearchSuivi.forEach(elem => {
@@ -1404,6 +1441,17 @@ $(document).ready(function(){
 
     function searchSuiviProduit()
     {
+        var search_suivi_produit = $("#search_suivi_produit").val() ;
+        if(search_suivi_produit == "")
+        {
+            $.alert({
+                title: "Produit vide",
+                content: "Veuillez seléctionner un produit",
+                type: "orange"
+            }) ;
+
+            return false ;
+        }
         var instance = new Loading(files.search) ;
         $(".content_suivi_produit").html(instance.otherSearch()) ;
         var formData = new FormData() ;
@@ -1411,7 +1459,7 @@ $(document).ready(function(){
             const search = elemSearchSuivi[j];
             formData.append(search.name,$(search.selector).val());
         }
-
+        formData.append("typeSuivi",$(".search_btn_suivi_type.btn-primary").data("value"));
         $.ajax({
             url: routes.stock_produit_suivi_search , 
             type: 'post',
@@ -1425,5 +1473,76 @@ $(document).ready(function(){
             }
         })
     }
+
+    $(".search_btn_suivi_type").click(function(){
+        var self = $(this) ;
+        $(this).removeClass("btn-outline-primary") ; 
+        $(this).addClass("btn-primary") ; 
+
+        $(this).html('<i class="fa fa-check"></i>&nbsp;'+$(this).data("caption")) ;
+
+        $(".search_btn_suivi_type").each(function(){
+            if (!self.is($(this)) && $(this).hasClass("btn-primary")) {
+                
+                $(this).removeClass("btn-primary");
+                $(this).addClass("btn-outline-primary") ; 
+
+                $(this).html($(this).data("caption")) ;
+            }
+        }) ;
+
+        searchSuiviProduit() ;
+    }) ;
+
+
+    $("#search_suivi_date").change(function(){
+        var option = $(this).find("option:selected") ;
+        var critere = option.data("critere") ;
+        if(critere == "")
+        {
+            $(".elem_date").html("")
+            if(option.text() == "TOUS")
+            {
+                searchSuiviProduit()
+            }
+            else
+            {
+                var currentDate = new Date();
+                var day = currentDate.getDate();
+                var month = currentDate.getMonth() + 1; // Les mois sont indexés à partir de zéro, donc nous ajoutons 1
+                var year = currentDate.getFullYear();
+                if (month < 10) {
+                    month = '0' + month;
+                  }
+                var formattedDate = day + '/' + month + '/' + year;
+
+                $(".elem_date").html(`
+                    <input type="hidden" id="date_actuel" name="date_actuel" value="`+formattedDate+`">
+                `)
+                $("#date_actuel").change();
+            }
+            return false;
+        }
+
+        if(critere.length == 2)
+        {
+            $(".elem_date").html(appBase.getItemsDate(critere))
+        }
+        else
+        {
+            var index = critere.split(",")
+            var elements = ''
+
+            index.forEach(elem => {
+                elements += appBase.getItemsDate(elem)
+            })
+
+            $(".elem_date").html(elements)
+            
+        }
+
+        searchSuiviProduit()
+    })
+
 })
 

@@ -60,12 +60,24 @@ class SavDetailsRepository extends ServiceEntityRepository
     public function getHistoVariationSav($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT p.id as idProduit, DATE_FORMAT(sa.date,'%d/%m/%Y') as date, 
+        $sql = "SELECT p.id as idProduit, 
+        DATE_FORMAT(sa.date,'%d/%m/%Y') as date, 
+        DATE_FORMAT(sa.date,'%d/%m/%Y') as currentDate, 
+        DATE_FORMAT(sa.date,'%d/%m/%Y') as dateFacture, 
+        DATE_FORMAT(sa.date,'%d/%m/%Y') as dateDebut, 
+        DATE_FORMAT(sa.date,'%d/%m/%Y') as dateFin, 
+        DATE_FORMAT(sa.date,'%Y') as annee, 
+        DATE_FORMAT(sa.date,'%m') as mois, 
 		IF(sd.facture_detail_id IS NOT NULL, (SELECT pe.nom FROM `prd_histo_entrepot` phe 
 		JOIN prd_entrepot pe ON pe.id = phe.entrepot_id WHERE phe.variation_prix_id = fd.entite LIMIT 1),(SELECT 		pe.nom FROM `prd_histo_entrepot` phe 
 		JOIN prd_entrepot pe ON pe.id = phe.entrepot_id  
-		WHERE phe.variation_prix_id = cp.variation_prix_id LIMIT 1)) as entrepot, 
-        IF(sd.facture_detail_id IS NOT NULL,(SELECT p.nom FROM `prd_variation_prix` pvp JOIN produit p ON p.id = pvp.produit_id WHERE pvp.id = fd.entite LIMIT 1), p.nom) as produit,IF(sd.facture_detail_id IS NULL,cp.quantite,fd.quantite) as quantite, 0 as prix, 0 as total, 'RETOUR SAV' as type, 'DEBIT' as indice
+		WHERE phe.variation_prix_id = cp.variation_prix_id LIMIT 1)) as entrepot, IF(sd.facture_detail_id IS NOT NULL, (SELECT pe.id FROM `prd_histo_entrepot` phe 
+		JOIN prd_entrepot pe ON pe.id = phe.entrepot_id WHERE phe.variation_prix_id = fd.entite LIMIT 1),(SELECT 		pe.id FROM `prd_histo_entrepot` phe 
+		JOIN prd_entrepot pe ON pe.id = phe.entrepot_id  
+		WHERE phe.variation_prix_id = cp.variation_prix_id LIMIT 1)) as idE, 
+        IF(sd.facture_detail_id IS NOT NULL,(SELECT p.nom FROM `prd_variation_prix` pvp 
+        JOIN produit p ON p.id = pvp.produit_id WHERE pvp.id = fd.entite LIMIT 1), p.nom) as produit,IF(sd.facture_detail_id IS NULL,cp.quantite,fd.quantite) as quantite, 
+        pvp.prix_vente as prix, 0 as total, 'RETOUR SAV' as type, 'DEBIT' as indice,pvp.indice as indiceP
             FROM `sav_details` sd 
             JOIN sav_annulation sa ON sa.id = sd.annulation_id
             LEFT JOIN fact_details fd ON fd.id = sd.facture_detail_id 

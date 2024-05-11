@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Agence;
 use App\Entity\CaissePanier;
+use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\FactType;
 use App\Entity\Facture;
@@ -2518,7 +2519,7 @@ class StockController extends AbstractController
         //     "filename" => $this->filename."approvisionnement(agence)/".$this->nameAgence
         // ]) ;
 
-        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        // $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         
         $filename = $this->filename."stock_general(agence)/".$this->nameAgence ;
         if(!file_exists($filename))
@@ -2526,12 +2527,43 @@ class StockController extends AbstractController
 
         $stockGenerales = json_decode(file_get_contents($filename)) ;
 
+        $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
+
+        $lastProduit = $this->entityManager->getRepository(Produit::class)->findOneBy([
+            "agence" => $this->agence,
+            "statut" => True,
+        ],[
+            "id" => "DESC"
+        ]) ;
+
+        $codeProduit = $lastProduit->getCodeProduit() ;
+        $nom = $lastProduit->getNom() ;
+        $nomType = is_null($lastProduit->getType()) ? "NA" : $lastProduit->getType()->getNom() ;
+        $stock = $lastProduit->getStock() ;
+
+        $nomProduit = $codeProduit . " | " . strtoupper($nomType) . " | " . strtoupper($nom) . " | STOCK : " . $stock ;
+
+        $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduit([
+            "agence" => $this->agence,
+            "idProduit" => $lastProduit->getId(),
+            "typeSuivi" => "APPRO",
+        ]) ;
+
+        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
+
         return $this->render('stock/approvisionnement/liste.html.twig', [
             "filename" => "stock",
             "titlePage" => "Liste des approvisionnements",
             "with_foot" => false,
             // "appros" => $appros,
-            "tabMois" => $tabMois,
+            // "tabMois" => $tabMois,
+            "entrepots" => $entrepots,
+            "nomProduit" => $nomProduit,
+            "critereDates" => $critereDates,
+            "suiviProduits" => $suiviProduits,
             "stockGenerales" => $stockGenerales,
         ]);
     }
@@ -2540,10 +2572,12 @@ class StockController extends AbstractController
     public function stockSeachSuiviProduit(Request $request)
     {
         $idProduit = $request->request->get("idProduit") ;
+        $typeSuivi = $request->request->get("typeSuivi") ;
 
         $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduit([
             "agence" => $this->agence,
             "idProduit" => $idProduit,
+            "typeSuivi" => $typeSuivi,
         ]) ;
 
         $produit = $this->entityManager->getRepository(Produit::class)->find($idProduit) ;
@@ -2555,9 +2589,34 @@ class StockController extends AbstractController
 
         $nomProduit = $codeProduit . " | " . strtoupper($nomType) . " | " . strtoupper($nom) . " | STOCK : " . $stock ;
 
-        // $search = [
-        //     "idE"
-        // ] ;
+        $idE = $request->request->get('idE') ;
+        $currentDate = $request->request->get('currentDate') ;
+        $dateFacture = $request->request->get('dateFacture') ;
+        $dateDebut = $request->request->get('dateDebut') ;
+        $dateFin = $request->request->get('dateFin') ;
+        $annee = $request->request->get('annee') ;
+        $mois = $request->request->get('mois') ;
+
+        $search = [
+            "idE" => $idE,
+            "currentDate" => $currentDate,
+            "dateFacture" => $dateFacture,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
+        ] ;
+
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
+        }
+
+        $suiviProduits = json_decode(json_encode($suiviProduits)) ;
+
+        $suiviProduits = $this->appService->searchData($suiviProduits,$search) ;
 
         $response = $this->renderView('stock/general/suiviProduit.html.twig',[
             "suiviProduits" => $suiviProduits,

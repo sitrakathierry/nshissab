@@ -269,7 +269,7 @@ class FactureController extends AbstractController
         $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
             "agent" => $this->userObj,
             "statut" => True
-        ]) ;
+        ]) ;  
 
         $stockEntrepots = [] ;
 
