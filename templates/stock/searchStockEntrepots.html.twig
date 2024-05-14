@@ -5,6 +5,7 @@
     {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
     <tr>
         <td>{{stockEntrepot.entrepot}}</td>
+        <td>{{stockEntrepot.codeProduit}}</td>
         <td>{{stockEntrepot.categorie|upper}}</td>
         <td>{{stockEntrepot.nomType}}</td>
         <td>{{stockEntrepot.nom}}</td>
@@ -21,7 +22,7 @@
     {% set totalGeneral = totalGeneral + total %}
 {% endfor %}
 <tr>
-    <th colspan="6" >Total</th>
+    <th colspan="7" >Total</th>
     <th class="bg-primary text-white">{{totalStock}}</th>
     <th class="bg-success text-white">{{totalGeneral}}</th>
     <th class="bg-success text-white"></th>
