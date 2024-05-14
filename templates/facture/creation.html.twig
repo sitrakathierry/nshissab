@@ -122,9 +122,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-3" id="contentTicketDeCaisse">
-                        
-                    </div>
+                    <div class="col-md-3" id="contentTicketDeCaisse"></div>
                 </div>
                 <div class="w-100 px-2">
                     <label for="nom" class="mt-2 font-weight-bold text-uppercase">Description</label>
@@ -135,12 +133,23 @@
                 <div class="content_avoir"></div>
                 <div class="row mt-3">
                     <div class="col-md-3 teleportMontant"></div>
+                    <div class="col-md-3 content_sup_paiement">
+                        <label for="fact_sup_type_paiement" class="mt-3 font-weight-bold text-uppercase">Type de paiement</label>
+                        <select name="fact_sup_type_paiement" class="custom-select chosen_select custom-select-sm" id="fact_sup_type_paiement">
+                            <option value="">-</option>
+                            <option value="">ESPECE</option>
+                            <option value="">CHEQUE</option>
+                            <option value="">VIREMENT</option>
+                            <option value="">CARTE BANCAIRE</option>
+                            <option value="">MOBILE MONEY</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="agd_echance">
                     <div class="barre_dashed w-100 mt-4 p-3">
-                        <h5 class="title_form text-black text-uppercase">Ajouter des échéances</h5>
+                        <h5 class="title_form text-black text-uppercase">Ajouter des Paiements</h5>
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="agd_ech_date" class="font-weight-bold text-uppercase">Date</label>
                                 <input type="text" name="agd_ech_date" id="agd_ech_date" class="form-control" placeholder=". . .">
                             </div>
@@ -149,6 +158,25 @@
                                 <input type="number" name="agd_ech_montant" id="agd_ech_montant" class="form-control" placeholder=". . .">
                             </div>
                             <div class="col-md-3">
+                                <label for="agd_ech_type_paiement" class="font-weight-bold text-uppercase">Type de paiement</label>
+                                <select name="agd_ech_type_paiement" class="custom-select custom-select-sm" id="agd_ech_type_paiement">
+                                    <option value="">-</option>
+                                    <option value="ESPECE">ESPECE</option>
+                                    <option value="CHEQUE">CHEQUE</option>
+                                    <option value="VIREMENT">VIREMENT</option>
+                                    <option value="CARTE BANCAIRE">CARTE BANCAIRE</option>
+                                    <option value="MOBILE MONEY">MOBILE MONEY</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="agd_ech_statut" class="font-weight-bold text-uppercase">Statut</label>
+                                <select name="agd_ech_statut" class="custom-select custom-select-sm" id="agd_ech_statut">
+                                    <option value="">-</option>
+                                    <option value="Soldé">{{"Soldé"|upper}}</option>
+                                    <option value="Echéance">{{"Echéance"|upper}}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
                                 <label for="agd_ech_montant" class="font-weight-bold text-uppercase">&nbsp;</label>
                                 <button type="button" class="btn agd_btn_ajouter btn-sm btn-success btn-block text-uppercase"><i class="fa fa-save"></i>&nbsp;Ajouter</button>
                             </div>
@@ -158,6 +186,8 @@
                                 <thead class="thead-dark">
                                     <tr>
                                         <th>Date</th>
+                                        <th>Type de Paiement</th>
+                                        <th>Statut</th>
                                         <th>Montant</th>
                                         <th></th>
                                     </tr>   
@@ -167,16 +197,16 @@
                                 </tbody> 
                                 <tfoot>
                                     <tr>
-                                        <th>Montant Total</th>
+                                        <th colspan="3">Montant Total</th>
                                         <th colspan="2" class="text-white bg-success" id="agd_total_echeance"></th>
                                     </tr>
                                     <tr>
-                                        <th>Montant Restant</th>
+                                        <th colspan="3">Montant Restant</th>
                                         <th colspan="2" class="text-white bg-primary" id="agd_total_restant"></th>
                                         <input type="hidden" id="agd_val_total_restant">
                                     </tr>
                                     <tr>
-                                        <th>Montant Facture</th>
+                                        <th colspan="3">Montant Facture</th>
                                         <th colspan="2" class="text-white bg-secondary" id="agd_total_facture"></th>
                                     </tr>
                                 </tfoot>
@@ -193,9 +223,9 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
                             </div>
-                            <input type="text" class="form-control fact_lieu" name="fact_lieu" placeholder=". . ." aria-label="Lieu Facture" id="fact_lieu">
+                            <input type="text" class="form-control fact_lieu" name="fact_lieu" placeholder=". . ." aria-label="Lieu Facture" id="fact_lieu"> 
                         </div>
-                    </div>
+                    </div> 
                 </div>
                 <div class="row">
                     <div class="col-md-7"></div>

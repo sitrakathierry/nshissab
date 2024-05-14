@@ -106,7 +106,7 @@ class FactureController extends AbstractController
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Création Facture", 
-            "with_foot" => true, 
+            "with_foot" => true,  
             "modeles" => $modeles,
             "types" => $types, 
             "paiements" => $paiements,

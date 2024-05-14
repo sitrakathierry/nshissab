@@ -5,6 +5,8 @@ $(document).ready(function(){
     $(document).on('click',".agd_btn_ajouter", function(){
         var agd_ech_date = $("#agd_ech_date").val()
         var agd_ech_montant = $("#agd_ech_montant").val()
+        var agd_ech_type_paiement = $("#agd_ech_type_paiement").val()
+        var agd_ech_statut = $("#agd_ech_statut").val()
 
         var data = [
             agd_ech_date,
@@ -12,8 +14,8 @@ $(document).ready(function(){
         ]
 
         var dataMessage = [
-            "Date échéance",
-            "Montant échéance",
+            "Date",
+            "Montant",
         ]
         var vide = false ;
         var caption = "" ;
@@ -45,12 +47,18 @@ $(document).ready(function(){
         //     agd_ech_date = dateNow
         // }
         agd_ech_montant = parseFloat(agd_ech_montant).toFixed(2) ;
-
+        agd_mode = "Soldé".toUpperCase() ;
         var element = `
             <tr>
                 <td>
                     `+agd_ech_date+`
                     <input type="hidden" name="agd_ech_enr_date[]" value="`+agd_ech_date+`">
+                </td>
+                <td>
+                    `+agd_ech_type_paiement+`
+                </td>
+                <td>
+                    `+agd_ech_statut.toUpperCase()+`
                 </td>
                 <td>
                     `+agd_ech_montant+`

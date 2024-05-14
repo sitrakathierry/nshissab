@@ -1174,7 +1174,7 @@ class StockController extends AbstractController
             "stockEntrepots" => $stockEntrepots,
             "entrepots" => $entrepots,
             "preferences" => $preferences, 
-            "stockGenerales" => $stockGenerales, 
+            "stockGenerales" => $stockGenerales,  
         ]) ; 
     }
     
@@ -3466,7 +3466,7 @@ class StockController extends AbstractController
     {
         $stock_id_histo_ent = (array)$request->request->get("stock_id_histo_ent") ;
 
-        $entete = ["ENTREPOT","CATEGORIE","NOM PRODUIT","DESIGNATION","INDICE","PRIX VENTE","STOCK","TOTAL"] ;
+        $entete = ["ENTREPOT","CODE PRODUIT","CATEGORIE","NOM PRODUIT","DESIGNATION","INDICE","PRIX VENTE","STOCK","TOTAL"] ;
 
         $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
 
@@ -3488,6 +3488,7 @@ class StockController extends AbstractController
 
             $item = [
                 $tabEntrepots[0]->entrepot,
+                $tabEntrepots[0]->codeProduit,
                 $tabEntrepots[0]->categorie,
                 $tabEntrepots[0]->nomType,
                 $tabEntrepots[0]->nom,
@@ -3502,7 +3503,7 @@ class StockController extends AbstractController
             array_push($params,$item) ;
         }
 
-        array_push($params,["","","","","TOTAL","","",$total]) ;
+        array_push($params,["","","","","","TOTAL","","",$total]) ;
 
         $excelgenerate->generateFileExcel($entete,$params,'INVENTAIRE_PRODUIT.xlsx',"stock_inventaire") ;
     }

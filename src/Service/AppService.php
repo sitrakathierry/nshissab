@@ -1278,6 +1278,7 @@ class AppService extends AbstractController
             $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
             $element["idC"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getId() ;
             $element["idP"] = $stockEntrepot->getVariationPrix()->getProduit()->getId() ;
+            $element["codeProduit"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
             $element["encodedIdVar"] = $this->encodeChiffre($stockEntrepot->getVariationPrix()->getId()) ;
             $element["entrepot"] = $stockEntrepot->getEntrepot()->getNom() ;
             $element["code"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;

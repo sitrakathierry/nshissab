@@ -282,6 +282,8 @@ $(document).ready(function(){
         })
     })
 
+    $(".content_sup_paiement").hide() ;
+
     $(".fact_btn_paiement").click(function(){
         var btnClass = $(this).data("class")
         var target = $(this).data("target")
@@ -300,15 +302,16 @@ $(document).ready(function(){
         if(reference != "ES")
         {
             $(".fact_libelle_caption").text(libelleCaption)
-            $("#fact_libelle").parent().show()
+            $("#fact_libelle").parent().show() ;
             $(".fact_num_caption").text(numCaption)
-            $("#fact_num").parent().show();
+            $("#fact_num").parent().show() ;
 
             if(reference == "AC" || reference == "CR")
             {
                 $(".fact_num_caption").text("")
                 $("#fact_num").parent().hide()
                 $(".teleportMontant").html($("#fact_libelle").parent().html())
+                $(".content_sup_paiement").show() ;
                 $(".contentMontant").empty()
             }
             else
@@ -316,10 +319,10 @@ $(document).ready(function(){
                 if($(".teleportMontant").html() != "")
                 {
                     $(".contentMontant").html($(".teleportMontant").html())
-                    $(".teleportMontant").empty()
+                    $(".teleportMontant").empty() ;
+                    $(".content_sup_paiement").hide() ;
                 }
             }
-
         }
         else
         {
@@ -327,7 +330,8 @@ $(document).ready(function(){
             $("#fact_libelle").parent().hide()
             $(".fact_num_caption").text("")
             $("#fact_num").parent().hide()
-        }   
+            $(".content_sup_paiement").hide() ;
+        }  
 
         // AGENDA
         if ($(this).hasClass('CR'))
