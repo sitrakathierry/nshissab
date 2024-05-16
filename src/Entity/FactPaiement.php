@@ -36,10 +36,18 @@ class FactPaiement
     #[ORM\OneToMany(mappedBy: 'paiement', targetEntity: CrdFinance::class)]
     private Collection $crdFinances;
 
+    #[ORM\OneToMany(mappedBy: 'paiement', targetEntity: CrdDetails::class)]
+    private Collection $crdDetails;
+
+    #[ORM\OneToMany(mappedBy: 'paiement', targetEntity: AgdEcheance::class)]
+    private Collection $agdEcheances;
+
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
         $this->crdFinances = new ArrayCollection();
+        $this->crdDetails = new ArrayCollection();
+        $this->agdEcheances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -161,6 +169,66 @@ class FactPaiement
             // set the owning side to null (unless already changed)
             if ($crdFinance->getPaiement() === $this) {
                 $crdFinance->setPaiement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CrdDetails>
+     */
+    public function getCrdDetails(): Collection
+    {
+        return $this->crdDetails;
+    }
+
+    public function addCrdDetail(CrdDetails $crdDetail): self
+    {
+        if (!$this->crdDetails->contains($crdDetail)) {
+            $this->crdDetails->add($crdDetail);
+            $crdDetail->setPaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrdDetail(CrdDetails $crdDetail): self
+    {
+        if ($this->crdDetails->removeElement($crdDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($crdDetail->getPaiement() === $this) {
+                $crdDetail->setPaiement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AgdEcheance>
+     */
+    public function getAgdEcheances(): Collection
+    {
+        return $this->agdEcheances;
+    }
+
+    public function addAgdEcheance(AgdEcheance $agdEcheance): self
+    {
+        if (!$this->agdEcheances->contains($agdEcheance)) {
+            $this->agdEcheances->add($agdEcheance);
+            $agdEcheance->setPaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgdEcheance(AgdEcheance $agdEcheance): self
+    {
+        if ($this->agdEcheances->removeElement($agdEcheance)) {
+            // set the owning side to null (unless already changed)
+            if ($agdEcheance->getPaiement() === $this) {
+                $agdEcheance->setPaiement(null);
             }
         }
 

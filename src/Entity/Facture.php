@@ -103,6 +103,9 @@ class Facture
     #[ORM\Column(nullable: true)]
     private ?bool $isImported = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $pMultiple = null;
+
     #[ORM\ManyToOne(inversedBy: 'factures')]
     private ?PrdEntrepot $entrepot = null;
 
@@ -585,6 +588,18 @@ class Facture
     public function setEntrepot(?PrdEntrepot $entrepot): self
     {
         $this->entrepot = $entrepot;
+
+        return $this;
+    }
+
+    public function isPMultiple(): ?bool
+    {
+        return $this->pMultiple;
+    }
+
+    public function setPMultiple(?bool $pMultiple): self
+    {
+        $this->pMultiple = $pMultiple;
 
         return $this;
     }

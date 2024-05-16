@@ -5,17 +5,23 @@ $(document).ready(function(){
     $(document).on('click',".agd_btn_ajouter", function(){
         var agd_ech_date = $("#agd_ech_date").val()
         var agd_ech_montant = $("#agd_ech_montant").val()
+        var optTypePaiement = $("#agd_ech_type_paiement").find('option:selected') ; 
+        var optStatut = $("#agd_ech_statut").find('option:selected') ; 
         var agd_ech_type_paiement = $("#agd_ech_type_paiement").val()
         var agd_ech_statut = $("#agd_ech_statut").val()
 
         var data = [
             agd_ech_date,
             agd_ech_montant,
+            agd_ech_type_paiement,
+            agd_ech_statut,
         ]
 
         var dataMessage = [
             "Date",
             "Montant",
+            "Type de Paiement",
+            "Statut",
         ]
         var vide = false ;
         var caption = "" ;
@@ -51,18 +57,20 @@ $(document).ready(function(){
         var element = `
             <tr>
                 <td>
-                    `+agd_ech_date+`
+                    `+agd_ech_date+` 
                     <input type="hidden" name="agd_ech_enr_date[]" value="`+agd_ech_date+`">
                 </td>
                 <td>
-                    `+agd_ech_type_paiement+`
+                    `+optTypePaiement.text()+`
                 </td>
                 <td>
-                    `+agd_ech_statut.toUpperCase()+`
+                    `+optStatut.text()+`
                 </td>
                 <td>
                     `+agd_ech_montant+`
                     <input type="hidden" name="agd_ech_enr_montant[]" id="enr_ech_montant" value="`+agd_ech_montant+`">
+                    <input type="hidden" name="agd_ech_enr_type_paiement[]" id="agd_ech_enr_type_paiement" value="`+agd_ech_type_paiement+`">
+                    <input type="hidden" name="agd_ech_enr_statut[]" id="agd_ech_enr_statut" value="`+agd_ech_statut+`">
                 </td>
                 <td class="align-middle text-center">
                     <button type="button" class="btn agd_ech_suppr_ligne btn-sm btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
@@ -76,6 +84,8 @@ $(document).ready(function(){
         firstAdd = true ;
         $("#agd_ech_date").val("")
         $("#agd_ech_montant").val("")
+        $("#agd_ech_type_paiement").val("")
+        $("#agd_ech_statut").val("")
     })
 
     $(document).on('click','.agd_ech_suppr_ligne',function(){

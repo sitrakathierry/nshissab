@@ -102,7 +102,7 @@ class FactureController extends AbstractController
             $this->appService->generateCltClient($filename, $this->agence) ;
 
         $clients = json_decode(file_get_contents($filename)) ;
-
+ 
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Création Facture", 
@@ -1919,15 +1919,15 @@ class FactureController extends AbstractController
 
         $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
 
-        if(!is_null($fact_libelle) && ($paiement->getReference() == "CR" || $paiement->getReference() == "AC"))
-        {
-            if(!is_numeric($fact_libelle))
-            {
-                $result["type"] = "orange" ;
-                $result["message"] = "Le montant payé n'est pas valide" ;
-                return new JsonResponse($result) ;
-            }
-        } 
+        // if(($paiement->getReference() == "CR" || $paiement->getReference() == "AC"))
+        // {
+        //     if(!is_numeric($fact_libelle))
+        //     {
+        //         $result["type"] = "orange" ;
+        //         $result["message"] = "Le montant payé n'est pas valide" ;
+        //         return new JsonResponse($result) ;
+        //     }
+        // } 
 
         // DEBUT D'INSERTION DE DONNEE
 
@@ -2010,6 +2010,12 @@ class FactureController extends AbstractController
             $client = $this->entityManager->getRepository(CltHistoClient::class)->find($fact_client) ; 
         }
  
+        $mul_enr_type_paiement = $request->request->get("mul_enr_type_paiement") ;
+
+        $existMultiple = null ;
+        if(isset($mul_enr_type_paiement))
+            $existMultiple = true ;
+
         $recordFacture = $this->entityManager->getRepository(Facture::class)->findBy([ 
             "agence" => $this->agence,
             "anneeData" => date('Y')
@@ -2022,7 +2028,6 @@ class FactureController extends AbstractController
         $fact_enr_val_devise = empty($fact_enr_val_devise) ? null : $this->entityManager->getRepository(Devise::class)->find($fact_enr_val_devise) ;
 
         $facture = new Facture() ;
-        
         
         if(isset($fact_ticket_caisse) && !empty($fact_ticket_caisse))
         {
@@ -2062,14 +2067,15 @@ class FactureController extends AbstractController
         $facture->setTvaVal(floatval($fact_enr_total_tva)) ;
         $facture->setEntrepot($entrepot) ;
         $facture->setLieu($fact_lieu) ;
-
+        
         $dateTime = \DateTimeImmutable::createFromFormat('d/m/Y', $fact_date);
-
+        
         $facture->setDate($dateTime) ;
         $facture->setTotal(floatval($fact_enr_total_general)) ;
         $facture->setDevise($fact_enr_val_devise) ;
         $facture->setStatut(True) ;
         $facture->setIsUpdated(True) ;
+        $facture->setPMultiple($existMultiple) ;
         $facture->setAnneeData($dateTime->format('Y')) ;
         $facture->setCreatedAt(new \DateTimeImmutable) ;
         $facture->setUpdatedAt(new \DateTimeImmutable) ;
@@ -2120,8 +2126,7 @@ class FactureController extends AbstractController
         ]) ;
 
         // FIN SAUVEGARDE HISTORIQUE
-
-        $histoPaiement = new FactHistoPaiement() ;
+        
         /*
             Statut : 
                 - Payee
@@ -2140,17 +2145,57 @@ class FactureController extends AbstractController
                 break;
         }
 
-        // $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
-        $fact_num = empty($fact_num) ? null : $fact_num ;
-        
-        $histoPaiement->setLibelle($fact_libelle) ;
-        $histoPaiement->setNumero($fact_num) ;
-        $histoPaiement->setPaiement($paiement) ;
-        $histoPaiement->setFacture($facture) ;
-        $histoPaiement->setStatutPaiement($statutPaiement) ;
-        
-        $this->entityManager->persist($histoPaiement) ;
-        $this->entityManager->flush() ;
+        if(is_null($existMultiple))
+        {
+            $histoPaiement = new FactHistoPaiement() ;
+            
+            $fact_num = empty($fact_num) ? null : $fact_num ;
+            
+            $histoPaiement->setLibelle($fact_libelle) ;
+            $histoPaiement->setNumero($fact_num) ;
+            $histoPaiement->setPaiement($paiement) ;
+            $histoPaiement->setFacture($facture) ;
+            $histoPaiement->setStatutPaiement($statutPaiement) ;
+            
+            $this->entityManager->persist($histoPaiement) ;
+            $this->entityManager->flush() ;
+        }
+        else
+        {
+            // DEBUT TEST MULTIPLE
+
+            $mul_enr_type_paiement = (array)$mul_enr_type_paiement ;
+            $mul_enr_libellee = $request->request->get("mul_enr_libellee") ;
+            $mul_enr_numero = $request->request->get("mul_enr_numero") ;
+            $mul_enr_montant = $request->request->get("mul_enr_montant") ;
+
+            // FIN TEST MULTIPLE
+            
+            foreach ($mul_enr_type_paiement as $key => $value) {
+
+                $paiementOne = $this->entityManager->getRepository(FactPaiement::class)->findOneBy([
+                    "reference" => $mul_enr_type_paiement[$key]
+                ]) ; 
+
+                $libelleMul = empty($mul_enr_libellee[$key]) ? null : $mul_enr_libellee[$key] ;
+                $numeroMul = empty($mul_enr_numero[$key]) ? null : $mul_enr_numero[$key] ;
+
+                $histoPaiement = new FactHistoPaiement() ;
+                
+                $fact_num = empty($fact_num) ? null : $fact_num ;
+                
+                $histoPaiement->setLibelle($libelleMul) ;
+                $histoPaiement->setNumero($numeroMul) ;
+                $histoPaiement->setPaiement($paiementOne) ;
+                $histoPaiement->setFacture($facture) ;
+                $histoPaiement->setMontant(floatval($mul_enr_montant[$key])) ;
+                $histoPaiement->setStatutPaiement($statutPaiement) ;
+                
+                $this->entityManager->persist($histoPaiement) ;
+                $this->entityManager->flush() ;
+            }
+        }
+
 
         // INSERTION DES DETAILS DE LA FACTURE 
         // PAR RAPPORT AU MODELE 
@@ -2325,57 +2370,71 @@ class FactureController extends AbstractController
                 $this->entityManager->persist($finance) ;
                 $this->entityManager->flush() ; 
 
-                if(!is_null($fact_libelle))
-                {
-                    $crdDetail = new CrdDetails() ;
+                //  DEBUT GESTION PAIEMENT CREDIT 
 
-                    $crdDetail->setFinance($finance) ; 
-                    $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$fact_date)) ;
-                    $crdDetail->setMontant(floatval($fact_libelle)) ;
-                    $crdDetail->setAgence($this->agence) ;
-
-                    $this->entityManager->persist($crdDetail) ;
-                    $this->entityManager->flush() ; 
-                }
                 if ($paiement->getReference() == "CR") { 
                     // GESTION AGENDA
-                    $agd_ech_enr_date = (array)$request->request->get('agd_ech_enr_date') ;
-                    $agd_ech_enr_montant   = $request->request->get('agd_ech_enr_montant') ;
 
-                    $refCategorie = $paiement->getReference() == "CR" ? "CRD" : "ACP" ;
+                    $agd_ech_enr_statut = (array)$request->request->get('agd_ech_enr_statut') ;
+                    $agd_ech_enr_date = $request->request->get('agd_ech_enr_date') ;
+                    $agd_ech_enr_montant = $request->request->get('agd_ech_enr_montant') ;
+                    $agd_ech_enr_type_paiement = $request->request->get('agd_ech_enr_type_paiement') ;
 
                     $categorie = $this->entityManager->getRepository(AgdCategorie::class)->findOneBy([
-                        "reference" => $refCategorie
+                        "reference" => "CRD"
                     ]) ;
 
-                    foreach ($agd_ech_enr_date as $key => $value) {
-                        // GESTION DE DATE ULTERIEURE
-                        $dateActuelle = date('d/m/Y') ;
-                        $dateEcheance = $value ;
-
-                        $dateInf = $this->appService->compareDates($dateEcheance,$dateActuelle,"P") ;
-
-                        if($dateInf)
-                        {
-                            return new JsonResponse([
-                                "type" => "orange",
-                                "message" => "Désolé. La date de l'échéance doit être supérieure à la date actuelle"
-                                ]) ;
-                        }
+                    foreach ($agd_ech_enr_statut as $key => $value) {
                         
-                        $echeance = new AgdEcheance() ;
+                        $paiementCredit = $this->entityManager->getRepository(FactPaiement::class)->find($agd_ech_enr_type_paiement[$key]) ;
+                        
+                        if($agd_ech_enr_statut[$key] == "ECH")
+                        {
+                            // GESTION DE DATE ULTERIEURE
 
-                        $echeance->setAgence($this->agence) ;
-                        $echeance->setCategorie($categorie) ;
-                        $echeance->setCatTable($finance) ;
-                        $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$value)) ;
-                        $echeance->setMontant($agd_ech_enr_montant[$key]) ;
-                        $echeance->setStatut(True) ;
-                        $echeance->setCreatedAt(new \DateTimeImmutable) ; 
-                        $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
+                            $dateActuelle = date('d/m/Y') ;
+                            $dateEcheance = $agd_ech_enr_date[$key] ;
 
-                        $this->entityManager->persist($echeance) ;
-                        $this->entityManager->flush() ; 
+                            $dateInf = $this->appService->compareDates($dateEcheance,$dateActuelle,"P") ;
+
+                            if($dateInf)
+                            {
+                                return new JsonResponse([
+                                    "type" => "orange",
+                                    "message" => "Désolé. La date de l'échéance doit être supérieure à la date actuelle"
+                                ]) ;
+                            }
+                            
+                            $echeance = new AgdEcheance() ;
+
+                            $echeance->setAgence($this->agence) ;
+                            $echeance->setCategorie($categorie) ;
+                            $echeance->setCatTable($finance) ;
+                            $echeance->setDate(\DateTime::createFromFormat('j/m/Y',$dateEcheance)) ;
+                            $echeance->setMontant($agd_ech_enr_montant[$key]) ;
+                            $echeance->setPaiement($paiementCredit) ;
+                            $echeance->setStatut(True) ;
+                            $echeance->setCreatedAt(new \DateTimeImmutable) ; 
+                            $echeance->setUpdatedAt(new \DateTimeImmutable) ; 
+
+                            $this->entityManager->persist($echeance) ;
+                            $this->entityManager->flush() ; 
+
+                        }
+                        else
+                        {
+                            $crdDetail = new CrdDetails() ;
+
+                            $crdDetail->setFinance($finance) ; 
+                            $crdDetail->setDate(\DateTime::createFromFormat('j/m/Y',$agd_ech_enr_date[$key])) ;
+                            $crdDetail->setMontant(floatval($agd_ech_enr_montant[$key])) ;
+                            $crdDetail->setPaiement($paiementCredit) ;
+                            $crdDetail->setAgence($this->agence) ;
+
+                            $this->entityManager->persist($crdDetail) ;
+                            $this->entityManager->flush() ; 
+                        }
+
                     }
 
                     if(!empty($agd_ech_enr_date))
@@ -2386,7 +2445,8 @@ class FactureController extends AbstractController
                             unlink($filename) ;
                         }
                     }
-                }
+
+                } //  FIN GESTION PAIEMENT CREDIT 
                 else // Deuxième cas si le mode paiement est sous acompte : AC
                 {
                     $agd_acp_date = $request->request->get('agd_acp_date') ;

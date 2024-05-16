@@ -29,6 +29,9 @@ class FactHistoPaiement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $libelle = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $montant = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -93,4 +96,18 @@ class FactHistoPaiement
 
         return $this;
     }
+
+    public function getMontant(): ?float
+    {
+        return $this->montant;
+    }
+
+    public function setMontant(?float $montant): self
+    {
+        $this->montant = $montant;
+
+        return $this;
+    }
+
+
 }

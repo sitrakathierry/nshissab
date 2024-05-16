@@ -41,6 +41,9 @@ class AgdEcheance
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\ManyToOne(inversedBy: 'agdEcheances')]
+    private ?FactPaiement $paiement = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -150,6 +153,18 @@ class AgdEcheance
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getPaiement(): ?FactPaiement
+    {
+        return $this->paiement;
+    }
+
+    public function setPaiement(?FactPaiement $paiement): self
+    {
+        $this->paiement = $paiement;
 
         return $this;
     }

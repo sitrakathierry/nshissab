@@ -211,11 +211,8 @@ $(document).ready(function(){
 
         if(reference != "DF")
         {
-            $("#fact_libelle").hide();
-            $(".fact_libelle_caption").text("")
-
-            $("#fact_num").hide();
-            $(".fact_num_caption").text("")
+            $(".content_fact_libelle").hide() ;
+            $(".content_fact_num").hide() ;
         }
 
         $(this).addClass(btnClass)
@@ -282,7 +279,11 @@ $(document).ready(function(){
         })
     })
 
-    $(".content_sup_paiement").hide() ;
+    $(".content_type_paiements").hide() ;
+    $(".tab_paiement_multiple").html("") ;
+
+    $(".content_fact_libelle").hide() ;
+    $(".content_fact_num").hide() ;
 
     $(".fact_btn_paiement").click(function(){
         var btnClass = $(this).data("class")
@@ -291,46 +292,27 @@ $(document).ready(function(){
         var inputValue = $(this).attr("value")
         var btnText = $(this).data("text")
         var self = $(this)
-        var numCaption = $(this).data('numcaption')
         var libelleCaption = $(this).data('libelle')
+        var numCaption = $(this).data('numcaption')
         var reference = $(this).data('reference')
 
         $(target).val(inputValue) ;
 
         $(".fact_table_paiement").text(btnText)
 
-        if(reference != "ES")
+        if(reference != "ES" && reference != "AC" && reference != "CR")
         {
+            $(".content_fact_libelle").show() ;
+            $(".content_fact_num").show() ;
             $(".fact_libelle_caption").text(libelleCaption)
-            $("#fact_libelle").parent().show() ;
             $(".fact_num_caption").text(numCaption)
-            $("#fact_num").parent().show() ;
-
-            if(reference == "AC" || reference == "CR")
-            {
-                $(".fact_num_caption").text("")
-                $("#fact_num").parent().hide()
-                $(".teleportMontant").html($("#fact_libelle").parent().html())
-                $(".content_sup_paiement").show() ;
-                $(".contentMontant").empty()
-            }
-            else
-            {
-                if($(".teleportMontant").html() != "")
-                {
-                    $(".contentMontant").html($(".teleportMontant").html())
-                    $(".teleportMontant").empty() ;
-                    $(".content_sup_paiement").hide() ;
-                }
-            }
         }
         else
         {
-            $(".fact_libelle_caption").text("")
-            $("#fact_libelle").parent().hide()
-            $(".fact_num_caption").text("")
-            $("#fact_num").parent().hide()
-            $(".content_sup_paiement").hide() ;
+            $(".content_fact_libelle").hide() ;
+            $(".content_fact_num").hide() ;
+            $(".fact_libelle_caption").text("") ;
+            $(".fact_num_caption").text("") ;
         }  
 
         // AGENDA
@@ -352,31 +334,135 @@ $(document).ready(function(){
             $(".agd_acompte").hide()
         }
 
-        // if($(this).hasClass('AC') || $(this).hasClass('CR'))
-        // {
-        //     var contentMontant = $(".contentMontant").html()
-        //     if(contentMontant != "")
-        //     {
-        //         $(".teleportMontant").html(contentMontant)
-        //         $(".contentMontant").empty()
-        //     }
-        // }else{
-        //     var teleportMontant = $(".teleportMontant").html()
-        //     if(teleportMontant != "")
-        //     {
-        //         $(".contentMontant").html(teleportMontant)
-        //         $(".teleportMontant").empty()
-        //     }
-        // }
+        if(reference == "AC" || reference == "CR")
+        {
+            $(this).addClass(btnClass) ;
+            $(this).removeClass(currentbtnClass) ;
+            $(this).html('<i class="fa fa-check"></i>&nbsp;'+btnText) ;
+            $(".fact_btn_paiement").each(function(){
+                if (!self.is($(this))) {
+                    $(this).addClass(currentbtnClass) ; 
+                    $(this).removeClass(btnClass);
+                    $(this).html($(this).data("text")) ;
+                }
+            }) ;
+            $(".content_type_paiements").hide() ;
+            $(".tab_paiement_multiple").html("") ;
+        }
+        else
+        {
+            $(".fact_btn_paiement.AC").addClass("btn-outline-info") ;
+            $(".fact_btn_paiement.CR").addClass("btn-outline-info") ;
+            $(".fact_btn_paiement.AC").removeClass("btn-info") ;
+            $(".fact_btn_paiement.CR").removeClass("btn-info") ;
+            $(".fact_btn_paiement.AC").html($(".fact_btn_paiement.AC").data("text")) ;
+            $(".fact_btn_paiement.CR").html($(".fact_btn_paiement.CR").data("text")) ;
 
-        $(this).addClass(btnClass)
-        $(this).removeClass(currentbtnClass)
-        $(".fact_btn_paiement").each(function(){
-            if (!self.is($(this))) {
-                $(this).addClass(currentbtnClass) ; 
-                $(this).removeClass(btnClass);
+            if($(this).hasClass("btn-outline-info"))
+            {
+                $(this).addClass("btn-info") ;
+                $(this).removeClass("btn-outline-info") ;
+                $(this).html('<i class="fa fa-check"></i>&nbsp;'+btnText) ;
             }
-        })
+            else
+            {
+                $(this).addClass("btn-outline-info") ;
+                $(this).removeClass("btn-info") ;
+                $(this).html(btnText) ;
+            }
+
+            miseAjourTabPaiementMultiple() ;
+        }
+    }) ;
+
+    function miseAjourTabPaiementMultiple()
+    {
+        var lenPaiement = $(".fact_btn_paiement.btn-info").length ;
+        if(lenPaiement > 1)
+        {
+            var tabAppend = '' ;
+            $(".fact_btn_paiement.btn-info").each(function(){
+                var item = '' ;
+                if($(this).data("reference") == 'ES')
+                {
+                    item = `
+                        <tr>
+                            <td class="align-middle py-2"><b>`+$(this).data("text")+`</b>
+                                <input type="hidden" name="mul_enr_type_paiement[]" id="mul_enr_type_paiement" value="`+$(this).data('reference')+`" >
+                                <input type="hidden" name="mul_enr_libellee[]" id="mul_enr_libellee" value="">
+                                <input type="hidden" name="mul_enr_numero[]" id="mul_enr_numero" value="">
+                            </td>
+                            <td class="align-middle py-2"><input type="number" step="any" name="mul_enr_montant[]" id="mul_enr_montant" class="form-control mb-0" placeholder="Montant..."></td>
+                            <td class="text-center py-2 align-middle">
+                                <button type="button" class="btn btn_del_mulP btn-sm btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
+                            </td>
+                        </tr>
+                    ` ;
+                }
+                else
+                {
+                    item = `
+                        <tr class="py-2">
+                            <td class="align-middle py-2"><b>`+$(this).data("text")+`</b>
+                                <input type="hidden" name="mul_enr_type_paiement[]" id="mul_enr_type_paiement" value="`+$(this).data('reference')+`" >
+                            </td>
+                            <td class="align-middle py-2"><input type="text" name="mul_enr_libellee[]" id="mul_enr_libellee" class="form-control mb-0" placeholder="`+$(this).data('libelle')+`..."></td>
+                            <td class="align-middle py-2"><input type="text" name="mul_enr_numero[]" id="mul_enr_numero" class="form-control mb-0" placeholder="`+$(this).data('numcaption')+`..."></td>
+                            <td class="align-middle py-2"><input type="number" step="any" name="mul_enr_montant[]" id="mul_enr_montant" class="form-control mb-0" placeholder="Montant..."></td>
+                            <td class="text-center py-2 align-middle">
+                                <button type="button" class="btn btn_del_mulP btn-sm btn-outline-danger font-smaller"><i class="fa fa-times"></i></button>
+                            </td>
+                        </tr>
+                    ` ;
+                }
+
+                tabAppend += item ;
+            }) ;
+
+            $(".content_fact_libelle").hide() ;
+            $(".content_fact_num").hide() ;
+            $(".fact_libelle_caption").text("") ;
+            $(".fact_num_caption").text("") ;
+
+            $(".content_type_paiements").show() ;
+            $(".tab_paiement_multiple").html(tabAppend) ;
+        }
+        else
+        {
+            var elemUnique = $(".fact_btn_paiement.btn-info") ;
+            var refUnique = $(".fact_btn_paiement.btn-info").data("reference") ;
+            var libelleUnique = $(".fact_btn_paiement.btn-info").data("libelle") ;
+            var numUnique = $(".fact_btn_paiement.btn-info").data("numcaption") ;
+
+            $(elemUnique.data("target")).val(elemUnique.attr("value")) ;
+
+            if(refUnique != "ES")
+            {
+                $(".content_fact_libelle").show() ;
+                $(".content_fact_num").show() ;
+                $(".fact_libelle_caption").text(libelleUnique)
+                $(".fact_num_caption").text(numUnique)
+            }
+            else
+            {
+                $(".content_fact_libelle").hide() ;
+                $(".content_fact_num").hide() ;
+                $(".fact_libelle_caption").text("") ;
+                $(".fact_num_caption").text("") ;
+            }  
+
+            $(".content_type_paiements").hide() ;
+            $(".tab_paiement_multiple").html("") ;
+        }
+    }
+
+    $(document).on("click",".btn_del_mulP", function(){
+        var reference = $(this).closest("tr").find("#mul_enr_type_paiement").val() ;
+        $(".fact_btn_paiement."+reference).addClass("btn-outline-info") ;
+        $(".fact_btn_paiement."+reference).removeClass("btn-info") ;
+        $(".fact_btn_paiement."+reference).html($(".fact_btn_paiement."+reference).data("text")) ;
+        miseAjourTabPaiementMultiple() ;
+        $(this).closest("tr").remove() ;
     })
 
     function displayTemplateFacture(factRoute = [], indice)
@@ -391,7 +477,7 @@ $(document).ready(function(){
             contentType: false,
             success: function(response){
                 realinstance.close()
-                if(indice == "PLOC")
+                if(indice == "PLOC") 
                 {
                     $("#factureStandard").empty().append(response)
                 }

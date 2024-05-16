@@ -1270,7 +1270,7 @@ class AppService extends AbstractController
             "entrepot" => "ASC"
         ]) ;
         
-        $elements = [] ;
+        $elements = [] ; 
 
         foreach ($stockEntrepots as $stockEntrepot) {
             $element = [] ;
