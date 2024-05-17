@@ -18,9 +18,13 @@ use App\Entity\DepModePaiement;
 use App\Entity\DepMotif;
 use App\Entity\DepService;
 use App\Entity\DepStatut;
+use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
+use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\HistoHistorique;
+use App\Entity\PrdEntrepot;
+use App\Entity\PrdEntrpAffectation;
 use App\Entity\User;
 use App\Service\AppService;
 use DateTimeImmutable;
@@ -1003,10 +1007,48 @@ class ComptabiliteController extends AbstractController
 
         $recettes = $elements ; 
 
+        if($this->userObj->getRoles()[0] == "MANAGER")
+        {
+            $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                "filename" => "files/systeme/stock/entrepot(agence)/".$this->nameAgence ,
+                "agence" => $this->agence
+            ]) ;
+        }
+        else
+        {
+            $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
+                "agent" => $this->userObj,
+                "statut" => True
+            ]) ;
+            
+            $entrepots = [] ;
+            foreach ($affectEntrepots as $affectEntrepot) 
+            {
+                $entrepot = $affectEntrepot->getEntrepot() ;
+                if($entrepot->isStatut())
+                {
+                    $entrepots[] = 
+                    [
+                        "id" => $entrepot->getId(),
+                        "nom" => $entrepot->getNom(),
+                        "adresse" => $entrepot->getAdresse(),
+                        "telephone" => $entrepot->getTelephone(),
+                    ] ;
+                }
+            }
+        }
+
+        $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
+
+        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
+
         return $this->render('comptabilite/recettes/recettesGeneral.html.twig', [
             "filename" => "comptabilite",
             "titlePage" => "Recettes générales",
             "with_foot" => false,
+            "critereDates" => $critereDates,
+            "entrepots" => $entrepots,
+            "paiements" => $paiements,
             "recettes" => $recettes,
             "tabMois" => $tabMois,
         ]);

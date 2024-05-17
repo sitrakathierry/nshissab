@@ -16,60 +16,50 @@
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 py-3">
+    <div class="container-fluid px-3 pb-3">
         <div class="row">
             <div class="col-md-3">
-                <label for="search_recette" class="mt-2 font-weight-bold text-uppercase">Recherche</label>
-                <select name="search_recette" class="custom-select chosen_select custom-select-sm" id="search_recette">
-                    <option value="">AFFICHER TOUS</option>
-                    <option value="JOUR">{{"Aujourd'hui"|upper}}</option>
-                    <option value="SPEC">{{"Date Spécifique"|upper}}</option>
-                    <option value="LIMIT">{{"Fourchette"|upper}}</option>
-                    <option value="MOIS">{{"Mois"|upper}}</option>
-                </select>
-                <input type="hidden" id="search_current_date" value="{{'now'|date('d/m/Y')}}" >
-            </div> 
-            <div class="col-md-3" style="display: none;" id="caption_search_date">
-                <label for="search_date" class="mt-2 font-weight-bold text-uppercase">Date</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" id="search_date" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-            <div class="col-md-3" style="display: none;" id="caption_search_date_debut">
-                <label for="search_date_debut" class="mt-2 font-weight-bold text-uppercase">Date début</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" id="search_date_debut" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-            <div class="col-md-3" style="display: none;" id="caption_search_date_fin">
-                <label for="search_date_fin" class="mt-2 font-weight-bold text-uppercase">Date Fin</label>
-                <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                </div>
-                    <input type="text" id="search_date_fin" class="form-control" placeholder=". . ." aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-            <div class="col-md-3" style="display: none;" id="caption_search_mois">
-                {% set i = 1 %}
-                <label for="search_mois" class="mt-2 font-weight-bold text-uppercase">Mois</label>
-                <select name="search_mois" class="custom-select chosen_select custom-select-sm" id="search_mois">
+                <label for="search_recette" class="mt-2 font-weight-bold text-uppercase">Entrepôt</label>
+                <select name="trans_entrepot_source" class="custom-select chosen_select custom-select-sm" id="trans_entrepot_source">
                     <option value="">-</option>
-                    {% for tabMois in tabMois %}
-                        <option value="{{i}}">{{tabMois|upper}}</option>
-                        {% set i = i + 1 %}
+                    {% for entrepot in entrepots %}
+                        <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3" style="display: none;" id="caption_search_annee">
-                <label for="search_annee" class="mt-2 font-weight-bold text-uppercase">Année</label>
-                <input type="number" name="search_annee" id="search_annee" value="{{'now'|date('Y')}}" class="form-control search_annee">
+            <div class="col-md-9">
+                <label for="search_recette" class="mt-2 font-weight-bold text-uppercase">Type de paiement</label>
+                <div class="w-100 d-flex flex-row align-items-center">
+                    {% for paiement in paiements %}
+                        <button data-value="{{paiement.id}}" class="btn btn-sm btn-outline-info mx-2">{{paiement.nom|upper}}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="search_recette" class="mt-3 font-weight-bold text-uppercase">Type Recette</label>
+                <select name="search_recette" class="custom-select chosen_select custom-select-sm" id="search_recette">
+                    <option value="">TOUS</option>
+                    <option value="">CAISSE</option>
+                    <option value="">FACTURE PRODUIT</option>
+                    <option value="">FACTURE STANDARD</option>
+                    <option value="">FACTURE BATIMENT</option>
+                    <option value="">FACTURE LOCATION</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="search_recette" class="mt-3 font-weight-bold text-uppercase">Numéro</label>
+                <select name="search_recette" class="custom-select chosen_select custom-select-sm" id="search_recette">
+                    <option value="" data-critere="">TOUS</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="search_recette" class="mt-3 font-weight-bold text-uppercase">Date</label>
+                <select name="search_recette" class="custom-select chosen_select custom-select-sm" id="search_recette">
+                    <option value="" data-critere="">TOUS</option>
+                    {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         <div class="mt-3">
@@ -78,8 +68,10 @@
                     <thead class="thead-dark">
                         <tr>
                             <th>Date</th>
-                            <th>Numéro</th>
-                            <th>Type</th>
+                            <th>Numero</th>
+                            <th>Entrepot</th>
+                            <th>Type Paiement</th>
+                            <th>Type Recette</th>
                             {# <th>Client</th> #}
                             <th>Total</th>
                         </tr>
@@ -93,6 +85,8 @@
                                 <tr>
                                     <td>{{recette.date}}</td>
                                     <td>{{recette.numero}}</td>
+                                    <td>{{"-"}}</td>
+                                    <td>{{"-"}}</td>
                                     <td>{{recette.operation|upper}}</td>
                                     {# <td>{{recette.client|upper}}</td> #}
                                     <td>{{recette.montant}}</td>
@@ -106,7 +100,7 @@
             <table class="table table-sm table-bordered" style="font-size: 0.95em;">
                 <tr>
                     <th>Total General</th>
-                    <th class="bg-primary text-white" style="width: 210px;">{{totalGeneral}}</th>
+                    <th class="bg-primary text-white" style="width: 120px;">{{totalGeneral}}</th>
                 </tr>
             </table>
         </div>

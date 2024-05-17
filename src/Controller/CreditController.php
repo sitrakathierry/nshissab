@@ -424,6 +424,8 @@ class CreditController extends AbstractController
             // FIN GET INFO ADMIN
         }
 
+        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
+
         return $this->render('credit/detailsFinanceCredit.html.twig',[
             "filename" => "credit",
             "titlePage" => $titlePage,
@@ -431,10 +433,11 @@ class CreditController extends AbstractController
             "facture" => $infoFacture,
             "factureDetails" => $elements,
             "financeDetails" => $financeDetails, 
+            "paiements" => $paiements, 
             "refPaiement" => $refPaiement,
             "echeances" => $echeances,
             "unAgdAcompte" => $unAgdAcompte,
-            "dataAdmin" => $dataAdmin 
+            "dataAdmin" => $dataAdmin  
         ]) ; 
 
     }

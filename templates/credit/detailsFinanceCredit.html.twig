@@ -12,7 +12,7 @@
     <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
-<div class="barre_top rounded shadow mb-5">
+<div class="barre_top rounded shadow mb-5"> 
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page d-flex flex-row align-items-center text-black">
         {{titlePage}} N° :&nbsp;<span class="text-white px-2 py-1 rounded badge-warning">{{facture.numFnc}}</span>
@@ -167,7 +167,18 @@
                                 </div>
                                 {% if refPaiement == "CR" %}
                                     <div class="col-md-3">
-                                        <label for="crd_type" class="mt-2 font-weight-bold">Type</label>
+                                    <label for="agd_ech_type_paiement" class="font-weight-bold mt-2 text-uppercase">Type de paiement</label>
+                                        <select name="agd_ech_type_paiement" class="custom-select custom-select-sm" id="agd_ech_type_paiement">
+                                            <option value="">-</option>
+                                            {% for paiement in paiements %}
+                                                {% if paiement.reference != "CR" and paiement.reference != "AC" %}
+                                                    <option value="{{paiement.id}}">{{paiement.nom|upper}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="crd_type" class="mt-2 font-weight-bold">Statut</label>
                                         <select name="crd_type" id="crd_type" class="custom-select custom-select-sm chosen_select">
                                             <option value="">-</option>
                                             <option value="DIRECT">{{ refPaiement == "CR" ? "Paiement"|upper : "Dépot"|upper }}</option>
@@ -192,7 +203,8 @@
                                     <th>Description</th>
                                     <th>Date de {{ refPaiement == "CR" ? "Paiement" : "Dépôt"}}</th>
                                     {% if refPaiement == "CR" %}
-                                        <th class="text-center">Type</th>
+                                        <th class="text-center">Type de Paiement</th>
+                                        <th class="text-center">Statut</th>
                                     {% endif %}
                                     <th>Montant {{ refPaiement == "CR" ? "Payé" : "Déposé"}}</th>
                                     {% if refPaiement == "CR" %}
@@ -208,6 +220,7 @@
                                         <td class="align-middle crd_val_description">{{financeDetail.description}}</td>
                                         <td class="align-middle crd_val_date">{{ financeDetail.date|date('d/m/Y') }}</td>
                                         {% if refPaiement == "CR" %}
+                                            <td class="align-middle text-center">-</td>
                                             <td class="align-middle text-center">
                                                 <b class="text-uppercase">soldé</b>
                                             </td>
@@ -240,6 +253,7 @@
                                         <tr class=" {{ echeance.statut == "OK" ? "bg-info" : "bg-danger" }}  text-white" >
                                                 <td class="align-middle">{{echeance.description}}</td>
                                                 <td class="align-middle">{{ echeance.date }}</td>
+                                                <td class="align-middle text-center">-</td>
                                                 <td class="align-middle text-center">
                                                     <b class="text-uppercase" >Echéance</b>
                                                 </td>
@@ -258,16 +272,16 @@
                             </tbody>
                             <tfoot class="text-uppercase">
                                 <tr>
-                                    <th {{ refPaiement == "CR" ? 'colspan="3"' : 'colspan="2"' }}>Total Payée</th>
+                                    <th {{ refPaiement == "CR" ? 'colspan="4"' : 'colspan="2"' }}>Total Payée</th>
                                     <th colspan="3" class="bg-success text-white">{{ totalPayee == 0 ? "-" : totalPayee|format_number }}</th>
                                 </tr>
                                 <tr>
-                                    <th {{ refPaiement == "CR" ? 'colspan="3"' : 'colspan="2"' }}>Total Echéance</th>
+                                    <th {{ refPaiement == "CR" ? 'colspan="4"' : 'colspan="2"' }}>Total Echéance</th>
                                     <th colspan="3" class="bg-primary text-white">{{ totalCredit == 0 ? "-" : totalCredit|format_number }}</th>
                                 </tr>
                                 <tr>
                                     {% set totalRestant = facture.totalTtc - totalPayee - totalCredit %}
-                                    <th {{ refPaiement == "CR" ? 'colspan="3"' : 'colspan="2"' }}>Total Restant</th>
+                                    <th {{ refPaiement == "CR" ? 'colspan="4"' : 'colspan="2"' }}>Total Restant</th>
                                     <th colspan="3" class="bg-primary text-white">{{ totalRestant | format_number }}</th>
                                     <input type="hidden" name="credit_total_restant" id="credit_total_restant"  value="{{totalRestant}}">
                                 </tr>
