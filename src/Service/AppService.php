@@ -4203,4 +4203,15 @@ class AppService extends AbstractController
 
         file_put_contents($filename,json_encode($newAvoirs)) ;
     }
+
+    public function regrouperRecette($recettes)
+    {
+        $response = [] ;
+
+        foreach ($recettes as $recette) {
+            $response[$recette["date"]][$recette["numero"].'|'.$recette["entrepot"]][$recette["typePaiement"]][] = $recette ;
+        }
+
+        return $response ;
+    }
 }

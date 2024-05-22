@@ -2,8 +2,12 @@
 
 namespace App\Repository;
 
+use App\Entity\CrdDetails;
+use App\Entity\CrdFinance;
 use App\Entity\FactDetails;
+use App\Entity\FactHistoPaiement;
 use App\Entity\FactModele;
+use App\Entity\FactType;
 use App\Entity\Facture;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdEntrepot;
@@ -12,8 +16,10 @@ use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdMargeType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\SavAnnulation;
+use App\Service\AppService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use phpDocumentor\Reflection\PseudoTypes\True_;
 
 /**
  * @extends ServiceEntityRepository<Facture>
@@ -269,6 +275,159 @@ class FactureRepository extends ServiceEntityRepository
 
         $facture->setEntrepot($entrepotObj) ;
         $this->getEntityManager()->flush() ;
+    }
+
+    public function findByAgence($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('f')
+            ->from(Facture::class, 'f')
+            ->join(FactType::class, 'ft', 'WITH', 'ft.id = f.type')
+            ->where('f.agence = :agence')
+            ->andWhere('f.statut = :statut')
+            ->andWhere('ft.reference = :type')
+            ->setParameter('agence', $params['agence']->getId())
+            ->setParameter('statut', $params['statut'])
+            ->setParameter('type', $params['type'])
+            ->getQuery() ;
+        
+        return $query->getResult();
+    }
+
+    public function generateRecetteFacture($params = [])
+    {
+        $elements = [] ;
+
+        $histoPaiements = $this->getEntityManager()->getRepository(FactHistoPaiement::class)->findHistoPActive([
+            "agence" => $params["agence"],
+            "statut" => True,
+            "type" => 'DF',
+        ]) ;
+
+        foreach ($histoPaiements as $histoPaiement) {
+
+            if($histoPaiement->getPaiement()->getReference() == "CR")
+                continue ;
+
+            $facture = $histoPaiement->getFacture() ;
+            
+            $entrepot = "-" ;
+            $refEntrepot = "-" ;
+
+            if(!is_null($facture->getEntrepot()))
+            {
+                $entrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getNom() ;
+                $refEntrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getId() ;
+            }
+
+            $recette = $facture->getModele()->getNom() ;
+            $refRecette = $facture->getModele()->getId() ;
+
+            $typePaiement = $histoPaiement->getPaiement()->getNom() ;
+            $refTypePaiement = $histoPaiement->getPaiement()->getId() ;
+    
+            $elements[] = [
+                "id" => $facture->getId(),
+                "date" => $facture->getDate()->format("d/m/Y"),
+                "currentDate" => $facture->getDate()->format("d/m/Y"),
+                "dateFacture" => $facture->getDate()->format("d/m/Y"),
+                "dateDebut" => $facture->getDate()->format("d/m/Y"),
+                "dateFin" => $facture->getDate()->format("d/m/Y"),
+                "annee" => $facture->getDate()->format("Y"),
+                "mois" => $facture->getDate()->format("m"),
+                "numero" => $facture->getNumFact(),
+                "entrepot" => $entrepot,
+                "montant" => $histoPaiement->getMontant(),
+                "typePaiement" => $typePaiement,
+                "refTypePaiement" => $refTypePaiement,
+                "refEntrepot" => $refEntrepot,
+                "recette" => $recette,
+                "refRecette" => $refRecette,
+            ] ;
+        }
+
+        $crdDetails = $this->getEntityManager()->getRepository(CrdFinance::class)->findActive([
+            "agence" => $params["agence"],
+            "statut" => True,
+            "paiement" => "CR",
+        ]) ;
+
+        foreach ($crdDetails as $crdDetail) {
+            $facture = $crdDetail->getFinance()->getFacture() ;
+
+            $entrepot = "-" ;
+            $refEntrepot = "-" ;
+
+            if(!is_null($facture->getEntrepot()))
+            {
+                $entrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getNom() ;
+                $refEntrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getId() ;
+            }
+
+            $recette = $facture->getModele()->getNom() ;
+            $refRecette = $facture->getModele()->getId() ;
+
+            $typePaiement = "-" ;
+            $refTypePaiement = "-" ;
+
+            if(!is_null($crdDetail->getPaiement()))
+            {
+                $typePaiement = $crdDetail->getPaiement()->getNom() ;
+                $refTypePaiement = $crdDetail->getPaiement()->getId() ;
+            }
+
+            $elements[] = [
+                "id" => $facture->getId(),
+                "date" => $crdDetail->getDate()->format("d/m/Y"),
+                "currentDate" => $facture->getDate()->format("d/m/Y"),
+                "dateFacture" => $facture->getDate()->format("d/m/Y"),
+                "dateDebut" => $facture->getDate()->format("d/m/Y"),
+                "dateFin" => $facture->getDate()->format("d/m/Y"),
+                "annee" => $facture->getDate()->format("Y"),
+                "mois" => $facture->getDate()->format("m"),
+                "numero" => $facture->getNumFact(),
+                "entrepot" => $entrepot,
+                "montant" => $crdDetail->getMontant(),
+                "typePaiement" => $typePaiement,
+                "refTypePaiement" => $refTypePaiement,
+                "refEntrepot" => $refEntrepot,
+                "recette" => "echéance",
+                "refRecette" => "ECH",
+            ] ;
+        }
+
+        return $elements ;
+    }
+
+    public static function comparaisonDates($a, $b) {
+        $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
+        $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
+        return $dateB <=> $dateA;
+    }
+
+    public function generateRecetteGeneral($params = [])
+    {
+        if(!file_exists($params["filename"]))
+        {
+            $this->getEntityManager()->getRepository(FactHistoPaiement::class)->updateMontantFactureDef([
+                "agence" => $params["agence"],
+                "appService" => $params["appService"]
+            ]) ;
+
+            $elements = $this->getEntityManager()->getRepository(Facture::class)->generateRecetteFacture([
+                "agence" => $params["agence"],
+                "user" => $params["user"],
+                "appService" => $params["appService"]
+            ]) ; 
+
+            usort($elements, [self::class, 'comparaisonDates']);  ;
+
+            file_put_contents($params["filename"],json_encode($elements)) ;
+        }
+
+        return json_decode(file_get_contents($params["filename"])) ;
     }
 
 //    /**

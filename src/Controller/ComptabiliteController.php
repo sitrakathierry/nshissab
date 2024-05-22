@@ -20,6 +20,7 @@ use App\Entity\DepService;
 use App\Entity\DepStatut;
 use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
+use App\Entity\FactHistoPaiement;
 use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\HistoHistorique;
@@ -863,149 +864,106 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/recette/general', name: 'compta_recette_general')]
     public function comptaRecetteGeneral()
     {
-        $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-
-        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
-
-        if(!file_exists($filename))
-            $this->appService->generateFacture($filename, $this->agence) ;
-
-        $factures = json_decode(file_get_contents($filename)) ;
-
-        $dataRefOpt = [
-            "PROD" => "PRODUIT",
-            "PSTD" => "P. STANDARD",
-            "PBAT" => "P. BATIMENT",
-            "PLOC" => "P. LOCATION",
-        ] ;
-
-        $search = [
-            "refType" => "DF",
-            "annee" => date("Y"),
-        ] ;
-
-        $factures = $this->appService->searchData($factures,$search) ;
-
-        $elements = [] ;
-
-        foreach ($factures as $facture) {
-            $oneFacture = $this->entityManager->getRepository(Facture::class)->find($facture->id) ;
-
-            $details = $this->entityManager->getRepository(FactDetails::class)->findBy([
-                "facture" => $oneFacture,
-                "statut" => True,
-            ]) ;
-    
-            $totalHt = 0 ;
-            $totalTva = 0 ;
-            foreach ($details as $detail) {
-                $tvaVal = is_null($detail->getTvaVal()) ? 0 : $detail->getTvaVal() ;
-                $tva = (($detail->getPrix() * $tvaVal) / 100) * $detail->getQuantite();
-                $total = $detail->getPrix() * $detail->getQuantite()  ;
-                $remise = $this->appService->getFactureRemise($detail,$total) ; 
-                
-                $total = $total - $remise ;
-
-                $totalHt += $total ;
-                $totalTva += $tva ;
-            } 
-    
-            $remiseGen = $this->appService->getFactureRemise($oneFacture,$totalHt) ;
-            $totalTtc = $totalHt + $totalTva - $remiseGen ;
-            
-            // dd($dataRefOpt[$facture->refModele]) ;
-
-            $item = [
-                "id" => $facture->id,
-                "date" => $facture->dateFacture,
-                "numero" => $facture->numFact,
-                "montant" => $totalTtc,
-                // "client" => "-",
-                "operation" => "Facture ".$dataRefOpt[$facture->refModele],
-                "refOperation" => $facture->refModele,
-                "refJournal" => "DEBIT"
-            ] ;
-
-            array_push($elements,$item) ;
-        }
-
         // corriger le montant dans la caisse en appliquant la remise !!
-        $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
-        if(!file_exists($filename))
-            $this->appService->generateCaisseCommande($filename, $this->agence) ;
+        // $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
+        // if(!file_exists($filename))
+        //     $this->appService->generateCaisseCommande($filename, $this->agence) ;
 
-        $caisses = json_decode(file_get_contents($filename)) ;
+        // $caisses = json_decode(file_get_contents($filename)) ;
 
-        $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
+        // foreach ($caisses as $caisse) {
+        //     $item = [
+        //         "id" => $caisse->id,
+        //         "date" => $caisse->date,
+        //         "numero" => $caisse->numCommande,
+        //         "montant" => $caisse->montant,
+        //         // "client" => "-",
+        //         "operation" => "Caisse",
+        //         "refOperation" => "CAISSE",
+        //         "refJournal" => "DEBIT"
+        //     ] ;
+ 
+        //     array_push($elements,$item) ;
+        // }
 
-        if(!file_exists($filename))
-            $this->appService->generateLocationContrat($filename, $this->agence) ; 
+        // $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
 
-        $contrats = json_decode(file_get_contents($filename)) ;
+        // if(!file_exists($filename))
+        //     $this->appService->generateLocationContrat($filename, $this->agence) ; 
 
-        $search = [
-            "refStatut" => "ENCR",
-        ] ;
+        // $contrats = json_decode(file_get_contents($filename)) ;
 
-        $contrats = $this->appService->searchData($contrats,$search) ;
+        // $search = [
+        //     "refStatut" => "ENCR",
+        // ] ;
 
-        foreach ($contrats as $contrat) 
-        {
-            $id = $contrat->id ;
+        // $contrats = $this->appService->searchData($contrats,$search) ;
 
-            $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
+        // foreach ($contrats as $contrat) 
+        // {
+        //     $id = $contrat->id ;
+
+        //     $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
             
-            if(!file_exists($filename))
-                $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
+        //     if(!file_exists($filename))
+        //         $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
     
-            $relevePaiements = json_decode(file_get_contents($filename)) ;
+        //     $relevePaiements = json_decode(file_get_contents($filename)) ;
 
-            $countReleve = count($relevePaiements) ;
+        //     $countReleve = count($relevePaiements) ;
 
-            $totalRelevePayee = 0 ;
+        //     $totalRelevePayee = 0 ;
 
-            for($i = 0; $i < $countReleve; $i++)
-            {
-                $totalRelevePayee += $relevePaiements[$i]->datePaiement != "-" ? $relevePaiements[$i]->montant : 0 ;
+        //     for($i = 0; $i < $countReleve; $i++)
+        //     {
+        //         $totalRelevePayee += $relevePaiements[$i]->datePaiement != "-" ? $relevePaiements[$i]->montant : 0 ;
 
-                if($relevePaiements[$i]->datePaiement == "-")
-                {
-                    break ;
-                }
-            }
+        //         if($relevePaiements[$i]->datePaiement == "-")
+        //         {
+        //             break ;
+        //         }
+        //     }
 
-            $item = [
-                "id" =>  $id,
-                "date" => $contrat->dateContrat,
-                "numero" => $contrat->numContrat,
-                "montant" => $totalRelevePayee,
-                // "client" => "-",
-                "operation" => "Facture Location",
-                "refOperation" => "PLOC",
-                "refJournal" => "DEBIT"
-            ] ;
+        //     $item = [
+        //         "id" =>  $id,
+        //         "date" => $contrat->dateContrat,
+        //         "numero" => $contrat->numContrat,
+        //         "montant" => $totalRelevePayee,
+        //         "operation" => "Facture Location",
+        //         "refOperation" => "PLOC",
+        //         "refJournal" => "DEBIT"
+        //     ] ;
  
-            array_push($elements,$item) ;
+        //     array_push($elements,$item) ;
+        // }
+
+        
+
+        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
+            "agence" => $this->agence,
+            "user" => $this->userObj,
+            "appService" => $this->appService,
+            "filename" => "files/systeme/comptabilite/recette(agence)".$this->nameAgence
+        ]) ;
+
+        // $recetteFactures = $this->appService->regrouperRecette($recetteFactures) ;
+
+        $numFacts = [] ;
+        $typeRecettes = [] ;
+
+        foreach ($recetteGenerales as $recetteFact) {
+            $numFacts[$recetteFact->id] = [
+                "id" => $recetteFact->id,
+                "numero" => $recetteFact->numero,
+            ] ;
+
+            $typeRecettes[$recetteFact->refRecette] = [
+                "recette" => $recetteFact->recette,
+                "refRecette" => $recetteFact->refRecette,
+            ] ;
         }
 
-        foreach ($caisses as $caisse) {
-            $item = [
-                "id" => $caisse->id,
-                "date" => $caisse->date,
-                "numero" => $caisse->numCommande,
-                "montant" => $caisse->montant,
-                // "client" => "-",
-                "operation" => "Caisse",
-                "refOperation" => "CAISSE",
-                "refJournal" => "DEBIT"
-            ] ;
- 
-            array_push($elements,$item) ;
-        }
-
-        usort($elements, [self::class, 'comparaisonDates']);  ;
-
-        $recettes = $elements ; 
+        // dd(array_values($numFact)) ;
 
         if($this->userObj->getRoles()[0] == "MANAGER")
         {
@@ -1048,9 +1006,10 @@ class ComptabiliteController extends AbstractController
             "with_foot" => false,
             "critereDates" => $critereDates,
             "entrepots" => $entrepots,
+            "numFacts" => $numFacts,
+            "typeRecettes" => $typeRecettes,
             "paiements" => $paiements,
-            "recettes" => $recettes,
-            "tabMois" => $tabMois,
+            "recetteGenerales" => $recetteGenerales,
         ]);
     }
 
@@ -2616,216 +2575,55 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/recette/search', name: 'compta_recette_search')]
     public function comptaSearchRecette(Request $request)
     {
+        $id = $request->request->get('id') ;
         $currentDate = $request->request->get('currentDate') ;
-        $dateDeclaration = $request->request->get('dateDeclaration') ;
+        $dateFacture = $request->request->get('dateFacture') ;
         $dateDebut = $request->request->get('dateDebut') ;
         $dateFin = $request->request->get('dateFin') ;
         $annee = $request->request->get('annee') ;
         $mois = $request->request->get('mois') ;
-        $affichage = $request->request->get('affichage') ;
-
-        if($affichage == "JOUR")
-        {
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $annee = "" ;
-            $mois = "" ;
-        }
-        else if($affichage == "SPEC")
-        {
-            $currentDate = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $annee = "" ;
-            $mois = "" ;
-        }
-        else if($affichage == "LIMIT")
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $annee = "" ;
-            $mois = "" ;
-        }
-        else if($affichage == "MOIS")
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-        }
-        else if($affichage == "ANNEE")
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $mois = "" ;
-        }
-        else
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $annee = "" ;
-            $mois = "" ;
-        }
-
-        $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
-
-        if(!file_exists($filename))
-            $this->appService->generateFacture($filename, $this->agence) ;
-
-        $factures = json_decode(file_get_contents($filename)) ;
+        $refEntrepot = $request->request->get('refEntrepot') ;
+        $refRecette = $request->request->get('refRecette') ;
+        $refTypePaiement = $request->request->get('refTypePaiement') ;
 
         $search = [
-            "refType" => "DF",
-        ] ;
-
-        $factures = $this->appService->searchData($factures,$search) ;
-
-        $elements = [] ;
-        foreach ($factures as $facture) {
-            # code...
-            $item = [
-                "id" => $facture->id,
-                "date" => $facture->dateFacture,
-                "currentDate" => $facture->dateFacture,
-                "dateDeclaration" => $facture->dateFacture,
-                "dateDebut" => $facture->dateFacture,
-                "dateFin" => $facture->dateFacture,
-                "annee" => explode("/",$facture->dateFacture)[2],
-                "mois" => explode("/",$facture->dateFacture)[1],
-                "numero" => $facture->numFact,
-                "montant" => $facture->total,
-                "client" => "-",
-                "operation" => "Facture",
-                "refOperation" => "FACTURE",
-                "refJournal" => "DEBIT"
-            ] ;
-
-            array_push($elements,$item) ;
-        }
-
-        // corriger le montant dans la caisse en appliquant la remise !!
-        $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
-        if(!file_exists($filename))
-            $this->appService->generateCaisseCommande($filename, $this->agence) ;
-
-        $caisses = json_decode(file_get_contents($filename)) ;
-
-        foreach ($caisses as $caisse) {
-            $item = [
-                "id" => $caisse->id,
-                "date" => $caisse->date,
-                "currentDate" => $caisse->date,
-                "dateDeclaration" => $caisse->date,
-                "dateDebut" => $caisse->date,
-                "dateFin" => $caisse->date,
-                "annee" => explode("/",$caisse->date)[2],
-                "mois" => explode("/",$caisse->date)[1],
-                "numero" => $caisse->numCommande,
-                "montant" => $caisse->montant,
-                "client" => "-",
-                "operation" => "Caisse",
-                "refOperation" => "CAISSE",
-                "refJournal" => "DEBIT"
-            ] ;
-
-            array_push($elements,$item) ;
-        }
-
-        $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
-
-        if(!file_exists($filename))
-            $this->appService->generateLocationContrat($filename, $this->agence) ; 
-
-        $contrats = json_decode(file_get_contents($filename)) ;
-
-        $search = [
-            "refStatut" => "ENCR",
-        ] ;
-
-        $contrats = $this->appService->searchData($contrats,$search) ;
-
-        foreach ($contrats as $contrat) 
-        {
-
-            $id = $contrat->id ;
-
-            $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
-            
-            if(!file_exists($filename))
-                $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
-    
-            $relevePaiements = json_decode(file_get_contents($filename)) ;
-
-            $countReleve = count($relevePaiements) ;
-
-            $totalRelevePayee = 0 ;
-
-            for($i = 0; $i < $countReleve; $i++)
-            {
-                $totalRelevePayee += $relevePaiements[$i]->datePaiement != "-" ? $relevePaiements[$i]->montant : 0 ;
-
-                if($relevePaiements[$i]->datePaiement == "-")
-                {
-                    break ;
-                }
-            }
-
-            $item = [
-                "id" =>  $id,
-                "date" => $contrat->dateContrat,
-                "currentDate" => $contrat->dateContrat,
-                "dateDeclaration" => $contrat->dateContrat,
-                "dateDebut" => $contrat->dateContrat,
-                "dateFin" => $contrat->dateContrat,
-                "annee" => explode("/",$contrat->dateContrat)[2],
-                "mois" => explode("/",$contrat->dateContrat)[1],
-                "numero" => $contrat->numContrat,
-                "montant" => $totalRelevePayee,
-                // "client" => "-",
-                "operation" => "Facture Location",
-                "refOperation" => "PLOC",
-                "refJournal" => "DEBIT"
-            ] ;
- 
-            array_push($elements,$item) ;
-        }
-
-
-        usort($elements, [self::class, 'comparaisonDates']);  ;
-
-        $recettes = $elements ;
-
-        $search = [
+            "id" => $id,
             "currentDate" => $currentDate,
-            "dateDeclaration" => $dateDeclaration,
+            "dateFacture" => $dateFacture,
             "dateDebut" => $dateDebut,
             "dateFin" => $dateFin,
             "annee" => $annee,
             "mois" => $mois,
+            "refEntrepot" => $refEntrepot,
+            "refRecette" => $refRecette,
+            "refTypePaiement" => $refTypePaiement,
         ] ;
 
-        $records = [] ;
-
-        foreach ($recettes as $recette) {
-            $records[] = (object)$recette ;
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
         }
 
-        $recettes = $this->appService->searchData($records,$search) ;
+        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
+            "agence" => $this->agence,
+            "user" => $this->userObj,
+            "appService" => $this->appService,
+            "filename" => "files/systeme/comptabilite/recette(agence)".$this->nameAgence
+        ]) ;
+        
+        $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
 
-        if(!empty($recettes))
+        if(!empty($recetteGenerales))
         {
             $response = $this->renderView("comptabilite/recettes/searchRecette.html.twig", [
-                "recettes" => $recettes
+                "recetteGenerales" => $recetteGenerales
             ]) ;
         }
         else
         {
-            $response = '<tr><td colspan="5" class="p-2"><div class="alert w-100 alert-sm alert-warning">Désolé, aucun élément trouvé</div></td></tr>' ;
+            $response = '<div class="alert w-100 alert-sm alert-warning">Désolé, aucun élément trouvé</div>' ;
         }
 
         return new Response($response) ; 

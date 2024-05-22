@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\FactDetails;
+use App\Entity\FactType;
 use App\Entity\Facture;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdHistoEntrepot;
@@ -290,6 +291,27 @@ class FactDetailsRepository extends ServiceEntityRepository
 
         return $histoEntrepot ;
     }
+
+    public function findAllByAgence($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('fd')
+            ->from(FactDetails::class, 'fd')
+            ->join(Facture::class, 'f', 'WITH', 'f.id = fd.facture')
+            ->leftJoin(FactType::class, 'ft', 'WITH', 'ft.id = f.type')
+            ->where('f.agence = :agence')
+            ->andWhere('fd.statut = :statut')
+            ->andWhere('ft.reference = :type')
+            ->setParameter('agence', $params['agence']->getId())
+            ->setParameter('statut', $params['statut'])
+            ->setParameter('type', $params['type'])
+            ->getQuery() ;
+        
+        return $query->getResult();
+    }
+
 //    /**
 //     * @return FactDetails[] Returns an array of FactDetails objects
 //     */

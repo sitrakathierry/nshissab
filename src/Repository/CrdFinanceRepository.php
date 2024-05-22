@@ -8,6 +8,7 @@ use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\FactDetails;
 use App\Entity\FactPaiement;
+use App\Entity\Facture;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdEntrpAffectation;
 use App\Entity\PrdHistoEntrepot;
@@ -224,6 +225,27 @@ class CrdFinanceRepository extends ServiceEntityRepository
         }
         
         return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function findActive($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('cd')
+            ->from(CrdDetails::class, 'cd')
+            ->join(CrdFinance::class, 'cf', 'WITH', 'cf.id = cd.finance')
+            ->join(Facture::class, 'f', 'WITH', 'f.id = cf.facture')
+            ->join(FactPaiement::class, 'fp', 'WITH', 'fp.id = cf.paiement')
+            ->where('cf.agence = :agence')
+            ->andWhere('f.statut = :statut')
+            ->andWhere('fp.reference = :paiement')
+            ->setParameter('agence', $params['agence']->getId())
+            ->setParameter('statut', $params['statut'])
+            ->setParameter('paiement', $params['paiement'])
+            ->getQuery() ;
+        
+        return $query->getResult();
     }
 
 //    /**

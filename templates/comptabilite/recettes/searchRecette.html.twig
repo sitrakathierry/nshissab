@@ -1,9 +1,39 @@
-{% for recette in recettes %}
+<div class="table-responsive general_height pb-0 ">
+    <table class="table table-sm mb-0 table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Numero</th>
+                <th>Entrepot</th>
+                <th>Type Paiement</th>
+                <th>Type Recette</th>
+                {# <th>Client</th> #}
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set totalGeneral = 0 %}
+            {% for recetteGenerale in recetteGenerales %}
+                {% set anneeNow = 'now'|date('Y') %}
+                {% set anneeActuel = recetteGenerale.date|split('/') %}
+                {% if anneeActuel[2] == anneeNow  %}
+                    <tr>
+                        <td>{{recetteGenerale.date}}</td>
+                        <td>{{recetteGenerale.numero}}</td>
+                        <td>{{recetteGenerale.entrepot|upper}}</td>
+                        <td>{{recetteGenerale.typePaiement|upper}}</td>
+                        <td>{{recetteGenerale.recette|upper}}</td>
+                        <td>{{recetteGenerale.montant}}</td>
+                    </tr>
+                    {% set totalGeneral = totalGeneral + recetteGenerale.montant %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>    
+</div>
+<table class="table table-sm table-bordered" style="font-size: 0.95em;">
     <tr>
-        <td>{{recette.date}}</td>
-        <td>{{recette.numero}}</td>
-        <td>{{recette.operation|upper}}</td>
-        {# <td>{{recette.client|upper}}</td> #}
-        <td>{{recette.montant}}</td>
+        <th>Total General</th>
+        <th class="bg-primary text-white" style="width: 120px;">{{totalGeneral}}</th>
     </tr>
-{% endfor %}
+</table>

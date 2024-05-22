@@ -167,8 +167,8 @@
                                 </div>
                                 {% if refPaiement == "CR" %}
                                     <div class="col-md-3">
-                                    <label for="agd_ech_type_paiement" class="font-weight-bold mt-2 text-uppercase">Type de paiement</label>
-                                        <select name="agd_ech_type_paiement" class="custom-select custom-select-sm" id="agd_ech_type_paiement">
+                                    <label for="crd_type_paiement" class="font-weight-bold mt-2 text-uppercase">Type de paiement</label>
+                                        <select name="crd_type_paiement" class="custom-select custom-select-sm" id="crd_type_paiement">
                                             <option value="">-</option>
                                             {% for paiement in paiements %}
                                                 {% if paiement.reference != "CR" and paiement.reference != "AC" %}

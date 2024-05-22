@@ -16,7 +16,7 @@ $(document).ready(function(){
         content: "Le montant entré ne doit pas dépasser le montant restant",
         type:"red"
       }) ;
- 
+  
       return false ;
     }
     var self = $(this);
