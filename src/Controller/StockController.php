@@ -1336,7 +1336,7 @@ class StockController extends AbstractController
     {
         if($this->userObj->getRoles()[0] == "MANAGER")
         {
-            $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            $entrepotSources = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
                 "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
                 "agence" => $this->agence
             ]) ;
@@ -1348,13 +1348,13 @@ class StockController extends AbstractController
                 "statut" => True
             ]) ;
             
-            $entrepots = [] ;
+            $entrepotSources = [] ;
             foreach ($affectEntrepots as $affectEntrepot) 
             {
                 $entrepot = $affectEntrepot->getEntrepot() ;
                 if($entrepot->isStatut())
                 {
-                    $entrepots[] = 
+                    $entrepotSources[] = 
                     [
                         "id" => $entrepot->getId(),
                         "nom" => $entrepot->getNom(),
@@ -1365,8 +1365,14 @@ class StockController extends AbstractController
             }
         }
 
+        $entrepotDestinations = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+            "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
+            "agence" => $this->agence
+        ]) ;
+
         $response = $this->renderView("stock/entrepot/getRecordsEntrepot.html.twig",[
-            "entrepots" => $entrepots
+            "entrepotSources" => $entrepotSources,
+            "entrepotDestinations" => $entrepotDestinations,
         ]) ;
 
         return new Response($response) ;

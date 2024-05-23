@@ -10,8 +10,8 @@
             <label for="trans_entrepot_source" class="font-weight-bold">Entrepôt Source</label>
             <select name="trans_entrepot_source" class="custom-select chosen_select custom-select-sm" id="trans_entrepot_source">
                 <option value="">-</option>
-                {% for entrepot in entrepots %}
-                    <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                {% for entrepotSource in entrepotSources %}
+                    <option value="{{entrepotSource.id}}">{{entrepotSource.nom|upper}}</option>
                 {% endfor %}
             </select>
         </div>
@@ -19,8 +19,8 @@
             <label for="trans_entrepot_dest" class="font-weight-bold">Entrepôt de Destination</label>
             <select name="trans_entrepot_dest" class="custom-select chosen_select custom-select-sm" id="trans_entrepot_dest">
                 <option value="">-</option>
-                {% for entrepot in entrepots %}
-                    <option value="{{entrepot.id}}">{{entrepot.nom|upper}}</option>
+                {% for entrepotDestination in entrepotDestinations %}
+                    <option value="{{entrepotDestination.id}}">{{entrepotDestination.nom|upper}}</option>
                 {% endfor %}
             </select>
         </div> 
