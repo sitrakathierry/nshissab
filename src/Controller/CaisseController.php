@@ -308,6 +308,8 @@ class CaisseController extends AbstractController
             unlink($dataFilename) ;
         }
 
+        $this->appService->deleteRecette() ;
+
         return new JsonResponse([
             "type" => "green",
             "message" => "Enregistrement éffectué"

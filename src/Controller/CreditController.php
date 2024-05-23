@@ -739,6 +739,8 @@ class CreditController extends AbstractController
 
         // FIN SAUVEGARDE HISTORIQUE
 
+        $this->appService->deleteRecette() ;
+
         return new JsonResponse($result) ;
     }
 

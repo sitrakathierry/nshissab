@@ -520,7 +520,7 @@ class AgendaController extends AbstractController
         if(file_exists($filename))
             unlink($filename) ;
 
-        // 034 47 543 35
+        $this->appService->deleteRecette() ;
 
         // DEBUT SAUVEGARDE HISTORIQUE
 

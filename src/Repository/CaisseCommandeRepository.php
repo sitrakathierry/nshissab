@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CaisseCommande;
+use App\Entity\CaissePanier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -39,6 +40,47 @@ class CaisseCommandeRepository extends ServiceEntityRepository
         }
     }
 
+    public function generateRecetteCaisse($params = [])
+    {
+        $commandes = $this->getEntityManager()->getRepository(CaisseCommande::class)->findBy([
+            "agence" => $params["agence"],
+            "statut" => $params["statut"]
+        ],["date" => "DESC"]) ;
+        
+        $elements = [] ;
+
+        foreach ($commandes as $commande) {
+            $caissePanier = $this->getEntityManager()->getRepository(CaissePanier::class)->findOneBy([
+                "commande" => $commande,
+                "statut" => True,
+            ]) ;
+
+            if($commande->getMontantPayee() > 0)
+            {
+                $elements[] = [
+                    "id" => $commande->getId(),
+                    "date" => $commande->getDate()->format('d/m/Y'),
+                    "currentDate" => $commande->getDate()->format('d/m/Y'),
+                    "dateFacture" => $commande->getDate()->format('d/m/Y'),
+                    "dateDebut" => $commande->getDate()->format('d/m/Y'),
+                    "dateFin" => $commande->getDate()->format('d/m/Y'),
+                    "annee" => $commande->getDate()->format('Y'),
+                    "mois" => $commande->getDate()->format('m'),
+                    "numero" => $commande->getNumCommande(),
+                    "entrepot" => $caissePanier->getHistoEntrepot()->getEntrepot()->getNom(),
+                    "refEntrepot" => $caissePanier->getHistoEntrepot()->getEntrepot()->getId(),
+                    "montant" => $commande->getMontantPayee(),
+                    "typePaiement" => "-",
+                    "refTypePaiement" => "-",
+                    "recette" => "Caisse",
+                    "refRecette" => "CAISSE",
+                ] ;
+            }
+            
+        }
+
+        return $elements ;
+    }
 //    /**
 //     * @return CaisseCommande[] Returns an array of CaisseCommande objects
 //     */

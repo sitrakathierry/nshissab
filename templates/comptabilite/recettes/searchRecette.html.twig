@@ -14,19 +14,15 @@
         <tbody>
             {% set totalGeneral = 0 %}
             {% for recetteGenerale in recetteGenerales %}
-                {% set anneeNow = 'now'|date('Y') %}
-                {% set anneeActuel = recetteGenerale.date|split('/') %}
-                {% if anneeActuel[2] == anneeNow  %}
-                    <tr>
-                        <td>{{recetteGenerale.date}}</td>
-                        <td>{{recetteGenerale.numero}}</td>
-                        <td>{{recetteGenerale.entrepot|upper}}</td>
-                        <td>{{recetteGenerale.typePaiement|upper}}</td>
-                        <td>{{recetteGenerale.recette|upper}}</td>
-                        <td>{{recetteGenerale.montant}}</td>
-                    </tr>
-                    {% set totalGeneral = totalGeneral + recetteGenerale.montant %}
-                {% endif %}
+                <tr>
+                    <td>{{recetteGenerale.date}}</td>
+                    <td>{{recetteGenerale.numero}}</td>
+                    <td>{{recetteGenerale.entrepot|upper}}</td>
+                    <td>{{recetteGenerale.typePaiement|upper}}</td>
+                    <td>{{recetteGenerale.recette|upper}}</td>
+                    <td>{{recetteGenerale.montant}}</td>
+                </tr>
+                {% set totalGeneral = totalGeneral + recetteGenerale.montant %}
             {% endfor %}
         </tbody>
     </table>    

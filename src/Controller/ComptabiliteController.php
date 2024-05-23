@@ -24,6 +24,7 @@ use App\Entity\FactHistoPaiement;
 use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\HistoHistorique;
+use App\Entity\LctContrat;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdEntrpAffectation;
 use App\Entity\User;
@@ -864,86 +865,13 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/recette/general', name: 'compta_recette_general')]
     public function comptaRecetteGeneral()
     {
-        // corriger le montant dans la caisse en appliquant la remise !!
-        // $filename = "files/systeme/caisse/commande(agence)/".$this->nameAgence ; 
-        // if(!file_exists($filename))
-        //     $this->appService->generateCaisseCommande($filename, $this->agence) ;
-
-        // $caisses = json_decode(file_get_contents($filename)) ;
-
-        // foreach ($caisses as $caisse) {
-        //     $item = [
-        //         "id" => $caisse->id,
-        //         "date" => $caisse->date,
-        //         "numero" => $caisse->numCommande,
-        //         "montant" => $caisse->montant,
-        //         // "client" => "-",
-        //         "operation" => "Caisse",
-        //         "refOperation" => "CAISSE",
-        //         "refJournal" => "DEBIT"
-        //     ] ;
- 
-        //     array_push($elements,$item) ;
-        // }
-
-        // $filename = "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence ;
-
-        // if(!file_exists($filename))
-        //     $this->appService->generateLocationContrat($filename, $this->agence) ; 
-
-        // $contrats = json_decode(file_get_contents($filename)) ;
-
-        // $search = [
-        //     "refStatut" => "ENCR",
-        // ] ;
-
-        // $contrats = $this->appService->searchData($contrats,$search) ;
-
-        // foreach ($contrats as $contrat) 
-        // {
-        //     $id = $contrat->id ;
-
-        //     $filename = "files/systeme/prestations/location/releveloyer(agence)/relevePL_".$id."_".$this->nameAgence  ;
-            
-        //     if(!file_exists($filename))
-        //         $this->appService->generateLctRelevePaiementLoyer($filename,$id) ;
-    
-        //     $relevePaiements = json_decode(file_get_contents($filename)) ;
-
-        //     $countReleve = count($relevePaiements) ;
-
-        //     $totalRelevePayee = 0 ;
-
-        //     for($i = 0; $i < $countReleve; $i++)
-        //     {
-        //         $totalRelevePayee += $relevePaiements[$i]->datePaiement != "-" ? $relevePaiements[$i]->montant : 0 ;
-
-        //         if($relevePaiements[$i]->datePaiement == "-")
-        //         {
-        //             break ;
-        //         }
-        //     }
-
-        //     $item = [
-        //         "id" =>  $id,
-        //         "date" => $contrat->dateContrat,
-        //         "numero" => $contrat->numContrat,
-        //         "montant" => $totalRelevePayee,
-        //         "operation" => "Facture Location",
-        //         "refOperation" => "PLOC",
-        //         "refJournal" => "DEBIT"
-        //     ] ;
- 
-        //     array_push($elements,$item) ;
-        // }
-
-        
-
         $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
             "agence" => $this->agence,
             "user" => $this->userObj,
             "appService" => $this->appService,
-            "filename" => "files/systeme/comptabilite/recette(agence)".$this->nameAgence
+            "nameAgence" => $this->nameAgence,
+            "filename" => "files/systeme/comptabilite/recette(agence)/".$this->nameAgence,
+            "fileContratLct" => "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence,
         ]) ;
 
         // $recetteFactures = $this->appService->regrouperRecette($recetteFactures) ;
@@ -964,6 +892,7 @@ class ComptabiliteController extends AbstractController
         }
 
         // dd(array_values($numFact)) ;
+        // dd(array_values($typeRecettes)) ;
 
         if($this->userObj->getRoles()[0] == "MANAGER")
         {
@@ -1006,8 +935,8 @@ class ComptabiliteController extends AbstractController
             "with_foot" => false,
             "critereDates" => $critereDates,
             "entrepots" => $entrepots,
-            "numFacts" => $numFacts,
-            "typeRecettes" => $typeRecettes,
+            "numFacts" => array_values($numFacts),
+            "typeRecettes" => array_values($typeRecettes),
             "paiements" => $paiements,
             "recetteGenerales" => $recetteGenerales,
         ]);
@@ -2586,6 +2515,17 @@ class ComptabiliteController extends AbstractController
         $refRecette = $request->request->get('refRecette') ;
         $refTypePaiement = $request->request->get('refTypePaiement') ;
 
+        $annee = (empty($annee) || $annee == 'undefined') ? 2024 : $annee ;
+
+        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
+            "agence" => $this->agence,
+            "user" => $this->userObj,
+            "appService" => $this->appService,
+            "nameAgence" => $this->nameAgence,
+            "filename" => "files/systeme/comptabilite/recette(agence)/".$this->nameAgence,
+            "fileContratLct" => "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence,
+        ]) ;
+        
         $search = [
             "id" => $id,
             "currentDate" => $currentDate,
@@ -2606,12 +2546,6 @@ class ComptabiliteController extends AbstractController
             }
         }
 
-        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
-            "agence" => $this->agence,
-            "user" => $this->userObj,
-            "appService" => $this->appService,
-            "filename" => "files/systeme/comptabilite/recette(agence)".$this->nameAgence
-        ]) ;
         
         $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
 

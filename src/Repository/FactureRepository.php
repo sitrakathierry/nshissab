@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\CaisseCommande;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\FactDetails;
@@ -9,6 +10,7 @@ use App\Entity\FactHistoPaiement;
 use App\Entity\FactModele;
 use App\Entity\FactType;
 use App\Entity\Facture;
+use App\Entity\LctContrat;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdEntrpAffectation;
@@ -328,24 +330,27 @@ class FactureRepository extends ServiceEntityRepository
             $typePaiement = $histoPaiement->getPaiement()->getNom() ;
             $refTypePaiement = $histoPaiement->getPaiement()->getId() ;
     
-            $elements[] = [
-                "id" => $facture->getId(),
-                "date" => $facture->getDate()->format("d/m/Y"),
-                "currentDate" => $facture->getDate()->format("d/m/Y"),
-                "dateFacture" => $facture->getDate()->format("d/m/Y"),
-                "dateDebut" => $facture->getDate()->format("d/m/Y"),
-                "dateFin" => $facture->getDate()->format("d/m/Y"),
-                "annee" => $facture->getDate()->format("Y"),
-                "mois" => $facture->getDate()->format("m"),
-                "numero" => $facture->getNumFact(),
-                "entrepot" => $entrepot,
-                "montant" => $histoPaiement->getMontant(),
-                "typePaiement" => $typePaiement,
-                "refTypePaiement" => $refTypePaiement,
-                "refEntrepot" => $refEntrepot,
-                "recette" => $recette,
-                "refRecette" => $refRecette,
-            ] ;
+            if($histoPaiement->getMontant() > 0)
+            {
+                $elements[] = [
+                    "id" => $facture->getId(),
+                    "date" => $facture->getDate()->format("d/m/Y"),
+                    "currentDate" => $facture->getDate()->format("d/m/Y"),
+                    "dateFacture" => $facture->getDate()->format("d/m/Y"),
+                    "dateDebut" => $facture->getDate()->format("d/m/Y"),
+                    "dateFin" => $facture->getDate()->format("d/m/Y"),
+                    "annee" => $facture->getDate()->format("Y"),
+                    "mois" => $facture->getDate()->format("m"),
+                    "numero" => $facture->getNumFact(),
+                    "entrepot" => $entrepot,
+                    "montant" => $histoPaiement->getMontant(),
+                    "typePaiement" => $typePaiement,
+                    "refTypePaiement" => $refTypePaiement,
+                    "refEntrepot" => $refEntrepot,
+                    "recette" => $recette,
+                    "refRecette" => $refRecette,
+                ] ;
+            }
         }
 
         $crdDetails = $this->getEntityManager()->getRepository(CrdFinance::class)->findActive([
@@ -378,24 +383,27 @@ class FactureRepository extends ServiceEntityRepository
                 $refTypePaiement = $crdDetail->getPaiement()->getId() ;
             }
 
-            $elements[] = [
-                "id" => $facture->getId(),
-                "date" => $crdDetail->getDate()->format("d/m/Y"),
-                "currentDate" => $facture->getDate()->format("d/m/Y"),
-                "dateFacture" => $facture->getDate()->format("d/m/Y"),
-                "dateDebut" => $facture->getDate()->format("d/m/Y"),
-                "dateFin" => $facture->getDate()->format("d/m/Y"),
-                "annee" => $facture->getDate()->format("Y"),
-                "mois" => $facture->getDate()->format("m"),
-                "numero" => $facture->getNumFact(),
-                "entrepot" => $entrepot,
-                "montant" => $crdDetail->getMontant(),
-                "typePaiement" => $typePaiement,
-                "refTypePaiement" => $refTypePaiement,
-                "refEntrepot" => $refEntrepot,
-                "recette" => "echéance",
-                "refRecette" => "ECH",
-            ] ;
+            if($crdDetail->getMontant() > 0)
+            {
+                $elements[] = [
+                    "id" => $facture->getId(),
+                    "date" => $crdDetail->getDate()->format("d/m/Y"),
+                    "currentDate" => $facture->getDate()->format("d/m/Y"),
+                    "dateFacture" => $facture->getDate()->format("d/m/Y"),
+                    "dateDebut" => $facture->getDate()->format("d/m/Y"),
+                    "dateFin" => $facture->getDate()->format("d/m/Y"),
+                    "annee" => $facture->getDate()->format("Y"),
+                    "mois" => $facture->getDate()->format("m"),
+                    "numero" => $facture->getNumFact(),
+                    "entrepot" => $entrepot,
+                    "montant" => $crdDetail->getMontant(),
+                    "typePaiement" => $typePaiement,
+                    "refTypePaiement" => $refTypePaiement,
+                    "refEntrepot" => $refEntrepot,
+                    "recette" => "echéance",
+                    "refRecette" => "ECH",
+                ] ;
+            }
         }
 
         return $elements ;
@@ -416,15 +424,29 @@ class FactureRepository extends ServiceEntityRepository
                 "appService" => $params["appService"]
             ]) ;
 
-            $elements = $this->getEntityManager()->getRepository(Facture::class)->generateRecetteFacture([
+            $recetteFactures = $this->getEntityManager()->getRepository(Facture::class)->generateRecetteFacture([
                 "agence" => $params["agence"],
                 "user" => $params["user"],
                 "appService" => $params["appService"]
             ]) ; 
 
-            usort($elements, [self::class, 'comparaisonDates']);  ;
+            $recetteCaisses = $this->getEntityManager()->getRepository(CaisseCommande::class)->generateRecetteCaisse([
+                "agence" => $params["agence"],
+                "statut" => True,
+            ]) ; 
 
-            file_put_contents($params["filename"],json_encode($elements)) ;
+            $recetteLocations = $this->getEntityManager()->getRepository(LctContrat::class)->generateRecetteLocation([
+                "agence" => $params["agence"],
+                "filename" => $params["fileContratLct"],
+                "nameAgence" => $params["nameAgence"],
+                "appService" => $params["appService"],
+            ]) ; 
+
+            $recetteGenerales = array_merge($recetteFactures,$recetteCaisses,$recetteLocations) ;
+
+            usort($recetteGenerales, [self::class, 'comparaisonDates']);  ;
+
+            file_put_contents($params["filename"],json_encode($recetteGenerales)) ;
         }
 
         return json_decode(file_get_contents($params["filename"])) ;

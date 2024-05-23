@@ -2289,7 +2289,7 @@ class AppService extends AbstractController
         $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
             "agence" => $agence,
             "statutGen" => True,
-            ]) ;
+        ]) ;
 
         $items = [] ;
 
@@ -4213,5 +4213,13 @@ class AppService extends AbstractController
         }
 
         return $response ;
+    }
+
+    public function deleteRecette()
+    {
+        $filename = "files/systeme/comptabilite/recette(agence)".$this->nameAgence ;
+
+        if(file_exists($filename))
+            unlink($filename) ;
     }
 }

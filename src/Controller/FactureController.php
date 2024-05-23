@@ -1045,6 +1045,8 @@ class FactureController extends AbstractController
             }
         }
 
+        $this->appService->deleteRecette() ;
+
         return new Response($templateEditFacture) ;
     }
  
@@ -2499,6 +2501,8 @@ class FactureController extends AbstractController
             }
         }
 
+        $this->appService->deleteRecette() ;
+
         return new JsonResponse($result) ;
     }
 
@@ -3064,6 +3068,8 @@ class FactureController extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+
+        $this->appService->deleteRecette() ;
 
         return new JsonResponse($result) ;
     }
