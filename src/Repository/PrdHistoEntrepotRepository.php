@@ -144,9 +144,11 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
     public function getTotalStockInEntrepot($params = [])
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT SUM(`stock`) as stockTotal FROM `prd_histo_entrepot` WHERE `entrepot_id` = ? AND `statut` = ? ";
+        $sql = "SELECT SUM(phe.stock) as stockTotal FROM `prd_histo_entrepot`phe
+        JOIN prd_variation_prix pvp ON pvp.id = phe.variation_prix_id
+        WHERE phe.entrepot_id = ? AND pvp.statut = ? AND phe.statut = ? ";
         $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery([$params["entrepot"], $params["statut"]]);
+        $resultSet = $stmt->executeQuery([$params["entrepot"],True,$params["statut"]]);
         return $resultSet->fetchAssociative();
     }
 
