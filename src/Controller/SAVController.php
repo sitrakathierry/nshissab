@@ -143,7 +143,7 @@ class SAVController extends AbstractController
             "filename" => "sav",
             "titlePage" => "Service Après Vente",
             "with_foot" => true,
-            "types" => $types,
+            "types" => $types, 
             "specs" => $specs,
             "motifs" => $motifs,
             "annulations" => $annulations ,

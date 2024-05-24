@@ -71,6 +71,9 @@ class Produit
     #[ORM\Column(nullable: true)]
     private ?int $anneeData = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $trulyDeleted = null;
+
     public function __construct()
     {
         $this->prdVariationPrixes = new ArrayCollection();
@@ -311,6 +314,18 @@ class Produit
     public function setAnneeData(?int $anneeData): self
     {
         $this->anneeData = $anneeData;
+
+        return $this;
+    }
+
+    public function isTrulyDeleted(): ?bool
+    {
+        return $this->trulyDeleted;
+    }
+
+    public function setTrulyDeleted(?bool $trulyDeleted): self
+    {
+        $this->trulyDeleted = $trulyDeleted;
 
         return $this;
     }

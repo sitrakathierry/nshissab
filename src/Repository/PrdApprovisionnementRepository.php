@@ -74,7 +74,7 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $sql = "SELECT SUM(pa.quantite) as stockTotalEntrepot FROM `prd_approvisionnement` pa 
             JOIN prd_histo_entrepot phe ON phe.id = pa.histo_entrepot_id  
-            WHERE `histo_entrepot_id` = ? AND phe.statut = ? ";
+            WHERE pa.histo_entrepot_id = ? AND phe.statut = ? ";
         // $sql = "SELECT SUM(`quantite`) as stockTotalEntrepot FROM `prd_approvisionnement` WHERE `variation_prix_id` = ? AND `histo_entrepot_id` = ? ";
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([

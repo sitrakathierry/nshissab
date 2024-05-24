@@ -553,8 +553,6 @@ class StockController extends AbstractController
             $this->entityManager->getRepository(PrdEntrepot::class)->testHistoEntrepot() ;
         }
         // TEST
-        $this->appService->updateAnneeData() ;
-        $this->appService->synchronisationGeneral() ;
         $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
             "agence" => $this->agence,
             "user" => $this->userObj,
@@ -562,6 +560,9 @@ class StockController extends AbstractController
         $this->entityManager->getRepository(CaissePanier::class)->updateHistoEntrepotCaisse([
             "agence" => $this->agence
         ]) ; 
+        
+        $this->appService->updateAnneeData() ;
+        $this->appService->synchronisationGeneral() ;
 
         $filename = $this->filename."type(agence)/".$this->nameAgence ;
         if(!file_exists($filename))

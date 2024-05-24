@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdMargeType;
+use App\Entity\PrdVariationPrix;
 use App\Entity\SavDetails;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -112,15 +115,18 @@ class SavDetailsRepository extends ServiceEntityRepository
                 {
                     $entrepot = $savDetail->getFactureDetail()->getFacture()->getEntrepot() ;
                     $idVariation = $savDetail->getFactureDetail()->getEntite() ;
-                    $variationPrix = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->find($idVariation);
+                    $variationPrix = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($idVariation);
+
+                    if(!$variationPrix->isStatut())
+                        continue ;
 
                     if(is_null($entrepot))
                     {
                         $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
                             "variationPrix" => $variationPrix,
                             "statut" => True
-                        ],["id" => "ASC"]) ;
-                        
+                        ]) ;
+
                         if($histoEntrepot->getId() == $params["histoEntrepot"])
                         {
                             $result += $savDetail->getFactureDetail()->getQuantite() ;
@@ -146,6 +152,9 @@ class SavDetailsRepository extends ServiceEntityRepository
             }
             else if(!is_null($savDetail->getCaisseDetail()))
             {
+                if(!($savDetail->getCaisseDetail()->getHistoEntrepot()->isStatut()))
+                    continue ;
+                
                 if($savDetail->getCaisseDetail()->getHistoEntrepot()->getId() == $params["histoEntrepot"])
                 {
                     $result += $savDetail->getCaisseDetail()->getQuantite() ;

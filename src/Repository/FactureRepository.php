@@ -33,9 +33,13 @@ use phpDocumentor\Reflection\PseudoTypes\True_;
  */
 class FactureRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $appService ;
+
+    public function __construct(ManagerRegistry $registry, AppService $appService)
     {
         parent::__construct($registry, Facture::class);
+
+        $this->appService = $appService ;
     }
 
     public function save(Facture $entity, bool $flush = false): void
@@ -58,6 +62,13 @@ class FactureRepository extends ServiceEntityRepository
 
     public function updateFactureToEntrepot($params = [])
     {
+        $isUpdated = $this->appService->verifyIsAgenceUpdated([
+            "category" => "maj_facture_to_entrepot"
+        ]) ;
+
+        if($isUpdated)
+            return False ;
+
         $factModele = $this->getEntityManager()->getRepository(FactModele::class)->findOneBy([
             "reference" => "PROD"
         ]) ;
@@ -245,30 +256,12 @@ class FactureRepository extends ServiceEntityRepository
                         "variationPrix" => $variation,
                         "statut" => True
                     ]) ;
-
-                    // if($agence->getId() == 24)
-                    //     dd($variation) ;
-
-                    // if(is_null($histoEntrepot))
-                    // {
-                    //     $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                    //         "agence" => $agence,
-                    //         "statut" => True
-                    //     ]) ;
-                    // }
                     
                     $entrepotObj = $histoEntrepot->getEntrepot() ;
                 }
                 else
                 {
                     $entrepotObj = NULL ; 
-
-                    // $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                    //     "agence" => $agence,
-                    //     "statut" => True
-                    // ]) ;
-
-                    // $entrepotObj = $histoEntrepot->getEntrepot() ;
                 }
             }
         }

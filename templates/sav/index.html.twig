@@ -35,13 +35,13 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link text-uppercase font-weight-bold" id="pills-fact-modif-tab" data-toggle="pill" data-target="#pills-fact-update" type="button" role="tab" aria-controls="pills-fact-update" aria-selected="false">Modification facture</button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item" role="presentation"> 
                 <button class="nav-link text-uppercase font-weight-bold" id="pills-credit-modif" data-toggle="pill" data-target="#pills-credit-update" type="button" role="tab" aria-controls="pills-credit-update" aria-selected="false">Credit & Acompte</button>
             </li>
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                <form id="formAnnulation" > 
+                <form id="formAnnulation" >
                     <div class="row">
                         <div class="col-md-3">
                             <label for="sav_type" class="font-weight-bold">Type</label>
@@ -131,7 +131,7 @@
                     {% if with_foot %}
                         <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
                             <button type="button" onclick="location.reload()" class="btn btn-sm btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                            <button type="submit" class="btn btn-sm ml-3 enregistre_create_menu btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                            <button type="submit" class="btn btn-sm ml-3 btn_save_annulation btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
                         </div>
                     {% endif %} 
                 </form>

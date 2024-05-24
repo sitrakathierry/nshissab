@@ -2283,7 +2283,6 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($items)) ;
     }
     
-
     public function generateLocationContrat($filename, $agence) 
     {
         $contrats = $this->entityManager->getRepository(LctContrat::class)->findBy([
@@ -3609,6 +3608,7 @@ class AppService extends AbstractController
 
         $produitFalses = $this->entityManager->getRepository(Produit::class)->findBy([
             "agence" => $this->agence,
+            "trulyDeleted" => NULL,
             "statut" => False
         ]) ; 
 
@@ -3635,6 +3635,9 @@ class AppService extends AbstractController
                     $this->entityManager->flush() ;
                 }
             }
+
+            $produitFalse->setTrulyDeleted(True) ;
+            $this->entityManager->flush() ;
         }
 
         $produits = $this->entityManager->getRepository(Produit::class)->findBy([
@@ -3676,6 +3679,7 @@ class AppService extends AbstractController
                     [
                         "histoEntrepot" => $histoEntrepot->getId(),
                         "agence" => $this->agence,
+                        "user" => $this->userObj,
                     ]) ;
                         
                     $totalAddEntrepot = floatval($appro["stockTotalEntrepot"]) + $stockEntrepotInSav ;
@@ -4221,5 +4225,47 @@ class AppService extends AbstractController
 
         if(file_exists($filename))
             unlink($filename) ;
+    }
+
+    public function verifyIsAgenceUpdated($params = [])
+    {
+        $params["filename"] = "files/json/data_updating_agence.json" ;
+
+        if(!file_exists($params["filename"]))
+        {
+            $dataUpdatingAgences = [
+                $params["category"] => [$this->agence->getId()]
+            ] ;
+
+            file_put_contents($params["filename"],json_encode($dataUpdatingAgences)) ;
+
+            return False ;
+        }
+
+        $dataUpdatingAgences = (array)json_decode(file_get_contents($params["filename"])) ;
+
+        foreach ($dataUpdatingAgences as $key => $value) {
+            $dataUpdatingAgences[$key] = (array)$value ;
+        }
+
+        if(!isset($dataUpdatingAgences[$params["category"]]))
+        {
+            $dataUpdatingAgences[$params["category"]] = [$this->agence->getId()] ;
+
+            file_put_contents($params["filename"],json_encode($dataUpdatingAgences)) ;
+
+            return False ;
+        }
+
+        if(!in_array($this->agence->getId(),$dataUpdatingAgences[$params["category"]]))
+        {
+            $dataUpdatingAgences[$params["category"]][] = $this->agence->getId() ;
+
+            file_put_contents($params["filename"],json_encode($dataUpdatingAgences)) ;
+
+            return False ;
+        }
+
+        return True ;
     }
 }

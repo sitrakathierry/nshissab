@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\CaissePanier;
 use App\Entity\PrdHistoEntrepot;
+use App\Service\AppService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,9 +18,13 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CaissePanierRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $appService ;
+
+    public function __construct(ManagerRegistry $registry, AppService $appService)
     {
         parent::__construct($registry, CaissePanier::class);
+
+        $this->appService = $appService ;
     }
 
     public function save(CaissePanier $entity, bool $flush = false): void
@@ -81,6 +86,13 @@ class CaissePanierRepository extends ServiceEntityRepository
 
     public function updateHistoEntrepotCaisse($params = [])
     {
+        $isUpdated = $this->appService->verifyIsAgenceUpdated([
+            "category" => "maj_histo_entrepot_caisse"
+        ]) ;
+
+        if($isUpdated)
+            return False ;
+
         $panierCommandes = $this->getEntityManager()->getRepository(CaissePanier::class)->findBy([
             "agence" => $params["agence"],
             "histoEntrepot" => NULL,

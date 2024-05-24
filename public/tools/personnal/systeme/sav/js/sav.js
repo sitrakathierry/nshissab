@@ -15,7 +15,7 @@ $(document).ready(function(){
         $.ajax({
             url: routes.sav_facture_display,
             type:'post',
-            cache: false,
+            cache: false, 
             data: data,
             dataType: 'html',
             processData: false, // important pour éviter la transformation automatique des données en chaîne
@@ -356,6 +356,10 @@ $(document).ready(function(){
     })
 
     // lvr_save_bon_livraison
+
+    // $(document).on("click",".btn_save_annulation",function(){
+        
+    // })
 
     $("#formAnnulation").submit(function(event){
         event.preventDefault()
