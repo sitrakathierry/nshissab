@@ -1510,36 +1510,10 @@ class AppService extends AbstractController
 
                         if(!is_null($factDetail))
                         {
-                            $idVariation = $factDetail->getEntite() ;
-        
-                            $variation = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
-
-                            $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                                "variationPrix" => $variation,
-                                "statut" => True
-                            ]) ;
-
-                            // if($this->agence->getId() == 24)
-                            //     dd($histoEntrepot) ;
-
-                            $entrepot = $histoEntrepot->getEntrepot()->getNom();
-                            $idEntrepot = $histoEntrepot->getEntrepot()->getId(); 
-                        }
-                        else
-                        {
-                            $entrepot = "-" ;
-                            $idEntrepot = "-" ;
-
-                            // $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                            //     "agence" => $this->agence,
-                            //     "statut" => True
-                            // ]) ;
-
-                            // $entrepot = $histoEntrepot->getEntrepot()->getNom();
-                            // $idEntrepot = $histoEntrepot->getEntrepot()->getId();
+                            $entrepot = $factDetail->getHistoEntrepot()->getEntrepot()->getNom();
+                            $idEntrepot = $factDetail->getHistoEntrepot()->getEntrepot()->getId(); 
                         }
                     }
-
                 }
 
                 // FIN VRAI

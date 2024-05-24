@@ -130,9 +130,10 @@
                     </div>
                     {% if with_foot %}
                         <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+                            <input type="hidden" name="sav_allow_element_vide" id="sav_allow_element_vide" value="NON">
                             <button type="button" onclick="location.reload()" class="btn btn-sm btn-secondary text-white"><i class="fa fa-close"></i>&nbsp;Annuler</button>
-                            <button type="submit" class="btn btn-sm ml-3 btn_save_annulation btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
-                        </div>
+                            <button type="button" class="btn btn-sm ml-3 btn_save_annulation btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
+                        </div> 
                     {% endif %} 
                 </form>
             </div>

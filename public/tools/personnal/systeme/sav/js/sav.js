@@ -355,11 +355,44 @@ $(document).ready(function(){
         }
     })
 
-    // lvr_save_bon_livraison
+    $(document).on("click",".btn_save_annulation",function(){
+        var sav_facture_detail = $(".sav_facture_detail").val()
 
-    // $(document).on("click",".btn_save_annulation",function(){
-        
-    // })
+        if(sav_facture_detail == undefined)
+        {
+            var self = $(this)
+            $.confirm({
+                title: "Detail vide",
+                content:"Le détail vide équivaut à une annulation totale. Voulez-vous continuer ?",
+                type:"dark",
+                theme:"modern",
+                buttons:{
+                    btn1:{
+                        text: 'Non',
+                        btnClass: 'btn-red',
+                        keys: ['enter'],
+                        action: function(){
+                            $("#sav_allow_element_vide").val("NON")
+                        }
+                    },
+                    btn2:{
+                        text: 'Oui',
+                        btnClass: 'btn-green',
+                        keys: ['enter'],
+                        action: function(){
+                            $("#sav_allow_element_vide").val("OUI")
+                            $("#formAnnulation").submit() ;
+                        }
+                    }
+                }
+            })
+            return false ;
+        }
+        else
+        {
+            $("#formAnnulation").submit() ;
+        }
+    })
 
     $("#formAnnulation").submit(function(event){
         event.preventDefault()

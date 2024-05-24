@@ -71,7 +71,7 @@ class SAVController extends AbstractController
             
         // $factures = $this->appService->searchData($factures,$search) ;
         
-        $this->appService->synchronisationServiceApresVente(["CAISSE","FACTURE"]) ;
+        $this->appService->synchronisationServiceApresVente(["CAISSE","FACTURE"]) ; 
         
         $types = $this->entityManager->getRepository(SavType::class)->findAll() ;
 
@@ -516,12 +516,17 @@ class SAVController extends AbstractController
         
         $sav_facture_detail = (array)$request->request->get('sav_facture_detail') ;
         
-        if(empty($sav_facture_detail))
+        $sav_allow_element_vide = (array)$request->request->get('sav_facture_detail') ;
+
+        if($sav_allow_element_vide == "NON")
         {
-            return new JsonResponse([
-                "type" => "orange",
-                "message" => "Séléctionner les éléments à annuler"
-            ]) ;
+            if(empty($sav_facture_detail))
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Séléctionner les éléments à annuler"
+                ]) ;
+            }
         }
 
         $specification = $this->entityManager->getRepository(SavSpec::class)->find($sav_val_spec) ;
