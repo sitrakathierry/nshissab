@@ -1299,7 +1299,7 @@ class StockController extends AbstractController
         ]) ;
         
         $search = [
-            "idE" => $idE, 
+            "idE" => $idE,  
         ] ;
 
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;

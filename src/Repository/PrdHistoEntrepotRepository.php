@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdVariationPrix;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -99,7 +100,7 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
     {
         if(!file_exists($params["filename"]))
         {
-            $stockEntrepots = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findBy([
+            $stockEntrepots = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findHistoActif([
                 "agence" => $params["agence"],
                 "statut" => True,
             ],[
@@ -111,8 +112,6 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
             
             foreach ($stockEntrepots as $stockEntrepot) {
                 
-                // $images = $stockEntrepot->getVariationPrix()->getProduit()->getImages() ;
-
                 $element = [] ;
                 $element["id"] = $stockEntrepot->getId() ;
                 $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
@@ -130,6 +129,7 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
                 $element["nomType"] = is_null($stockEntrepot->getVariationPrix()->getProduit()->getType()) ? "NA" : $stockEntrepot->getVariationPrix()->getProduit()->getType()->getNom() ;
                 $element["stock"] = $stockEntrepot->getStock() ;
                 $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
+                
                 array_push($elements,$element) ;
             }
     
@@ -137,8 +137,28 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
     
             file_put_contents($params["filename"],json_encode($elements)) ;
         }
-
+ 
         return json_decode(file_get_contents($params["filename"])) ; 
+    }
+
+    public function findHistoActif($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('phe')
+            ->from(PrdHistoEntrepot::class, 'phe')
+            ->join(PrdVariationPrix::class, 'pvp', 'WITH', 'pvp.id = phe.variationPrix')
+            ->where('phe.agence = :agence')
+            ->andWhere('pvp.statut = :statutPrix')
+            ->andWhere('phe.statut = :statutEntrepot')
+            ->orderBy('phe.entrepot', 'ASC')
+            ->setParameter('agence', $params['agence']->getId())
+            ->setParameter('statutPrix', True)
+            ->setParameter('statutEntrepot', True)
+            ->getQuery() ;
+        
+        return $query->getResult();
     }
 
     public function getTotalStockInEntrepot($params = [])

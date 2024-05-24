@@ -389,7 +389,7 @@ $(document).ready(function(){
             if($(".appro_caption").text() != "Existant")
                 return false ;
 
-            var realinstance = instance.loading()
+            var realinstance = instance.loading() 
             $.ajax({
                 url: routes.stock_find_produit_in_entrepot,
                 type:'post',
