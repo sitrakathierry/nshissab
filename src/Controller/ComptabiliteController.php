@@ -25,10 +25,12 @@ use App\Entity\FactPaiement;
 use App\Entity\Facture;
 use App\Entity\HistoHistorique;
 use App\Entity\LctContrat;
+use App\Entity\ModModelePdf;
 use App\Entity\PrdEntrepot;
 use App\Entity\PrdEntrpAffectation;
 use App\Entity\User;
 use App\Service\AppService;
+use App\Service\PdfGenService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -923,7 +925,7 @@ class ComptabiliteController extends AbstractController
                     ] ;
                 }
             }
-        }
+        } 
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
 
@@ -2514,11 +2516,13 @@ class ComptabiliteController extends AbstractController
         $refEntrepot = $request->request->get('refEntrepot') ;
         $refRecette = $request->request->get('refRecette') ;
         $refTypePaiement = $request->request->get('refTypePaiement') ;
+        $caisseJournalier = $request->request->get('caisseJournalier') ;
+        $date_caisse_specifique = $request->request->get('date_caisse_specifique') ;
 
         $annee = (empty($annee) || $annee == 'undefined') ? 2024 : $annee ;
 
         $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
-            "agence" => $this->agence,
+            "agence" => $this->agence, 
             "user" => $this->userObj,
             "appService" => $this->appService,
             "nameAgence" => $this->nameAgence,
@@ -2546,14 +2550,34 @@ class ComptabiliteController extends AbstractController
             }
         }
 
-        
+        if(isset($caisseJournalier))
+        {
+            $date_caisse_specifique = empty($date_caisse_specifique) ? date("d/m/Y") : $date_caisse_specifique ;
+            $search["dateFacture"] = $date_caisse_specifique ; 
+        }
+
         $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
 
         if(!empty($recetteGenerales))
         {
-            $response = $this->renderView("comptabilite/recettes/searchRecette.html.twig", [
-                "recetteGenerales" => $recetteGenerales
-            ]) ;
+            if(isset($caisseJournalier))
+            {
+                $recetteJournlaiers = [] ;
+
+                foreach ($recetteGenerales as $recetteGenerale) {
+                    $recetteJournlaiers[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement][] = $recetteGenerale ;
+                }
+
+                $response = $this->renderView("comptabilite/recettes/searchCaisseJournalier.html.twig", [
+                    "recetteJournlaiers" => $recetteJournlaiers
+                ]) ;
+            }
+            else
+            {
+                $response = $this->renderView("comptabilite/recettes/searchRecette.html.twig", [
+                    "recetteGenerales" => $recetteGenerales
+                ]) ;
+            }
         }
         else
         {
@@ -2562,5 +2586,127 @@ class ComptabiliteController extends AbstractController
 
         return new Response($response) ; 
     }
+
+    #[Route('/comptabilite/imprimer/{dateSpecifique}/{idModeleEntete}/{idModeleBas}', name: 'compta_recette_journalier_imprimer', defaults: ["idModeleEntete" => null,"dateSpecifique" => null, "idModeleBas" => null])]
+    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$dateSpecifique)
+    {
+        // $idModeleEntete = $request->request->get("idModeleEntete") ;
+        // $idModeleBas = $request->request->get("idModeleBas") ;
+        // $idFacture = $request->request->get("idFacture") ;
+
+        // $client = $facture->getClient() ;
+
+        // $dataClient = [
+        //     "nom" => "",
+        //     "adresse" => "",   
+        //     "telephone" => "",   
+        // ] ; 
+
+        // if(!is_null($client))
+        // {
+        //     if(!is_null($client->getSociete()))
+        //     {
+        //         $dataClient = [
+        //             "statut" => $client->getType()->getNom(),   
+        //             "nom" => $client->getSociete()->getNom(),   
+        //             "adresse" => $client->getSociete()->getAdresse(),   
+        //             "telephone" => $client->getSociete()->getTelFixe(),   
+        //         ] ;
+        //     }
+        //     else
+        //     {
+        //         $dataClient = [
+        //             "statut" => $client->getType()->getNom(),   
+        //             "nom" => $client->getClient()->getNom(),   
+        //             "adresse" => $client->getClient()->getAdresse(),   
+        //             "telephone" => $client->getClient()->getTelephone(),   
+        //         ] ;
+        //     }
+        // }
+
+        $contentEntete = "" ;
+        if(!empty($idModeleEntete) || !is_null($idModeleEntete))
+        {
+            $modeleEntete = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleEntete) ;
+            $imageLeft = is_null($modeleEntete->getImageLeft()) ? "" : $modeleEntete->getImageLeft() ;
+            $imageRight = is_null($modeleEntete->getImageRight()) ? "" : $modeleEntete->getImageRight() ;
+            $contentEntete = $this->renderView("parametres/modele/forme/getForme".$modeleEntete->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleEntete->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentEntete = $imageLeft." ".$modeleEntete->getContenu();
+        }
+        
+        $contentBas = "" ;
+        if(!empty($idModeleBas) || !is_null($idModeleBas))
+        {
+            $modeleBas = $this->entityManager->getRepository(ModModelePdf::class)->find($idModeleBas) ;
+            $imageLeft = is_null($modeleBas->getImageLeft()) ? "" : $modeleBas->getImageLeft() ;
+            $imageRight = is_null($modeleBas->getImageRight()) ? "" : $modeleBas->getImageRight() ;
+            $contentBas = $this->renderView("parametres/modele/forme/getForme".$modeleBas->getFormeModele().".html.twig",[
+                "imageContentLeft" => $imageLeft ,
+                "textContentEditor" => $modeleBas->getContenu() ,
+                "imageContentRight" => $imageRight ,
+            ]) ;
+            // $contentBas = $modeleBas->getContenu() ;
+        }
+
+        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
+            "agence" => $this->agence, 
+            "user" => $this->userObj,
+            "appService" => $this->appService,
+            "nameAgence" => $this->nameAgence,
+            "filename" => "files/systeme/comptabilite/recette(agence)/".$this->nameAgence,
+            "fileContratLct" => "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence,
+        ]) ;
+        
+        $dateSpecifique = $this->appService->decodeString($dateSpecifique) ;
+        $dateSpecifique = $dateSpecifique == "-" ? date("d/m/Y") : $dateSpecifique ;
+        $search["dateFacture"] = $dateSpecifique ; 
+
+        $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
+
+        $recetteJournlaiers = [] ;
+
+        foreach ($recetteGenerales as $recetteGenerale) {
+            $recetteJournlaiers[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement][] = $recetteGenerale ;
+        }
+
+        $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
+
+        $contentIMpression = $this->renderView("comptabilite/recettes/imprimerRecetteJournalier.html.twig",[
+            "contentEntete" => $contentEntete,
+            "contentBas" => $contentBas,
+            "recetteJournlaiers" => $recetteJournlaiers,
+            "dateSpecifique" => $dateSpecifique,
+            "agcDevise" => $agcDevise
+        ]) ;
+
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        // $this->entityManager->getRepository(HistoHistorique::class)
+        // ->insererHistorique([
+        //     "refModule" => "FACT",
+        //     "nomModule" => "FACTURE",
+        //     "refAction" => "IMP",
+        //     "user" => $this->userObj,
+        //     "agence" => $this->agence,
+        //     "nameAgence" => $this->nameAgence,
+        //     "description" => "Impression Facture ; ".strtoupper($facture->getModele()->getNom())." ; N° : ".$facture->getNumFact(),
+        // ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
+
+
+        $pdfGenService = new PdfGenService() ;
+
+        $pdfGenService->generatePdf($contentIMpression,$this->nameUser) ;
+
+        // Redirigez vers une autre page pour afficher le PDF
+        return $this->redirectToRoute('display_pdf');
+    }
+
     
 }

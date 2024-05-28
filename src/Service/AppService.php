@@ -4242,4 +4242,14 @@ class AppService extends AbstractController
 
         return True ;
     }
+
+    public function decodeString($input) {
+        $decoded = str_replace(['-', '_'], ['+', '/'], $input); // Remplacer '-' par '+' et '_' par '/'
+        $padding = strlen($decoded) % 4;
+        if ($padding) {
+            $decoded .= str_repeat('=', 4 - $padding); // Ajouter le padding '=' si nécessaire
+        }
+        return base64_decode($decoded);
+    }
+    
 }

@@ -224,6 +224,12 @@ class AppBase
       return anneeConvertie + '-' + moisConverti + '-' + jourConverti;
     }
 
+    encodeString(input) {
+      let encoded = btoa(input); // Encode en base64
+      encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); // Remplacer '+' par '-', '/' par '_', et enlever les '='
+      return encoded;
+    }
+
 
     calculerDateApresNjours(dateInitiale, nbJours) {
       // Convertir la date initiale en objet Date

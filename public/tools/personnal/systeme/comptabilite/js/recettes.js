@@ -154,4 +154,113 @@ $(document).ready(function(){
         searchRecette()
 
     }) ;
+
+    $(".btn_rct_caisse_jour").click(function(){
+        if($(this).hasClass("btn-outline-success"))
+        {
+            $(".content_caisse_journalier").before(`
+                <div class="col-md-3 content_date_caisse">
+                    <label for="date_caisse_specifique" class="font-weight-bold text-uppercase">Date Spécifique</label>
+                    <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                    </div>
+                        <input type="text" class="form-control" placeholder=". . ." id="date_caisse_specifique" name="date_caisse_specifique">
+                    </div>
+                </div>
+                <script>
+                    $("#date_caisse_specifique").datepicker()
+                </script>
+            `) ;
+            $(this).removeClass("btn-outline-success") ;
+            $(this).addClass("btn-success") ;
+            $(this).html('<i class="fa fa-check"></i>&nbsp;Caisse Journalière') ;
+
+            searchCaisseJournaliere() ;
+        }
+        else
+        {
+            $(".content_date_caisse").remove() ;
+
+            $(this).removeClass("btn-success") ;
+            $(this).addClass("btn-outline-success") ;
+            $(this).html('Caisse Journalière'.toUpperCase()) ;
+        }
+    }) ;
+
+    function searchCaisseJournaliere()
+    {
+        var instance = new Loading(files.search) ;
+        $(".contentElemRecette").html(instance.otherSearch()) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemSearch.length; j++) {
+            const search = elemSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+        formData.append("refTypePaiement","") ;
+        formData.append("caisseJournalier","OK") ;
+        formData.append("date_caisse_specifique",$("#date_caisse_specifique").val()) ;
+        $.ajax({
+            url: routes.compta_recette_search ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".contentElemRecette").empty().html(response) ;
+            }
+        })
+    }
+
+    $(document).on("change","#date_caisse_specifique",function(){
+        searchCaisseJournaliere() ;
+    }) ; 
+
+    $(".btn_rct_caisse_pdf").click(function(){
+        var self = $(this)
+        var realinstance = instance.loading()
+        $.ajax({
+            url: routes.param_modele_pdf_get,
+            type:"post",
+            dataType:"html",
+            processData:false,
+            contentType:false,
+            success : function(response){
+                realinstance.close()
+                $.confirm({
+                    title: "Impression Recette Journelière",
+                    content:response,
+                    type:"blue",
+                    theme:"modern",
+                    buttons:{
+                        btn1:{ 
+                            text: 'Annuler',
+                            action: function(){}
+                        },
+                        btn2:{
+                            text: 'Imprimer',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function(){
+                                realinstance.close()
+                                var idModeleEntete = $("#modele_pdf_entete").val() ;
+                                var idModeleBas = $("#modele_pdf_bas").val() ;
+                                var dateSpecifique = ($("#date_caisse_specifique").val() == undefined || $("#date_caisse_specifique").val() == "") ? "-" : $("#date_caisse_specifique").val() ;
+                                dateSpecifique = appBase.encodeString(dateSpecifique) ;
+                                var url = routes.compta_recette_journalier_imprimer + '/' + dateSpecifique + '/' + idModeleEntete + '/' + idModeleBas;
+                                window.open(url, '_blank');
+                            }
+                        }
+                    }
+                })
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+        return false ;
+    }) ;
 })
