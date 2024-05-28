@@ -18,6 +18,7 @@ use App\Entity\Produit;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\PseudoTypes\False_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -1186,7 +1187,7 @@ class ParametresController extends AbstractController
 
     #[Route('/parametres/utilisateur/affectation/entrepot', name: 'param_utilisateur_affectation_entrepot')]
     public function paramAffectationEntrepot()
-    {
+    { 
         $agents = $this->entityManager->getRepository(User::class)->findBy([
             "agence" => $this->agence,
             "statut" => True,
@@ -1232,16 +1233,30 @@ class ParametresController extends AbstractController
         foreach ($param_id_entrepot as $idEntrepot) {
             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($idEntrepot) ;
 
-            $prdEntrpAffectation = new PrdEntrpAffectation() ;
-    
-            $prdEntrpAffectation->setAgence($this->agence) ;
-            $prdEntrpAffectation->setAgent($agent) ;
-            $prdEntrpAffectation->setEntrepot($entrepot) ;
-            $prdEntrpAffectation->setStatut(True) ;
-            $prdEntrpAffectation->setCreatedAt(new \DateTimeImmutable) ;
-            $prdEntrpAffectation->setUpdatedAt(new \DateTimeImmutable) ;
+            $prdEntrpAffectation = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findOneBy([
+                "agent" => $agent,
+                "statut" => False,
+                "entrepot" => $entrepot,
+            ]) ;
 
-            $this->entityManager->persist($prdEntrpAffectation) ;
+            if(!is_null($prdEntrpAffectation))
+            {
+                $prdEntrpAffectation->setStatut(True) ;
+            }
+            else
+            {
+                $prdEntrpAffectation = new PrdEntrpAffectation() ;
+        
+                $prdEntrpAffectation->setAgence($this->agence) ;
+                $prdEntrpAffectation->setAgent($agent) ;
+                $prdEntrpAffectation->setEntrepot($entrepot) ;
+                $prdEntrpAffectation->setStatut(True) ;
+                $prdEntrpAffectation->setCreatedAt(new \DateTimeImmutable) ;
+                $prdEntrpAffectation->setUpdatedAt(new \DateTimeImmutable) ;
+    
+                $this->entityManager->persist($prdEntrpAffectation) ;
+            }
+
             $this->entityManager->flush() ;
         }
 
@@ -1252,7 +1267,7 @@ class ParametresController extends AbstractController
     public function paramGetUserAffectationEntrepot(Request $request)
     {
         $idUser = $request->request->get("idUser") ;
-
+ 
         $agent = $this->entityManager->getRepository(User::class)->find($idUser) ;
 
         $entrepotArray = [] ;
@@ -1280,6 +1295,7 @@ class ParametresController extends AbstractController
             if(!is_null($prdEntrpAffectation))
             {
                 $item["isSelected"] = True ;
+                $item["idAffectation"] = $prdEntrpAffectation->getId() ;
             }
 
             $entrepotArray[] = $item ;
@@ -1362,6 +1378,22 @@ class ParametresController extends AbstractController
         return new JsonResponse([
             "type" => "green",    
             "message" => "Mise à jour effectué",    
+        ]) ;
+    }
+
+    #[Route('/parametres/user/affectation/delete', name: 'param_delete_affectation')]
+    public function paramUserDeleteAffectationEntrepot(Request $request)
+    {
+        $idAffectation = $request->request->get("idAffectation") ;
+
+        $prdEntrpAffectation = $this->entityManager->getRepository(PrdEntrpAffectation::class)->find($idAffectation) ;
+
+        $prdEntrpAffectation->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",    
+            "message" => "Suppression effectué",    
         ]) ;
     }
 

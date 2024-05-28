@@ -5,7 +5,8 @@
         <td>{{entrepot.telephone}}</td>
         <td class="text-center align-middle">
             {% if entrepot.isSelected %}
-                <label class="font-weight-bold text-info text-uppercase">Ajouté</label>
+                <label class="font-weight-bold text-info text-uppercase mx-1 mb-0">Ajouté</label>
+                <button type="button" data-value="{{entrepot.idAffectation}}" class="btn btn-sm btn-outline-danger mx-1 btn_delete_entrepot font-smaller" ><i class="fa fa-trash"></i></button>
             {% else %}
                 <button type="button" value="{{entrepot.id}}" class="btn btn-sm btn-outline-info btn_select_entrepot font-smaller" ><i class="fa fa-check"></i></button>
             {% endif %}
