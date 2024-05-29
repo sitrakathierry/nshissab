@@ -129,7 +129,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
             
                                 $variation = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($idVariation) ;
     
-                                $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                                $histoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->findOneBy([
                                     "variationPrix" => $variation,
                                     "statut" => True
                                 ]) ;

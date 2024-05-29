@@ -16,7 +16,7 @@
         <div class="w-100 border-bottom pt-2 px-3">
             <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
         </div>
-        <div class="container-fluid px-3">
+        <div class="container-fluid px-3 pb-4">
             <div class="row">
                 <div class="col-3">
                     <label for="fact_search_credit" class="mt-2 font-weight-bold w-100 text-uppercase">N° Crédit</label>
@@ -56,7 +56,7 @@
                 </div> 
             </div>
             <div class="row mt-2 elem_date"></div>
-            <div class="table-responsive mt-4">
+            <div class="table-responsive limit_tbody overflow-auto pt-3 mt-4">
                 <table class="table table-bordered table-hover table-sm">
                     <thead class="thead-dark">
                         <tr>
@@ -66,12 +66,14 @@
                             <th>Description</th>
                             <th>Date Paiement/Echéance</th>
                             <th>Montant</th>
-                            <th>Type</th>
+                            <th class="text-center">Type</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody class="contentSuiviCredit">
+                        {% set totalGeneral = 0 %}
                         {% for finance in finances %}
+
                             <tr>
                                 <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.num_credit}}</td>
                                 <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.client|upper}}</td>
@@ -83,8 +85,8 @@
                                         <tr>
                                             <td class="align-middle">{{detail.description}}</td>
                                             <td class="align-middle">{{detail.date}}</td>
-                                            <td class="align-middle">{{detail.montant}}</td>
-                                            <td class="align-middle">{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
+                                            <td class="align-middle text-right">{{detail.montant|format_number}}</td>
+                                            <td class="align-middle txt-center">{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
                                             {% if isFirst %}
                                                 <td rowspan="{{finance.nbRow}}" class="text-center align-middle">
                                                     <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
@@ -96,12 +98,21 @@
                                 {% endfor %}
                             <tr>
                                 <th colspan="2" class="bg-light">Total</th>
-                                <th colspan="2"  class="bg-success text-white">{{totalPayee}}</th>
+                                <th class="bg-success text-white text-right">{{totalPayee|format_number}}</th>
+                                <th class="bg-success text-white"></th>
                             </tr>
+                            {% set totalGeneral = totalGeneral + totalPayee %}
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            <table class="table table-sm table-bordered" style="font-size: 0.95em;">
+                <tr>
+                    <th>Total General</th>
+                    <th class="bg-primary text-white text-right" style="width: 120px;">{{totalGeneral|format_number}}</th>
+                    <th class="bg-primary text-white" style="width: 145px;"></th>
+                </tr>
+            </table>
 
             {% if with_foot %}
                 <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">

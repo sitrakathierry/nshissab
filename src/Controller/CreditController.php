@@ -111,7 +111,7 @@ class CreditController extends AbstractController
         $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
         
         if(!file_exists($filename))  
-            $this->appService->generateStockEntrepot($filename,$this->agence) ;
+            $this->appService->generateStockEntrepot($filename,$this->agence) ; 
 
         $entrepots = json_decode(file_get_contents($filename)) ; 
 
