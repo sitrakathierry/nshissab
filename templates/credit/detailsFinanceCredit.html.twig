@@ -216,7 +216,7 @@
                             <tbody>
                             {% set totalPayee = 0 %}
                                 {% for financeDetail in financeDetails %}
-                                    {% set typePaiement = financeDetail.paiement is null ? "-" : financeDetail.paiement.nom %}
+                                    {% set typePaiement = financeDetail.paiement is null ? "-" : financeDetail.paiement.nom|upper %}
                                     <tr {{ facture.refStatut == 'TRM' ? 'class="bg-secondary text-white"' : "" }} >
                                             <td class="align-middle crd_val_description">{{financeDetail.description}}</td>
                                             <td class="align-middle crd_val_date">{{ financeDetail.date|date('d/m/Y') }}</td>
