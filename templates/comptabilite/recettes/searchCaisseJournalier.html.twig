@@ -1,3 +1,4 @@
+
 {% for key, value in recetteJournlaiers %}
     <h5 class="title_form text-black text-uppercase font-weight-bold mt-3 mb-2">Type de Paiement : <span class="text-primary">{{value[0].typePaiement}}</span></h5>
     <div class="table-responsive pb-0 ">
@@ -39,3 +40,28 @@
         </tr>
     </table>
 {% endfor %}
+<h5 class="title_form text-black text-uppercase font-weight-bold mt-3 mb-2">Récapitulatif</h5>
+<div class="table-responsive pb-0 ">
+    <table class="table table-sm mb-0 table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Type de paiement</th>
+                <th>Montant</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set totalCaisse = 0 %}
+            {% for recapitulatif in recapitulatifs %}
+                    <tr>
+                        <td>{{recapitulatif.paiement|upper}}</td>
+                        <td>{{recapitulatif.montant}}</td>
+                    </tr>
+                    {% set totalCaisse = totalCaisse + recapitulatif.montant %}
+            {% endfor %}
+        </tbody>
+        <tr>
+            <th>Total</th>
+            <th class="bg-primary text-white" style="width: 120px;">{{totalCaisse}}</th>
+        </tr>
+    </table>
+</div>

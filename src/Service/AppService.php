@@ -4195,7 +4195,7 @@ class AppService extends AbstractController
 
     public function deleteRecette()
     {
-        $filename = "files/systeme/comptabilite/recette(agence)".$this->nameAgence ;
+        $filename = "files/systeme/comptabilite/recette(agence)/".$this->nameAgence ;
 
         if(file_exists($filename))
             unlink($filename) ;

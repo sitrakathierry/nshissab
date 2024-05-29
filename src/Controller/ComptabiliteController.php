@@ -2563,13 +2563,24 @@ class ComptabiliteController extends AbstractController
             if(isset($caisseJournalier))
             {
                 $recetteJournlaiers = [] ;
+                $recapitulatifs = [] ;
 
                 foreach ($recetteGenerales as $recetteGenerale) {
                     $recetteJournlaiers[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement][] = $recetteGenerale ;
+                    if(!isset($recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]))
+                    {
+                        $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] = $recetteGenerale->montant ; 
+                        $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["paiement"] = $recetteGenerale->typePaiement ;
+                    }
+                    else
+                    {
+                        $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] += $recetteGenerale->montant ; 
+                    }
                 }
 
                 $response = $this->renderView("comptabilite/recettes/searchCaisseJournalier.html.twig", [
-                    "recetteJournlaiers" => $recetteJournlaiers
+                    "recetteJournlaiers" => $recetteJournlaiers,
+                    "recapitulatifs" => $recapitulatifs
                 ]) ;
             }
             else
