@@ -254,7 +254,7 @@
                                         <tr class=" {{ echeance.statut == "OK" ? "bg-info" : "bg-danger" }}  text-white" >
                                                 <td class="align-middle">{{echeance.description}}</td>
                                                 <td class="align-middle">{{ echeance.date }}</td>
-                                                <td class="align-middle text-center">-</td>
+                                                <td class="align-middle text-center">{{echeance.paiement|upper}}</td>
                                                 <td class="align-middle text-center">
                                                     <b class="text-uppercase" >Echéance</b>
                                                 </td>

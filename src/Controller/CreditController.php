@@ -379,6 +379,7 @@ class CreditController extends AbstractController
                 $item["description"] = $echeance->getDescription() ;
                 $item["date"] = $echeance->getDate()->format('d/m/Y') ;
                 $item["montant"] = $echeance->getMontant() ;
+                $item["paiement"] = is_null($echeance->getPaiement()) ? "-" : $echeance->getCatTable()->getNom() ;
                 $item["statut"] = $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE") ;
                 
                 array_push($echeanceArray,$item) ;
