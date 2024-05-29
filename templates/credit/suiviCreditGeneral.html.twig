@@ -56,63 +56,65 @@
                 </div> 
             </div>
             <div class="row mt-2 elem_date"></div>
-            <div class="table-responsive limit_tbody overflow-auto pt-3 mt-4">
-                <table class="table table-bordered table-hover table-sm">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>N° Crédit</th>
-                            <th>Client</th>
-                            <th>Entrepot</th>
-                            <th>Description</th>
-                            <th>Date Paiement/Echéance</th>
-                            <th>Montant</th>
-                            <th class="text-center">Type</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="contentSuiviCredit">
-                        {% set totalGeneral = 0 %}
-                        {% for finance in finances %}
-
+            <div class="contentSuiviCredit">
+                <div class="table-responsive limit_tbody overflow-auto pt-3 mt-4">
+                    <table class="table table-bordered table-hover table-sm">
+                        <thead class="thead-dark">
                             <tr>
-                                <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.num_credit}}</td>
-                                <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.client|upper}}</td>
-                                <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.entrepot|upper}}</td>
+                                <th>N° Crédit</th>
+                                <th>Client</th>
+                                <th>Entrepot</th>
+                                <th>Description</th>
+                                <th>Date Paiement/Echéance</th>
+                                <th>Montant</th>
+                                <th class="text-center">Type</th>
+                                <th></th>
                             </tr>
-                                {% set isFirst = true %}
-                                {% set totalPayee = 0 %}
-                                {% for detail in finance.details %}
-                                        <tr>
-                                            <td class="align-middle">{{detail.description}}</td>
-                                            <td class="align-middle">{{detail.date}}</td>
-                                            <td class="align-middle text-right">{{detail.montant|format_number}}</td>
-                                            <td class="align-middle txt-center">{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
-                                            {% if isFirst %}
-                                                <td rowspan="{{finance.nbRow}}" class="text-center align-middle">
-                                                    <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
-                                                </td>
-                                                {% set isFirst = false %}
-                                            {% endif %}
-                                        </tr>
-                                        {% set totalPayee = totalPayee + detail.montant %}
-                                {% endfor %}
-                            <tr>
-                                <th colspan="2" class="bg-light">Total</th>
-                                <th class="bg-success text-white text-right">{{totalPayee|format_number}}</th>
-                                <th class="bg-success text-white"></th>
-                            </tr>
-                            {% set totalGeneral = totalGeneral + totalPayee %}
-                        {% endfor %}
-                    </tbody>
+                        </thead>
+                        <tbody class="">
+                            {% set totalGeneral = 0 %}
+                            {% for finance in finances %}
+    
+                                <tr>
+                                    <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.num_credit}}</td>
+                                    <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.client|upper}}</td>
+                                    <td rowspan="{{finance.nbRow}}" class="align-middle">{{finance.entrepot|upper}}</td>
+                                </tr>
+                                    {% set isFirst = true %}
+                                    {% set totalPayee = 0 %}
+                                    {% for detail in finance.details %}
+                                            <tr>
+                                                <td class="align-middle">{{detail.description}}</td>
+                                                <td class="align-middle">{{detail.date}}</td>
+                                                <td class="align-middle text-right">{{detail.montant|format_number}}</td>
+                                                <td class="align-middle txt-center">{{detail.type == 'PAIEMENT' ? 'Soldé'|upper : 'échéance'|upper }}</td>
+                                                {% if isFirst %}
+                                                    <td rowspan="{{finance.nbRow}}" class="text-center align-middle">
+                                                        <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                                    </td>
+                                                    {% set isFirst = false %}
+                                                {% endif %}
+                                            </tr>
+                                            {% set totalPayee = totalPayee + detail.montant %}
+                                    {% endfor %}
+                                <tr>
+                                    <th colspan="2" class="bg-light">Total</th>
+                                    <th class="bg-success text-white text-right">{{totalPayee|format_number}}</th>
+                                    <th class="bg-success text-white"></th>
+                                </tr>
+                                {% set totalGeneral = totalGeneral + totalPayee %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <table class="table table-sm table-bordered" style="font-size: 0.95em;">
+                    <tr>
+                        <th>Total General</th>
+                        <th class="bg-primary text-white text-right" style="width: 120px;">{{totalGeneral|format_number}}</th>
+                        <th class="bg-primary text-white" style="width: 145px;"></th>
+                    </tr>
                 </table>
             </div>
-            <table class="table table-sm table-bordered" style="font-size: 0.95em;">
-                <tr>
-                    <th>Total General</th>
-                    <th class="bg-primary text-white text-right" style="width: 120px;">{{totalGeneral|format_number}}</th>
-                    <th class="bg-primary text-white" style="width: 145px;"></th>
-                </tr>
-            </table>
 
             {% if with_foot %}
                 <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
