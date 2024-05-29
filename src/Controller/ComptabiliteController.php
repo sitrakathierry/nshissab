@@ -2598,8 +2598,8 @@ class ComptabiliteController extends AbstractController
         return new Response($response) ; 
     }
 
-    #[Route('/comptabilite/imprimer/{dateSpecifique}/{idModeleEntete}/{idModeleBas}', name: 'compta_recette_journalier_imprimer', defaults: ["idModeleEntete" => null,"dateSpecifique" => null, "idModeleBas" => null])]
-    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$dateSpecifique)
+    #[Route('/comptabilite/imprimer/{dateSpecifique}/{idEntrepot}/{idModeleEntete}/{idModeleBas}', name: 'compta_recette_journalier_imprimer', defaults: ["idModeleEntete" => null,"idEntrepot" => null,"dateSpecifique" => null, "idModeleBas" => null])]
+    public function factureImprimerFacture($idModeleEntete,$idModeleBas,$dateSpecifique,$idEntrepot)
     {
         // $idModeleEntete = $request->request->get("idModeleEntete") ;
         // $idModeleBas = $request->request->get("idModeleBas") ;
@@ -2674,14 +2674,26 @@ class ComptabiliteController extends AbstractController
         
         $dateSpecifique = $this->appService->decodeString($dateSpecifique) ;
         $dateSpecifique = $dateSpecifique == "-" ? date("d/m/Y") : $dateSpecifique ;
+        $idEntrepot = $idEntrepot == "-" ? "" : $idEntrepot ;
         $search["dateFacture"] = $dateSpecifique ; 
+        $search["refEntrepot"] = $idEntrepot ; 
 
         $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
 
         $recetteJournlaiers = [] ;
+        $recapitulatifs = [] ;
 
         foreach ($recetteGenerales as $recetteGenerale) {
             $recetteJournlaiers[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement][] = $recetteGenerale ;
+            if(!isset($recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]))
+            {
+                $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] = $recetteGenerale->montant ; 
+                $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["paiement"] = $recetteGenerale->typePaiement ;
+            }
+            else
+            {
+                $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] += $recetteGenerale->montant ; 
+            }
         }
 
         $agcDevise = $this->appService->getAgenceDevise($this->agence) ;
@@ -2690,6 +2702,7 @@ class ComptabiliteController extends AbstractController
             "contentEntete" => $contentEntete,
             "contentBas" => $contentBas,
             "recetteJournlaiers" => $recetteJournlaiers,
+            "recapitulatifs" => $recapitulatifs,
             "dateSpecifique" => $dateSpecifique,
             "agcDevise" => $agcDevise
         ]) ;

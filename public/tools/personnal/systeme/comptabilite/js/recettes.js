@@ -258,7 +258,8 @@ $(document).ready(function(){
                                 var idModeleBas = $("#modele_pdf_bas").val() ;
                                 var dateSpecifique = ($("#date_caisse_specifique").val() == undefined || $("#date_caisse_specifique").val() == "") ? "-" : $("#date_caisse_specifique").val() ;
                                 dateSpecifique = appBase.encodeString(dateSpecifique) ;
-                                var url = routes.compta_recette_journalier_imprimer + '/' + dateSpecifique + '/' + idModeleEntete + '/' + idModeleBas;
+                                var idEntrepot = $("#search_recette_entrepot").val() == "" ? "-" : $("#search_recette_entrepot").val() ;
+                                var url = routes.compta_recette_journalier_imprimer + '/' + dateSpecifique + '/' + idEntrepot + '/' + idModeleEntete + '/' + idModeleBas;
                                 window.open(url, '_blank');
                             }
                         }
