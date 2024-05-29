@@ -216,34 +216,35 @@
                             <tbody>
                             {% set totalPayee = 0 %}
                                 {% for financeDetail in financeDetails %}
-                                <tr {{ facture.refStatut == 'TRM' ? 'class="bg-secondary text-white"' : "" }} >
-                                        <td class="align-middle crd_val_description">{{financeDetail.description}}</td>
-                                        <td class="align-middle crd_val_date">{{ financeDetail.date|date('d/m/Y') }}</td>
-                                        {% if refPaiement == "CR" %}
-                                            <td class="align-middle text-center">-</td>
-                                            <td class="align-middle text-center">
-                                                <b class="text-uppercase">soldé</b>
+                                    {% set typePaiement = financeDetail.paiement is null ? "-" : financeDetail.paiement.nom %}
+                                    <tr {{ facture.refStatut == 'TRM' ? 'class="bg-secondary text-white"' : "" }} >
+                                            <td class="align-middle crd_val_description">{{financeDetail.description}}</td>
+                                            <td class="align-middle crd_val_date">{{ financeDetail.date|date('d/m/Y') }}</td>
+                                            {% if refPaiement == "CR" %}
+                                                <td class="align-middle text-center">{{typePaiement}}</td>
+                                                <td class="align-middle text-center">
+                                                    <b class="text-uppercase">soldé</b>
+                                                </td>
+                                            {% endif %}
+                                            <td class="align-middle crd_val_montant">{{ financeDetail.montant }}</td>
+                                            {% if refPaiement == "CR" %}
+                                                <td class="align-middle text-center">
+                                                    <button class="btn btn-sm btn-link text-success font-weight-bold font-smaller">OK</button>
+                                                    {# <button class="btn btn-sm crd_delete_paiement btn-outline-danger ml-2 font-smaller"><i class="fa fa-trash"></i></button> #}
+                                                </td>
+                                            {% endif %}
+                                            <td> 
+                                                <div class="d-flex flex-row align-items-center justify-content-center w-100">
+                                                    {% if dataAdmin.iduser is not null %}
+                                                        <button type="button" data-iduser="{{dataAdmin.iduser}}" data-nameuser="{{dataAdmin.nameuser}}" class="btn btn-sm btn-outline-primary btn_lock_activity font-smaller mx-2"><i class="fa fa-lock"></i></button>
+                                                    {% else %}
+                                                        <button type="button" data-value="{{financeDetail.id}}" class="btn btn-sm btn-outline-warning btn_edit_credit font-smaller mx-2"><i class="fa fa-edit"></i></button>
+                                                        <button type="button" data-value="{{financeDetail.id}}" class="btn btn-sm btn-outline-danger btn_delete_credit font-smaller mx-2"><i class="fa fa-trash"></i></button>
+                                                    {% endif %}
+                                                    <button type="button" data-value="{{financeDetail.id}}" class="btn btn-sm btn-outline-success btn_check_credit font-smaller mx-2"><i class="fa fa-check"></i></button>
+                                                </div>
                                             </td>
-                                        {% endif %}
-                                        <td class="align-middle crd_val_montant">{{ financeDetail.montant }}</td>
-                                        {% if refPaiement == "CR" %}
-                                            <td class="align-middle text-center">
-                                                <button class="btn btn-sm btn-link text-success font-weight-bold font-smaller">OK</button>
-                                                {# <button class="btn btn-sm crd_delete_paiement btn-outline-danger ml-2 font-smaller"><i class="fa fa-trash"></i></button> #}
-                                            </td>
-                                        {% endif %}
-                                        <td> 
-                                            <div class="d-flex flex-row align-items-center justify-content-center w-100">
-                                                {% if dataAdmin.iduser is not null %}
-                                                    <button type="button" data-iduser="{{dataAdmin.iduser}}" data-nameuser="{{dataAdmin.nameuser}}" class="btn btn-sm btn-outline-primary btn_lock_activity font-smaller mx-2"><i class="fa fa-lock"></i></button>
-                                                {% else %}
-                                                    <button type="button" data-value="{{financeDetail.id}}" class="btn btn-sm btn-outline-warning btn_edit_credit font-smaller mx-2"><i class="fa fa-edit"></i></button>
-                                                    <button type="button" data-value="{{financeDetail.id}}" class="btn btn-sm btn-outline-danger btn_delete_credit font-smaller mx-2"><i class="fa fa-trash"></i></button>
-                                                {% endif %}
-                                                <button type="button" data-value="{{financeDetail.id}}" class="btn btn-sm btn-outline-success btn_check_credit font-smaller mx-2"><i class="fa fa-check"></i></button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                        </tr>
                                     {% set totalPayee = totalPayee + financeDetail.montant %}
                                 {% endfor %}
                                 {% set totalCredit = 0 %}

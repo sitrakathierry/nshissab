@@ -116,7 +116,16 @@ $(document).ready(function(){
             const search = elemSearch[j];
             formData.append(search.name,$(search.selector).val());
         }
-        formData.append("refTypePaiement",$(".search_recette_type_paiement.btn-info").data("value")) ;
+        if($(".btn_rct_caisse_jour").hasClass("btn-outline-success"))
+        {
+            formData.append("refTypePaiement",$(".search_recette_type_paiement.btn-info").data("value")) ;
+        }
+        else
+        {
+            formData.append("refTypePaiement","") ;
+            formData.append("caisseJournalier","OK") ;
+            formData.append("date_caisse_specifique",$("#date_caisse_specifique").val()) ;
+        }
         $.ajax({
             url: routes.compta_recette_search ,
             type: 'post',
