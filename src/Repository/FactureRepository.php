@@ -393,7 +393,7 @@ class FactureRepository extends ServiceEntityRepository
                     "typePaiement" => $typePaiement,
                     "refTypePaiement" => $refTypePaiement,
                     "refEntrepot" => $refEntrepot,
-                    "recette" => "echéance",
+                    "recette" => "Différé",
                     "refRecette" => "ECH",
                 ] ;
             }
