@@ -318,12 +318,15 @@
             </div>
         </div>
         {% if with_foot %}
-            <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
+            <div class="foot_action p-3 d-flex mt-4 w-100 barre_dashed">
+                {% if facture.sous_credit is not null %}
+                    <a href="{{path('crd_details_credit',{'id':facture.sous_credit})}}" type="button" class="btn btn-sm btn-perso-one"><i class="fa fa-percent"></i></a>
+                {% endif %}
                 {% if nature == "FACTURE" and facture.refType != "DF" %}
                     <button type="button" data-value="{{facture.id}}" class="btn btn-sm ml-2 fact_btn_facture_supprime btn-danger text-white"><i class="fa fa-trash"></i>&nbsp;Supprimer</button>
                     <button type="button" class="btn btn-sm ml-2 fact_btn_miseajour btn-perso-one"><i class="fa fa-save"></i>&nbsp;Mettre à jour</button>
                 {% endif %}
-                <button type="button" data-value="{{facture.id}}" class="btn btn_imprimer_facture btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
+                <button type="button" data-value="{{facture.id}}" class="btn btn_imprimer_facture ml-auto btn-sm ml-2 btn-info text-white"><i class="fa fa-print"></i>&nbsp;Imprimer</button>
             </div>
         {% endif %} 
         </form>

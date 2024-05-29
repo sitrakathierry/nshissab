@@ -1509,6 +1509,12 @@ class FactureController extends AbstractController
             $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
         }
         
+        $finance = $this->entityManager->getRepository(CrdFinance::class)->findOneBy([
+            "facture" => $facture
+        ]) ;
+
+        $idCredit = is_null($finance) ? null : $finance->getId() ;
+
         $infoFacture = [] ;
 
         $infoFacture["id"] = $facture->getId() ;
@@ -1521,6 +1527,7 @@ class FactureController extends AbstractController
         $infoFacture["refType"] = $facture->getType()->getReference() ;
         $infoFacture["ticketCaisse"] = is_null($facture->getTicketCaisse()) ? false : $facture->getTicketCaisse()->getNumCommande() ;
         $infoFacture["description"] = $facture->getDescription() ;
+        $infoFacture["sous_credit"] = $idCredit ;
 
         $infoFacture["devise"] = !is_null($facture->getDevise()) ;
 
