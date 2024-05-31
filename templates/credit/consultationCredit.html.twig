@@ -26,7 +26,9 @@
                 <div class="w-100 d-flex flex-wrap flex-row align-items-center justify-content-left">
                     <button type="button" data-text="" data-class="btn-info" data-target="#crd_statut" value="" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info mx-1">TOUS</button>
                     {% for crdStatut in crdStatuts %}
-                        <button type="button" data-class="btn-info" data-target="#crd_statut" value="{{crdStatut.id}}" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info text-uppercase mx-1">{{ crdStatut.nom|upper }}</button>
+                        {% if crdStatut.reference != "SFR" %}
+                            <button type="button" data-class="btn-info" data-target="#crd_statut" value="{{crdStatut.id}}" class="btn crd_btn_statut btn-sm mt-2 px-3 btn-outline-info text-uppercase mx-1">{{ crdStatut.nom|upper }}</button>
+                        {% endif %}
                     {% endfor %}
                     <input type="hidden" id="crd_statut" name="crd_statut">
                     <input type="hidden" id="refPaiement" name="refPaiement" value="{{refPaiement}}">

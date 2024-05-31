@@ -112,6 +112,11 @@ class AgendaController extends AbstractController
             12 =>  "Décembre",
         ] ;   
 
+        if(file_exists($filename))
+        {
+            $agendas = json_decode(file_get_contents($filename)) ;
+        }
+
         return $this->render('agenda/consultation.html.twig', [
             "filename" => "agenda",
             "titlePage" => "Consultation agenda",

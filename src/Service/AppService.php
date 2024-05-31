@@ -1889,14 +1889,6 @@ class AppService extends AbstractController
                         {
                             $entrepot = "-" ;
                             $idEntrepot = "-" ;
-
-                            // $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
-                            //     "agence" => $this->agence,
-                            //     "statut" => True
-                            // ]) ;
-
-                            // $entrepot = $histoEntrepot->getEntrepot()->getNom();
-                            // $idEntrepot = $histoEntrepot->getEntrepot()->getId();
                         }
                     }
                 }

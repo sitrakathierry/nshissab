@@ -26,7 +26,7 @@
             {% for factureDetail in factureDetails %}
                 <tr>
                     <td>{{ factureDetail.type|upper }}</td>
-                    <td>{{ factureDetail.designation }}</td>
+                    <td>{{ factureDetail.designation|raw }}</td>
                     <td>{{ factureDetail.quantite }}</td>
                     <td>{{ factureDetail.format }}</td>
                     <td>{{ factureDetail.prix }}</td>
