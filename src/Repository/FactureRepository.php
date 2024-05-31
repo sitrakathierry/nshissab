@@ -288,7 +288,7 @@ class FactureRepository extends ServiceEntityRepository
             ->setParameter('type', $params['type'])
             ->getQuery() ;
         
-        return $query->getResult();
+        return $query->getResult(); 
     }
 
     public function generateRecetteFacture($params = [])

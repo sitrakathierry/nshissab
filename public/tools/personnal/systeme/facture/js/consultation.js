@@ -15,8 +15,8 @@ $(document).ready(function(){
         {
             name: "id",
             action:"change",
-            selector : "#fact_search_num"
-        },
+            selector : "#fact_search_num" 
+        },  
         {
             name: "idC",
             action:"change",
@@ -167,7 +167,6 @@ $(document).ready(function(){
     $(".fact_search_btn_modele").click(function(){
         if($(this).data("reference") == "PLOC")
         {
-            
             var realinstance = instance.loading()
             $.ajax({
                 url: routes.fact_list_prest_location_get ,
@@ -187,16 +186,16 @@ $(document).ready(function(){
             })
             return false ;
         }
-        var btnClass = $(this).data("class")
-        var target = $(this).data("target")
-        var currentbtnClass = "btn-outline-"+btnClass.split("-")[1]
-        var inputValue = $(this).attr("value")
-        var self = $(this)
+        var btnClass = $(this).data("class") ;
+        var target = $(this).data("target") ;
+        var currentbtnClass = "btn-outline-"+btnClass.split("-")[1] ;
+        var inputValue = $(this).attr("value") ;
+        var self = $(this) ;
 
         $(target).val(inputValue) ;
 
-        $(this).addClass(btnClass)
-        $(this).removeClass(currentbtnClass)
+        $(this).addClass(btnClass) ;
+        $(this).removeClass(currentbtnClass) ;
 
         $(".fact_search_btn_modele").each(function(){
             if (!self.is($(this))) {

@@ -106,7 +106,7 @@ class FactureController extends AbstractController
         return $this->render('facture/creation.html.twig', [
             "filename" => "facture",
             "titlePage" => "Création Facture", 
-            "with_foot" => true,  
+            "with_foot" => true,   
             "modeles" => $modeles,
             "types" => $types, 
             "paiements" => $paiements,
@@ -1911,7 +1911,7 @@ class FactureController extends AbstractController
             if(empty($fact_enr_prod_type))
             {
                 $result["type"] = "orange" ;
-                $result["message"] = "Veuiller insérer un élément" ;
+                $result["message"] = "Veuiller insérer une désignation" ;
                 return new JsonResponse($result) ;
             }
         }
@@ -1921,7 +1921,7 @@ class FactureController extends AbstractController
             if(empty($fact_enr_btp_enonce_id))
             {
                 $result["type"] = "orange" ;
-                $result["message"] = "Veuiller insérer un élément" ;
+                $result["message"] = "Veuiller insérer une désignation" ;
                 return new JsonResponse($result) ;
             }
         }
@@ -1960,12 +1960,26 @@ class FactureController extends AbstractController
                 $clt_type
             ], [
                 "Statut"
-                ]) ;
+            ]) ;
 
             if(!$result["allow"])
                 return new JsonResponse($result) ;
-
+            
             $typeClient = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
+            
+            $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
+                "typeClient" => $typeClient->getReference(),
+                "telephone" => $fact_clt_telephone
+            ]) ;
+                
+            if($isPhoneExist)
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Le numéro existe déjà dans la base"
+                ]) ;
+            }
+
 
             if($typeClient->getReference() == "MORAL")
             {
@@ -3131,6 +3145,5 @@ class FactureController extends AbstractController
         ]) ;
 
         return new Response($response) ;
-    }
-
+    } 
 }

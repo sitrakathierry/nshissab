@@ -1510,8 +1510,16 @@ class AppService extends AbstractController
 
                         if(!is_null($factDetail))
                         {
-                            $entrepot = $factDetail->getHistoEntrepot()->getEntrepot()->getNom();
-                            $idEntrepot = $factDetail->getHistoEntrepot()->getEntrepot()->getId(); 
+                            if (!is_null($factDetail->getHistoEntrepot())) 
+                            {
+                                $entrepot = $factDetail->getHistoEntrepot()->getEntrepot()->getNom() ;
+                                $idEntrepot = $factDetail->getHistoEntrepot()->getEntrepot()->getId() ; 
+                            }
+                            else
+                            {
+                                $entrepot = "-" ;
+                                $idEntrepot = "-" ;
+                            }
                         }
                     }
                 }

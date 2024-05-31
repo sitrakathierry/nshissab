@@ -3,7 +3,7 @@
     <select name="fact_client" class="custom-select chosen_select fact_client custom-select-sm" id="fact_client">
         <option value="">-</option>
         {% for client in clients %}
-            <option value="{{client.id}}">{{client.nom|upper}}</option>
+            <option value="{{client.id}}">{{client.nom|upper}} | {{client.telephone}}</option>
         {% endfor %}
     </select>
 </div>
@@ -14,6 +14,6 @@
 </div>
 <script>
     $(".chosen_select").chosen({
-            no_results_text: "Aucun resultat trouvé : "
-        });
+        no_results_text: "Aucun resultat trouvé : "
+    });
 </script>

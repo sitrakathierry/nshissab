@@ -57,7 +57,6 @@ class ClientController extends AbstractController
         $types = $this->entityManager->getRepository(CltTypes::class)->findAll() ;
 
 
-
         return $this->render('client/creation.html.twig', [
             "filename" => "client",
             "titlePage" => "Création Client",
@@ -124,23 +123,43 @@ class ClientController extends AbstractController
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
+    
+        $type = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
+
+        if ($type->getReference() == "MORAL") {
+            $cltTelephone = $request->request->get("clt_soc_telephone") ;
+        }
+        else
+        {
+            $cltTelephone = $request->request->get("clt_client_telephone") ;
+        }
+
+        $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
+            "typeClient" => $type->getReference(),
+            "telephone" => $cltTelephone
+        ]) ;
+            
+        if($isPhoneExist)
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Le numéro existe déjà dans la base"
+            ]) ;
+        }
 
         $clt_identity = $request->request->get("clt_identity") ;
-
-        $type = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
 
         if($type->getReference() == "MORAL")
         {
             $clt_soc_nom = $request->request->get("clt_soc_nom") ;
             $clt_soc_nom_gerant = $request->request->get("clt_soc_nom_gerant") ;
             $clt_soc_nom_adresse = $request->request->get("clt_soc_nom_adresse") ;
-            $clt_soc_telephone = $request->request->get("clt_soc_telephone") ;
             $clt_soc_fax = $request->request->get("clt_soc_fax") ;
             $clt_soc_email = $request->request->get("clt_soc_email") ;
             $clt_soc_domaine = $request->request->get("clt_soc_domaine") ;
             $clt_soc_num_registre = $request->request->get("clt_soc_num_registre") ;
             $clt_soc_type_societe = $request->request->get("clt_soc_type_societe") ;
-            
+            $clt_soc_telephone = $request->request->get("clt_soc_telephone") ;
             $clt_lien_nom = $request->request->get("clt_lien_nom") ;
             $clt_lien_email = $request->request->get("clt_lien_email") ;
             $clt_lien_telephone = $request->request->get("clt_lien_telephone") ;

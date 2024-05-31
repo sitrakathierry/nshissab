@@ -39,6 +39,34 @@ class CltHistoClientRepository extends ServiceEntityRepository
         }
     }
 
+    public function verifyPhoneClient($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        if($params["typeClient"] == "MORAL")
+        {
+            $query =  $queryBuilder
+                ->select('c')
+                ->from(CltSociete::class, 'chc')
+                ->where('c.telFixe LIKE "%:telephone%" ')
+                ->setParameter('telephone', $params['telephone'])
+                ->getQuery() 
+                ->getOneOrNullResult();
+        }
+        else
+        {
+            $query =  $queryBuilder
+                ->select('cs')
+                ->from(Client::class, 'cs')
+                ->where('cs.telephone LIKE "%:telephone%" ')
+                ->setParameter('telephone', $params['telephone'])
+                ->getQuery() 
+                ->getOneOrNullResult();
+        }
+
+        return !is_null($query) ;
+    }
+
 //    /**
 //     * @return CltHistoClient[] Returns an array of CltHistoClient objects
 //     */
@@ -51,7 +79,7 @@ class CltHistoClientRepository extends ServiceEntityRepository
 //            ->setMaxResults(10)
 //            ->getQuery()
 //            ->getResult()
-//        ;
+//          ;
 //    }
 
 //    public function findOneBySomeField($value): ?CltHistoClient

@@ -11,7 +11,7 @@ $(document).ready(function(){
     $("#formFacture").submit(function(event){
         event.preventDefault()
         var self = $(this)
-        $(".facture_editor").val(facture_editor.getEditorText('.facture_editor'))
+        $(".facture_editor").val(facture_editor.getEditorText('.facture_editor')) 
         $.confirm({
             title: "Confirmation",
             content:"Etes-vous sûre ?",
