@@ -549,10 +549,10 @@ class FactureController extends AbstractController
 
         usort($factures, [self::class, 'comparaisonDates']);
 
-        if($this->agence->getId() == 23)
-        {
-            dd($factures) ;
-        }
+        // if($this->agence->getId() == 23)
+        // {
+        //     dd($factures) ;
+        // }
 
         $modeles = $this->entityManager->getRepository(FactModele::class)->findAll() ; 
 
