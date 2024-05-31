@@ -28,11 +28,11 @@ framework:
                 adapter: cache.adapter.filesystem
                 default_lifetime: 60  # Les éléments en cache expirent après 60 secondes
 
-            # Pool de cache pour les éléments critiques
-            critical_cache:
-                adapter: cache.adapter.redis
-                provider: 'redis://localhost'
-                default_lifetime: 300  # Les éléments en cache expirent après 5 minutes
+            # # Pool de cache pour les éléments critiques
+            # critical_cache:
+            #     adapter: cache.adapter.redis
+            #     provider: 'redis://localhost'
+            #     default_lifetime: 300  # Les éléments en cache expirent après 5 minutes
 
 # Désactivation du cache pour l'environnement de développement
 when@dev:
