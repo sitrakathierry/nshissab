@@ -84,19 +84,7 @@ class FactDetailsRepository extends ServiceEntityRepository
     public function findOneByEntite($params = [])
     {
         // $conn = $this->getEntityManager()->getConnection();
-        // // A CORRIGER 
-        // $sql = "SELECT * FROM `fact_details` 
-        // WHERE `facture_id` = ? AND `activite` = ? AND `statut` = ? 
-        // AND `entite` IS NOT NULL ORDER BY `id` ASC LIMIT 1" ;
-
-        // $stmt = $conn->prepare($sql) ;
-        // $resultSet = $stmt->executeQuery([
-        //     $params["facture"]->getId(),
-        //     $params["activite"],
-        //     $params["statut"],
-        // ]);
-        // dd($resultSet->fetchAssociative()) ;
-        // return $resultSet->fetchAssociative(); 
+  
 
         // Dans votre méthode de contrôleur ou de service
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
