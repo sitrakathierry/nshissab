@@ -867,35 +867,6 @@ class ComptabiliteController extends AbstractController
     #[Route('/comptabilite/recette/general', name: 'compta_recette_general')]
     public function comptaRecetteGeneral()
     {
-        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
-            "agence" => $this->agence,
-            "user" => $this->userObj,
-            "appService" => $this->appService,
-            "nameAgence" => $this->nameAgence,
-            "filename" => "files/systeme/comptabilite/recette(agence)/".$this->nameAgence,
-            "fileContratLct" => "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence,
-        ]) ;
-
-        // $recetteFactures = $this->appService->regrouperRecette($recetteFactures) ;
-
-        $numFacts = [] ;
-        $typeRecettes = [] ;
-
-        foreach ($recetteGenerales as $recetteFact) {
-            $numFacts[$recetteFact->id] = [
-                "id" => $recetteFact->id,
-                "numero" => $recetteFact->numero,
-            ] ;
-
-            $typeRecettes[$recetteFact->refRecette] = [
-                "recette" => $recetteFact->recette,
-                "refRecette" => $recetteFact->refRecette,
-            ] ;
-        }
-
-        // dd(array_values($numFact)) ;
-        // dd(array_values($typeRecettes)) ;
-
         if($this->userObj->getRoles()[0] == "MANAGER")
         {
             $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
@@ -926,6 +897,45 @@ class ComptabiliteController extends AbstractController
                 }
             }
         } 
+
+        $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
+            "agence" => $this->agence,
+            "user" => $this->userObj,
+            "appService" => $this->appService,
+            "nameAgence" => $this->nameAgence,
+            "filename" => "files/systeme/comptabilite/recette(agence)/".$this->nameAgence,
+            "fileContratLct" => "files/systeme/prestations/location/contrat(agence)/".$this->nameAgence,
+        ]) ;
+
+        // $recetteFactures = $this->appService->regrouperRecette($recetteFactures) ;
+
+        if(count($entrepots) == 1)
+        {
+            $search = [
+                "refEntrepot" => $entrepots[0]["id"]
+            ] ;
+
+            $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
+        }
+
+        $numFacts = [] ;
+        $typeRecettes = [] ;
+
+        foreach ($recetteGenerales as $recetteFact) {
+            $numFacts[$recetteFact->id] = [
+                "id" => $recetteFact->id,
+                "numero" => $recetteFact->numero,
+            ] ;
+
+            $typeRecettes[$recetteFact->refRecette] = [
+                "recette" => $recetteFact->recette,
+                "refRecette" => $recetteFact->refRecette,
+            ] ;
+        }
+
+        // dd(array_values($numFact)) ;
+        // dd(array_values($typeRecettes)) ;
+
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
 
