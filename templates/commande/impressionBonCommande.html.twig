@@ -10143,7 +10143,7 @@ footer {
                 <tbody>
                     {% for detail in details %}
                         <tr>
-                            <td>{{detail.designation}}</td>
+                            <td>{{detail.designation|raw}}</td>
                             <td class="text-right">{{detail.quantite}}</td>
                             <td class="text-right">{{detail.prix|number_format(0, ',', ' ')}}</td>
                             <td class="text-right">{{detail.tva|number_format(0, ',', ' ')}}</td>
