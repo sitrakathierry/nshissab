@@ -110,7 +110,7 @@ class AgendaController extends AbstractController
             10 =>  "Octobre",
             11 =>  "Novembre",
             12 =>  "Décembre",
-            ] ; 
+        ] ;   
 
         return $this->render('agenda/consultation.html.twig', [
             "filename" => "agenda",

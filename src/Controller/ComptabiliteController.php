@@ -916,7 +916,7 @@ class ComptabiliteController extends AbstractController
             ] ;
 
             $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
-        }
+        } 
 
         $numFacts = [] ;
         $typeRecettes = [] ;

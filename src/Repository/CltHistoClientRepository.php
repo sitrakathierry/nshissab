@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Client;
 use App\Entity\CltHistoClient;
+use App\Entity\CltSociete;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
