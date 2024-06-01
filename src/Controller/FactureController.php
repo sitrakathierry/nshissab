@@ -1962,9 +1962,11 @@ class FactureController extends AbstractController
             $fact_clt_telephone = $request->request->get("fact_clt_telephone") ;
 
             $result = $this->appService->verificationElement([
-                $clt_type
+                $clt_type,
+                $fact_clt_telephone ,
             ], [
-                "Statut"
+                "Statut Nouveau Client",
+                "Telehone Nouveau Client"
             ]) ;
 
             if(!$result["allow"])
