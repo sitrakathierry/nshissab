@@ -45,6 +45,9 @@ class CltHistoClientRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 
+        if($params['telephone'] == "-")
+            return False ;
+
         if($params["typeClient"] == "MORAL")
         {
             $query =  $queryBuilder
