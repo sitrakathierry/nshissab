@@ -48,7 +48,7 @@ $(document).ready(function(){
                                             $("#fact_remise_prod_general").val("")
                                             $("#fact_prod_tva").val("")
                                             $(".chosen_select").trigger("chosen:updated");
-                                            location.reload()
+                                            location.href = routes.ftr_consultation ;
                                         }
                                     }
                                 }

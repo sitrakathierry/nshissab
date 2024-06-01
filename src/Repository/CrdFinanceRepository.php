@@ -204,13 +204,51 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         "idClient" => $idClient,
                         "entrepot" => $entrepot,
                         "idEntrepot" => $idEntrepot,
-                        "type" => "PAIEMENT",
+                        "type" => "Soldé",
+                        "refType" => "PAIEMENT",
                         "statut" => "OK"
                     ] ;
     
                     array_push($item2,$item) ;
                 }
     
+                $echeances = $this->getEntityManager()->getRepository(AgdEcheance::class)->findBy([
+                    "catTable" => $finance,
+                    "statut" => NULL
+                ]) ;
+
+                $dateNow = date('d/m/Y') ;
+
+                foreach ($echeances as $echeance) {
+                    if(!$echeance->isStatut())
+                        continue; 
+                
+                    $dateEcheance = $echeance->getDate()->format('d/m/Y') ;
+                    $isLower = $params["appService"]->compareDates($dateEcheance,$dateNow, 'P') ;
+
+                    $item2[] = [
+                        "id" => $financeDetail->getId() ,
+                        "idF" => $financeDetail->getFinance()->getId(),
+                        "description" => empty($echeance->getDescription()) ? "-" : $echeance->getDescription() ,
+                        "date" => $dateEcheance ,
+                        "currentDate" => $dateEcheance ,
+                        "dateSuivi" => $dateEcheance ,
+                        "dateDebut" => $dateEcheance,
+                        "dateFin" => $dateEcheance ,
+                        "annee" => $echeance->getDate()->format('Y') ,
+                        "mois" => $echeance->getDate()->format('m') ,
+                        "montant" => $echeance->getMontant(),
+                        "num_credit" => $finance->getNumFnc(),
+                        "client" => $client,
+                        "idClient" => $idClient,
+                        "entrepot" => $entrepot,
+                        "idEntrepot" => $idEntrepot,
+                        "type" => "Echéance",
+                        "refType" => "ECH",
+                        "statut" => $isLower ? "SFR" : "OK" 
+                    ] ;
+                }
+
                 $details = $item2 ;
 
                 usort($details, [self::class, 'comparaisonDates']);

@@ -1439,9 +1439,7 @@ class AppService extends AbstractController
             $modelePdf->setAgence($modelePdf->getUser()->getAgence()) ;
             $this->entityManager->flush() ;
         }
-
     }
-
 
     public function generateFacture($filename, $agence)
     { 

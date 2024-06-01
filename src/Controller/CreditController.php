@@ -106,7 +106,10 @@ class CreditController extends AbstractController
         $finances = $this->entityManager->getRepository(CrdFinance::class)->generateSuiviGeneralCredit([
             "filename" => $this->filename."suiviCredit(agence)/".$this->nameAgence,
             "agence" => $this->agence,
+            "appService" => $this->appService,
         ]) ; 
+
+        // dd($finances) ;
 
         $filename = "files/systeme/stock/entrepot(agence)/".$this->nameAgence ;
         
@@ -122,7 +125,7 @@ class CreditController extends AbstractController
         $clients = json_decode(file_get_contents($filename)) ;
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
-
+ 
         return $this->render('credit/suiviCreditGeneral.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Suivi Crédit Général",
