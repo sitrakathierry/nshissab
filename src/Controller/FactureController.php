@@ -1963,31 +1963,39 @@ class FactureController extends AbstractController
 
             $result = $this->appService->verificationElement([
                 $clt_type,
-                $fact_clt_telephone ,
             ], [
                 "Statut Nouveau Client",
-                "Telehone Nouveau Client"
             ]) ;
+
 
             if(!$result["allow"])
                 return new JsonResponse($result) ;
-            
+
             $typeClient = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
             
-            $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
-                "typeClient" => $typeClient->getReference(),
-                "telephone" => $fact_clt_telephone
-            ]) ;
-                
-            if($isPhoneExist)
+            if(!empty($fact_clt_telephone))
+            {
+                $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
+                    "typeClient" => $typeClient->getReference(),
+                    "telephone" => $fact_clt_telephone
+                ]) ;
+
+                if($isPhoneExist)
+                {
+                    return new JsonResponse([
+                        "type" => "orange",
+                        "message" => "Le numéro existe déjà dans la base"
+                    ]) ;
+                }
+            }
+            else
             {
                 return new JsonResponse([
                     "type" => "orange",
-                    "message" => "Le numéro existe déjà dans la base"
+                    "message" => "Le Numéro de Téléphone pour un nouveau client est Obligatoire"
                 ]) ;
             }
-
-
+                
             if($typeClient->getReference() == "MORAL")
             {
                 $societe = new CltSociete() ;
