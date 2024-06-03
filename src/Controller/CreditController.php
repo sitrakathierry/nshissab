@@ -221,7 +221,8 @@ class CreditController extends AbstractController
                     "entrepot" => $financeDetail->entrepot,
                     "idEntrepot" => $financeDetail->idEntrepot,
                     "nbRow" => count($details[$financeDetail->idF]) + 2,
-                    "details" => $details[$financeDetail->idF]
+                    "details" => $details[$financeDetail->idF],
+                    "totalTtc" => $financeDetail->totalTtc
                 ] ;
             }   
         }
