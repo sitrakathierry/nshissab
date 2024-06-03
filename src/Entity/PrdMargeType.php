@@ -42,11 +42,15 @@ class PrdMargeType
     #[ORM\OneToMany(mappedBy: 'remiseType', targetEntity: CaisseCommande::class)]
     private Collection $caisseCommandes;
 
+    #[ORM\OneToMany(mappedBy: 'margeType', targetEntity: PrdVariationPrix::class)]
+    private Collection $prdVariationPrixes;
+
     public function __construct()
     {
         $this->prdApprovisionnements = new ArrayCollection();
         $this->prdSoldes = new ArrayCollection();
         $this->caisseCommandes = new ArrayCollection();
+        $this->prdVariationPrixes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,6 +214,36 @@ class PrdMargeType
             // set the owning side to null (unless already changed)
             if ($caisseCommande->getRemiseType() === $this) {
                 $caisseCommande->setRemiseType(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrdVariationPrix>
+     */
+    public function getPrdVariationPrixes(): Collection
+    {
+        return $this->prdVariationPrixes;
+    }
+
+    public function addPrdVariationPrix(PrdVariationPrix $prdVariationPrix): self
+    {
+        if (!$this->prdVariationPrixes->contains($prdVariationPrix)) {
+            $this->prdVariationPrixes->add($prdVariationPrix);
+            $prdVariationPrix->setMargeType($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrdVariationPrix(PrdVariationPrix $prdVariationPrix): self
+    {
+        if ($this->prdVariationPrixes->removeElement($prdVariationPrix)) {
+            // set the owning side to null (unless already changed)
+            if ($prdVariationPrix->getMargeType() === $this) {
+                $prdVariationPrix->setMargeType(null);
             }
         }
 

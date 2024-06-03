@@ -12,6 +12,22 @@
                     <input type="text" readonly value="{{variation.indice}}" id="nom" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-3">
+                    <label for="modif_inpt_prix_achat" class="font-weight-bold">Prix d'Achat</label>
+                    <input type="number" step="any" name="modif_inpt_prix_achat" value="{{variation.prixAchat}}" id="modif_inpt_prix_achat" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-3">
+                    <label for="modif_inpt_charge" class="font-weight-bold">Charge</label>
+                    <input type="number" step="any" name="modif_inpt_charge" value="{{variation.charge}}" id="modif_inpt_charge" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-3">
+                    <label for="modif_inpt_marge_type" class="font-weight-bold">Marge Type</label>
+                    <input type="text"  name="modif_inpt_marge_type" value="{{variation.margeType|upper}}" id="modif_inpt_marge_type" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-3">
+                    <label for="modif_inpt_marge_valeur" class="font-weight-bold">Marge Valeur</label>
+                    <input type="number" step="any" name="modif_inpt_marge_valeur" value="{{variation.marge}}" id="modif_inpt_marge_valeur" class="form-control" placeholder=". . .">
+                </div>
+                <div class="col-3">
                     <label for="modif_inpt_prix" class="font-weight-bold">Prix de vente</label>
                     <input type="number" step="any" name="modif_inpt_prix" value="{{variation.prix}}" id="modif_inpt_prix" class="form-control" placeholder=". . .">
                 </div>

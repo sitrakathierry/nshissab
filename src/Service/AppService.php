@@ -751,6 +751,13 @@ class AppService extends AbstractController
                 "statut" => True
             ]) ;
 
+            if(is_null($variation->getPrixAchat()))
+            {
+                $this->entityManager->getRepository(PrdVariationPrix::class)->updateVariationPrix([
+                    "variationPrix" => $variation
+                ]) ;
+            }
+
             $item = [];
             
             $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
@@ -771,10 +778,28 @@ class AppService extends AbstractController
                         "statut" => True,
                     ]) ;
 
+                    $prixAchat = $variation->getPrixAchat() ;
+                    $charge = $variation->getCharge() ;
+                    
+                    $montantMarge = $variation->getMargeValeur() ;
+                    $margeType = $variation->getMargeType()->getCalcul() ;
+
+                    if($margeType == 100)
+                    {
+                        $montantMarge =  $montantMarge."%" ; 
+                    }
+                    else if($margeType == -1)
+                    {
+                        $montantMarge = "(Coeff) ". $montantMarge ; 
+                    }
+
                     $item[$cle] = [] ;
     
                     $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
                     $item[$cle]["prix"] = $variation->getPrixVente() ;
+                    $item[$cle]["prixAchat"] = $prixAchat ;
+                    $item[$cle]["charge"] = $charge ;
+                    $item[$cle]["marge"] = $montantMarge ;
                     $item[$cle]["prixVente"] = $variation->getPrixVente() ;
                     $item[$cle]["stock"] = $histoEntrepot->getStock() ;
                     $item[$cle]["code"] = $produit->getCodeProduit()."/".$indice ;

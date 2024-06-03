@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdVariationPrix;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -37,6 +38,27 @@ class PrdVariationPrixRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function updateVariationPrix($params = [])
+    {
+        $approVariation = $this->getEntityManager()->getRepository(PrdApprovisionnement::class)->findOneBy([
+            "variationPrix" => $params["variationPrix"],
+        ],["id" => "ASC"]) ;
+
+        $prixAchat = $approVariation->getPrixAchat() ;
+        $charge = $approVariation->getCharge() ;
+        $montantMarge = $approVariation->getMargeValeur() ;
+        $margeType = $approVariation->getMargeType() ;
+
+        $variationPrix = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($params["variationPrix"]->getId()) ;
+
+        $variationPrix->setPrixAchat($prixAchat) ;
+        $variationPrix->setCharge($charge) ;
+        $variationPrix->setMargeValeur($montantMarge) ;
+        $variationPrix->setMargeType($margeType) ;
+
+        $this->getEntityManager()->flush() ;
     }
 
     // public function getProdtuiPrixParIndice($idP)

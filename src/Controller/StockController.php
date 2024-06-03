@@ -2795,7 +2795,7 @@ class StockController extends AbstractController
             $savDetails = $this->entityManager->getRepository(SavDetails::class)->getHistoVariationSav(
             [
                 "variationPrix" => $variationPrix->getId(),
-            ]) ;
+            ]) ; 
 
             // dd($variationPrix) ;
 
@@ -3058,13 +3058,22 @@ class StockController extends AbstractController
     {
         $modif_variationId = $request->request->get("modif_variationId") ;
         $modif_inpt_prix = $request->request->get("modif_inpt_prix") ;
+        $modif_inpt_prix_achat = $request->request->get("modif_inpt_prix_achat") ;
+        $modif_inpt_charge = $request->request->get("modif_inpt_charge") ;
+        $modif_inpt_marge_valeur = $request->request->get("modif_inpt_marge_valeur") ;
 
         $data = [
             $modif_inpt_prix,
+            $modif_inpt_prix_achat,
+            $modif_inpt_charge,
+            $modif_inpt_marge_valeur,
         ];
 
         $dataMessage = [
-            "Prix de vente",
+            "Prix de Vente",
+            "Prix d'Achat",
+            "Charge",
+            "Marge Valeur",
         ] ;
 
         $result = $this->appService->verificationElement($data,$dataMessage) ;
@@ -3074,7 +3083,10 @@ class StockController extends AbstractController
         
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($modif_variationId) ;
         
-        $variationPrix->setPrixVente($modif_inpt_prix) ;
+        $variationPrix->setPrixVente(floatval($modif_inpt_prix)) ;
+        $variationPrix->setPrixAchat(floatval($modif_inpt_prix_achat)) ;
+        $variationPrix->setCharge(floatval($modif_inpt_charge)) ;
+        $variationPrix->setMargeValeur(floatval($modif_inpt_marge_valeur)) ;
         $this->entityManager->flush() ;
 
         $modif_inpt_solde_type = $request->request->get("modif_inpt_solde_type") ;
@@ -3197,15 +3209,26 @@ class StockController extends AbstractController
 
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($prd_list_id) ;
 
+        if(is_null($variationPrix->getPrixAchat()))
+        {
+            $this->entityManager->getRepository(PrdVariationPrix::class)->updateVariationPrix([
+                "variationPrix" => $variationPrix
+            ]) ;
+        }
+
         $solde = $this->entityManager->getRepository(PrdSolde::class)->findOneBy([
             "variationPrix" => $variationPrix,
             "statut" => True,
         ]) ;
-
+            
         $variation = [
             "id" => $variationPrix->getId() ,
             "code" => $variationPrix->getProduit()->getCodeProduit() ,
             "indice" => $variationPrix->getIndice() ,
+            "prixAchat" => $variationPrix->getPrixAchat() ,
+            "charge" => $variationPrix->getCharge() ,
+            "marge" => $variationPrix->getMargeValeur() ,
+            "margeType" => $variationPrix->getMargeType()->getNotation() ,
             "prix" => $variationPrix->getPrixVente() ,
             "isSolde" => !is_null($solde) ,
             "solde" => is_null($solde) ? "-" : $solde->getSolde() ,

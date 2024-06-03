@@ -41,7 +41,7 @@
                                 <td class="align-middle text-right">{{detail.montant|format_number}}</td>
                                 <td class="align-middle txt-center">{{ detail.type|upper }}</td>
                                 {% if isFirst %}
-                                    <td rowspan="{{finance.nbRow + 2 }}" class="text-center align-middle">
+                                    <td rowspan="{{finance.nbRow + 2 }}" class="text-center bg-white align-middle">
                                         <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
                                     </td>
                                     {% set isFirst = false %}

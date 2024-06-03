@@ -54,6 +54,18 @@ class PrdVariationPrix
     #[ORM\OneToMany(mappedBy: 'variationPrix', targetEntity: PrdDeduction::class)]
     private Collection $prdDeductions;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $prixAchat = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $charge = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $margeValeur = null;
+
+    #[ORM\ManyToOne(inversedBy: 'prdVariationPrixes')]
+    private ?PrdMargeType $margeType = null;
+
     public function __construct()
     {
         $this->prdHistoEntrepots = new ArrayCollection();
@@ -310,6 +322,54 @@ class PrdVariationPrix
                 $prdDeduction->setVariationPrix(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPrixAchat(): ?float
+    {
+        return $this->prixAchat;
+    }
+
+    public function setPrixAchat(?float $prixAchat): self
+    {
+        $this->prixAchat = $prixAchat;
+
+        return $this;
+    }
+
+    public function getCharge(): ?float
+    {
+        return $this->charge;
+    }
+
+    public function setCharge(?float $charge): self
+    {
+        $this->charge = $charge;
+
+        return $this;
+    }
+
+    public function getMargeValeur(): ?float
+    {
+        return $this->margeValeur;
+    }
+
+    public function setMargeValeur(?float $margeValeur): self
+    {
+        $this->margeValeur = $margeValeur;
+
+        return $this;
+    }
+
+    public function getMargeType(): ?PrdMargeType
+    {
+        return $this->margeType;
+    }
+
+    public function setMargeType(?PrdMargeType $margeType): self
+    {
+        $this->margeType = $margeType;
 
         return $this;
     }
