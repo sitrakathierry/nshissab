@@ -207,9 +207,9 @@ class CreditController extends AbstractController
                     "idClient" => $financeDetail->idClient,
                     "entrepot" => $financeDetail->entrepot,
                     "idEntrepot" => $financeDetail->idEntrepot,
-                    "type" => "PAIEMENT",
+                    "type" => $financeDetail->type,
                     "refType" => $financeDetail->refType,
-                    "statut" => "OK",
+                    "statut" => $financeDetail->statut,
                     "totalTtc" => $financeDetail->totalTtc,
                 ] ;
 
