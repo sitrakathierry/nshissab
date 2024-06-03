@@ -1810,7 +1810,7 @@ class AppService extends AbstractController
         
 
         file_put_contents($filename,json_encode($elements)) ;
-    }
+    } 
 
     public function generateCredit($filename, $agence,$refPaiement)
     {

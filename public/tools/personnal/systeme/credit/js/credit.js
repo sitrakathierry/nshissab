@@ -865,6 +865,11 @@ $(document).ready(function(){
       selector: "#date_annee",
     },
     {
+      name: "annee",
+      action: "change",
+      selector: "#date_annee",
+    },
+    {
       name: "mois",
       action: "change",
       selector: "#date_mois",

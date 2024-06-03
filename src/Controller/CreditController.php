@@ -106,7 +106,7 @@ class CreditController extends AbstractController
         $finances = $this->entityManager->getRepository(CrdFinance::class)->generateSuiviGeneralCredit([
             "filename" => $this->filename."suiviCredit(agence)/".$this->nameAgence,
             "agence" => $this->agence,
-            "appService" => $this->appService,
+            "appService" => $this->appService, 
         ]) ; 
 
         // dd($finances) ;

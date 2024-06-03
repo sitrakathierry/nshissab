@@ -72,22 +72,28 @@
                             </tr>
                         </thead> 
                         <tbody class="">
-                            {% set totalGeneral = 0 %}
                             {% set totalGPayee = 0 %}
                             {% set totalGRestant = 0 %}
+                            {% set totalGCredit = 0 %}
                             {% for finance in finances %}
-    
                                 <tr>
                                     <td rowspan="{{finance.nbRow + 2 }}" class="align-middle">{{finance.num_credit}}</td>
                                     <td rowspan="{{finance.nbRow + 2 }}" class="align-middle">{{finance.client|upper}}</td>
                                     <td rowspan="{{finance.nbRow + 2 }}" class="align-middle">{{finance.entrepot|upper}}</td>
                                 </tr>
                                     {% set isFirst = true %}
-                                    {% set totalCredit = 0 %}
                                     {% set totalPayee = 0 %}
                                     {% set totalRestant = 0 %}
                                     {% for detail in finance.details %}
-                                            <tr class="{{ detail.statut == "SFR" ? 'bg-danger text-white' : '' }}">
+                                            {% set ligneClass = "" %}
+                                            {% if detail.refType == "ECH" %}
+                                                {% if detail.statut == "SFR" %}
+                                                    {% set ligneClass = "bg-danger text-white" %}
+                                                {% else %}
+                                                    {% set ligneClass = "bg-info text-white" %}
+                                                {% endif %}
+                                            {% endif %}
+                                                <tr class="{{ligneClass }}">
                                                 <td class="align-middle">{{detail.description}}</td>
                                                 <td class="align-middle">{{detail.date}}</td>
                                                 <td class="align-middle text-right">{{detail.montant|format_number}}</td>
@@ -99,11 +105,14 @@
                                                     {% set isFirst = false %}
                                                 {% endif %}
                                             </tr>
-                                            {% set totalPayee = totalPayee + detail.montant %}
+                                            {% if detail.refType == "PAIEMENT" %}
+                                                {% set totalPayee = totalPayee + detail.montant %}
+                                            {% endif %}
                                     {% endfor %}
+                                    {% set totalRestant = finance.totalTtc - totalPayee %}
                                 <tr>
                                     <th colspan="2" class="bg-light">Total Crédit</th>
-                                    <th class="bg-dark text-white text-right">{{"-"}}</th>
+                                    <th class="bg-dark text-white text-right">{{finance.totalTtc|format_number}}</th>
                                     <th class="bg-dark text-white"></th>
                                 </tr>
                                 <tr>
@@ -113,10 +122,12 @@
                                 </tr>
                                 <tr>
                                     <th colspan="2" class="bg-light">Total Restant</th>
-                                    <th class="bg-primary text-white text-right">{{"-"}}</th>
+                                    <th class="bg-primary text-white text-right">{{totalRestant|format_number}}</th>
                                     <th class="bg-primary text-white"></th>
                                 </tr>
-                                {% set totalGeneral = totalGeneral + totalPayee %}
+                                {% set totalGPayee = totalGPayee + totalPayee %}
+                                {% set totalGRestant = totalGRestant + totalRestant %}
+                                {% set totalGCredit = totalGCredit + finance.totalTtc %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -125,17 +136,17 @@
                 <table class="table table-sm table-bordered" style="font-size: 0.95em;">
                     <tr>
                         <th>Total Crédit</th>
-                        <th class="bg-dark text-white text-right" style="width: 120px;">{{"-"}}</th>
+                        <th class="bg-dark text-white text-right" style="width: 120px;">{{totalGCredit|format_number}}</th>
                         <th class="bg-dark text-white" style="width: 145px;"></th>
                     </tr>
                     <tr>
                         <th>Total Payé</th>
-                        <th class="bg-success text-white text-right" style="width: 120px;">{{totalGeneral|format_number}}</th>
+                        <th class="bg-success text-white text-right" style="width: 120px;">{{totalGPayee|format_number}}</th>
                         <th class="bg-success text-white" style="width: 145px;"></th>
                     </tr>
                     <tr>
                         <th>Total Restant</th>
-                        <th class="bg-primary text-white text-right" style="width: 120px;">{{"-"}}</th>
+                        <th class="bg-primary text-white text-right" style="width: 120px;">{{totalGRestant|format_number}}</th>
                         <th class="bg-primary text-white" style="width: 145px;"></th>
                     </tr>
                 </table>

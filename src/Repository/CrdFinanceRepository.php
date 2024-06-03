@@ -76,13 +76,6 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 if(!$facture->isStatut()) 
                     continue ;
 
-                $financeDetails = $this->getEntityManager()->getRepository(CrdDetails::class)->findBy([
-                    "finance" => $finance
-                ]) ;
-    
-                if(empty($financeDetails))
-                    continue ; 
-
                 $refModele = $facture->getModele()->getReference() ; 
 
                 $entrepot = "-" ;
@@ -181,10 +174,21 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     "idClient" => $idClient,
                     "entrepot" => $entrepot,
                     "idEntrepot" => $idEntrepot,
+                    "totalTtc" => $finance->getFacture()->getTotal(),
                 ] ;
 
+                $typeRemiseG = is_null($finance->getFacture()->getRemiseType()) ? "" : $finance->getFacture()->getRemiseType()->getNotation() ;
+                $typeRemiseG = ($typeRemiseG == "%") ? $typeRemiseG : "" ;
+
                 $item2 = [] ;
-                    
+                
+                $financeDetails = $this->getEntityManager()->getRepository(CrdDetails::class)->findBy([
+                    "finance" => $finance
+                ]) ;
+    
+                // if(empty($financeDetails))
+                //     continue ; 
+
                 foreach ($financeDetails as $financeDetail) 
                 {
                     $item = [
@@ -206,7 +210,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         "idEntrepot" => $idEntrepot,
                         "type" => "Soldé",
                         "refType" => "PAIEMENT",
-                        "statut" => "OK"
+                        "statut" => "OK",
+                        "totalTtc" => $finance->getFacture()->getTotal(),
                     ] ;
     
                     array_push($item2,$item) ;
@@ -214,16 +219,18 @@ class CrdFinanceRepository extends ServiceEntityRepository
     
                 $echeances = $this->getEntityManager()->getRepository(AgdEcheance::class)->findBy([
                     "catTable" => $finance,
-                    "statut" => NULL
                 ]) ;
 
                 $dateNow = date('d/m/Y') ;
 
                 foreach ($echeances as $echeance) {
-                    if(!$echeance->isStatut())
-                        continue; 
-                
-                    $dateEcheance = $echeance->getDate()->format('d/m/Y') ;
+
+                    $statutEch = $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE") ;
+                    
+                    if($statutEch == "DNONE")
+                        continue ;
+                    
+                        $dateEcheance = $echeance->getDate()->format('d/m/Y') ;
                     $isLower = $params["appService"]->compareDates($dateEcheance,$dateNow, 'P') ;
 
                     $item2[] = [
@@ -245,7 +252,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         "idEntrepot" => $idEntrepot,
                         "type" => "Echéance",
                         "refType" => "ECH",
-                        "statut" => $isLower ? "SFR" : "OK" 
+                        "statut" => $isLower ? "SFR" : "OK",
+                        "totalTtc" => $finance->getFacture()->getTotal(),
                     ] ;
                 }
 
