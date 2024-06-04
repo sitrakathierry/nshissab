@@ -625,7 +625,7 @@ $(document).ready(function(){
             data: formData,
             dataType: 'html',
             processData: false,
-            contentType: false,
+            contentType: false, 
             success: function(response){
                 realinstance.close()
                 $("#contentSavModifFacture").html(response) ; 

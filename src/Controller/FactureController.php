@@ -935,6 +935,7 @@ class FactureController extends AbstractController
             $element = [] ;
             $element["id"] = $factureDetail->getId() ;
             $element["type"] = $factureDetail->getActivite() ;
+            $element["idEntrepot"] = $factureDetail->getHistoEntrepot()->getEntrepot()->getId() ;
             $element["designation"] = $factureDetail->getDesignation() ;
             $element["quantite"] = $factureDetail->getQuantite() ;
             $element["format"] = "-" ;
@@ -977,20 +978,63 @@ class FactureController extends AbstractController
         {
             if($facture->getModele()->getReference() == "PROD")
             {
-        
                 $filename = "files/systeme/stock/stock_general(agence)/".$this->nameAgence ;
                 if(!file_exists($filename))
                     $this->appService->generateProduitStockGeneral($filename, $this->agence) ;
                 
                 $stockGenerales = json_decode(file_get_contents($filename)) ;
 
+                $entrepots = [$facture->getEntrepot()] ;
+
+                $isGeneral = False ;
+                $stockEntrepots = [] ;
+
+                if(is_null($facture->getEntrepot()))
+                {
+                    $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
+                        "nom" => strtoupper($facture->getLieu()),
+                        "agence" => $this->agence,
+                        "statut" => True
+                    ]) ;
+
+                    $entrepots = [$entrepotObj] ;
+
+                    if(is_null($entrepotObj))
+                    {
+                        $isGeneral = True ;
+
+                        $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
+                            "filename" => "files/systeme/stock/entrepot(agence)/".$this->nameAgence ,
+                            "agence" => $this->agence
+                        ]) ;
+                    }
+                }
+
+                if(!$isGeneral)
+                {
+                    $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+                        "agence" => $this->agence,
+                        "filename" => "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
+                    ]) ;
+                    
+                    $search = [
+                        "idE" => $entrepots[0]->getId(),
+                    ] ;
+            
+                    $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
+    
+                    $stockEntrepots = array_values($stockEntrepots) ;
+                }
+
                 $templateEditFacture = $this->renderView("sav/editFacture/templateProduit.html.twig",[
-                    "stockGenerales" => $stockGenerales,
+                    "stockGenerales" => empty($stockEntrepots) ? $stockGenerales : $stockEntrepots,
+                    "indiceEntrepot" => !$isGeneral,
                     "typeRemises" => $typeRemises,
                     "facture" => $infoFacture,
                     "factureDetails" => $elements,
                     "devises" => $devises,
                     "agcDevise" => $agcDevise,
+                    "entrepots" => $entrepots,
                 ]) ;
             }
             else if($facture->getModele()->getReference() == "PSTD")
@@ -1987,7 +2031,7 @@ class FactureController extends AbstractController
                         "message" => "Le numéro existe déjà dans la base"
                     ]) ; 
                 }
-            }
+            } 
             else
             {
                 return new JsonResponse([ 

@@ -243,7 +243,7 @@ class FactureRepository extends ServiceEntityRepository
                 $factDetail = $this->getEntityManager()->getRepository(FactDetails::class)->findOneByEntite([
                     "facture" => $facture,
                     "activite" => "Produit",
-                    "statut" => True
+                    "statut" => True 
                 ]) ;
 
                 if(!is_null($factDetail))

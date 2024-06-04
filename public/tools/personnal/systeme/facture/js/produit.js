@@ -331,7 +331,7 @@ $(document).ready(function(){
         }
 
         fact_total_partiel = fact_total_partiel.toFixed(2) ;
-        fact_mod_prod_qte = fact_mod_prod_qte.toFixed(2) ;
+        fact_mod_prod_qte = fact_mod_prod_qte.toFixed(2) ; 
         fact_valeur_tva = fact_valeur_tva.toFixed(2) ;
         
         var item = `
@@ -413,7 +413,7 @@ $(document).ready(function(){
         $(".elem_facture_produit tr").each(function(){
             var quantiteLigne = $(this).find(".fact_enr_prod_quantite").val() ;
             var prixLigne = $(this).find(".fact_enr_text_prix").val() ;
-            var tvaLigne = $(this).find(".fact_enr_prod_tva_val").val() ; 
+            var tvaLigne = ($(this).find(".fact_enr_prod_tva_val").val()) == "" ? 0 : $(this).find(".fact_enr_prod_tva_val").val() ; 
             var totalLigne = $(this).find(".fact_enr_total_ligne").val() ;
 
             totalHT += parseFloat(totalLigne) ;
