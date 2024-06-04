@@ -1985,7 +1985,7 @@ class FactureController extends AbstractController
                     return new JsonResponse([
                         "type" => "orange",
                         "message" => "Le numéro existe déjà dans la base"
-                    ]) ;
+                    ]) ; 
                 }
             }
             else

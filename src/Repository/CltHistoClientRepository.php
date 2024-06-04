@@ -53,10 +53,10 @@ class CltHistoClientRepository extends ServiceEntityRepository
             $query =  $queryBuilder
                 ->select('cs')
                 ->from(CltSociete::class, 'cs')
-                ->where('cs.telFixe LIKE :telephone')
+                ->where('cs.tel_fixe LIKE :telephone')
                 ->setParameter('telephone', '%' . $params['telephone'] . '%')
                 ->getQuery()
-                ->getOneOrNullResult();
+                ->getOneOrNullResult(); 
         }
         else
         {
