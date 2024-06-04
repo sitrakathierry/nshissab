@@ -1990,7 +1990,7 @@ class FactureController extends AbstractController
             }
             else
             {
-                return new JsonResponse([
+                return new JsonResponse([ 
                     "type" => "orange",
                     "message" => "Le Numéro de Téléphone pour un nouveau client est Obligatoire"
                 ]) ;
