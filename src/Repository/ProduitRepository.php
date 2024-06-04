@@ -102,7 +102,7 @@ class ProduitRepository extends ServiceEntityRepository
                 
             if(is_null($margeType))
             {
-                $this->entityManager->getRepository(PrdVariationPrix::class)->updateVariationPrix([
+                $this->getEntityManager()->getRepository(PrdVariationPrix::class)->updateVariationPrix([
                     "variationPrix" => $variationPrix
                 ]) ;
             }
