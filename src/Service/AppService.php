@@ -1298,21 +1298,54 @@ class AppService extends AbstractController
         $elements = [] ; 
 
         foreach ($stockEntrepots as $stockEntrepot) {
+            $margeType = $stockEntrepot->getVariationPrix()->getMargeType() ;
+                
+            if(is_null($margeType))
+            {
+                $this->entityManager->getRepository(PrdVariationPrix::class)->updateVariationPrix([
+                    "variationPrix" => $stockEntrepot->getVariationPrix()
+                ]) ;
+            }
+
+            $prixAchat = $stockEntrepot->getVariationPrix()->getPrixAchat() ;
+            $charge = $stockEntrepot->getVariationPrix()->getCharge() ;
+            $marge = $stockEntrepot->getVariationPrix()->getMargeValeur() ;
+            $margeCalcul = $stockEntrepot->getVariationPrix()->getMargeType()->getCalcul() ;
+            
+            if($margeCalcul == 1)
+            {
+                $marge = $marge ;
+            }
+            else if($margeCalcul == 100)
+            {
+                $marge = $marge."%" ;
+            }
+            else if($margeCalcul == -1)
+            {
+                $marge = "(Coeff) ". $marge ;
+            }
+
             $element = [] ;
             $element["id"] = $stockEntrepot->getId() ;
             $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
             $element["idC"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getId() ;
             $element["idP"] = $stockEntrepot->getVariationPrix()->getProduit()->getId() ;
-            $element["codeProduit"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
+            $element["idVP"] = $stockEntrepot->getVariationPrix()->getId() ;
             $element["encodedIdVar"] = $this->encodeChiffre($stockEntrepot->getVariationPrix()->getId()) ;
             $element["entrepot"] = $stockEntrepot->getEntrepot()->getNom() ;
             $element["code"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
+            $element["codeProduit"] = $stockEntrepot->getVariationPrix()->getProduit()->getCodeProduit() ;
             $element["indice"] = !empty($stockEntrepot->getVariationPrix()->getIndice()) ? $stockEntrepot->getVariationPrix()->getIndice() : "-" ;
             $element["categorie"] = $stockEntrepot->getVariationPrix()->getProduit()->getPreference()->getCategorie()->getNom() ;
             $element["nom"] = $stockEntrepot->getVariationPrix()->getProduit()->getNom() ;
+            $element["images"] = "-" ;
             $element["nomType"] = is_null($stockEntrepot->getVariationPrix()->getProduit()->getType()) ? "NA" : $stockEntrepot->getVariationPrix()->getProduit()->getType()->getNom() ;
             $element["stock"] = $stockEntrepot->getStock() ;
+            $element["prixAchat"] = $prixAchat ;
+            $element["charge"] = $charge ;
+            $element["marge"] = $marge ;
             $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
+            
             array_push($elements,$element) ;
         }
 

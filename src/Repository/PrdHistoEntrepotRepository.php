@@ -112,6 +112,33 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
             
             foreach ($stockEntrepots as $stockEntrepot) {
                 
+                $margeType = $stockEntrepot->getVariationPrix()->getMargeType() ;
+                
+                if(is_null($margeType))
+                {
+                    $this->getEntityManager()->getRepository(PrdVariationPrix::class)->updateVariationPrix([
+                        "variationPrix" => $stockEntrepot->getVariationPrix()
+                    ]) ;
+                }
+
+                $prixAchat = $stockEntrepot->getVariationPrix()->getPrixAchat() ;
+                $charge = $stockEntrepot->getVariationPrix()->getCharge() ;
+                $marge = $stockEntrepot->getVariationPrix()->getMargeValeur() ;
+                $margeCalcul = $stockEntrepot->getVariationPrix()->getMargeType()->getCalcul() ;
+                
+                if($margeCalcul == 1)
+                {
+                    $marge = $marge ;
+                }
+                else if($margeCalcul == 100)
+                {
+                    $marge = $marge."%" ;
+                }
+                else if($margeCalcul == -1)
+                {
+                    $marge = "(Coeff) ". $marge ;
+                }
+
                 $element = [] ;
                 $element["id"] = $stockEntrepot->getId() ;
                 $element["idE"] = $stockEntrepot->getEntrepot()->getId() ;
@@ -128,6 +155,9 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
                 $element["images"] = "-" ;
                 $element["nomType"] = is_null($stockEntrepot->getVariationPrix()->getProduit()->getType()) ? "NA" : $stockEntrepot->getVariationPrix()->getProduit()->getType()->getNom() ;
                 $element["stock"] = $stockEntrepot->getStock() ;
+                $element["prixAchat"] = $prixAchat ;
+                $element["charge"] = $charge ;
+                $element["marge"] = $marge ;
                 $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
                 
                 array_push($elements,$element) ;

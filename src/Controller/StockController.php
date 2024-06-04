@@ -100,7 +100,7 @@ class StockController extends AbstractController
             "filename" => "stock",
             "titlePage" => "Création Produit",
             "with_foot" => true,
-            "categories" => $preferences,
+            "categories" => $preferences, 
             "entrepots" => $entrepots,
             "fournisseurs" => $fournisseurs,
             "marge_types" => $marge_types,
@@ -1144,11 +1144,10 @@ class StockController extends AbstractController
     #[Route('/stock/inventaire', name: 'stock_inventaire')]
     public function stockInventaire(): Response
     {
-        $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
-            $this->appService->generateStockInEntrepot($filename, $this->agence) ;
-
-        $stockEntrepots = json_decode(file_get_contents($filename)) ;
+        $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+            "agence" => $this->agence,
+            "filename" => $this->filename."stock_entrepot(agence)/".$this->nameAgence,
+        ]) ;
 
         $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
             "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
@@ -1173,7 +1172,7 @@ class StockController extends AbstractController
             "titlePage" => "Inventaire des Produits",
             "with_foot" => false,
             "stockEntrepots" => $stockEntrepots,
-            "entrepots" => $entrepots,
+            "entrepots" => $entrepots, 
             "preferences" => $preferences, 
             "stockGenerales" => $stockGenerales,  
         ]) ; 
@@ -2554,7 +2553,7 @@ class StockController extends AbstractController
             "agence" => $this->agence,
             "idProduit" => $lastProduit->getId(),
             "typeSuivi" => "APPRO",
-        ]) ;
+        ]) ; 
 
         $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
             "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
@@ -3220,16 +3219,37 @@ class StockController extends AbstractController
             "variationPrix" => $variationPrix,
             "statut" => True,
         ]) ;
-            
+        
+        $prixAchat = $variationPrix->getPrixAchat();
+        $charge = $variationPrix->getCharge();
+        $marge = $variationPrix->getMargeValeur();
+        $prixRevient = $prixAchat + $charge;
+        $margeCalcul = $variationPrix->getMargeType()->getCalcul() ;
+        $prixVente = 0 ;
+
+        if($margeCalcul == 1)
+        {
+            $prixVente = $prixRevient + $marge ;
+        }
+        else if($margeCalcul == 100)
+        {
+            $prixVente = $prixRevient + (($prixRevient * $marge) / 100) ;
+        }
+        else if($margeCalcul == -1)
+        {
+            $prixVente = $prixRevient * $marge ;
+        }
+
         $variation = [
             "id" => $variationPrix->getId() ,
             "code" => $variationPrix->getProduit()->getCodeProduit() ,
             "indice" => $variationPrix->getIndice() ,
-            "prixAchat" => $variationPrix->getPrixAchat() ,
-            "charge" => $variationPrix->getCharge() ,
-            "marge" => $variationPrix->getMargeValeur() ,
+            "prixAchat" => $prixAchat ,
+            "charge" => $charge ,
+            "marge" => $marge ,
+            "idMarge" => $variationPrix->getMargeType()->getId() ,
             "margeType" => $variationPrix->getMargeType()->getNotation() ,
-            "prix" => $variationPrix->getPrixVente() ,
+            "prix" => $prixVente,
             "isSolde" => !is_null($solde) ,
             "solde" => is_null($solde) ? "-" : $solde->getSolde() ,
             "soldeType" => is_null($solde) ? "-" : $solde->getType()->getId() ,
@@ -3255,7 +3275,10 @@ class StockController extends AbstractController
             $variation["entrepots"][] = $item ;
         }
 
+        $margeTypes = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
+
         $response = $this->renderView("stock/general/detailsVariation.html.twig",[
+            "margeTypes" => $margeTypes,
             "variation" => $variation,
             "isInEntrepot" => False  
         ]) ;

@@ -1,29 +1,60 @@
-{% set total = 0 %}
-{% set totalGeneral = 0 %}
-{% set totalStock = 0 %}
-{% for stockEntrepot in stockEntrepots %}
-    {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
+<div class="pt-2 table-responsive overflow-auto" style="max-height: 420px;">
+    <table class="table table-sm font-smaller table-bordered mb-0" >
+        <thead class="thead-light">
+            <tr>
+                {# <th>N°</th> #}
+                <th>Entrepôt</th>
+                <th>Code Produit</th>
+                <th>Catégorie</th>
+                <th>Nom Produit</th>
+                <th>Désignation</th>
+                <th>Indice</th>
+                <th>Prix d'Achat</th>
+                <th>Charge</th>
+                <th>Marge</th>
+                <th>Prix de vente</th>
+                <th>Stock</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set total = 0 %}
+            {% set totalGeneral = 0 %}
+            {% set totalStock = 0 %}
+            {# {% set index = 1 %} #}
+            {% for stockEntrepot in stockEntrepots %}
+                {% set total = (stockEntrepot.stock * stockEntrepot.prixVente) %}
+                <tr>
+                    {# <td>{{index}}</td> #}
+                    <td class="align-middle">{{stockEntrepot.entrepot}}</td>
+                    <td class="align-middle">{{stockEntrepot.codeProduit}}</td>
+                    <td class="align-middle">{{stockEntrepot.categorie|upper}}</td>
+                    <td class="align-middle">{{stockEntrepot.nomType}}</td>
+                    <td class="align-middle">{{stockEntrepot.nom}}</td>
+                    <td class="align-middle">{{stockEntrepot.indice}}</td>
+                    <td class="align-middle">{{stockEntrepot.prixAchat}}</td>
+                    <td class="align-middle">{{stockEntrepot.charge}}</td>
+                    <td class="align-middle">{{stockEntrepot.marge}}</td>
+                    <td class="align-middle">{{stockEntrepot.prixVente}}</td>
+                    <td class="align-middle">{{stockEntrepot.stock}}</td>
+                    <td class="align-middle">{{total}}</td>
+                    <td class="text-center align-middle" > 
+                        <button type="button" data-value="{{stockEntrepot.id}}" data-init='<i class="fa fa-square"></i>' data-check='<i class="fa fa-check"></i>' class="btn btn-sm check_export btn-outline-success font-smaller"><i class="fa fa-square"></i></button>
+                    </td>
+                </tr>
+                {% set totalStock = totalStock + stockEntrepot.stock %}
+                {% set totalGeneral = totalGeneral + total %}
+                {# {% set index = index + 1 %} #}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<table class="table table-sm font-smaller table-bordered">
     <tr>
-        <td>{{stockEntrepot.entrepot}}</td>
-        <td>{{stockEntrepot.codeProduit}}</td>
-        <td>{{stockEntrepot.categorie|upper}}</td>
-        <td>{{stockEntrepot.nomType}}</td>
-        <td>{{stockEntrepot.nom}}</td>
-        <td>{{stockEntrepot.indice}}</td>
-        <td>{{stockEntrepot.prixVente}}</td>
-        <td>{{stockEntrepot.stock}}</td>
-        <td>{{total}}</td>
-        <td class="text-center align-middle" > 
-            <button type="button" data-value="{{stockEntrepot.id}}" data-init='<i class="fa fa-square"></i>' data-check='<i class="fa fa-check"></i>' class="btn btn-sm check_export btn-outline-success font-smaller"><i class="fa fa-square"></i></button>
-        </td>
+        <th >Total</th>
+        <th class="bg-primary text-white" style="width: 70px !important;">{{totalStock}}</th>
+        <th class="bg-success text-white" style="width: 70px !important;">{{totalGeneral}}</th>
+        <th class="bg-success text-white" style="width: 50px !important;"></th>
     </tr>
-    
-    {% set totalStock = totalStock + stockEntrepot.stock %}
-    {% set totalGeneral = totalGeneral + total %}
-{% endfor %}
-<tr>
-    <th colspan="7" >Total</th>
-    <th class="bg-primary text-white">{{totalStock}}</th>
-    <th class="bg-success text-white">{{totalGeneral}}</th>
-    <th class="bg-success text-white"></th>
-</tr>
+</table>

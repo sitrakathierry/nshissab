@@ -6,7 +6,7 @@
                     <label for="nom" class="font-weight-bold">Code</label>
                     <input type="text" readonly value="{{variation.code}}" id="nom" class="form-control" placeholder=". . .">
                     <input type="hidden" name="modif_variationId" id="modif_variationId" value="{{variation.id}}" >
-                </div>
+                </div> 
                 <div class="col-md-3">
                     <label for="nom" class="font-weight-bold">Indice</label>
                     <input type="text" readonly value="{{variation.indice}}" id="nom" class="form-control" placeholder=". . .">
@@ -20,24 +20,32 @@
                     <input type="number" step="any" name="modif_inpt_charge" value="{{variation.charge}}" id="modif_inpt_charge" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-3">
-                    <label for="modif_inpt_marge_type" class="font-weight-bold">Marge Type</label>
-                    <input type="text"  name="modif_inpt_marge_type" value="{{variation.margeType|upper}}" id="modif_inpt_marge_type" class="form-control" placeholder=". . .">
+                    <label for="modif_inpt_marge_type" class="font-weight-bold mt-3">Marge Type</label>
+                    <select name="modif_inpt_marge_type[]" class="custom-select" id="modif_inpt_marge_type">
+                        {% for margeType in margeTypes %}
+                            {% if margeType.id == variation.idMarge %}
+                                <option value="{{margeType.id}}" data-calcul="{{margeType.calcul}}" selected>{{margeType.notation|upper}}</option>
+                            {% else %}
+                                <option value="{{margeType.id}}" data-calcul="{{margeType.calcul}}" >{{margeType.notation|upper}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select> 
                 </div>
                 <div class="col-3">
-                    <label for="modif_inpt_marge_valeur" class="font-weight-bold">Marge Valeur</label>
+                    <label for="modif_inpt_marge_valeur" class="font-weight-bold mt-3">Marge Valeur</label>
                     <input type="number" step="any" name="modif_inpt_marge_valeur" value="{{variation.marge}}" id="modif_inpt_marge_valeur" class="form-control" placeholder=". . .">
                 </div>
                 <div class="col-3">
-                    <label for="modif_inpt_prix" class="font-weight-bold">Prix de vente</label>
-                    <input type="number" step="any" name="modif_inpt_prix" value="{{variation.prix}}" id="modif_inpt_prix" class="form-control" placeholder=". . .">
+                    <label for="modif_inpt_prix" class="font-weight-bold mt-3">Prix de vente</label>
+                    <input type="number" step="any" name="modif_inpt_prix" value="{{variation.prix}}" id="modif_inpt_prix" class="form-control" readonly placeholder=". . .">
                 </div>
                 <div class="col-3">
                     <div id="contentBtnSolder">
                     {% if variation.isSolde %}
-                        <label for="nom" class="font-weight-bold">Solde Calculée</label>
+                        <label for="nom" class="font-weight-bold mt-3">Solde Calculée</label>
                         <input type="text" readonly value="{{variation.soldeCalculee}}" id="nom" class="form-control" placeholder=". . .">
                     {% else %}
-                        <label for="nom" class="font-weight-bold">&nbsp;</label>
+                        <label for="nom" class="font-weight-bold mt-3">&nbsp;</label>
                         <button type="button" class="btn btn-sm btn-primary modif_btn_solder btn-block"><i class="fa fa-percent"></i>&nbsp;Solder</button>
                     {% endif %}
                     </div>

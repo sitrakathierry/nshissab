@@ -12,7 +12,7 @@ $(document).ready(function(){
     $("#search_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
     
     $("#prod_categorie").chosen({no_results_text: "Aucun resultat trouvé : "});
-    $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "});
+    $(".crt_entrepot").chosen({no_results_text: "Aucun resultat trouvé : "}); 
     $(".crt_fournisseur").chosen({no_results_text: "Aucun resultat trouvé : "});
 
     // <button type="button" class="btn-outline-warning edit_appro btn btn-sm font-smaller"><i class="fa fa-edit"></i></button> 

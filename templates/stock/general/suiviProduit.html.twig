@@ -9,6 +9,9 @@
                 <th>Type</th>
                 <th>Indice</th>
                 <th>Quantité</th>
+                <th>Prix d'Achat</th>
+                <th>Charge</th>
+                <th>Marge</th>
                 <th>Prix de vente</th>
             </tr>
         </thead>
@@ -23,6 +26,9 @@
                     <td class="align-middle">{{suiviProduit.type|upper}}</td>
                     <td class="align-middle">{{suiviProduit.indiceP}}</td>
                     <td class="align-middle">{{suiviProduit.quantite}}</td>
+                    <td class="align-middle">{{suiviProduit.prixAchat}}</td>
+                    <td class="align-middle">{{suiviProduit.charge}}</td>
+                    <td class="align-middle">{{suiviProduit.marge}}</td>
                     <td class="align-middle">{{suiviProduit.prix}}</td>
                 </tr>
                 {# {% if suiviProduit.indice == "CREDIT" %}
@@ -37,7 +43,7 @@
             <tfoot>
                 <tr> 
                     <th colspan="4">Total</th>
-                    <th colspan="2">{{totalQte}}</th>
+                    <th colspan="5">{{totalQte}}</th>
                 </tr>
             </tfoot>
         </tbody>

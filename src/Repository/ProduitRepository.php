@@ -98,6 +98,33 @@ class ProduitRepository extends ServiceEntityRepository
 
         foreach($variationPrixs as $variationPrix)
         {
+            $margeType = $variationPrix->getMargeType() ;
+                
+            if(is_null($margeType))
+            {
+                $this->entityManager->getRepository(PrdVariationPrix::class)->updateVariationPrix([
+                    "variationPrix" => $variationPrix
+                ]) ;
+            }
+
+            $prixAchat = $variationPrix->getPrixAchat() ;
+            $charge = $variationPrix->getCharge() ;
+            $marge = $variationPrix->getMargeValeur() ;
+            $margeCalcul = $variationPrix->getMargeType()->getCalcul() ;
+            
+            if($margeCalcul == 1)
+            {
+                $marge = $marge ;
+            }
+            else if($margeCalcul == 100)
+            {
+                $marge = $marge."%" ;
+            }
+            else if($margeCalcul == -1)
+            {
+                $marge = "(Coeff) ". $marge ;
+            }
+
             if($params["typeSuivi"] == "VENTE")
             {
                 $caissePaniers = $this->getEntityManager()->getRepository(CaissePanier::class)->findBy([
@@ -122,6 +149,9 @@ class ProduitRepository extends ServiceEntityRepository
                     $item["produit"] = $produit->getNom() ;
                     $item["indiceP"] = $variationPrix->getIndice() ;
                     $item["quantite"] = $caissePanier->getQuantite() ;
+                    $item["prixAchat"] = $prixAchat ;
+                    $item["charge"] = $charge ;
+                    $item["marge"] = $marge ;
                     $item["prix"] = $caissePanier->getPrix() ;
                     $item["total"] = ($caissePanier->getPrix() * $caissePanier->getQuantite()) + $tva ;
                     $item["type"] = "Vente" ;
@@ -152,6 +182,9 @@ class ProduitRepository extends ServiceEntityRepository
                     $item["produit"] = $factureDetail->getDesignation() ;
                     $item["indiceP"] = $variationPrix->getIndice() ;
                     $item["quantite"] = $factureDetail->getQuantite() ;
+                    $item["prixAchat"] = $prixAchat ;
+                    $item["charge"] = $charge ;
+                    $item["marge"] = $marge ;
                     $item["prix"] = $factureDetail->getPrix() ;
                     $item["total"] = ($factureDetail->getPrix() * $factureDetail->getQuantite());
                     $item["type"] = "Vente" ;
@@ -189,6 +222,9 @@ class ProduitRepository extends ServiceEntityRepository
                     $item["produit"] = $produit->getNom() ;
                     $item["indiceP"] = $variationPrix->getIndice() ;
                     $item["quantite"] = $appro->getQuantite() ;
+                    $item["prixAchat"] = $prixAchat ;
+                    $item["charge"] = $charge ;
+                    $item["marge"] = $marge ;
                     $item["prix"] = $prixVente ;
                     $item["total"] = ($prixVente * $appro->getQuantite());
                     $item["type"] = "Approvisionnement" ;
@@ -233,10 +269,13 @@ class ProduitRepository extends ServiceEntityRepository
                     $item["produit"] = $produit->getNom() ;
                     $item["indiceP"] = $variationPrix->getIndice() ;
                     $item["quantite"] = $deductionVariation->getQuantite() ;
+                    $item["prixAchat"] = $prixAchat ;
+                    $item["charge"] = $charge ;
+                    $item["marge"] = $marge ;
                     $item["prix"] = $deductionVariation->getVariationPrix()->getPrixVente() ;
                     $item["total"] = ($deductionVariation->getQuantite() * $deductionVariation->getVariationPrix()->getPrixVente());
                     $item["type"] = "Déduction" ;
-                    $item["indice"] = "CREDIT" ;
+                    $item["indice"] = "CREDIT" ; 
     
                     array_push($listes,$item) ;
                 }

@@ -500,4 +500,54 @@ $(document).ready(function(){
       return false ;
     })
 
+    var dataPrixs = [
+        {
+            selector : "#modif_inpt_prix_achat",
+            action : "keyup"
+        },
+        {
+            selector : "#modif_inpt_charge",
+            action : "keyup"
+        },
+        {
+            selector : "#modif_inpt_marge_type",
+            action : "change"
+        },
+        {
+            selector : "#modif_inpt_marge_valeur",
+            action : "keyup"
+        }
+    ] ;
+
+    dataPrixs.forEach(dataPrix => {
+        $(document).on(dataPrix.action,dataPrix.selector,function(){
+            calculPrixDeVente() ;
+        })
+    });
+
+    function calculPrixDeVente()
+    {
+        var modif_inpt_prix_achat = $("#modif_inpt_prix_achat").val() == "" ? 0 : parseFloat($("#modif_inpt_prix_achat").val()) ;
+        var modif_inpt_charge = $("#modif_inpt_charge").val() == "" ? 0 : parseFloat($("#modif_inpt_charge").val()) ;
+        var modif_inpt_marge_type = $("#modif_inpt_marge_type").find("option:selected") ;
+        var modif_inpt_marge_valeur = $("#modif_inpt_marge_valeur").val() == "" ? 0 : parseFloat($("#modif_inpt_marge_valeur").val()) ;
+        
+        var prixRevient = modif_inpt_prix_achat + modif_inpt_charge ;
+        var prixVente = 0 ;
+        
+        if(modif_inpt_marge_type.data("calcul") == 1)
+        {
+            prixVente = prixRevient + modif_inpt_marge_valeur ;
+        }
+        else if(modif_inpt_marge_type.data("calcul") == 100)
+        {
+            prixVente = prixRevient + ((prixRevient * modif_inpt_marge_valeur) / 100) ;
+        }
+        else if(modif_inpt_marge_type.data("calcul") == -1)
+        {
+            prixVente = prixRevient * modif_inpt_marge_valeur ;
+        }
+        
+        $("#modif_inpt_prix").val(prixVente) ;
+    }
 })

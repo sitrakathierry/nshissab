@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\PrdApprovisionnement;
+use App\Entity\PrdMargeType;
 use App\Entity\PrdVariationPrix;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -46,10 +47,20 @@ class PrdVariationPrixRepository extends ServiceEntityRepository
             "variationPrix" => $params["variationPrix"],
         ],["id" => "ASC"]) ;
 
-        $prixAchat = $approVariation->getPrixAchat() ;
-        $charge = $approVariation->getCharge() ;
-        $montantMarge = $approVariation->getMargeValeur() ;
-        $margeType = $approVariation->getMargeType() ;
+        $prixAchat = 0 ;
+        $charge = 0 ;
+        $montantMarge = 0 ;
+        $margeType = $this->getEntityManager()->getRepository(PrdMargeType::class)->findOneBy([
+            "notation" => "Montant"
+        ]) ;
+
+        if(!is_null($approVariation))
+        {
+            $prixAchat = is_null($approVariation->getPrixAchat()) ? 0 : $approVariation->getPrixAchat();
+            $charge = is_null($approVariation->getCharge()) ? 0 : $approVariation->getCharge();
+            $montantMarge = is_null($approVariation->getMargeValeur()) ? 0 : $approVariation->getMargeValeur();
+            $margeType = is_null($approVariation->getMargeType()) ? $margeType : $approVariation->getMargeType() ;
+        }
 
         $variationPrix = $this->getEntityManager()->getRepository(PrdVariationPrix::class)->find($params["variationPrix"]->getId()) ;
 
