@@ -126,17 +126,25 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
                 $marge = $stockEntrepot->getVariationPrix()->getMargeValeur() ;
                 $margeCalcul = $stockEntrepot->getVariationPrix()->getMargeType()->getCalcul() ;
                 
+                $prixRevient = $prixAchat + $charge ;
+
                 if($margeCalcul == 1)
                 {
                     $marge = $marge ;
+                    $margeVal = $marge ;
+                    $margeRef = "MTN" ;
                 }
                 else if($margeCalcul == 100)
                 {
-                    $marge = $marge."%" ;
+                    $margeVal = ($prixRevient * $marge) / 100 ; 
+                    $marge = $margeVal." (".$marge."%)" ;
+                    $margeRef = "PRCT" ;
                 }
                 else if($margeCalcul == -1)
                 {
                     $marge = "(Coeff) ". $marge ;
+                    $margeVal = $marge ; 
+                    $margeRef = "COEFF" ;
                 }
 
                 $element = [] ;
@@ -158,6 +166,8 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
                 $element["prixAchat"] = $prixAchat ;
                 $element["charge"] = $charge ;
                 $element["marge"] = $marge ;
+                $element["margeVal"] = $margeVal ;
+                $element["margeRef"] = $margeRef ;
                 $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
                 
                 array_push($elements,$element) ;

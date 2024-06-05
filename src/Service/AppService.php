@@ -1298,6 +1298,7 @@ class AppService extends AbstractController
         $elements = [] ; 
 
         foreach ($stockEntrepots as $stockEntrepot) {
+            
             $margeType = $stockEntrepot->getVariationPrix()->getMargeType() ;
                 
             if(is_null($margeType))
@@ -1312,17 +1313,25 @@ class AppService extends AbstractController
             $marge = $stockEntrepot->getVariationPrix()->getMargeValeur() ;
             $margeCalcul = $stockEntrepot->getVariationPrix()->getMargeType()->getCalcul() ;
             
+            $prixRevient = $prixAchat + $charge ;
+
             if($margeCalcul == 1)
             {
                 $marge = $marge ;
+                $margeVal = $marge ;
+                $margeRef = "MTN" ;
             }
             else if($margeCalcul == 100)
             {
-                $marge = $marge."%" ;
+                $margeVal = ($prixRevient * $marge) / 100 ; 
+                $marge = $margeVal." (".$marge."%)" ;
+                $margeRef = "PRCT" ;
             }
             else if($margeCalcul == -1)
             {
                 $marge = "(Coeff) ". $marge ;
+                $margeVal = $marge ; 
+                $margeRef = "COEFF" ;
             }
 
             $element = [] ;
@@ -1344,6 +1353,8 @@ class AppService extends AbstractController
             $element["prixAchat"] = $prixAchat ;
             $element["charge"] = $charge ;
             $element["marge"] = $marge ;
+            $element["margeVal"] = $margeVal ;
+            $element["margeRef"] = $margeRef ;
             $element["prixVente"] = $stockEntrepot->getVariationPrix()->getPrixVente() ;
             
             array_push($elements,$element) ;

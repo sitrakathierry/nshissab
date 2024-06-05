@@ -1175,7 +1175,7 @@ class StockController extends AbstractController
             "entrepots" => $entrepots, 
             "preferences" => $preferences, 
             "stockGenerales" => $stockGenerales,  
-        ]) ; 
+        ]) ;  
     }
     
     #[Route('/stock/entrepot/produit/get', name: 'stock_get_produit_et_entrepot')]
