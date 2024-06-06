@@ -2549,7 +2549,7 @@ class StockController extends AbstractController
 
         $nomProduit = $codeProduit . " | " . strtoupper($nomType) . " | " . strtoupper($nom) . " | STOCK : " . $stock ;
 
-        $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduits([
+        $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduit([
             "agence" => $this->agence,
             "idProduit" => $lastProduit->getId(),
             "typeSuivi" => "APPRO",
@@ -2603,6 +2603,11 @@ class StockController extends AbstractController
         $annee = $request->request->get('annee') ;
         $mois = $request->request->get('mois') ;
 
+        if($typeSuivi == "DEPOT")
+        {
+            
+        }
+
         $search = [
             "idE" => $idE,
             "currentDate" => $currentDate,
@@ -2627,7 +2632,7 @@ class StockController extends AbstractController
         $response = $this->renderView('stock/general/suiviProduit.html.twig',[
             "suiviProduits" => $suiviProduits,
             "nomProduit" => $nomProduit,
-            "formulaire" => "",
+            "formulaire" => $typeSuivi,
         ]) ;
 
         return new Response($response) ;

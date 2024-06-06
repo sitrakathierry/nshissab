@@ -194,58 +194,125 @@ class ProduitRepository extends ServiceEntityRepository
                 }
             }
             
-            if($params["typeSuivi"] == "APPRO")
-            {
-                $appros = $this->getEntityManager()->getRepository(PrdApprovisionnement::class)->findBy([
-                    "variationPrix" => $variationPrix
-                ]) ;
-    
-                foreach($appros as $appro)
-                {
-                    if(!$appro->getHistoEntrepot()->isStatut())
-                        continue ;
-                    
-                    $dateAppro = is_null($appro->getDateAppro()) ? $appro->getCreatedAt() : $appro->getDateAppro() ;
+            $idVariation = $variationPrix->getId() ;
 
-                    $item = [] ;
-                    $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
-                    $item["idProduit"] = $produit->getId() ;
-                    $item["date"] = $dateAppro->format("d/m/Y") ;
-                    $item["currentDate"] = $dateAppro->format('d/m/Y') ;
-                    $item["dateFacture"] = $dateAppro->format('d/m/Y')  ;
-                    $item["dateDebut"] = $dateAppro->format('d/m/Y') ;
-                    $item["dateFin"] = $dateAppro->format('d/m/Y') ;
-                    $item["annee"] = $dateAppro->format('Y') ;
-                    $item["mois"] = $dateAppro->format('m') ;
-                    $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
-                    $item["idE"] = $appro->getHistoEntrepot()->getEntrepot()->getId() ;
-                    $item["produit"] = $produit->getNom() ;
-                    $item["indiceP"] = $variationPrix->getIndice() ;
-                    $item["quantite"] = $appro->getQuantite() ;
-                    $item["prixAchat"] = $prixAchat ;
-                    $item["charge"] = $charge ;
-                    $item["marge"] = $marge ;
-                    $item["prix"] = $prixVente ;
-                    $item["total"] = ($prixVente * $appro->getQuantite());
-                    $item["type"] = "Approvisionnement" ;
-                    $item["indice"] = "DEBIT" ;
-    
-                    if($appro->isIsAuto())
+            if($params["typeSuivi"] == "APPRO" || $params["typeSuivi"] == "DEPOT")
+            {
+                if($params["typeSuivi"] == "DEPOT")
+                {
+                    $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+                    $appros = $queryBuilder
+                        ->select('ap')
+                        ->from(PrdApprovisionnement::class, 'ap')
+                        ->where('ap.description LIKE :description')
+                        ->andWhere('ap.variationPrix = :variationPrix')
+                        ->setParameter('description', '%Dépôt-Dépôt%')
+                        ->setParameter('variationPrix',$idVariation)
+                        ->getQuery()
+                        ->getResult() ;
+                        
+                    foreach ($appros as $appro) {
+                        if(!$appro->getHistoEntrepot()->isStatut())
+                            continue ;
+
+                        $dateAppro = is_null($appro->getDateAppro()) ? $appro->getCreatedAt() : $appro->getDateAppro() ;
+                        $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
+
+                        $entrpSource = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+                        $idEntSource = $appro->getHistoEntrepot()->getEntrepot()->getId() ;
+                        $entrpDest = "-" ;
+                        $idEntrpDest = "-" ;
+                        
+
+                        $deduction = $this->getEntityManager()->getRepository(PrdDeduction::class)->getAssocDepotInDeduction([
+                            "variationPrix" => $idVariation
+                        ]) ;
+
+                        if(!is_null($deduction))
+                        {
+                            $entrpDest = $deduction->getHistoEntrepot()->getEntrepot()->getNom() ;
+                            $idEntrpDest = $deduction->getHistoEntrepot()->getEntrepot()->getId() ;
+                        }
+
+                        $listes[] = [
+                            "idProduit" => $produit->getId(),
+                            "date" => $dateAppro->format("d/m/Y"),
+                            "currentDate" => $dateAppro->format('d/m/Y') ,
+                            "dateFacture" => $dateAppro->format('d/m/Y') ,
+                            "dateDebut" => $dateAppro->format('d/m/Y') ,
+                            "dateFin" => $dateAppro->format('d/m/Y') ,
+                            "annee" => $dateAppro->format('Y') ,
+                            "mois" => $dateAppro->format('m') ,
+                            "quantite" => $appro->getQuantite() ,
+                            "prixAchat" => $prixAchat ,
+                            "charge" => $charge ,
+                            "marge" => $marge ,
+                            "prix" => $prixVente ,
+                            "entrpSource" => $entrpSource ,
+                            "idEntSource" => $idEntSource ,
+                            "idE" => $idEntSource ,
+                            "entrpDest" => $entrpDest ,
+                            "idEntrpDest" => $idEntrpDest ,
+                            "produit" => $produit->getNom() ,
+                            "indiceP" => $variationPrix->getIndice() ,
+                            "type" => "Dépôt-Dépôt",
+                        ] ;
+                    }
+                }
+                else
+                {
+                    $appros = $this->getEntityManager()->getRepository(PrdApprovisionnement::class)->findBy([
+                        "variationPrix" => $variationPrix
+                    ]) ;
+        
+                    foreach($appros as $appro)
                     {
-                        $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
-                        $appro->setIsAuto(False) ;
-                        $this->getEntityManager()->flush() ;
+                        if(!$appro->getHistoEntrepot()->isStatut())
+                            continue ;
+                        
+                        $dateAppro = is_null($appro->getDateAppro()) ? $appro->getCreatedAt() : $appro->getDateAppro() ;
+    
+                        $item = [] ;
+                        $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
+                        $item["idProduit"] = $produit->getId() ;
+                        $item["date"] = $dateAppro->format("d/m/Y") ;
+                        $item["currentDate"] = $dateAppro->format('d/m/Y') ;
+                        $item["dateFacture"] = $dateAppro->format('d/m/Y')  ;
+                        $item["dateDebut"] = $dateAppro->format('d/m/Y') ;
+                        $item["dateFin"] = $dateAppro->format('d/m/Y') ;
+                        $item["annee"] = $dateAppro->format('Y') ;
+                        $item["mois"] = $dateAppro->format('m') ;
+                        $item["entrepot"] = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+                        $item["idE"] = $appro->getHistoEntrepot()->getEntrepot()->getId() ;
+                        $item["produit"] = $produit->getNom() ;
+                        $item["indiceP"] = $variationPrix->getIndice() ;
+                        $item["quantite"] = $appro->getQuantite() ;
+                        $item["prixAchat"] = $prixAchat ;
+                        $item["charge"] = $charge ;
+                        $item["marge"] = $marge ;
+                        $item["prix"] = $prixVente ;
+                        $item["total"] = ($prixVente * $appro->getQuantite());
+                        $item["type"] = "Approvisionnement" ;
+                        $item["indice"] = "DEBIT" ;
+        
+                        if($appro->isIsAuto())
+                        {
+                            $appro->getVariationPrix()->getProduit()->setToUpdate(True) ;
+                            $appro->setIsAuto(False) ;
+                            $this->getEntityManager()->flush() ;
+                        }
+        
+                        array_push($listes,$item) ; 
                     }
     
-                    array_push($listes,$item) ; 
+                    $savDetails = $this->getEntityManager()->getRepository(SavDetails::class)->getHistoVariationSav(
+                    [
+                        "variationPrix" => $variationPrix->getId(),
+                    ]) ;
+        
+                    $listes = array_merge($listes,$savDetails) ;
                 }
-
-                $savDetails = $this->getEntityManager()->getRepository(SavDetails::class)->getHistoVariationSav(
-                [
-                    "variationPrix" => $variationPrix->getId(),
-                ]) ;
-    
-                $listes = array_merge($listes,$savDetails) ;
             }
 
             if($params["typeSuivi"] == "DEDUIT")

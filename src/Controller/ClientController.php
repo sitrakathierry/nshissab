@@ -116,7 +116,7 @@ class ClientController extends AbstractController
         $clt_type = $request->request->get("clt_type") ;
         
         $clt_identity = $request->request->get("clt_identity") ;
-        
+
         $result = $this->appService->verificationElement([
             $clt_type
         ], [
@@ -125,7 +125,7 @@ class ClientController extends AbstractController
 
         if(!$result["allow"])
             return new JsonResponse($result) ;
-    
+
         $type = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
 
         if(!isset($clt_identity))

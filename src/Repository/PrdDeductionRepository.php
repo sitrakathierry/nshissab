@@ -86,6 +86,21 @@ class PrdDeductionRepository extends ServiceEntityRepository
 
         return json_decode(file_get_contents($params["filename"])) ;
     }
+
+    public function getAssocDepotInDeduction($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        return $queryBuilder
+                ->select('pd')
+                ->from(PrdDeduction::class, 'pd')
+                ->where('pd.cause LIKE :cause')
+                ->andWhere('pd.variationPrix = :variation_prix')
+                ->setParameter('cause','%Déduction sur Dépôt Dépot%')
+                ->setParameter('variation_prix',$params["variationPrix"])
+                ->getQuery()
+                ->getOneOrNullResult() ;
+    }
 //    /**
 //     * @return PrdDeduction[] Returns an array of PrdDeduction objects
 //     */
