@@ -123,7 +123,7 @@ class AgendaController extends AbstractController
             "with_foot" => false,
             "calendarFile" => $filename,
             "mois" => $mois 
-        ]);
+        ]); 
     }
 
     #[Route('/agenda/activite/save', name: 'agd_activites_save')] 

@@ -2,8 +2,16 @@
     {% for agenda in agendas %}
         {% set icone = agenda.type.reference == "EVT" ? "fa-star" : "fa-clock" %}
         {% set caption = agenda.type.reference == "EVT" ? "Evènement" : "Rendez-vous" %}
-        <div class="border rounded py-2 px-3 m-2 bg-outline-purple d-flex flex-row align-items-center">
-            <i class="fa {{icone}}"></i><span class="ml-3 lh-2"><b>{{caption}}</b> - {{agenda.type.designation}} : <b>{{agenda.clientNom|upper}}</b> - {{agenda.type.objet}} : <b>{{ agenda.objet is not empty ? agenda.objet|upper : "AUCUN"}}</b> - Lieu : <b>{{agenda.lieu}}</b> à {{agenda.heure}} &emsp;<a href="{{path('agd_detail_agenda',{'id':agenda.id})}}" class="btn btn-sm ml-auto btn-info px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        <div class="border rounded p-2 w-100  bg-outline-purple d-flex flex-row align-items-center">
+            <i class="fa {{icone}}"></i>
+            <span class="ml-3"><b>{{caption}}</b> 
+            - {{agenda.type.designation}} : <b>{{agenda.clientNom|upper}}</b> 
+            - {{agenda.type.objet}} : <b>{{ agenda.objet is not empty ? agenda.objet|upper : "AUCUN"}}</b> 
+            - Lieu : <b>{{agenda.lieu}}</b> 
+            à {{agenda.heure}}
+            </span>
+            <a href="{{path('agd_detail_agenda',{'id':agenda.id})}}" class="btn btn-sm ml-auto btn-info px-3">
+            <i class="fa fa-info-circle"></i></a>
         </div>
     {% endfor %}
 {% endif %}
@@ -11,29 +19,45 @@
     {% for listEcheance in listEcheances %}
         {% set statut = listEcheance.statut == "ECR" ? "bg-outline-info" : (listEcheance.statut == "WRN" ? "bg-outline-danger" : "bg-outline-dark" ) %}
         {% set message = listEcheance.statut == "ECR" ? "Paiement partie" : (listEcheance.statut == "WRN" ? "(Alerte) Paiement en retard" : "Paiement effectué" ) %}
-        <div class="border rounded py-2 px-3 m-2 {{statut}} d-flex flex-row align-items-center">
-            <i class="fa fa-percent"></i><span class="ml-3 lh-2"><b>{{"Crédit"|upper}}</b> - <b>{{message}}</b> - Facture N° : <b>{{listEcheance.numFact}}</b> - Client : <b>{{listEcheance.client|upper}}</b> - Montant : <b>{{listEcheance.montant}}</b> &emsp;<a href="{{path('crd_details_credit',{'id':listEcheance.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        <div class="border rounded p-2 w-100 {{statut}} d-flex flex-row align-items-center">
+            <i class="fa fa-percent"></i>
+            <span class="ml-3"><b>{{"Crédit"|upper}}</b> 
+            - <b>{{message}}</b> - Facture N° : <b>{{listEcheance.numFact}}</b> 
+            - Client : <b>{{listEcheance.client|upper}}</b> - Montant : <b>{{listEcheance.montant}}</b>
+            </span>
+            <a href="{{path('crd_details_credit',{'id':listEcheance.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i></a>
         </div>
     {% endfor %}
 {% endif %}
 {% if acompteArray is not empty %}
     {% for agendaAcompte in acompteArray %}
         {% set statutAC = agendaAcompte.statut == "ECR" ? "bg-outline-info" : (agendaAcompte.statut == "WRN" ? "bg-outline-danger" : "bg-outline-dark" ) %}
-        <div class="border rounded py-2 px-3 m-2 {{statutAC}} d-flex flex-row align-items-center">
-            <i class="fa fa-layer-group"></i><span class="ml-3 lh-2"><b>{{"Acompte"|upper}}</b> - Objet : <b>{{agendaAcompte.objet}}</b> - Facture N° : <b>{{agendaAcompte.numFact}}</b> - Client : <b>{{agendaAcompte.client|upper}}</b> &emsp;<a href="{{path('crd_details_credit',{'id':agendaAcompte.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        <div class="border rounded py-2 w-100 {{statutAC}} d-flex flex-row align-items-center">
+            <i class="fa fa-layer-group"></i>
+            <span class="ml-3"><b>{{"Acompte"|upper}}</b> 
+            - Objet : <b>{{agendaAcompte.objet}}</b> 
+            - Facture N° : <b>{{agendaAcompte.numFact}}</b> 
+            - Client : <b>{{agendaAcompte.client|upper}}</b>
+            </span>
+            <a href="{{path('crd_details_credit',{'id':agendaAcompte.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i></a>
         </div>
     {% endfor %}
 {% endif %}
 {% if livraisonArray is not empty %}
     {% for agendaLivraison in livraisonArray %}
         {% set statutLVR = agendaLivraison.statut == "ECR" ? "bg-outline-info" : "bg-outline-dark"  %}
-        <div class="border rounded py-2 px-3 m-2 {{statutLVR}} d-flex flex-row align-items-center">
-            <i class="fa fa-truck"></i><span class="ml-3 lh-2"><b>{{"Livraison"|upper}}</b> - Objet : <b>{{agendaLivraison.objet}}</b> - Bon deLivraison N° : <b>{{agendaLivraison.numLvr}}</b> - Client : <b>{{agendaLivraison.client|upper}}</b> &emsp;<a href="{{path('lvr_details_bon_livraison',{'id':agendaLivraison.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i>&nbsp;Détails</a></span>
+        <div class="border rounded p-2 w-100 {{statutLVR}} d-flex flex-row align-items-center">
+            <i class="fa fa-truck"></i><span class="ml-3 lh-2"><b>{{"Livraison"|upper}}</b> 
+            - Objet : <b>{{agendaLivraison.objet}}</b> 
+            - Bon deLivraison N° : <b>{{agendaLivraison.numLvr}}</b> 
+            - Client : <b>{{agendaLivraison.client|upper}}</b> 
+            </span>
+            <a href="{{path('lvr_details_bon_livraison',{'id':agendaLivraison.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i></a>
         </div>
     {% endfor %}
 {% endif %}
 {% if agendas is empty and listEcheances is empty and acompteArray is empty and livraisonArray is empty %}
-    <div class="border rounded p-2 m-2 bg-outline-warning d-flex flex-row align-items-center">
+    <div class="border rounded p-2 w-100 bg-outline-warning d-flex flex-row align-items-center">
         <b>Aucune information à signaler</b></span>
     </div>
 {% endif %}

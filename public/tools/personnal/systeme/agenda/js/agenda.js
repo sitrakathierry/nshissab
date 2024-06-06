@@ -154,19 +154,28 @@ $(document).ready(function(){
             contentType: false,
             success: function(resp){   
               realinstance.close()
-              $.confirm({
-                columnClass: 'agdDisplayDate',
-                title: '<h5 class="text-black font-weight-bold text-center text-uppercase" >'+captionDate+'</h5>',
-                content:resp,
-                type:"black",
-                theme:"modern",
-                buttons:{
-                  btn1:{
-                      text: 'Fermer',
-                      action: function(){}
-                  }
-                }
-              })
+              $(".content_date_agenda").html(`
+                <div class="barre_dashed py-3">
+                  <h5 class="text-black font-weight-bold text-center text-uppercase" >`+captionDate+`</h5>
+                  <div class="container-fluid limit_tbody overflow-auto">
+                    `+resp+`
+                  </div>
+                  </div>
+                <div class="barre_dashed mb-4"></div>
+              `) ;
+              // $.confirm({
+              //   columnClass: 'agdDisplayDate',
+              //   title: '<h5 class="text-black font-weight-bold text-center text-uppercase" >'+captionDate+'</h5>',
+              //   content:resp,
+              //   type:"black",
+              //   theme:"modern",
+              //   buttons:{
+              //     btn1:{
+              //         text: 'Fermer',
+              //         action: function(){}
+              //     }
+              //   }
+              // })
             },
             error: function(resp){
                 realinstance.close()
