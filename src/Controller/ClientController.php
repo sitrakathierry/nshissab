@@ -114,7 +114,9 @@ class ClientController extends AbstractController
     public function clientSaveInformation(Request $request)
     {
         $clt_type = $request->request->get("clt_type") ;
-
+        
+        $clt_identity = $request->request->get("clt_identity") ;
+        
         $result = $this->appService->verificationElement([
             $clt_type
         ], [
@@ -126,28 +128,30 @@ class ClientController extends AbstractController
     
         $type = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
 
-        if ($type->getReference() == "MORAL") {
-            $cltTelephone = $request->request->get("clt_soc_telephone") ;
-        }
-        else
+        if(!isset($clt_identity))
         {
-            $cltTelephone = $request->request->get("clt_client_telephone") ;
-        }
-
-        $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
-            "typeClient" => $type->getReference(),
-            "telephone" => $cltTelephone
-        ]) ;
-            
-        if($isPhoneExist)
-        {
-            return new JsonResponse([
-                "type" => "orange",
-                "message" => "Le numéro existe déjà dans la base"
+            if ($type->getReference() == "MORAL") {
+                $cltTelephone = $request->request->get("clt_soc_telephone") ;
+            }
+            else
+            {
+                $cltTelephone = $request->request->get("clt_client_telephone") ;
+            }
+    
+            $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
+                "typeClient" => $type->getReference(),
+                "telephone" => $cltTelephone
             ]) ;
+                
+            if($isPhoneExist)
+            {
+                return new JsonResponse([
+                    "type" => "orange",
+                    "message" => "Le numéro existe déjà dans la base"
+                ]) ;
+            }
         }
 
-        $clt_identity = $request->request->get("clt_identity") ;
 
         if($type->getReference() == "MORAL")
         {
@@ -203,7 +207,9 @@ class ClientController extends AbstractController
             $societe->setDomaine($clt_soc_domaine) ;
             $societe->setNumRegistre($clt_soc_num_registre) ;
 
+            if(!isset($clt_identity))
             $this->entityManager->persist($societe) ;
+
             $this->entityManager->flush() ;
 
             if(!empty($clt_lien_nom))
@@ -485,5 +491,4 @@ class ClientController extends AbstractController
         ]) ;
     }
 
-    
 }
