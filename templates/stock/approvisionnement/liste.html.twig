@@ -92,13 +92,6 @@
                                 <td class="align-middle">{{suiviProduit.marge}}</td>
                                 <td class="align-middle">{{suiviProduit.prix}}</td>
                             </tr>
-                            {# {% if suiviProduit.indice == "CREDIT" %}
-                                {% set totalCredit = totalCredit + suiviProduit.quantite %}
-                                {% set totalQte = totalQte - suiviProduit.quantite %}
-                            {% else %}
-                                {% set totalDebit = totalDebit + suiviProduit.quantite %}
-                                {% set totalQte = totalQte + suiviProduit.quantite %}
-                            {% endif %} #}
                             {% set totalQte = totalQte + suiviProduit.quantite %}
                         {% endfor %}
                         <tfoot>

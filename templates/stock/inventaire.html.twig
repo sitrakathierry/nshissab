@@ -69,6 +69,7 @@
                                 <th class="text-right">Marge</th>
                                 <th class="text-right">Prix Vente</th>
                                 <th class="text-right">Stock</th>
+                                <th class="text-right">Total Achat</th>
                                 <th class="text-right">Total Charge</th>
                                 <th class="text-right">Total Marge</th>
                                 <th class="text-right">Total</th>
@@ -79,11 +80,13 @@
                             {% set total = 0 %}
                             {% set totalGeneral = 0 %}
                             {% set totalStock = 0 %}
+                            {% set totalAchat = 0 %}
                             {% set totalCharge = 0 %}
                             {% set totalMarge = 0 %}
                             {# {% set index = 1 %} #}
                             {% for stockEntrepot in stockEntrepots %}
                                 {% set total = stockEntrepot.prixVente * stockEntrepot.stock %}
+                                {% set prixAchatT = stockEntrepot.prixAchat * stockEntrepot.stock %} 
                                 {% set chargeT = stockEntrepot.charge * stockEntrepot.stock %} 
                                 {% set prixRevient = stockEntrepot.charge + stockEntrepot.prixAchat %} 
                                 {% if stockEntrepot.margeRef != "COEFF" %}
@@ -104,13 +107,15 @@
                                     <td class="align-middle text-right">{{stockEntrepot.marge}}</td>
                                     <td class="align-middle text-right">{{stockEntrepot.prixVente|format_number}}</td>
                                     <td class="align-middle text-right">{{stockEntrepot.stock|format_number}}</td>
-                                    <td class="align-middle text-right" style="width: 100px !important;">{{chargeT|format_number}}</td>
-                                    <td class="align-middle text-right" style="width: 100px !important;">{{margeT|format_number}}</td>
-                                    <td class="align-middle text-right" style="width: 100px !important;">{{total|format_number}}</td>
+                                    <td class="align-middle text-right" style="width: 120px !important;">{{prixAchatT|format_number}}</td>
+                                    <td class="align-middle text-right" style="width: 120px !important;">{{chargeT|format_number}}</td>
+                                    <td class="align-middle text-right" style="width: 120px !important;">{{margeT|format_number}}</td>
+                                    <td class="align-middle text-right" style="width: 120px !important;">{{total|format_number}}</td>
                                     <td class="text-center align-middle" > 
                                         <button type="button" data-value="{{stockEntrepot.id}}" data-init='<i class="fa fa-square"></i>' data-check='<i class="fa fa-check"></i>' class="btn btn-sm check_export btn-outline-success font-smaller"><i class="fa fa-square"></i></button>
                                     </td>
                                 </tr>
+                                {% set totalAchat = totalAchat + prixAchatT %}
                                 {% set totalCharge = totalCharge + chargeT %}
                                 {% set totalMarge = totalMarge + margeT %}
                                 {% set totalStock = totalStock + stockEntrepot.stock %}
@@ -121,6 +126,11 @@
                     </table>
                 </div>
                 <table class="table table-sm font-smaller table-bordered">
+                    <tr>
+                        <th >Total Achat</th>
+                        <th class="bg-warning text-white text-right" style="width: 120px !important;">{{totalAchat|format_number}}</th>
+                        <th class="bg-warning text-white text-right" style="width: 55px !important;"></th>
+                    </tr>
                     <tr>
                         <th >Total Charge</th>
                         <th class="bg-dark text-white text-right" style="width: 120px !important;">{{totalCharge|format_number}}</th>
