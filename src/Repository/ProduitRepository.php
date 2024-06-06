@@ -193,7 +193,7 @@ class ProduitRepository extends ServiceEntityRepository
                     array_push($listes,$item) ;
                 }
             }
-
+            
             if($params["typeSuivi"] == "APPRO")
             {
                 $appros = $this->getEntityManager()->getRepository(PrdApprovisionnement::class)->findBy([

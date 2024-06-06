@@ -142,8 +142,8 @@ class PrdHistoEntrepotRepository extends ServiceEntityRepository
                 }
                 else if($margeCalcul == -1)
                 {
-                    $marge = "(Coeff) ". $marge ;
                     $margeVal = $marge ; 
+                    $marge = "(Coeff) ". $marge ;
                     $margeRef = "COEFF" ;
                 }
 

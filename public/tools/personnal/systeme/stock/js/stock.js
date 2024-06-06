@@ -1457,7 +1457,7 @@ $(document).ready(function(){
         var formData = new FormData() ;
         for (let j = 0; j < elemSearchSuivi.length; j++) {
             const search = elemSearchSuivi[j];
-            formData.append(search.name,$(search.selector).val());
+            formData.append(search.name,$(search.selector).val()); 
         }
         formData.append("typeSuivi",$(".search_btn_suivi_type.btn-primary").data("value"));
         $.ajax({

@@ -2518,7 +2518,7 @@ class StockController extends AbstractController
     }
 
     #[Route('/stock/approvisionnement/liste', name: 'stock_appr_liste')]
-    public function stockApprListe(): Response
+    public function stockApprListe(): Response 
     {
         // $appros = $this->entityManager->getRepository(PrdApprovisionnement::class)->generatePrdListeApprovisionnement([
         //     "agence" => $this->agence,
@@ -2549,7 +2549,7 @@ class StockController extends AbstractController
 
         $nomProduit = $codeProduit . " | " . strtoupper($nomType) . " | " . strtoupper($nom) . " | STOCK : " . $stock ;
 
-        $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduit([
+        $suiviProduits = $this->entityManager->getRepository(Produit::class)->generateSuiviProduits([
             "agence" => $this->agence,
             "idProduit" => $lastProduit->getId(),
             "typeSuivi" => "APPRO",
@@ -2558,7 +2558,7 @@ class StockController extends AbstractController
         $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
             "filename" => $this->filename."entrepot(agence)/".$this->nameAgence ,
             "agence" => $this->agence
-        ]) ;
+        ]) ; 
 
         return $this->render('stock/approvisionnement/liste.html.twig', [
             "filename" => "stock",
@@ -2627,6 +2627,7 @@ class StockController extends AbstractController
         $response = $this->renderView('stock/general/suiviProduit.html.twig',[
             "suiviProduits" => $suiviProduits,
             "nomProduit" => $nomProduit,
+            "formulaire" => "",
         ]) ;
 
         return new Response($response) ;
@@ -3519,7 +3520,7 @@ class StockController extends AbstractController
     {
         $stock_id_histo_ent = (array)$request->request->get("stock_id_histo_ent") ;
 
-        $entete = ["ENTREPOT","CODE PRODUIT","CATEGORIE","NOM PRODUIT","DESIGNATION","INDICE","PRIX VENTE","STOCK","TOTAL"] ;
+        $entete = ["ENTREPOT","CODE PRODUIT","CATEGORIE","NOM PRODUIT","DESIGNATION","INDICE","PRIX ACHAT","CHARGE","MARGE","PRIX VENTE","STOCK","TOTAL CHARGE","TOTAL MARGE","TOTAL"] ;
 
         $filename = $this->filename."stock_entrepot(agence)/".$this->nameAgence ;
 
@@ -3531,6 +3532,8 @@ class StockController extends AbstractController
         $params = [] ;
         $tabEntrepots = [] ;
         $total = 0 ;
+        $totalCharge = 0 ;
+        $totalMarge = 0 ;
         foreach($stock_id_histo_ent as $histoEnt)
         {
             $search = [
@@ -3538,6 +3541,28 @@ class StockController extends AbstractController
             ] ;
 
             $tabEntrepots = array_values($this->appService->searchData($stockEntrepots,$search) );
+             
+            $prixAchat = $tabEntrepots[0]->prixAchat ;
+            $charge = $tabEntrepots[0]->charge;
+            $marge = $tabEntrepots[0]->marge ;
+            
+            $prixRevient = $prixAchat + $charge ;
+
+            if($tabEntrepots[0]->margeRef == "MTN")
+            {
+                $margeVal = $marge ;
+            }
+            else if($tabEntrepots[0]->margeRef == "PRCT")
+            {
+                $margeVal = ($prixRevient * $marge) / 100 ; 
+            }
+            else if($tabEntrepots[0]->margeRef == "COEFF")
+            {
+                $margeVal = $tabEntrepots[0]->prixVente / $prixRevient ; 
+            }
+
+            $chargeT = $charge * $tabEntrepots[0]->stock ;
+            $margeT = $margeVal * $tabEntrepots[0]->stock ;
 
             $item = [
                 $tabEntrepots[0]->entrepot,
@@ -3546,17 +3571,26 @@ class StockController extends AbstractController
                 $tabEntrepots[0]->nomType,
                 $tabEntrepots[0]->nom,
                 $tabEntrepots[0]->indice,
+                $tabEntrepots[0]->prixAchat,
+                $tabEntrepots[0]->charge,
+                $tabEntrepots[0]->marge,
                 $tabEntrepots[0]->prixVente,
                 $tabEntrepots[0]->stock,
+                $chargeT,
+                $margeT,
                 $tabEntrepots[0]->prixVente * $tabEntrepots[0]->stock,
             ] ;
-
+            $totalCharge = $totalCharge + $chargeT ;
+            $totalMarge = $totalMarge + $margeT ;
             $total = $total + ($tabEntrepots[0]->prixVente * $tabEntrepots[0]->stock) ;
 
             array_push($params,$item) ;
         }
 
-        array_push($params,["","","","","","TOTAL","","",$total]) ;
+        array_push($params,["","","","","","","","",""]) ;
+        array_push($params,["","","","","","","","","","","","","TOTAL CHARGE",$totalCharge]) ;
+        array_push($params,["","","","","","","","","","","","","TOTAL MARGE",$totalMarge]) ;
+        array_push($params,["","","","","","","","","","","","","TOTAL",$total]) ;
 
         $excelgenerate->generateFileExcel($entete,$params,'INVENTAIRE_PRODUIT.xlsx',"stock_inventaire") ;
     }
