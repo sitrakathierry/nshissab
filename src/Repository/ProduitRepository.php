@@ -219,10 +219,10 @@ class ProduitRepository extends ServiceEntityRepository
                         $dateAppro = is_null($appro->getDateAppro()) ? $appro->getCreatedAt() : $appro->getDateAppro() ;
                         $prixVente = is_null($appro->getPrixVente()) ? $variationPrix->getPrixVente() : $appro->getPrixVente() ;
 
-                        $entrpSource = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
-                        $idEntSource = $appro->getHistoEntrepot()->getEntrepot()->getId() ;
-                        $entrpDest = "-" ;
-                        $idEntrpDest = "-" ;
+                        $entrpDest = $appro->getHistoEntrepot()->getEntrepot()->getNom() ;
+                        $idEntrpDest = $appro->getHistoEntrepot()->getEntrepot()->getId() ;
+                        $entrpSource = "-" ;
+                        $idEntSource = "-" ;
                         
 
                         $deduction = $this->getEntityManager()->getRepository(PrdDeduction::class)->getAssocDepotInDeduction([
@@ -231,8 +231,8 @@ class ProduitRepository extends ServiceEntityRepository
 
                         if(!is_null($deduction))
                         {
-                            $entrpDest = $deduction->getHistoEntrepot()->getEntrepot()->getNom() ;
-                            $idEntrpDest = $deduction->getHistoEntrepot()->getEntrepot()->getId() ;
+                            $entrpSource = $deduction->getHistoEntrepot()->getEntrepot()->getNom() ;
+                            $idEntSource = $deduction->getHistoEntrepot()->getEntrepot()->getId() ;
                         }
 
                         $listes[] = [
