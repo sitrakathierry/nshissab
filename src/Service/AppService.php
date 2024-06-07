@@ -2087,10 +2087,16 @@ class AppService extends AbstractController
             }
             $element["markup"] = $markup ;
 
-            $elemAgendas = [] ;
-
+            if(!isset($elemAgendas[$element["date"]][$element["typeAgenda"]]))
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["markup"] = "<span class=\"badge bg-success my-1 font-smaller p-1 text-white\"><i class=\"fa $icone\"></i></span>" ; 
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] = 1 ;
+            }
+            else
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] += 1 ;
+            }
             array_push($elements,$element) ;
-
         }
 
         // AGENDA FINANCIERE : CREDIT
@@ -2134,6 +2140,16 @@ class AppService extends AbstractController
                 $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-percent\"></i></span>" ;
             }
             $element["markup"] = $markup ;
+
+            if(!isset($elemAgendas[$element["date"]][$element["typeAgenda"]]))
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["markup"] = "<span class=\"badge bg-success my-1 font-smaller p-1 text-white\"><i class=\"fa fa-percent\"></i></span>" ; 
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] = 1 ;
+            }
+            else
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] += 1 ;
+            }
             array_push($elements,$element) ;
         }
 
@@ -2171,6 +2187,17 @@ class AppService extends AbstractController
                 $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-layer-group\"></i></span>" ;
             }
             $element["markup"] = $markup ;
+
+            if(!isset($elemAgendas[$element["date"]][$element["typeAgenda"]]))
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["markup"] = "<span class=\"badge bg-success my-1 font-smaller p-1 text-white\"><i class=\"fa fa-layer-group\"></i></span>" ; 
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] = 1 ;
+            }
+            else
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] += 1 ;
+            }
+
             array_push($elements,$element) ;
         }
 
@@ -2204,9 +2231,18 @@ class AppService extends AbstractController
                 $markup = "<span class=\"badge bg-dark m-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ;
             }
             $element["markup"] = $markup ;
+
+            if(!isset($elemAgendas[$element["date"]][$element["typeAgenda"]]))
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["markup"] = "<span class=\"badge bg-success my-1 font-smaller p-1 text-white\"><i class=\"fa fa-truck\"></i></span>" ; 
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] = 1 ;
+            }
+            else
+            {
+                $elemAgendas[$element["date"]][$element["typeAgenda"]]["nbLigne"] += 1 ;
+            }
+
             array_push($elements,$element) ;
-
-
         }
 
         // FIN BON DE LIVRAISON
@@ -2214,37 +2250,63 @@ class AppService extends AbstractController
         file_put_contents($fileSearch,json_encode($elements)) ;
 
         $items = $elements ;
+        $agendaResult = [] ;
 
-        // Group the markup by date using array_reduce
-        $mergedMarkup = array_reduce($items, function ($result, $item) {
-            $date = $item['date'];
-            $markup = $item['markup'];
-
-            if (isset($result[$date])) {
-                if($result[$date]["typeAgenda"])
-                {
-
-                }
-                $result[$date]['markup'] .= $markup;
-            } else {
-                $result[$date] = $item;
+        foreach($elemAgendas as $key => $value)
+        {
+            $itemAgenda = '' ;
+            $value = array_values($value) ;
+            for($i=0;$i<count($value);$i++)
+            {
+                $itemAgenda .= "<div class=\"d-flex w-100 flex-column mx-1 align-items-center justify-content-center\">
+                                    ".$value[$i]["markup"]."
+                                    (".$value[$i]["nbLigne"].")
+                                </div>";
             }
 
-            return $result;
-        }, []);
+            $margedMarkup = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+                                <b>[day]</b>
+                                <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
+                                    ".$itemAgenda."
+                                </div>
+                            </div>" ;
 
-        $agendaResult = [] ;
-        foreach ($mergedMarkup as $mark) {
-            $newMarkUp = [] ;
-            $newMarkUp['date'] = $mark['date'] ;
-            $newMarkUp['markup'] = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
-                <b>[day]</b>
-                <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
-                    ".$mark['markup']."
-                </div>
-            </div>" ;
-            array_push($agendaResult,$newMarkUp) ;
-        }  
+            $agendaResult[] = [
+                "date" => $key,
+                "markup" => $margedMarkup
+            ] ;
+        }
+
+        // Group the markup by date using array_reduce
+        // $mergedMarkup = array_reduce($items, function ($result, $item) {
+        //     $date = $item['date'];
+        //     $markup = $item['markup'];
+
+        //     if (isset($result[$date])) {
+        //         if($result[$date]["typeAgenda"])
+        //         {
+
+        //         }
+        //         $result[$date]['markup'] .= $markup;
+        //     } else {
+        //         $result[$date] = $item;
+        //     }
+
+        //     return $result;
+        // }, []);
+
+        // $agendaResult = [] ;
+        // foreach ($mergedMarkup as $mark) {
+        //     $newMarkUp = [] ;
+        //     $newMarkUp['date'] = $mark['date'] ;
+        //     $newMarkUp['markup'] = "<div class=\"d-flex w-100 flex-column align-items-center justify-content-center\">
+        //         <b>[day]</b>
+        //         <div class=\"d-flex w-100 flex-row align-items-center justify-content-center\">
+        //             ".$mark['markup']."
+        //         </div>
+        //     </div>" ;
+        //     array_push($agendaResult,$newMarkUp) ;
+        // }  
 
         file_put_contents($filename,json_encode($agendaResult)) ;
 
