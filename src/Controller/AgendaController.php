@@ -92,7 +92,7 @@ class AgendaController extends AbstractController
         $filename = $this->filename."agenda(agence)/".$this->nameAgence ;
         $fileSearch = $this->filename."agenda(agence)/file_search".$this->nameAgence ;
         if (!file_exists($filename)) 
-        {
+        { 
             $this->appService->checkAllDateAgenda($filename) ;
             $this->appService->generateAgenda($filename,$fileSearch,$this->agence) ;
         }

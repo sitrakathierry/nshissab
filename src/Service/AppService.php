@@ -2060,9 +2060,11 @@ class AppService extends AbstractController
 
         // Statut de l'agenda sur evènement et rendez-vous
             // -   En cours : 1
-            // -   Terminé : 0
+            // -   Terminé : 0 
 
-        $elements = [] ;
+        $elements = [] ; 
+
+        $elemAgendas = [] ;
 
         foreach ($agendas as $agenda) {
             $element = [] ;
@@ -2084,7 +2086,11 @@ class AppService extends AbstractController
 
             }
             $element["markup"] = $markup ;
+
+            $elemAgendas = [] ;
+
             array_push($elements,$element) ;
+
         }
 
         // AGENDA FINANCIERE : CREDIT
@@ -2199,6 +2205,8 @@ class AppService extends AbstractController
             }
             $element["markup"] = $markup ;
             array_push($elements,$element) ;
+
+
         }
 
         // FIN BON DE LIVRAISON
@@ -2213,6 +2221,10 @@ class AppService extends AbstractController
             $markup = $item['markup'];
 
             if (isset($result[$date])) {
+                if($result[$date]["typeAgenda"])
+                {
+
+                }
                 $result[$date]['markup'] .= $markup;
             } else {
                 $result[$date] = $item;

@@ -31,7 +31,7 @@
                 {% set unmois = 'now'|date('m')  %}
                 <select name="agd_search_mois" class="custom-select chosen_select custom-select-sm" id="agd_search_mois">
                     <option value="" >-</option>
-                    {% for key,value in mois %}
+                    {% for key,value in mois %} 
                         <option value="{{key}}" {{ unmois == key ? "selected" : "" }} >{{value|upper}}</option>
                     {% endfor %}
                 </select>
@@ -41,6 +41,7 @@
                 <input type="number" name="agd_search_annee" id="agd_search_annee" value="{{'now'|date('Y') }}" class="form-control" placeholder=". . .">
             </div>
         </div>
+        <div class="content_date_agenda"></div>
         <div class="row mt-2">
             <div class="col-md-12">
                 <input type="hidden" id="calendarPath" value="{{asset(calendarFile)}}">
@@ -90,8 +91,6 @@
                 </div>
                 <div id="monCalendrier" class="table-responsive"></div>
             </div>
-        </div>
-        <div class="content_date_agenda mt-3">
         </div>
         {% if with_foot %}
             <div class="foot_action p-3 mt-4 text-right w-100 barre_dashed">
