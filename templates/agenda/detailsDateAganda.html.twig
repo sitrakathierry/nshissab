@@ -22,7 +22,7 @@
         <div class="border rounded p-2 mt-2 w-100 {{statut}} d-flex flex-row align-items-center">
             <i class="fa fa-percent"></i>
             <span class="ml-3"><b>{{"Crédit"|upper}}</b> 
-            - <b>{{message}}</b> - Facture N° : <b>{{listEcheance.numFact}}</b> 
+            - <b>{{message}}</b> - Entrepot : <b>{{listEcheance.entrepot}}</b> - Facture N° : <b>{{listEcheance.numFact}}</b> 
             - Client : <b>{{listEcheance.client|upper}}</b> - Montant : <b>{{listEcheance.montant}}</b>
             </span>
             <a href="{{path('crd_details_credit',{'id':listEcheance.id})}}" class="btn btn-sm ml-auto btn-success px-3"><i class="fa fa-info-circle"></i></a>
@@ -36,6 +36,7 @@
             <i class="fa fa-layer-group"></i>
             <span class="ml-3"><b>{{"Acompte"|upper}}</b> 
             - Objet : <b>{{agendaAcompte.objet}}</b> 
+            - Entrepot : <b>{{agendaAcompte.entrepot}}</b>
             - Facture N° : <b>{{agendaAcompte.numFact}}</b> 
             - Client : <b>{{agendaAcompte.client|upper}}</b>
             </span>
@@ -49,6 +50,7 @@
         <div class="border rounded p-2 mt-2 w-100 {{statutLVR}} d-flex flex-row align-items-center">
             <i class="fa fa-truck"></i><span class="ml-3 lh-2"><b>{{"Livraison"|upper}}</b> 
             - Objet : <b>{{agendaLivraison.objet}}</b> 
+            - Entrepot : <b>{{agendaLivraison.entrepot}}</b>
             - Bon deLivraison N° : <b>{{agendaLivraison.numLvr}}</b> 
             - Client : <b>{{agendaLivraison.client|upper}}</b> 
             </span>

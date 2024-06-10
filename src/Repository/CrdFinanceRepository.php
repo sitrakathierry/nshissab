@@ -191,6 +191,15 @@ class CrdFinanceRepository extends ServiceEntityRepository
 
                 foreach ($financeDetails as $financeDetail) 
                 {
+                    $paiementFinance = "-" ;
+                    $idPaiement = "-" ;
+
+                    if(!is_null($financeDetail->getPaiement()))
+                    {
+                        $paiementFinance = $financeDetail->getPaiement()->getNom() ;
+                        $idPaiement = $financeDetail->getPaiement()->getId() ;
+                    }
+
                     $item = [
                         "id" => $financeDetail->getId() ,
                         "idF" => $financeDetail->getFinance()->getId(),
@@ -208,6 +217,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         "idClient" => $idClient,
                         "entrepot" => $entrepot,
                         "idEntrepot" => $idEntrepot,
+                        "paiement" => $paiementFinance,
+                        "idPaiement" => $idPaiement,
                         "type" => "Soldé",
                         "refType" => "PAIEMENT",
                         "statut" => "OK",
@@ -225,6 +236,15 @@ class CrdFinanceRepository extends ServiceEntityRepository
 
                 foreach ($echeances as $echeance) {
 
+                    $paiementFinance = "-" ;
+                    $idPaiement = "-" ;
+
+                    if(!is_null($echeance->getPaiement()))
+                    {
+                        $paiementFinance = $echeance->getPaiement()->getNom() ;
+                        $idPaiement = $echeance->getPaiement()->getId() ;
+                    }
+
                     $statutEch = $echeance->isStatut() ? "OK" : (is_null($echeance->isStatut()) ? "NOT" : "DNONE") ;
                     
                     if($statutEch == "DNONE")
@@ -234,8 +254,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                     $isLower = $params["appService"]->compareDates($dateEcheance,$dateNow, 'P') ;
 
                     $item2[] = [
-                        "id" => $financeDetail->getId() ,
-                        "idF" => $financeDetail->getFinance()->getId(),
+                        "id" => $echeance->getId() ,
+                        "idF" => $finance->getId(),
                         "description" => empty($echeance->getDescription()) ? "-" : $echeance->getDescription() ,
                         "date" => $dateEcheance ,
                         "currentDate" => $dateEcheance ,
@@ -250,6 +270,8 @@ class CrdFinanceRepository extends ServiceEntityRepository
                         "idClient" => $idClient,
                         "entrepot" => $entrepot,
                         "idEntrepot" => $idEntrepot,
+                        "paiement" => $paiementFinance,
+                        "idPaiement" => $idPaiement,
                         "type" => "Echéance",
                         "refType" => "ECH",
                         "statut" => $isLower ? "SFR" : "OK",

@@ -46,6 +46,17 @@
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label for="fact_search_mode_paiement" class="font-weight-bold mt-2 text-uppercase">Mode de paiement</label>
+                    <select name="fact_search_mode_paiement" class="custom-select chosen_select custom-select-sm" id="fact_search_mode_paiement">
+                        <option value="">-</option>
+                        {% for paiement in paiements %}
+                            {% if paiement.reference != "CR" and paiement.reference != "AC" %}
+                                <option value="{{paiement.id}}">{{paiement.nom|upper}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label for="credit_search_date_suivi" class="mt-2 font-weight-bold text-uppercase">Date</label>
                     <select name="credit_search_date_suivi" class="custom-select chosen_select custom-select-sm" id="credit_search_date_suivi">
                         <option value="" data-critere="">TOUS</option>
@@ -66,6 +77,7 @@
                                 <th>Entrepot</th>
                                 <th>Description</th>
                                 <th>Date Paiement/Echéance</th>
+                                <th>Mode de Paiement</th>
                                 <th>Montant</th>
                                 <th class="text-center">Type</th>
                                 <th></th>
@@ -96,6 +108,7 @@
                                                 <tr class="{{ligneClass }}">
                                                 <td class="align-middle">{{detail.description}}</td>
                                                 <td class="align-middle">{{detail.date}}</td>
+                                                <td class="align-middle">{{detail.paiement|upper}}</td>
                                                 <td class="align-middle text-right">{{detail.montant|format_number}}</td>
                                                 <td class="align-middle txt-center">{{ detail.type|upper }}</td>
                                                 {% if isFirst %}
@@ -111,17 +124,17 @@
                                     {% endfor %}
                                     {% set totalRestant = finance.totalTtc - totalPayee %}
                                 <tr>
-                                    <th colspan="2" class="bg-light">Total Crédit</th>
+                                    <th colspan="3" class="bg-light">Total Crédit</th>
                                     <th class="bg-dark text-white text-right">{{finance.totalTtc|format_number}}</th>
-                                    <th class="bg-dark text-white"></th>
+                                    <th class="bg-dark text-white"></th> 
                                 </tr>
                                 <tr>
-                                    <th colspan="2" class="bg-light">Total Payé</th>
+                                    <th colspan="3" class="bg-light">Total Payé</th>
                                     <th class="bg-success text-white text-right">{{totalPayee|format_number}}</th>
                                     <th class="bg-success text-white"></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="2" class="bg-light">Total Restant</th>
+                                    <th colspan="3" class="bg-light">Total Restant</th>
                                     <th class="bg-primary text-white text-right">{{totalRestant|format_number}}</th>
                                     <th class="bg-primary text-white"></th>
                                 </tr>
@@ -129,7 +142,7 @@
                                 {% set totalGRestant = totalGRestant + totalRestant %}
                                 {% set totalGCredit = totalGCredit + finance.totalTtc %}
                                 <tr>
-                                    <td class="bg-light" colspan="8"></td>
+                                    <td class="bg-light" colspan="9"></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

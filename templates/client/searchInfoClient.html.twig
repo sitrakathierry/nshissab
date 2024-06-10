@@ -1,0 +1,29 @@
+<div class="table-responsive limit_tbody mt-4">
+    <table class="table table-sm table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>N° client</th>
+                <th>Nom/Société</th>
+                <th>Statut</th>
+                <th>Adresse</th>
+                <th>Tél</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+                <tr>
+                    <td>{{client.numClient}}</td>
+                    <td>{{client.nom|upper}}</td>
+                    <td>{{client.type|upper}}</td>
+                    <td>{{client.adresse|upper}}</td>
+                    <td>{{client.telephone}}</td>
+                    <td class="text-center align-middle" >
+                        <a href="{{path('clt_client_information_detail',{'id':client.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                        <button data-value="{{client.id}}" class="btn btn-sm ml-2 btn_supprimer_client btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

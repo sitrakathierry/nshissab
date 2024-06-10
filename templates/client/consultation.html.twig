@@ -4,55 +4,69 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{asset('systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{asset('systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
+    <script src="{{asset('tools/personnal/systeme/' ~ filename ~ '/js/' ~ filename ~ '.js')}}" ></script>
 {% endblock %}
 {% block body %}
 <div class="barre_top rounded shadow mb-5">
     <div class="w-100 border-bottom pt-2 px-3">
         <h4 class="text-uppercase entete_page text-black">{{titlePage}}</h4>
     </div>
-    <div class="container-fluid px-3 pt-3">
+    <div class="container-fluid px-3 py-3">
         <div class="row">
             <div class="col-md-3">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Statut</label>
-                <select name="type_societe" class="custom-select chosen_select custom-select-sm" id="type_societe">
+                <select name="clt_type_societe" class="custom-select chosen_select custom-select-sm" id="clt_type_societe">
                     <option value="">-</option>
+                    {% for typeClient in typeClients %}
+                        <option value="{{typeClient.id}}">{{typeClient.nom|upper}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nom" class="mt-2 font-weight-bold text-uppercase">Client</label>
+                <select name="clt_info_client" class="custom-select chosen_select custom-select-sm" id="clt_info_client">
+                    <option value="">-</option>
+                    {% for client in clients %}
+                        <option value="{{client.id}}">{{client.nom|upper}} | {{client.telephone|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
-        <div class="table-responsive mt-4">
-            <table class="table table-sm table-bordered table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th>N° client</th>
-                        <th>Nom/Société</th>
-                        <th>Statut</th>
-                        <th>Adresse</th>
-                        <th>Tél</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for client in clients %}
+        <div class="contentSearchClient">
+            <div class="table-responsive limit_tbody mt-4">
+                <table class="table table-sm table-bordered table-hover">
+                    <thead class="thead-light">
                         <tr>
-                            <td>{{client.numClient}}</td>
-                            <td>{{client.nom|upper}}</td>
-                            <td>{{client.type|upper}}</td>
-                            <td>{{client.adresse|upper}}</td>
-                            <td>{{client.telephone}}</td>
-                            <td class="text-center align-middle" >
-                                <a href="{{path('clt_client_information_detail',{'id':client.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
-                                <button data-value="{{client.id}}" class="btn btn-sm ml-2 btn_supprimer_client btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
-                            </td>
+                            <th>N° client</th>
+                            <th>Nom/Société</th>
+                            <th>Statut</th>
+                            <th>Adresse</th>
+                            <th>Tél</th>
+                            <th></th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                            <tr>
+                                <td>{{client.numClient}}</td>
+                                <td>{{client.nom|upper}}</td>
+                                <td>{{client.type|upper}}</td>
+                                <td>{{client.adresse|upper}}</td>
+                                <td>{{client.telephone}}</td>
+                                <td class="text-center align-middle" >
+                                    <a href="{{path('clt_client_information_detail',{'id':client.encodedId})}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a>
+                                    <button data-value="{{client.id}}" class="btn btn-sm ml-2 btn_supprimer_client btn-outline-danger font-smaller"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         {% if with_foot %}

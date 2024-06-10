@@ -76,11 +76,14 @@ class ClientController extends AbstractController
 
         $clients = json_decode(file_get_contents($filename)) ;
 
+        $typeClients = $this->entityManager->getRepository(CltTypes::class)->findAll() ;
+
         return $this->render('client/consultation.html.twig', [
             "filename" => "client",
             "titlePage" => "Liste des Clients",
-            "with_foot" => false,
+            "with_foot" => false, 
             "clients" => $clients,
+            "typeClients" => $typeClients,
         ]);
     }
 
@@ -491,4 +494,37 @@ class ClientController extends AbstractController
         ]) ;
     }
 
+    #[Route('/client/informations/search', name: 'clt_client_information_search')]
+    public function clientSearchInformation(Request $request)
+    {
+        $idType = $request->request->get('idType') ;
+        $id = $request->request->get('id') ;
+
+        $filename = $this->filename."client(agence)/".$this->nameAgence ;
+
+        if(!file_exists($filename))
+            $this->appService->generateCltClient($filename, $this->agence) ;
+
+        $clients = json_decode(file_get_contents($filename)) ;
+
+        $search = [
+            "id" => $id,
+            "idType" => $idType,
+        ] ;
+
+        $clients = $this->appService->searchData($clients,$search) ;
+
+        if(!empty($clients))
+        {
+            $response = $this->renderView("client/searchInfoClient.html.twig", [
+                "clients" => $clients
+            ]) ;
+        }
+        else
+        {
+            $response = '<div class="w-100 p-4"><div class="alert alert-sm alert-warning">Désolé, aucun élément trouvé</div></div>' ;
+        }
+
+        return new Response($response) ;
+    }
 }

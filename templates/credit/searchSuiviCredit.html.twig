@@ -7,6 +7,7 @@
                 <th>Entrepot</th>
                 <th>Description</th>
                 <th>Date Paiement/Echéance</th>
+                <th>Mode de Paiement</th>
                 <th>Montant</th>
                 <th class="text-center">Type</th>
                 <th></th>
@@ -26,43 +27,44 @@
                     {% set totalPayee = 0 %}
                     {% set totalRestant = 0 %}
                     {% for detail in finance.details %}
-                        {% set ligneClass = "" %}
-                        {% if detail.refType == "ECH" %}
-                            {% if detail.statut == "SFR" %}
-                                {% set ligneClass = "bg-danger text-white" %}
-                            {% else %}
-                                {% set ligneClass = "bg-info text-white" %}
+                            {% set ligneClass = "" %}
+                            {% if detail.refType == "ECH" %}
+                                {% if detail.statut == "SFR" %}
+                                    {% set ligneClass = "bg-danger text-white" %}
+                                {% else %}
+                                    {% set ligneClass = "bg-info text-white" %}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                        <tr class="{{ligneClass}}">
-                            <td class="align-middle">{{detail.description}}</td>
-                            <td class="align-middle">{{detail.date}}</td>
-                            <td class="align-middle text-right">{{detail.montant|format_number}}</td>
-                            <td class="align-middle txt-center">{{ detail.type|upper }}</td>
-                            {% if isFirst %}
-                                <td rowspan="{{finance.nbRow + 2 }}" class="text-center bg-white align-middle">
-                                    <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
-                                </td>
-                                {% set isFirst = false %}
+                                <tr class="{{ligneClass }}">
+                                <td class="align-middle">{{detail.description}}</td>
+                                <td class="align-middle">{{detail.date}}</td>
+                                <td class="align-middle">{{detail.paiement|upper}}</td>
+                                <td class="align-middle text-right">{{detail.montant|format_number}}</td>
+                                <td class="align-middle txt-center">{{ detail.type|upper }}</td>
+                                {% if isFirst %}
+                                    <td rowspan="{{finance.nbRow + 2 }}" class="text-center bg-white align-middle">
+                                        <a href="{{path('crd_details_credit',{'id':finance.id})}}" class="btn m-1 btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+                                    </td>
+                                    {% set isFirst = false %}
+                                {% endif %}
+                            </tr>
+                            {% if detail.refType == "PAIEMENT" %}
+                                {% set totalPayee = totalPayee + detail.montant %}
                             {% endif %}
-                        </tr>
-                        {% if detail.refType == "PAIEMENT" %}
-                            {% set totalPayee = totalPayee + detail.montant %}
-                        {% endif %}
                     {% endfor %}
                     {% set totalRestant = finance.totalTtc - totalPayee %}
                 <tr>
-                    <th colspan="2" class="bg-light">Total Crédit</th>
+                    <th colspan="3" class="bg-light">Total Crédit</th>
                     <th class="bg-dark text-white text-right">{{finance.totalTtc|format_number}}</th>
-                    <th class="bg-dark text-white"></th>
+                    <th class="bg-dark text-white"></th> 
                 </tr>
                 <tr>
-                    <th colspan="2" class="bg-light">Total Payé</th>
+                    <th colspan="3" class="bg-light">Total Payé</th>
                     <th class="bg-success text-white text-right">{{totalPayee|format_number}}</th>
                     <th class="bg-success text-white"></th>
                 </tr>
                 <tr>
-                    <th colspan="2" class="bg-light">Total Restant</th>
+                    <th colspan="3" class="bg-light">Total Restant</th>
                     <th class="bg-primary text-white text-right">{{totalRestant|format_number}}</th>
                     <th class="bg-primary text-white"></th>
                 </tr>
@@ -70,7 +72,7 @@
                 {% set totalGRestant = totalGRestant + totalRestant %}
                 {% set totalGCredit = totalGCredit + finance.totalTtc %}
                 <tr>
-                    <td class="bg-light" colspan="8"></td>
+                    <td class="bg-light" colspan="9"></td>
                 </tr>
             {% endfor %}
         </tbody>

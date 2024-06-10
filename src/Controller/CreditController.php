@@ -119,19 +119,22 @@ class CreditController extends AbstractController
         $entrepots = json_decode(file_get_contents($filename)) ; 
 
         $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
-        if(!file_exists($filename))
+        if(!file_exists($filename)) 
             $this->appService->generateCltClient($filename, $this->agence) ;
 
         $clients = json_decode(file_get_contents($filename)) ;
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
- 
+            
+        $paiements = $this->entityManager->getRepository(FactPaiement::class)->findBy([],["rang" => "ASC"]) ; 
+
         return $this->render('credit/suiviCreditGeneral.html.twig', [ 
             "filename" => "credit",
             "titlePage" => "Suivi Crédit Général",
             "finances" => $finances,
             "entrepots" => $entrepots,
             "clients" => $clients,
+            "paiements" => $paiements,
             "critereDates" => $critereDates,
             "with_foot" => false
         ]);
@@ -161,6 +164,7 @@ class CreditController extends AbstractController
         $dateFin = $request->request->get('dateFin') ;
         $annee = $request->request->get('annee') ;
         $mois = $request->request->get('mois') ;
+        $idPaiement = $request->request->get('idPaiement') ;
 
         $search = [
             "idClient" => $idClient,
@@ -172,6 +176,7 @@ class CreditController extends AbstractController
             "dateFin" => $dateFin,
             "annee" => $annee,
             "mois" => $mois,
+            "idPaiement" => $idPaiement,
         ] ;
 
         foreach ($search as $key => $value) {
@@ -207,6 +212,8 @@ class CreditController extends AbstractController
                     "idClient" => $financeDetail->idClient,
                     "entrepot" => $financeDetail->entrepot,
                     "idEntrepot" => $financeDetail->idEntrepot,
+                    "paiement" => $financeDetail->paiement,
+                    "idPaiement" => $financeDetail->idPaiement,
                     "type" => $financeDetail->type,
                     "refType" => $financeDetail->refType,
                     "statut" => $financeDetail->statut,

@@ -1638,58 +1638,6 @@ class ComptabiliteController extends AbstractController
         $moisDepense = $request->request->get('moisDepense') ;
         $affichage = $request->request->get('affichage') ;
 
-        if($affichage == "JOUR")
-        {
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $anneeDepense = "" ;
-            $moisDepense = "" ;
-        }
-        else if($affichage == "SPEC")
-        {
-            $currentDate = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $anneeDepense = "" ;
-            $moisDepense = "" ;
-        }
-        else if($affichage == "LIMIT")
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $anneeDepense = "" ;
-            $moisDepense = "" ;
-        }
-        else if($affichage == "MOIS")
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-        }
-        else if($affichage == "ANNEE")
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $moisDepense = "" ;
-        }
-        else
-        {
-            $currentDate = "" ;
-            $dateDeclaration = "" ;
-            $dateDebut = "" ;
-            $dateFin = "" ;
-            $anneeDepense = "" ;
-            $moisDepense = "" ;
-        }
-
-        if(empty($moisFacture))
-            $anneeFacture = "" ;
-
-
         $search = [
             "currentDate" => $currentDate,
             "dateDeclaration" => $dateDeclaration,
@@ -1703,6 +1651,13 @@ class ComptabiliteController extends AbstractController
             "moisFacture" => $moisFacture,
             "anneeFacture" => $anneeFacture,
         ] ;
+
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
+        }
 
         $tabMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         

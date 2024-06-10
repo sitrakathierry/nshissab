@@ -874,6 +874,11 @@ $(document).ready(function(){
       action: "change",
       selector: "#date_mois",
     },
+    {
+      name: "idPaiement",
+      action: "change",
+      selector: "#fact_search_mode_paiement",
+    },
   ]
 
   $("#credit_search_date_suivi").change(function(){

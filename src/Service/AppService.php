@@ -2750,7 +2750,7 @@ class AppService extends AbstractController
             "statut" => True,    
         ]) ;
 
-        $items = [] ;
+        $items = [] ; 
 
         foreach ($histoClients as $histoClient) {
             $item = [] ;
@@ -2761,6 +2761,7 @@ class AppService extends AbstractController
             $item["numClient"] = str_pad($histoClient->getId(), 4, "0", STR_PAD_LEFT) ;
             $item["nom"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getNom() : $histoClient->getClient()->getNom();
             $item["type"] = $histoClient->getType()->getNom() ;
+            $item["idType"] = $histoClient->getType()->getId() ;
             $item["adresse"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getAdresse() : $histoClient->getClient()->getAdresse();
             $item["telephone"] = is_null($histoClient->getClient()) ? $histoClient->getSociete()->getTelFixe() : $histoClient->getClient()->getTelephone();
             array_push($items,$item) ;

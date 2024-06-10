@@ -127,5 +127,49 @@ $(document).ready(function(){
                 }
             }
         })
+    }) ;
+
+
+    var elemSearch = [
+        {
+            name: "idType",
+            action:"change",
+            selector : "#clt_type_societe"
+        },
+        {
+            name: "id",
+            action:"change",
+            selector : "#clt_info_client"
+        },
+    ] 
+
+    function searchClient()
+    {
+        var instance = new Loading(files.search) ;
+        $(".contentSearchClient").html(instance.otherSearch()) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemSearch.length; j++) {
+            const search = elemSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+        $.ajax({
+            url: routes.clt_client_information_search ,
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".contentSearchClient").empty().html(response) ;
+            }
+        })
+    }
+
+    elemSearch.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            searchClient()
+        })
     })
+
 })

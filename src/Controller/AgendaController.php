@@ -278,10 +278,15 @@ class AgendaController extends AbstractController
                 $statut = "END" ;
             }
 
+            $entrepot = "-" ;
+            if(!is_null($facture->getEntrepot()))
+                $entrepot = $facture->getEntrepot()->getNom() ;
+            
             $element = [] ;
 
             $element["type"] = "Crédit" ;
             $element["id"] = $echeance->getCatTable()->getId() ;
+            $element["entrepot"] = $entrepot ;
             $element["client"] = $client ;
             $element["statut"] = $statut ;
             $element["numFact"] = $facture->getNumFact() ;
@@ -317,10 +322,15 @@ class AgendaController extends AbstractController
                 $statut = "END" ;
             }
 
+            $entrepot = "-" ;
+            if(!is_null($facture->getEntrepot()))
+                $entrepot = $facture->getEntrepot()->getNom() ;
+            
             $element = [] ;
 
             $element["type"] = "Acompte" ;
             $element["id"] = $agendaAcompte->getAcompte()->getId() ;
+            $element["entrepot"] = $entrepot ;
             $element["client"] = $client ;
             $element["statut"] = $statut ;
             $element["numFact"] = $facture->getNumFact() ;
@@ -366,10 +376,15 @@ class AgendaController extends AbstractController
                 $statut = "END" ;
             }
 
+            $entrepot = "-" ;
+            if(!is_null($facture->getEntrepot()))
+                $entrepot = $facture->getEntrepot()->getNom() ;
+
             $element = [] ;
 
             $element["type"] = "Livraison" ;
             $element["id"] = $agdLivraison->getLivraison()->getId() ;
+            $element["entrepot"] = $entrepot ;
             $element["client"] = $client ;
             $element["statut"] = $statut ;
             $element["numLvr"] = $livraison->getNumLivraison() ;
@@ -542,8 +557,6 @@ class AgendaController extends AbstractController
 
         // FIN SAUVEGARDE HISTORIQUE
 
-
-
         return new JsonResponse($result) ;
     }
 
@@ -707,6 +720,8 @@ class AgendaController extends AbstractController
         $elements = array_values($elements) ;
 
         $items = $elements ;
+
+
 
         // Group the markup by date using array_reduce
         $mergedMarkup = array_reduce($items, function ($result, $item) {
