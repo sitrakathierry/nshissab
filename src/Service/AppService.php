@@ -4394,5 +4394,10 @@ class AppService extends AbstractController
         }
         return base64_decode($decoded);
     }
+
+    public function blockerDateSup($date)
+    {
+        return $this->compareDates($date,date("d/m/Y"),"G") ;
+    }
     
 }

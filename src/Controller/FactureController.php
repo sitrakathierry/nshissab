@@ -1937,6 +1937,14 @@ class FactureController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
+        if($this->appService->blockerDateSup($fact_date))
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Date supérieur invalide"
+            ]) ;
+        }
+
         $type = $this->entityManager->getRepository(FactType::class)->find($fact_type) ;
 
         if($type->getReference() == "DF")
@@ -1960,7 +1968,7 @@ class FactureController extends AbstractController
             if(isset($fact_ticket_caisse) && !empty($fact_ticket_caisse))
                 $fact_enr_prod_type = ["donnée statique pour éliminer une condition si c'est bon de caisse"] ;
 
-            if(empty($fact_enr_prod_type))
+            if(empty($fact_enr_prod_type)) 
             {
                 $result["type"] = "orange" ;
                 $result["message"] = "Veuiller insérer une désignation" ;

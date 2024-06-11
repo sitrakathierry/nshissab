@@ -157,6 +157,14 @@ class CaisseController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
+        if($this->appService->blockerDateSup($csenr_date_caisse))
+        {
+            return new JsonResponse([
+                "type" => "orange",
+                "message" => "Date supérieur invalide"
+            ]) ;
+        }
+
         $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($cs_mtn_type_remise) ;
 
         $lastRecordCommande = $this->entityManager->getRepository(CaisseCommande::class)->findOneBy([], ['id' => 'DESC']);

@@ -5,7 +5,7 @@
         <td>{{ facture.modele|upper }}</td>
         <td>{{ facture.type|upper }}</td>
         <td>{{ facture.entrepot|upper }}</td>
-        {# <td>{{ facture.dateCreation }}</td> #}
+        <td>{{ facture.dateCreation }}</td>
         <td>{{ facture.dateFacture }}</td>
         <td>{{ facture.client|upper }}</td>
         <td>{{ facture.total }}</td>
@@ -14,7 +14,7 @@
 {% set totalGeneral = totalGeneral + facture.total %}
 {% endfor %}
 <tr>
-    <th colspan="6">Total General</th>
+    <th colspan="7">Total General</th>
     <th class="bg-info text-white">{{totalGeneral}}</th>
     <td class="bg-info"></td>
 </tr>
