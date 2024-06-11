@@ -479,10 +479,29 @@ class FactureController extends AbstractController
         return new Response($response) ;
     }
 
-    public static function comparaisonDates($a, $b) {
+    // Fonction pour extraire la partie numérique du numéro
+
+    public static function comparaisonFacture($a, $b) {
         $dateA = \DateTime::createFromFormat('d/m/Y', $a['date']);
         $dateB = \DateTime::createFromFormat('d/m/Y', $b['date']);
-        return $dateB <=> $dateA;
+        $result = $dateB <=> $dateA;
+
+        if ($result !== 0) {
+            return $result;
+        }
+
+        // Si les dates sont identiques, comparer les numéros en ordre décroissant
+        preg_match('/DF-(\d+)\/\d+/', $a['numFact'], $matches);
+        $numA =  isset($matches[1]) ? (int)$matches[1] : 0;
+        // $numA = extraireNumero($a['numFact']);
+        preg_match('/DF-(\d+)\/\d+/', $b['numFact'], $matches);
+        $numB =  isset($matches[1]) ? (int)$matches[1] : 0;
+        // $numB = extraireNumero($b['numFact']);
+        return $numB - $numA;
+    }
+
+    public static function comparaisonNumero($a, $b) {
+        return strcmp($a['numFact'], $b['numFact']); 
     }
 
     #[Route('/facture/consultation', name: 'ftr_consultation')]
@@ -548,7 +567,8 @@ class FactureController extends AbstractController
 
         $factures = array_merge($item1, $item2, $item3);
 
-        usort($factures, [self::class, 'comparaisonDates']);
+        // usort($factures, [self::class, 'comparaisonNumero']);
+        usort($factures, [self::class, 'comparaisonFacture']);
 
         // if($this->agence->getId() == 23)
         // {
@@ -2919,7 +2939,8 @@ class FactureController extends AbstractController
 
         $factures = array_merge($item1, $item2, $item3);
 
-        usort($factures, [self::class, 'comparaisonDates']);
+        // usort($factures, [self::class, 'comparaisonNumero']);
+        usort($factures, [self::class, 'comparaisonFacture']);
 
         $idT = $request->request->get('idT') ;
         $idM = $request->request->get('idM') ;

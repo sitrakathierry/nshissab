@@ -1267,6 +1267,8 @@ class AppService extends AbstractController
         return $element ;
     }
 
+    
+
     public static function comparaisonMultiple($a, $b) {
         // Comparaison par entrepot
         $result = strcmp($a['nomType'], $b['nomType']);
