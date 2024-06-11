@@ -19,7 +19,7 @@
         {{titlePage}}
         <a href="{{path('ftr_retenu_consultation')}}" class="btn ml-auto font-weight-bold text-uppercase btn-perso-one btn-sm"><i class="fa fa-file"></i>&nbsp;Facture retenus</a>
         </h4>
-    </div>
+    </div> 
     <div class="container-fluid px-3 pt-2 pb-3">
         <div id="contentFacture">
             <div class="row">
@@ -95,7 +95,7 @@
                             <th>Modèle</th>
                             <th>Type</th>
                             <th>Entrepot</th>
-                            <th>Date Création</th>
+                            {# <th>Date Création</th> #}
                             <th>Date Facture</th>
                             <th>Client</th>
                             <th>Montant Total Facture</th>
@@ -112,17 +112,22 @@
                                     <td>{{ facture.modele|upper}}</td>
                                     <td>{{ facture.type|upper}}</td>
                                     <td>{{ facture.entrepot|upper}}</td>
-                                    <td>{{ facture.dateCreation }}</td>
+                                    {# <td>{{ facture.dateCreation }}</td> #}
                                     <td>{{ facture.dateFacture }}</td>
                                     <td>{{ facture.client|upper}}</td>
                                     <td>{{ facture.total }}</td>
-                                    <td class="text-center"><a href="{{path('ftr_details_activite',{'id':facture.id,'nature':facture.nature})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
+                                    {% if facture.nature == "ANL" %}
+                                        {% set idFacture = facture.idA %}
+                                    {% else %}
+                                        {% set idFacture = facture.id %}
+                                    {% endif %}
+                                    <td class="text-center"><a href="{{path('ftr_details_activite',{'id':idFacture,'nature':facture.nature})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a></td>
                                 </tr>  
                                 {% set totalGeneral = totalGeneral + facture.total %}
                             {% endif %}
                         {% endfor %}
                         <tr>
-                            <th colspan="7">Total General</th>
+                            <th colspan="6">Total General</th>
                             <th class="bg-info text-white">{{totalGeneral}}</th>
                             <td class="bg-info"></td>
                         </tr>

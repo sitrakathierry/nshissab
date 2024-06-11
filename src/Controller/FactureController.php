@@ -493,20 +493,21 @@ class FactureController extends AbstractController
         {
             $this->entityManager->getRepository(PrdEntrepot::class)->testHistoEntrepot() ;
         }
-        // TEST
+        // TEST 
 
         $this->entityManager->getRepository(Facture::class)->updateFactureToEntrepot([
             "agence" => $this->agence,
             "user" => $this->userObj,
         ]) ;
+
         $this->entityManager->getRepository(FactDetails::class)->updateFactDetailsHistoEntrepot([
             "agence" => $this->agence,
             "user" => $this->userObj,
         ]) ;
+
         $this->appService->updateAnneeData() ;
         $this->appService->synchronisationFacture($this->agence) ;
         $this->appService->synchronisationServiceApresVente(["FACTURE"]) ;
-
 
         $filename = $this->filename."facture(agence)/".$this->nameAgence ;
  
@@ -596,13 +597,13 @@ class FactureController extends AbstractController
 
         return $this->render('facture/consultation.html.twig', [ 
             "filename" => "facture",
-            "titlePage" => "Consultation Facture",
+            "titlePage" => "Consultation Facture", 
             "with_foot" => false,
             "factures" => $factures, 
             "modeles" => $modeles,
             "types" => $types,
             "clients" => $clients,
-            "critereDates" => $critereDates ,
+            "critereDates" => $critereDates,
             "entrepots" => $entrepots 
         ]); 
     }
@@ -1547,6 +1548,8 @@ class FactureController extends AbstractController
     public function factureDetailsActivites($id,$nature)
     {
         $this->appService->synchronisationFacture($this->agence) ;
+
+        // $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
 
         if ($nature == "ANL") 
         {
@@ -2876,6 +2879,40 @@ class FactureController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
+        $search = [
+            "specification" => "NONE" 
+        ] ;
+        
+        $item1 = $this->appService->searchData($factures, $search) ;
+        $item1 = $this->appService->objectToArray($item1) ;
+
+        $filename = "files/systeme/sav/annulation(agence)/".$this->nameAgence ;
+        if(!file_exists($filename))
+            $this->appService->generateSavAnnulation($filename,$this->agence) ;
+        
+        $annulations = json_decode(file_get_contents($filename)) ; 
+
+        $search = [ 
+            "refSpec" => "AVR"
+        ] ;
+
+        $item2 = $this->appService->searchData($annulations,$search) ;
+        $item2 = $this->appService->formatAnnulationToFacture($item2) ;
+
+        $item2 = $this->appService->objectToArray($item2) ;
+
+        $search = [
+            "refSpec" => "ACN"
+        ] ;
+
+        $item3 = $this->appService->searchData($annulations,$search) ;
+        
+        $item3 = $this->appService->formatAnnulationToFacture($item3) ;
+
+        $factures = array_merge($item1, $item2, $item3);
+
+        usort($factures, [self::class, 'comparaisonDates']);
+
         $idT = $request->request->get('idT') ;
         $idM = $request->request->get('idM') ;
         $id = $request->request->get('id') ;
@@ -2908,6 +2945,8 @@ class FactureController extends AbstractController
                 $search[$key] = "" ;
             }
         }
+
+        $factures = json_decode(json_encode($factures)) ;
 
         $factures = $this->appService->searchData($factures,$search) ;
 

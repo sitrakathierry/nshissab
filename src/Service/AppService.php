@@ -3458,7 +3458,8 @@ class AppService extends AbstractController
                 }
             }
             
-            $element["id"] = $annulation->id ;
+            $element["id"] = $facture->getId() ;
+            $element["idA"] = $annulation->id ;
             $element["idC"] = $facture->getClient()->getId() ;
             $element["idT"] = $facture->getType()->getId() ;
             $element["idM"] = $facture->getModele()->getId()  ;

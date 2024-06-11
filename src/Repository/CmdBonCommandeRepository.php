@@ -39,6 +39,20 @@ class CmdBonCommandeRepository extends ServiceEntityRepository
         }
     }
 
+    public function findCountCommande($params = [])
+    {
+        $sql = "SELECT COUNT(*) as qteCom FROM `cmd_bon_commande` WHERE agence_id = ? AND DATE_FORMAT(created_at,'%Y') = ? " ;
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([
+            $params["agence"]->getId(),
+            $params["createdAt"]
+        ]);
+        
+        return $resultSet->fetchAssociative();
+       
+    }
+
 //    /**
 //     * @return CmdBonCommande[] Returns an array of CmdBonCommande objects
 //     */

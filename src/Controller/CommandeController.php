@@ -255,13 +255,24 @@ class CommandeController extends AbstractController
         
         $facture = $this->entityManager->getRepository(Facture::class)->find($cmd_facture) ;
 
-        $lastRecordBonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->findOneBy([], ['id' => 'DESC']);
-        $numBonCommande = !is_null($lastRecordBonCommande) ? ($lastRecordBonCommande->getId()+1) : 1 ;
-        $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT);
+        $recordBonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->findCountCommande([
+            "agence" => $this->agence,
+            "createdAt" => date("Y"),
+        ], ['id' => 'DESC']);
+        $numBonCommande = !is_null($recordBonCommande) ? (intval($recordBonCommande["qteCom"]) + 1) : 1 ;
+        $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT)."/".date("y");
 
         $cmdStatut = $this->entityManager->getRepository(CmdStatut::class)->findOneBy([
             "reference" => "ECR"
         ]) ;
+
+        // $recordFacture = $this->entityManager->getRepository(Facture::class)->findBy([ 
+        //     "agence" => $this->agence,
+        //     "anneeData" => date('Y')
+        // ], ['id' => 'DESC']);
+        // $numFacture = !is_null($recordFacture) ? (count($recordFacture) + 1) : 1 ;
+        // $numFacture = str_pad($numFacture, 3, "0", STR_PAD_LEFT);
+        // $numFacture = $type->getReference()."-".$numFacture."/".date('y') ; 
 
         $bonCommande = new CmdBonCommande() ;
 
@@ -308,10 +319,12 @@ class CommandeController extends AbstractController
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
 
         $filename = $this->filename."bonCommande(agence)/".$this->nameAgence ;
+
         if(!file_exists($filename))
             $this->appService->generateBonCommande($filename,$this->agence) ;
 
         $bonCommandes = json_decode(file_get_contents($filename)) ; 
+
         return $this->render('commande/consultation.html.twig', [
             "filename" => "commande",
             "titlePage" => "Consultation bon de commande",
