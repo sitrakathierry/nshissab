@@ -60,9 +60,16 @@ class CommandeController extends AbstractController
 
         $factures = json_decode(file_get_contents($filename)) ;
 
-        $lastRecordBonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->findOneBy([], ['id' => 'DESC']);
-        $numBonCommande = !is_null($lastRecordBonCommande) ? ($lastRecordBonCommande->getId()+1) : 1 ;
-        $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT);
+        // $lastRecordBonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->findOneBy([], ['id' => 'DESC']);
+        // $numBonCommande = !is_null($lastRecordBonCommande) ? ($lastRecordBonCommande->getId()+1) : 1 ;
+        // $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT);
+
+        $recordBonCommande = $this->entityManager->getRepository(CmdBonCommande::class)->findCountCommande([
+            "agence" => $this->agence,
+            "createdAt" => date("Y"),
+        ], ['id' => 'DESC']);
+        $numBonCommande = !is_null($recordBonCommande) ? (intval($recordBonCommande["qteCom"]) + 1) : 1 ;
+        $numBonCommande = str_pad($numBonCommande, 5, "0", STR_PAD_LEFT)."/".date("y");
 
         $filename = "files/systeme/commande/commande(agence)/".$this->nameAgence ;
         if(file_exists($filename))
