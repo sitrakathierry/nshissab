@@ -6,6 +6,7 @@ use App\Entity\CaissePanier;
 use App\Entity\FactDetails;
 use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdDeduction;
+use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdType;
 use App\Entity\PrdVariationPrix;
 use App\Entity\Produit;
@@ -224,26 +225,17 @@ class ProduitRepository extends ServiceEntityRepository
                         $entrpSource = "-" ;
                         $idEntSource = "-" ;
                         
-
                         $deduction = $this->getEntityManager()->getRepository(PrdDeduction::class)->getAssocDepotInDeduction([
                             "variationPrix" => $idVariation,
                             "createdAt" => $appro->getCreatedAt()->format("Y-m-d"),
                             "quantite" => $appro->getQuantite(),
                         ]) ;
 
-                        
-
                         if(!is_null($deduction))
                         {
-                            try {
-                                $entrpSource = $deduction->getHistoEntrepot();
-                            } catch (\Exception $e) {
-                                dd($deduction) ;
-                            }   
-
-                            $entrpSource = $entrpSource->getEntrepot()->getNom() ;
-
-                            $idEntSource = $deduction->getHistoEntrepot()->getEntrepot()->getId() ;
+                            $dHistoEntrepot = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class)->find($deduction["histo_entrepot_id"]) ;
+                            $entrpSource = $dHistoEntrepot->getEntrepot()->getNom() ;
+                            $idEntSource = $dHistoEntrepot->getEntrepot()->getId() ;
                         }
 
                         $listes[] = [
