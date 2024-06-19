@@ -425,7 +425,7 @@ class ParametresController extends AbstractController
             "filename" => "parametres",
             "titlePage" => "Création Modèle Pdf",
             "with_foot" => true,
-        ]);
+        ]); 
     }
 
     #[Route('/parametres/information/societe/get', name: 'params_information_societe_get')]

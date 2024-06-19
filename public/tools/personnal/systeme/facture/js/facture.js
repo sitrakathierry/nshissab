@@ -543,6 +543,7 @@ $(document).ready(function(){
             "PBAT" : routes.ftr_creation_prest_batiment, 
             "PSTD" : routes.ftr_creation_prest_service,
             "PLOC" : routes.fact_creation_prest_location,
+            "COIFF" : routes.fact_creation_prest_coiffure,
         } ;
 
         $(target).val(inputValue) ;
@@ -1083,4 +1084,247 @@ $(document).ready(function(){
     }) ;
 
     // FIN IMPRESSION AVOIR 
+
+    dataSearchCoiff = [
+        {
+            name: '',
+            action: '',
+            selector : '.search_coiff_genre',
+        },
+        {
+            name: '',
+            action: '',
+            selector : '#search_coiff_prix',
+        }
+    ] ;
+
+    $(document).on("click",".search_coiff_genre",function(){
+        var self = $(this) ;
+
+        $(this).addClass("btn-primary") ; 
+        $(this).removeClass("btn-outline-primary");
+
+        $(".search_coiff_genre").each(function(){
+            if (!self.is($(this))) 
+            {
+                $(this).removeClass("btn-primary") ; 
+                $(this).addClass("btn-outline-primary"); 
+            }
+        }) ;
+
+        searchItemCoiffure() ;
+    }) ;
+
+    $(document).on("change","#search_coiff_prix",function(){
+        searchItemCoiffure() ;
+    }) ;
+
+    function toolTipSelector()
+    {
+        for (let i = 1; i <= $(".toolTipParent div").length ; i++) {
+            $("#toolTipChild_"+i).easyTooltip({
+            content: '<div class="text-white font-weight-bold text-uppercase text-center">'+$("#toolTipChild_"+i).data("content")+'</div>',
+            defaultRadius: "3px",
+            tooltipFtSize: "12px",
+            tooltipZindex: 1000,
+            tooltipPadding: "10px 15px",
+            tooltipBgColor: "rgba(0,0,0,0.85)",
+            })
+        }
+    }
+
+    function searchItemCoiffure()
+    {
+        var realinstance = instance.loading()
+        var formData = new FormData() ;
+        var idPrix = $("#search_coiff_prix").val() ;
+        var idGenre = $(".search_coiff_genre.btn-primary").data("value") ;
+        formData.append("idPrix",idPrix);
+        formData.append("idGenre",idGenre);
+        $.ajax({
+            url: routes.coiff_coupes_item_prix_search,
+            type:'post',
+            cache: false,
+            data: {
+                idPrix:idPrix,
+                idGenre:idGenre
+            },
+            dataType: 'json',
+            success: function(response){
+                realinstance.close()
+                
+                var items = '' ;
+
+                if(idPrix == "")
+                {
+                    var options = '<option value="">-</option>' ; 
+
+                    response.forEach(optCpPrix => {
+                        options += `
+                        <option value="`+optCpPrix.id+`" >`+optCpPrix.categorie.toUpperCase()+` | `+optCpPrix.nom.toUpperCase()+` | Prix : `+optCpPrix.prix+`</option>
+                        `;
+                    });
+                    $("#search_coiff_prix").html(options) ;
+                    $(".chosen_select").trigger("chosen:updated") ;
+
+                    
+                    var index = 1 ;
+                    response.forEach(itemCpPrix => {
+                        items += `
+                        <div data-value="`+itemCpPrix.id+`" data-prix="`+itemCpPrix.prix+`" class="d-flex flex-column mx-2 text-truncate item_coiff_coupes text-center content-soins" data-content="`+itemCpPrix.categorie.toUpperCase()+` | `+itemCpPrix.nom.toUpperCase()+` | Prix : `+itemCpPrix.prix+`" id="toolTipChild_`+index+`">
+                            <img src="`+itemCpPrix.photo+`" class="mx-auto coiff-img mt-3 img img-fluid" alt="">
+                            <label class="font-smaller text-truncate mb-0 font-weight-bold mt-1" for="">`+itemCpPrix.nom.toUpperCase()+`</label>
+                        </div>
+                        `;
+                        index++ ;
+                    });
+                }
+                else
+                {   
+                    var itemCpPrix = response[0] ;
+                    items = `
+                        <div data-value="`+itemCpPrix.id+`" data-prix="`+itemCpPrix.prix+`" class="d-flex flex-column mx-2 text-truncate item_coiff_coupes text-center content-soins" data-content="`+itemCpPrix.categorie.toUpperCase()+` | `+itemCpPrix.nom.toUpperCase()+` | Prix : `+itemCpPrix.prix+`" id="toolTipChild_1">
+                            <img src="`+itemCpPrix.photo+`" class="mx-auto coiff-img mt-3 img img-fluid" alt="">
+                            <label class="font-smaller text-truncate mb-0 font-weight-bold mt-1" for="">`+itemCpPrix.nom.toUpperCase()+`</label>
+                        </div>
+                    `;
+                }
+
+                $(".toolTipParent").html(items) ;
+                
+                toolTipSelector()
+
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        })
+    }
+
+    $(document).on("click",".item_coiff_coupes",function(){
+        var self = $(this) ;
+        // <input type="text" readonly id="coiff_enr_designation" class="form-control" value="`+self.data("content")+`">
+
+        $.confirm({
+            title: "Elément Coiffure",
+            type:'orange',
+            content:`
+                <div class="w-100">
+                    <label for="coiff_quantite" class="font-weight-bold">Désignation</label>
+                    <textarea name="coiff_enr_designation" id="coiff_enr_designation" rows="3" class="w-100 px-2">`+self.data("content")+`</textarea>
+                    <label for="coiff_quantite" class="mt-2 font-weight-bold">Quantité</label>
+                    <input type="number" step="any" name="coiff_enr_quantite" id="coiff_enr_quantite" class="form-control" placeholder=". . .">
+                    <input type="hidden" id="coiff_enr_prix" value="`+self.data("prix")+`">
+                    <input type="hidden" id="coiff_enr_id" value="`+self.data("value")+`">
+                </div>
+            `,
+            buttons : {
+                Annuler: function(){},
+                btn2:{
+                    text: 'Ajouter',
+                    btnClass: 'btn-green',
+                    keys: ['enter'],
+                    action: function(){
+                        var coiff_enr_quantite = $("#coiff_enr_quantite").val() ; 
+
+                        var result = appBase.verificationElement([
+                            $("#coiff_enr_quantite").val(),
+                        ],[
+                            "Quantié",
+                        ]) ;
+                
+                        if(!result["allow"])
+                        {
+                            $.alert({
+                                title: 'Message',
+                                content: result["message"],
+                                type: result["type"],
+                            });
+                
+                            return result["allow"] ;
+                        }
+                        var coiff_enr_designation = $("#coiff_enr_designation").text() ; 
+                        var designation = coiff_enr_designation.split(" | ") ;
+                        designation = designation[0]+" | "+designation[1]+" | "+designation[2] ;
+                        var coiff_enr_prix = $("#coiff_enr_prix").val() ; 
+                        var coiff_base_id = $("#coiff_enr_id").val() ; 
+                        var totalLigne = parseFloat(coiff_enr_prix) * parseFloat(coiff_enr_quantite) ;
+                        totalLigne = totalLigne.toFixed(2) ;
+                        var item = `
+                            <tr>
+                                <td>`+designation+`</td>
+                                <td>`+coiff_enr_quantite+`</td>
+                                <td>`+coiff_enr_prix+`</td>
+                                <td>`+totalLigne+`</td>
+                                <td class="text-center align-middle">
+                                    <button type="button" class="btn btn-outline-danger delete_coiff_item font-smaller btn-sm" ><i class="fa fa-times"></i></button>
+                                    <input type="hidden" name="coiff_base_designation[]" id="coiff_base_designation" value="`+designation+`">
+                                    <input type="hidden" name="coiff_base_quantite[]" id="coiff_base_quantite" value="`+coiff_enr_quantite+`">
+                                    <input type="hidden" name="coiff_base_prix[]" id="coiff_base_prix" value="`+coiff_enr_prix+`">
+                                    <input type="hidden" name="coiff_base_id[]" id="coiff_base_id" value="`+coiff_base_id+`">
+                                </td>
+                            </tr>
+                        ` ;
+
+                        $('.elemCoiffCoupes').append(item) ;
+
+                        calculLigneCoiffure() ;
+                    }
+                }
+            }
+        }) ;
+    }) ;
+
+    function calculLigneCoiffure()
+    {
+        var totalHt = 0 ;
+
+        $('.elemCoiffCoupes tr').each(function(){
+            var coiff_base_quantite = parseFloat($(this).find("#coiff_base_quantite").val()) ;
+            var coiff_base_prix = parseFloat($(this).find("#coiff_base_prix").val()) ;
+            var totalLigne = coiff_base_quantite * coiff_base_prix ;
+            totalLigne = totalLigne ;
+            totalHt += totalLigne ;
+        }) ;
+
+        totalHt = totalHt.toFixed(2) ;
+        
+        $(".totalHtCoiff").text(totalHt) ;
+    }
+    
+    $(document).on("click",".delete_coiff_item",function(){
+        $(this).closest("tr").remove() ;
+        calculLigneCoiffure()
+    }) ;
+
+    function arrondirDeuxChiffres(nombre) {
+        // Arrondir le nombre à deux chiffres après la virgule
+        let nombreArrondi = Math.round(nombre * 100) / 100;
+    
+        // Vérifier si le nombre est entier
+        if (Number.isInteger(nombreArrondi)) {
+            return nombreArrondi;
+        }
+    
+        return nombreArrondi.toFixed(2);
+    }
+
+    $(document).on("click",".btn_coiff_employee", function(){
+        var self = $(this) ;
+
+        $(this).addClass("btn-info") ; 
+        $(this).removeClass("btn-outline-default") ;
+
+        $("#coiff_base_employee").val(self.data("value")) ;
+
+        $(".btn_coiff_employee").each(function(){
+            if (!self.is($(this))) 
+            {
+                $(this).removeClass("btn-info") ; 
+                $(this).addClass("btn-outline-default") ;
+            }
+        }) ;
+    })
+
 })

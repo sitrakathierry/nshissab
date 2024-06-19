@@ -9,3 +9,24 @@ top: 10px;
 right: 40px;
 }
 
+.coiff-img
+{
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.content-soins
+{
+  width: 60px;
+  cursor: pointer;
+  transition: .2s !important;
+}
+
+.content-soins:hover
+{
+  border: 1px dashed tomato;
+  border-radius: 5px !important;
+}

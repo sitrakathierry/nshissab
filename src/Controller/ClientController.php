@@ -51,6 +51,7 @@ class ClientController extends AbstractController
         ]) ;
         $this->nomAgence = strtoupper($this->agence->getNom()) ;
     }
+    
     #[Route('/client/creation', name: 'clt_creation')]
     public function clientCreation(): Response
     {

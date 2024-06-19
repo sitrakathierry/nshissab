@@ -63,6 +63,9 @@ class FactDetails
     #[ORM\ManyToOne(inversedBy: 'factDetails')]
     private ?PrdHistoEntrepot $histoEntrepot = null;
 
+    #[ORM\ManyToOne(inversedBy: 'factDetails')]
+    private ?CoiffCpPrix $coiffPrix = null;
+
     public function __construct()
     {
         $this->lvrDetails = new ArrayCollection();
@@ -317,6 +320,18 @@ class FactDetails
     public function setHistoEntrepot(?PrdHistoEntrepot $histoEntrepot): self
     {
         $this->histoEntrepot = $histoEntrepot;
+
+        return $this;
+    }
+
+    public function getCoiffPrix(): ?CoiffCpPrix
+    {
+        return $this->coiffPrix;
+    }
+
+    public function setCoiffPrix(?CoiffCpPrix $coiffPrix): self
+    {
+        $this->coiffPrix = $coiffPrix;
 
         return $this;
     }

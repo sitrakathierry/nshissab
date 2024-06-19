@@ -96,7 +96,7 @@ $(document).ready(function(){
     {
         var instance = new Loading(files.search) ;
         $("#accordionExample").html(instance.otherSearch()) ;
-        var formData = new FormData() ;
+        var formData = new FormData() ; 
         for (let j = 0; j < elemSearch.length; j++) {
             const search = elemSearch[j];
             formData.append(search.name,$(search.selector).val());
@@ -123,7 +123,6 @@ $(document).ready(function(){
     })
 
     $("#search_depense").change(function(){
-
         $("#caption_search_date").hide()
         $("#caption_search_date_debut").hide()
         $("#caption_search_date_fin").hide()
@@ -169,14 +168,15 @@ $(document).ready(function(){
         searchDepense()
 
         var currentDate = new Date();
-        var year = currentDate.getFullYear();
-        var month = currentDate.getMonth() + 1; 
+        // var year = currentDate.getFullYear();
+        // var month = currentDate.getMonth() + 1; 
 
+        $("#search_current_date").val("")
         $("#search_date").val("")
         $("#search_date_debut").val("")
         $("#search_date_fin").val("")
-        $("#search_mois").val(month)
-        $(".search_annee").val(year)
+        $("#search_mois").val("")
+        $(".search_annee").val("")
 
         $(".chosen_select").trigger("chosen:updated")
     })

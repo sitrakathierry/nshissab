@@ -288,6 +288,19 @@ background-color: #ecb534 !important;
   border-color: var(--purple) ;
 }
 
+.btn-outline-default
+{
+  color: var(--dark);
+  border-color: var(--dark);
+}
+
+.btn-outline-default:hover
+{
+  color: var(--dark) ;
+  background-color: transparent ;
+  border-color: var(--dark) ;
+}
+
 .btn-purple
 {
   color: white;

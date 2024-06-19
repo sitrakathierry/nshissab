@@ -26,6 +26,7 @@
 			<link rel="stylesheet" href="{{asset('tools/calendar/zabuto_calendar.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/lightbox/dist/css/lightbox.css')}}">
 			<link rel="stylesheet" href="{{asset('tools/autocomplete/jquery-ui.css')}}" />
+			<link rel="stylesheet" href="{{asset('tools/dataTables/css/dataTables.dataTables.min.css')}}" />
 			{# <link rel="stylesheet" href="{{asset('tools/chosen/chosen.min.css')}}"> #}
 		{% endblock %}
 		{# <script src="{{asset('tools/personnal/js/html2pdf.bundle.min.js')}}"></script> #}
@@ -75,6 +76,7 @@
 			<script src="{{asset('tools/easyToolTip/easyTooltip.js')}}"></script>
 			<script src="{{asset('tools/htmlToCanvas/html2canvas.min.js')}}"></script>
 			<script src="{{asset('tools/htmlToCanvas/canvas2image.js')}}"></script>
+			<script src="{{asset('tools/dataTables/js/dataTables.min.js')}}"></script>
 			{# <script src="{{asset('tools/chosen/chosen.jquery.min.js')}}"></script> #}
 			<script src="{{asset('tools/personnal/js/jspdf.min.js')}}"></script>
 			<script src="{{asset('tools/autocomplete/jquery-ui.js')}}"></script>
@@ -401,6 +403,14 @@
 					compta_recette_journalier_imprimer:"{{path('compta_recette_journalier_imprimer')}}",
 					param_delete_affectation:"{{path('param_delete_affectation')}}",
 					clt_client_information_search:"{{path('clt_client_information_search')}}",
+					coiffure_categorie_coupes:"{{path('coiffure_categorie_coupes')}}",
+					coiffure_coupes_cheuveux:"{{path('coiffure_coupes_cheuveux')}}",
+					coiffure_employee:"{{path('coiffure_employee')}}",
+					fact_creation_prest_coiffure:"{{path('fact_creation_prest_coiffure')}}",
+					coiffure_categorie_coupes_save:"{{path('coiffure_categorie_coupes_save')}}",
+					coiffure_coupes_cheuveux_save:"{{path('coiffure_coupes_cheuveux_save')}}",
+					coiffure_employee_save:"{{path('coiffure_employee_save')}}",
+					coiff_coupes_item_prix_search:"{{path('coiff_coupes_item_prix_search')}}",
 				}; 
 
 				const files = { 

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CaisseCommande;
+use App\Entity\CoiffCpPrix;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\FactDetails;
@@ -443,6 +444,32 @@ class FactureRepository extends ServiceEntityRepository
         }
 
         return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function enregistreFactureCoiffure($params = [])
+    {
+        foreach ($params["designation"] as $key => $value) {
+            $factDetail = new FactDetails() ;
+            $coiffPrix = $this->getEntityManager()->getRepository(CoiffCpPrix::class)->find($params["idCoiff"][$key]) ;
+            $tvaVal = NULL ;
+            $remiseVal = NULL ;
+            $typeRemiseUnit = NULL ;
+            $histoEntrepot = NULL ;
+
+            $factDetail->setHistoEntrepot($histoEntrepot) ;
+            $factDetail->setFacture($params["facture"]) ; 
+            $factDetail->setCoiffPrix($coiffPrix) ; 
+            $factDetail->setRemiseType($typeRemiseUnit) ;
+            $factDetail->setRemiseVal($remiseVal) ;
+            $factDetail->setDesignation($value) ;
+            $factDetail->setQuantite($params["quantite"][$key]) ;
+            $factDetail->setPrix($params["prix"][$key]) ;
+            $factDetail->setTvaVal($tvaVal) ;
+            $factDetail->setStatut(True) ;
+
+            $this->getEntityManager()->persist($factDetail) ;
+            $this->getEntityManager()->flush() ; 
+        }
     }
 
 //    /**

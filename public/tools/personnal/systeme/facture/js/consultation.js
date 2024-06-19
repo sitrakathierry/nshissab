@@ -278,5 +278,5 @@ $(document).ready(function(){
         $(document).on(elem.action,elem.selector,function(){
             searchContrat()
         })
-    })
+    }) ;
 })

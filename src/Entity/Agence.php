@@ -235,6 +235,18 @@ class Agence
     #[ORM\OneToMany(mappedBy: 'agence', targetEntity: BtpSurface::class)]
     private Collection $btpSurfaces;
 
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CoiffCategorie::class)]
+    private Collection $coiffCategories;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CoiffCoupes::class)]
+    private Collection $coiffCoupes;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CoiffCpPrix::class)]
+    private Collection $coiffCpPrixes;
+
+    #[ORM\OneToMany(mappedBy: 'agence', targetEntity: CoiffEmployee::class)]
+    private Collection $coiffEmployees;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -298,6 +310,10 @@ class Agence
         $this->agdLivraisons = new ArrayCollection();
         $this->prdEntrpAffectations = new ArrayCollection();
         $this->btpSurfaces = new ArrayCollection();
+        $this->coiffCategories = new ArrayCollection();
+        $this->coiffCoupes = new ArrayCollection();
+        $this->coiffCpPrixes = new ArrayCollection();
+        $this->coiffEmployees = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -2272,6 +2288,126 @@ class Agence
             // set the owning side to null (unless already changed)
             if ($btpSurface->getAgence() === $this) {
                 $btpSurface->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CoiffCategorie>
+     */
+    public function getCoiffCategories(): Collection
+    {
+        return $this->coiffCategories;
+    }
+
+    public function addCoiffCategory(CoiffCategorie $coiffCategory): self
+    {
+        if (!$this->coiffCategories->contains($coiffCategory)) {
+            $this->coiffCategories->add($coiffCategory);
+            $coiffCategory->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoiffCategory(CoiffCategorie $coiffCategory): self
+    {
+        if ($this->coiffCategories->removeElement($coiffCategory)) {
+            // set the owning side to null (unless already changed)
+            if ($coiffCategory->getAgence() === $this) {
+                $coiffCategory->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CoiffCoupes>
+     */
+    public function getCoiffCoupes(): Collection
+    {
+        return $this->coiffCoupes;
+    }
+
+    public function addCoiffCoupe(CoiffCoupes $coiffCoupe): self
+    {
+        if (!$this->coiffCoupes->contains($coiffCoupe)) {
+            $this->coiffCoupes->add($coiffCoupe);
+            $coiffCoupe->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoiffCoupe(CoiffCoupes $coiffCoupe): self
+    {
+        if ($this->coiffCoupes->removeElement($coiffCoupe)) {
+            // set the owning side to null (unless already changed)
+            if ($coiffCoupe->getAgence() === $this) {
+                $coiffCoupe->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CoiffCpPrix>
+     */
+    public function getCoiffCpPrixes(): Collection
+    {
+        return $this->coiffCpPrixes;
+    }
+
+    public function addCoiffCpPrix(CoiffCpPrix $coiffCpPrix): self
+    {
+        if (!$this->coiffCpPrixes->contains($coiffCpPrix)) {
+            $this->coiffCpPrixes->add($coiffCpPrix);
+            $coiffCpPrix->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoiffCpPrix(CoiffCpPrix $coiffCpPrix): self
+    {
+        if ($this->coiffCpPrixes->removeElement($coiffCpPrix)) {
+            // set the owning side to null (unless already changed)
+            if ($coiffCpPrix->getAgence() === $this) {
+                $coiffCpPrix->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CoiffEmployee>
+     */
+    public function getCoiffEmployees(): Collection
+    {
+        return $this->coiffEmployees;
+    }
+
+    public function addCoiffEmployee(CoiffEmployee $coiffEmployee): self
+    {
+        if (!$this->coiffEmployees->contains($coiffEmployee)) {
+            $this->coiffEmployees->add($coiffEmployee);
+            $coiffEmployee->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoiffEmployee(CoiffEmployee $coiffEmployee): self
+    {
+        if ($this->coiffEmployees->removeElement($coiffEmployee)) {
+            // set the owning side to null (unless already changed)
+            if ($coiffEmployee->getAgence() === $this) {
+                $coiffEmployee->setAgence(null);
             }
         }
 

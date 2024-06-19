@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            {# <div class="col-md-4">
                 <label for="nom" class="mt-2 font-weight-bold text-uppercase">Mois Facture</label>
                 <div class="row">
                     <div class="col-md-7" >
@@ -63,7 +63,7 @@
                         <input type="number" name="search_annee_facture" id="search_annee_facture" value="{{'now'|date('Y')}}" class="form-control search_annee_facture">
                     </div>
                 </div>
-            </div>
+            </div> #}
             <div class="col-md-3">
                 <label for="search_depense" class="mt-2 font-weight-bold text-uppercase">Recherche déclaration</label>
                 <select name="search_depense" class="custom-select chosen_select custom-select-sm" id="search_depense">
@@ -73,7 +73,7 @@
                     <option value="LIMIT">{{"Fourchette"|upper}}</option>
                     <option value="MOIS">{{"Mois"|upper}}</option>
                 </select>
-                <input type="hidden" id="search_current_date" value="{{'now'|date('d/m/Y')}}" >
+                <input type="hidden" id="search_current_date" value="" >
             </div>
             <div class="col-md-3" style="display: none;" id="caption_search_date">
                 <label for="search_date" class="mt-2 font-weight-bold text-uppercase">Date</label>

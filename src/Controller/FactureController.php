@@ -17,6 +17,8 @@ use App\Entity\Client;
 use App\Entity\CltHistoClient;
 use App\Entity\CltSociete;
 use App\Entity\CltTypes;
+use App\Entity\CoiffCpPrix;
+use App\Entity\CoiffEmployee;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\CrdStatut;
@@ -817,7 +819,7 @@ class FactureController extends AbstractController
 
         return new Response($response) ;
     }
-
+ 
     #[Route('/facture/retenu/consultation', name: 'ftr_retenu_consultation')]
     public function factureRetenusConsultation() : Response
     { 
@@ -2005,6 +2007,24 @@ class FactureController extends AbstractController
                 return new JsonResponse($result) ;
             }
         }
+        else if($modele->getReference() == "COIFF")
+        {
+            $coiff_base_designation = (array)$request->request->get('coiff_base_designation') ;
+            if(empty($coiff_base_designation) || !isset($coiff_base_designation) || is_null($coiff_base_designation))
+            {
+                $result["type"] = "orange" ;
+                $result["message"] = "Veuiller insérer au moins un élément de Coiffure" ;
+                return new JsonResponse($result) ;
+            }
+
+            $coiff_base_employee = $request->request->get('coiff_base_employee') ;
+            if(empty($coiff_base_employee))
+            {
+                $result["type"] = "orange" ;
+                $result["message"] = "Séléctionner un employée de Coiffure" ;
+                return new JsonResponse($result) ;
+            }
+        }
 
         $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
 
@@ -2021,12 +2041,14 @@ class FactureController extends AbstractController
         // DEBUT D'INSERTION DE DONNEE
 
         $fact_type_remise_prod_general = !empty($request->request->get('fact_type_remise_prod_general')) ? $this->entityManager->getRepository(FactRemiseType::class)->find($request->request->get('fact_type_remise_prod_general')) : null ; 
+        
         if(!is_null($fact_type_remise_prod_general))
             $fact_remise_prod_general = !empty($request->request->get('fact_remise_prod_general')) ? $request->request->get('fact_remise_prod_general') : null ; 
         else
             $fact_remise_prod_general = null ;
         
         $fact_enr_total_tva = $request->request->get('fact_enr_total_tva') ; 
+        $fact_enr_total_tva = isset($fact_enr_total_tva) ? $fact_enr_total_tva : null ;
 
         $fact_nouveau_client = $request->request->get('fact_nouveau_client') ; 
 
@@ -2041,7 +2063,6 @@ class FactureController extends AbstractController
             ], [
                 "Statut Nouveau Client",
             ]) ;
-
 
             if(!$result["allow"])
                 return new JsonResponse($result) ;
@@ -2116,7 +2137,6 @@ class FactureController extends AbstractController
 
             if(file_exists($filename))
                 unlink($filename) ;
- 
         }
         else
         {
@@ -2168,8 +2188,18 @@ class FactureController extends AbstractController
         else
             $entrepot = null ;
 
+        if($modele->getReference() == "COIFF")
+        {
+            $employee = $this->entityManager->getRepository(CoiffEmployee::class)->find($coiff_base_employee) ;
+        }
+        else
+        {
+            $employee = null ;
+        }
+
         $facture->setAgence($this->agence) ;
         $facture->setUser($this->userObj) ;
+        $facture->setEmployee($employee) ;
         $facture->setClient($client) ;
         $facture->setType($type);
         $facture->setModele($modele) ;
@@ -2406,7 +2436,6 @@ class FactureController extends AbstractController
                     $this->entityManager->flush() ; 
                 }
             }
-
         } 
         else if($modeleRef == "PBAT")
         {
@@ -2454,6 +2483,17 @@ class FactureController extends AbstractController
                 $this->entityManager->persist($factSupDetailsPbat) ;
                 $this->entityManager->flush() ; 
             }
+        }
+        else if($modeleRef == "COIFF")
+        {
+            $this->entityManager->getRepository(Facture::class)->enregistreFactureCoiffure([
+                "idCoiff" =>  $request->request->get("coiff_base_id"),
+                "facture" =>  $facture,
+                "designation" => (array)$request->request->get("coiff_base_designation"),
+                "quantite" => $request->request->get("coiff_base_quantite"),
+                "prix" => $request->request->get("coiff_base_prix"),
+                "employee" => $request->request->get("coiff_base_employee"),
+            ]) ;
         }
 
         // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
@@ -3273,4 +3313,31 @@ class FactureController extends AbstractController
 
         return new Response($response) ;
     } 
+
+    #[Route('/facture/creation/coiffure/get', name: 'fact_creation_prest_coiffure')]
+    public function factureGetPrestationCoiffure(Request $request)
+    {
+        $employees = $this->entityManager->getRepository(CoiffEmployee::class)->generateCoiffEmployee([
+            "agence" => $this->agence,
+            "filename" => "files/systeme/coiffure/employee(agence)/".$this->nameAgence 
+        ]) ;
+
+        $cpPrixs = $this->entityManager->getRepository(CoiffCpPrix::class)->generatePrixCoupes([
+            "agence" => $this->agence,
+            "filename" => "files/systeme/coiffure/prixCoupes(agence)/".$this->nameAgence
+        ]) ;
+
+        $search = [
+            "genre" => "FEMME",
+        ] ;
+
+        $cpPrixs = $this->appService->searchData($cpPrixs,$search) ;
+
+        $responses = $this->renderView("facture/prestCoiffure.html.twig",[
+            "employees" => $employees,
+            "cpPrixs" => $cpPrixs,
+        ]) ;
+
+        return new Response($responses) ;
+    }
 }

@@ -300,7 +300,7 @@ $(document).ready(function(){
             if (!self.is($(this))) {
                 $(this).empty() ; 
             }
-        })
+        }) ;
 
         var realinstance = instance.loading()
         var formData = new FormData() ;
