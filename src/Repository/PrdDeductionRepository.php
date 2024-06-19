@@ -110,7 +110,7 @@ class PrdDeductionRepository extends ServiceEntityRepository
         // return $response[0] ;
 
         $conn = $this->getEntityManager()->getConnection();
-        $sql = "SELECT * FROM `prd_deduction` WHERE `cause` LIKE ? AND `variation_prix_id` = ? AND DATE(`created_at`) = ? AND `quantite` = ? ";
+        $sql = "SELECT * FROM `prd_deduction` WHERE `cause` LIKE ? AND `variation_prix_id` = ? AND DATE(`created_at`) = ? AND `quantite` = ? ORDER BY id DESC LIMIT 1 ";
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([
             '%Déduction sur Dépôt Dépot%',
