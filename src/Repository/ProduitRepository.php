@@ -231,6 +231,8 @@ class ProduitRepository extends ServiceEntityRepository
                             "quantite" => $appro->getQuantite(),
                         ]) ;
 
+                        dd($deduction) ;
+
                         if(!is_null($deduction))
                         {
                             $entrpSource = $deduction->getHistoEntrepot()->getEntrepot()->getNom() ;
