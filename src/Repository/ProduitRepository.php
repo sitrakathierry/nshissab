@@ -231,12 +231,17 @@ class ProduitRepository extends ServiceEntityRepository
                             "quantite" => $appro->getQuantite(),
                         ]) ;
 
-                        dd($deduction) ;
+                        
 
                         if(!is_null($deduction))
                         {
-                            $entrpSource = $deduction->getHistoEntrepot()->getEntrepot()->getNom() ;
-                            $idEntSource = $deduction->getHistoEntrepot()->getEntrepot()->getId() ;
+                            try {
+                                $entrpSource = $deduction->getHistoEntrepot()->getEntrepot()->getNom() ;
+                                $idEntSource = $deduction->getHistoEntrepot()->getEntrepot()->getId() ;
+                                
+                            } catch (\Exception $e) {
+                                dd($deduction) ;
+                            }   
                         }
 
                         $listes[] = [
