@@ -3067,18 +3067,16 @@ class StockController extends AbstractController
         $modif_inpt_charge = $request->request->get("modif_inpt_charge") ;
         $modif_inpt_marge_valeur = $request->request->get("modif_inpt_marge_valeur") ;
 
+        $modif_inpt_prix_achat = empty($modif_inpt_prix_achat) ? NULL : floatval($modif_inpt_prix_achat) ;
+        $modif_inpt_charge = empty($modif_inpt_charge) ? NULL : floatval($modif_inpt_charge) ;
+        $modif_inpt_marge_valeur = empty($modif_inpt_marge_valeur) ? NULL : floatval($modif_inpt_marge_valeur) ;
+
         $data = [
             $modif_inpt_prix,
-            $modif_inpt_prix_achat,
-            $modif_inpt_charge,
-            $modif_inpt_marge_valeur,
         ];
 
         $dataMessage = [
             "Prix de Vente",
-            "Prix d'Achat",
-            "Charge",
-            "Marge Valeur",
         ] ;
 
         $result = $this->appService->verificationElement($data,$dataMessage) ;
@@ -3088,10 +3086,11 @@ class StockController extends AbstractController
         
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($modif_variationId) ;
         
-        $variationPrix->setPrixVente(floatval($modif_inpt_prix)) ;
-        $variationPrix->setPrixAchat(floatval($modif_inpt_prix_achat)) ;
-        $variationPrix->setCharge(floatval($modif_inpt_charge)) ;
+        $variationPrix->setPrixVente($modif_inpt_prix) ;
+        $variationPrix->setPrixAchat($modif_inpt_prix_achat) ;
+        $variationPrix->setCharge($modif_inpt_charge) ;
         $variationPrix->setMargeValeur(floatval($modif_inpt_marge_valeur)) ;
+
         $this->entityManager->flush() ;
 
         $modif_inpt_solde_type = $request->request->get("modif_inpt_solde_type") ;
@@ -3117,6 +3116,7 @@ class StockController extends AbstractController
             ]) ;
 
             $margeType = $this->entityManager->getRepository(PrdMargeType::class)->find($modif_inpt_solde_type) ;
+            
             $calculee = $margeType->getCalcul() == 1 ? $modif_inpt_solde : $variationPrix->getPrixVente() - (($modif_inpt_solde * $variationPrix->getPrixVente()) / 100) ;
 
             if(!is_null($solde))
@@ -3210,7 +3210,7 @@ class StockController extends AbstractController
     #[Route('/stock/variation/details/get', name: 'stock_get_details_variation_prix')]
     public function stockGetDetailsVariationProduit(Request $request)
     {
-        $prd_list_id = $request->request->get("prd_list_id") ;
+        $prd_list_id = $request->request->get("prd_list_id") ; 
 
         $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($prd_list_id) ;
 

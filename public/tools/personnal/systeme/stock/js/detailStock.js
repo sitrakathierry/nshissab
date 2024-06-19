@@ -222,7 +222,7 @@ $(document).ready(function(){
         })
         return false ;
     }) 
-
+ 
     $(document).on("click",".prod_edit_variation",function(){
         var prd_list_id = $(this).closest("tr").find(".prd_list_id").val()
         var realinstance = instance.loading()
