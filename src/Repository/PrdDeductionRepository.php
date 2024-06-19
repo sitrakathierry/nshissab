@@ -89,25 +89,36 @@ class PrdDeductionRepository extends ServiceEntityRepository
 
     public function getAssocDepotInDeduction($params = [])
     {
-        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        // $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 
-        $response = $queryBuilder
-                ->select('pd')
-                ->from(PrdDeduction::class, 'pd')
-                ->where('pd.cause LIKE :cause')
-                ->andWhere('pd.variationPrix = :variation_prix')
-                ->andWhere('DATE(pd.createdAt) = :createdAt')
-                ->andWhere('pd.quantite = :quantite')
-                // ->orderBy('p.id', "DESC") 
-                ->setMaxResults(1) 
-                ->setParameter('cause','%Déduction sur Dépôt Dépot%')
-                ->setParameter('variation_prix',$params["variationPrix"])
-                ->setParameter('createdAt',$params["createdAt"]->format("Y-m-d"))
-                ->setParameter('quantite',$params["quantite"])
-                ->getQuery()
-                ->getResult() ;
+        // $response = $queryBuilder
+        //         ->select('pd')
+        //         ->from(PrdDeduction::class, 'pd')
+        //         ->where('pd.cause LIKE :cause')
+        //         ->andWhere('pd.variationPrix = :variation_prix')
+        //         ->andWhere('DATE(pd.createdAt) = :createdAt')
+        //         ->andWhere('pd.quantite = :quantite')
+        //         // ->orderBy('p.id', "DESC") 
+        //         ->setMaxResults(1) 
+        //         ->setParameter('cause',)
+        //         ->setParameter('variation_prix',$params["variationPrix"])
+        //         ->setParameter('createdAt',$params["createdAt"])
+        //         ->setParameter('quantite',$params["quantite"])
+        //         ->getQuery()
+        //         ->getResult() ;
 
-        return $response[0] ;
+        // return $response[0] ;
+
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT * FROM `prd_deduction` WHERE `cause` LIKE ? AND `variation_prix_id` = ? AND DATE(`created_at`) = ? AND `quantite` = ? ";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery([
+            '%Déduction sur Dépôt Dépot%',
+            $params["variationPrix"],
+            $params["createdAt"],
+            $params["quantite"],
+        ]);
+        return $resultSet->fetchAssociative();
     }
 //    /**
 //     * @return PrdDeduction[] Returns an array of PrdDeduction objects

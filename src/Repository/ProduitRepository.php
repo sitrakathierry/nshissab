@@ -227,7 +227,7 @@ class ProduitRepository extends ServiceEntityRepository
 
                         $deduction = $this->getEntityManager()->getRepository(PrdDeduction::class)->getAssocDepotInDeduction([
                             "variationPrix" => $idVariation,
-                            "createdAt" => $appro->getCreatedAt(),
+                            "createdAt" => $appro->getCreatedAt()->format("Y-m-d"),
                             "quantite" => $appro->getQuantite(),
                         ]) ;
 
