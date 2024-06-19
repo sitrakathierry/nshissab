@@ -208,7 +208,7 @@ class ProduitRepository extends ServiceEntityRepository
                         ->where('ap.description LIKE :description')
                         ->andWhere('ap.variationPrix = :variationPrix')
                         ->setParameter('description', '%Dépôt-Dépôt%')
-                        ->setParameter('variationPrix',$idVariation)
+                        ->setParameter('variationPrix', $idVariation)
                         ->getQuery()
                         ->getResult() ;
                         
@@ -226,7 +226,9 @@ class ProduitRepository extends ServiceEntityRepository
                         
 
                         $deduction = $this->getEntityManager()->getRepository(PrdDeduction::class)->getAssocDepotInDeduction([
-                            "variationPrix" => $idVariation
+                            "variationPrix" => $idVariation,
+                            "createdAt" => $appro->getCreatedAt(),
+                            "quantite" => $appro->getQuantite(),
                         ]) ;
 
                         if(!is_null($deduction))

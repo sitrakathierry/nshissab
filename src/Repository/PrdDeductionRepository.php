@@ -91,15 +91,23 @@ class PrdDeductionRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 
-        return $queryBuilder
+        $response = $queryBuilder
                 ->select('pd')
                 ->from(PrdDeduction::class, 'pd')
                 ->where('pd.cause LIKE :cause')
                 ->andWhere('pd.variationPrix = :variation_prix')
+                ->andWhere('DATE(pd.createdAt) = :createdAt')
+                ->andWhere('pd.quantite = :quantite')
+                // ->orderBy('p.id', "DESC") 
+                ->setMaxResults(1) 
                 ->setParameter('cause','%Déduction sur Dépôt Dépot%')
                 ->setParameter('variation_prix',$params["variationPrix"])
+                ->setParameter('createdAt',$params["createdAt"]->format("Y-m-d"))
+                ->setParameter('quantite',$params["quantite"])
                 ->getQuery()
-                ->getOneOrNullResult() ;
+                ->getResult() ;
+
+        return $response[0] ;
     }
 //    /**
 //     * @return PrdDeduction[] Returns an array of PrdDeduction objects
