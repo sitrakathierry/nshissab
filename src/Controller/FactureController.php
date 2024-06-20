@@ -2016,14 +2016,6 @@ class FactureController extends AbstractController
                 $result["message"] = "Veuiller insérer au moins un élément de Coiffure" ;
                 return new JsonResponse($result) ;
             }
-
-            $coiff_base_employee = $request->request->get('coiff_base_employee') ;
-            if(empty($coiff_base_employee))
-            {
-                $result["type"] = "orange" ;
-                $result["message"] = "Séléctionner un employée de Coiffure" ;
-                return new JsonResponse($result) ;
-            }
         }
 
         $fact_libelle = empty($fact_libelle) ? null : $fact_libelle ;
@@ -2187,19 +2179,9 @@ class FactureController extends AbstractController
             $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($fact_mod_prod_entrepot) ;
         else
             $entrepot = null ;
-
-        if($modele->getReference() == "COIFF")
-        {
-            $employee = $this->entityManager->getRepository(CoiffEmployee::class)->find($coiff_base_employee) ;
-        }
-        else
-        {
-            $employee = null ;
-        }
-
+        
         $facture->setAgence($this->agence) ;
         $facture->setUser($this->userObj) ;
-        $facture->setEmployee($employee) ;
         $facture->setClient($client) ;
         $facture->setType($type);
         $facture->setModele($modele) ;
@@ -2254,21 +2236,6 @@ class FactureController extends AbstractController
         }
 
         // FIN ENREGISTREMENT AVOIR DU CLIENT
-
-        // DEBUT SAUVEGARDE HISTORIQUE
-
-        $this->entityManager->getRepository(HistoHistorique::class)
-        ->insererHistorique([
-            "refModule" => "FACT",
-            "nomModule" => "FACTURE",
-            "refAction" => "CRT",
-            "user" => $this->userObj,
-            "agence" => $this->agence,
-            "nameAgence" => $this->nameAgence,
-            "description" => "Création Facture N° : ".$numFacture,
-        ]) ;
-
-        // FIN SAUVEGARDE HISTORIQUE
         
         /*
             Statut : 
@@ -2495,6 +2462,21 @@ class FactureController extends AbstractController
                 "employee" => $request->request->get("coiff_base_employee"),
             ]) ;
         }
+
+        // DEBUT SAUVEGARDE HISTORIQUE
+
+        $this->entityManager->getRepository(HistoHistorique::class)
+        ->insererHistorique([
+            "refModule" => "FACT",
+            "nomModule" => "FACTURE",
+            "refAction" => "CRT",
+            "user" => $this->userObj,
+            "agence" => $this->agence,
+            "nameAgence" => $this->nameAgence,
+            "description" => "Création Facture N° : ".$numFacture,
+        ]) ;
+
+        // FIN SAUVEGARDE HISTORIQUE
 
         // INSERTION DE FINANCE : CREDIT et ACOMPTE (reference CR et AC)
         if(!is_null($paiement))

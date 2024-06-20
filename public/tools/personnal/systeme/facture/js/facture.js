@@ -1204,6 +1204,7 @@ $(document).ready(function(){
 
     $(document).on("click",".item_coiff_coupes",function(){
         var self = $(this) ;
+        var dataCoiffeur = $(".dataCoiffeur").html() ;
         // <input type="text" readonly id="coiff_enr_designation" class="form-control" value="`+self.data("content")+`">
 
         $.confirm({
@@ -1215,6 +1216,10 @@ $(document).ready(function(){
                     <textarea name="coiff_enr_designation" id="coiff_enr_designation" rows="3" class="w-100 px-2">`+self.data("content")+`</textarea>
                     <label for="coiff_quantite" class="mt-2 font-weight-bold">Quantité</label>
                     <input type="number" step="any" name="coiff_enr_quantite" id="coiff_enr_quantite" class="form-control" placeholder=". . .">
+                    <label for="coiff_quantite" class="mt-2 font-weight-bold">Coiffeur concerné</label>
+                    <select name="coiff_enr_employee" class="custom-select custom-select-sm" id="coiff_enr_employee">
+                        `+dataCoiffeur+`
+                    </select>
                     <input type="hidden" id="coiff_enr_prix" value="`+self.data("prix")+`">
                     <input type="hidden" id="coiff_enr_id" value="`+self.data("value")+`">
                 </div>
@@ -1227,11 +1232,14 @@ $(document).ready(function(){
                     keys: ['enter'],
                     action: function(){
                         var coiff_enr_quantite = $("#coiff_enr_quantite").val() ; 
+                        var coiff_enr_employee = $("#coiff_enr_employee").val() ; 
 
                         var result = appBase.verificationElement([
-                            $("#coiff_enr_quantite").val(),
+                            coiff_enr_quantite,
+                            coiff_enr_employee,
                         ],[
                             "Quantié",
+                            "Coiffeur",
                         ]) ;
                 
                         if(!result["allow"])
@@ -1245,6 +1253,7 @@ $(document).ready(function(){
                             return result["allow"] ;
                         }
                         var coiff_enr_designation = $("#coiff_enr_designation").text() ; 
+                        var optCoiffEmployee = $("#coiff_enr_employee").find('option:selected') ; 
                         var designation = coiff_enr_designation.split(" | ") ;
                         designation = designation[0]+" | "+designation[1]+" | "+designation[2] ;
                         var coiff_enr_prix = $("#coiff_enr_prix").val() ; 
@@ -1253,6 +1262,7 @@ $(document).ready(function(){
                         totalLigne = totalLigne.toFixed(2) ;
                         var item = `
                             <tr>
+                                <td>`+optCoiffEmployee.text()+`</td>
                                 <td>`+designation+`</td>
                                 <td>`+coiff_enr_quantite+`</td>
                                 <td>`+coiff_enr_prix+`</td>
@@ -1260,6 +1270,8 @@ $(document).ready(function(){
                                 <td class="text-center align-middle">
                                     <button type="button" class="btn btn-outline-danger delete_coiff_item font-smaller btn-sm" ><i class="fa fa-times"></i></button>
                                     <input type="hidden" name="coiff_base_designation[]" id="coiff_base_designation" value="`+designation+`">
+                                    <input type="hidden" name="coiff_base_employee[]" id="coiff_base_employee" value="`+coiff_enr_employee+`">
+                                    <input type="hidden" name="coiff_base_employee_nom[]" id="coiff_base_employee_nom" value="`+optCoiffEmployee.text()+`">
                                     <input type="hidden" name="coiff_base_quantite[]" id="coiff_base_quantite" value="`+coiff_enr_quantite+`">
                                     <input type="hidden" name="coiff_base_prix[]" id="coiff_base_prix" value="`+coiff_enr_prix+`">
                                     <input type="hidden" name="coiff_base_id[]" id="coiff_base_id" value="`+coiff_base_id+`">
@@ -1279,18 +1291,48 @@ $(document).ready(function(){
     function calculLigneCoiffure()
     {
         var totalHt = 0 ;
+        var dataEmployee = [] ;
 
         $('.elemCoiffCoupes tr').each(function(){
+            var self = $(this) ;
+            var coiff_base_employee = $(this).find("#coiff_base_employee").val() ;
             var coiff_base_quantite = parseFloat($(this).find("#coiff_base_quantite").val()) ;
             var coiff_base_prix = parseFloat($(this).find("#coiff_base_prix").val()) ;
             var totalLigne = coiff_base_quantite * coiff_base_prix ;
             totalLigne = totalLigne ;
             totalHt += totalLigne ;
+            var keyEmp = "EMP"+coiff_base_employee ;
+            if (keyEmp in dataEmployee)
+            {
+                dataEmployee[keyEmp]["nombre"] += 1 ; 
+            }
+            else
+            {
+                dataEmployee[keyEmp] = {
+                    id : coiff_base_employee,
+                    nom : self.find("#coiff_base_employee_nom").val(),
+                    nombre : 1
+                }
+            }
         }) ;
+
+        var itemEmp = '' ;
+
+        for (const key in dataEmployee) {
+            if (dataEmployee.hasOwnProperty(key)) {
+              var element = dataEmployee[key] ;
+              itemEmp += `
+                  <button type="button" data-value="`+element+`" class="text-uppercase btn-outline-default btn_coiff_employee font-smaller p-2 btn btn-block">
+                      <i class="fa fa-hand-scissors"></i>&nbsp;`+element.nom+`&emsp;(`+element.nombre+`)
+                  </button>
+              ` ;
+            }
+        }
 
         totalHt = totalHt.toFixed(2) ;
         
         $(".totalHtCoiff").text(totalHt) ;
+        $(".addedCoiffeur").html(itemEmp) ;
     }
     
     $(document).on("click",".delete_coiff_item",function(){
@@ -1298,33 +1340,21 @@ $(document).ready(function(){
         calculLigneCoiffure()
     }) ;
 
-    function arrondirDeuxChiffres(nombre) {
-        // Arrondir le nombre à deux chiffres après la virgule
-        let nombreArrondi = Math.round(nombre * 100) / 100;
-    
-        // Vérifier si le nombre est entier
-        if (Number.isInteger(nombreArrondi)) {
-            return nombreArrondi;
-        }
-    
-        return nombreArrondi.toFixed(2);
-    }
+    // $(document).on("click",".btn_coiff_employee", function(){
+    //     var self = $(this) ;
 
-    $(document).on("click",".btn_coiff_employee", function(){
-        var self = $(this) ;
+    //     $(this).addClass("btn-info") ; 
+    //     $(this).removeClass("btn-outline-default") ;
 
-        $(this).addClass("btn-info") ; 
-        $(this).removeClass("btn-outline-default") ;
+    //     $("#coiff_base_employee").val(self.data("value")) ;
 
-        $("#coiff_base_employee").val(self.data("value")) ;
-
-        $(".btn_coiff_employee").each(function(){
-            if (!self.is($(this))) 
-            {
-                $(this).removeClass("btn-info") ; 
-                $(this).addClass("btn-outline-default") ;
-            }
-        }) ;
-    })
+    //     $(".btn_coiff_employee").each(function(){
+    //         if (!self.is($(this))) 
+    //         {
+    //             $(this).removeClass("btn-info") ; 
+    //             $(this).addClass("btn-outline-default") ;
+    //         }
+    //     }) ;
+    // })
 
 })

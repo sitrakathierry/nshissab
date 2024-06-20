@@ -9,6 +9,7 @@ use App\Entity\CoiffCategorie;
 use App\Entity\CoiffCoupes;
 use App\Entity\CoiffCpPrix;
 use App\Entity\CoiffEmployee;
+use App\Entity\FactDetails;
 use App\Entity\User;
 use App\Service\AppService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -158,7 +159,7 @@ class CoiffureController extends AbstractController
 
         return $this->render('coiffure/empoloyee.html.twig', [
             "filename" => "coiffure",
-            "titlePage" => "Employée Coiffure",
+            "titlePage" => "Coiffeur",
             "with_foot" => false,
             "sexes" => $sexes,
             "employees" => $employees,
@@ -259,5 +260,43 @@ class CoiffureController extends AbstractController
         $cpPrixs = array_values($cpPrixs) ;
 
         return new JsonResponse($cpPrixs) ;
+    }
+
+    #[Route('/coiffure/employee/suivi', name: 'coiffure_suivi_employee')]
+    public function coiffureSuiviEmployee()
+    {
+        $employees = $this->entityManager->getRepository(CoiffEmployee::class)->findBy([
+            "agence" => $this->agence,
+            "statut" => True
+        ]) ;
+
+        $dataSuivis = [] ;
+
+        foreach ($employees as $employee) {
+            $suiviEmployees = $this->entityManager->getRepository(FactDetails::class)->findBy([
+                "coiffEmployee" => $employee,
+                "statut" => True
+            ]) ;
+            $totalEmp = 0 ; 
+            foreach ($suiviEmployees as $suiviEmployee) {
+                $prix = $suiviEmployee->getPrix() ;
+                $qte = $suiviEmployee->getQuantite() ;
+                $total = $prix * $qte ;
+
+                $totalEmp += $total ;
+            }
+
+            $dataSuivis[] = [
+                "nom" => $employee->getNom(),
+                "montant" => $totalEmp
+            ] ;
+        }
+
+        return $this->render('coiffure/suiviEmployee.html.twig', [
+            "filename" => "coiffure",
+            "titlePage" => "Suivi Coiffeur",
+            "with_foot" => false,
+            "dataSuivis" => $dataSuivis,
+        ]);
     }
 }

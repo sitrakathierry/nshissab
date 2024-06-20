@@ -109,9 +109,6 @@ class Facture
     #[ORM\ManyToOne(inversedBy: 'factures')]
     private ?PrdEntrepot $entrepot = null;
 
-    #[ORM\ManyToOne(inversedBy: 'factures')]
-    private ?CoiffEmployee $employee = null;
-
     public function __construct()
     {
         $this->factHistoPaiements = new ArrayCollection();
@@ -603,18 +600,6 @@ class Facture
     public function setPMultiple(?bool $pMultiple): self
     {
         $this->pMultiple = $pMultiple;
-
-        return $this;
-    }
-
-    public function getEmployee(): ?CoiffEmployee
-    {
-        return $this->employee;
-    }
-
-    public function setEmployee(?CoiffEmployee $employee): self
-    {
-        $this->employee = $employee;
 
         return $this;
     }

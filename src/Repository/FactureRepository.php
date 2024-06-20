@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\CaisseCommande;
 use App\Entity\CoiffCpPrix;
+use App\Entity\CoiffEmployee;
 use App\Entity\CrdDetails;
 use App\Entity\CrdFinance;
 use App\Entity\FactDetails;
@@ -451,6 +452,7 @@ class FactureRepository extends ServiceEntityRepository
         foreach ($params["designation"] as $key => $value) {
             $factDetail = new FactDetails() ;
             $coiffPrix = $this->getEntityManager()->getRepository(CoiffCpPrix::class)->find($params["idCoiff"][$key]) ;
+            $employee = $this->getEntityManager()->getRepository(CoiffEmployee::class)->find($params["employee"][$key]) ;
             $tvaVal = NULL ;
             $remiseVal = NULL ;
             $typeRemiseUnit = NULL ;
@@ -458,6 +460,7 @@ class FactureRepository extends ServiceEntityRepository
 
             $factDetail->setHistoEntrepot($histoEntrepot) ;
             $factDetail->setFacture($params["facture"]) ; 
+            $factDetail->setCoiffEmployee($employee) ; 
             $factDetail->setCoiffPrix($coiffPrix) ; 
             $factDetail->setRemiseType($typeRemiseUnit) ;
             $factDetail->setRemiseVal($remiseVal) ;

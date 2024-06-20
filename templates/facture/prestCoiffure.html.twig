@@ -31,6 +31,7 @@
                     <table class="table table-sm table-bordered">
                         <thead class="thead-dark">
                             <tr>
+                                <th>Coiffeur</th>
                                 <th>Désignation</th>
                                 <th>Quantité</th>
                                 <th>Prix</th>
@@ -43,7 +44,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="3">Total Ht</th>
+                                <th colspan="4">Total Ht</th>
                                 <th class="bg-primary text-white align-middle totalHtCoiff">0</th>
                                 <th class="bg-primary text-white"></th>
                             </tr>
@@ -51,17 +52,18 @@
                     </table>
                 </div>
             </div>
-            <div class="col-2 px-0">
-                <input type="hidden" name="coiff_base_employee" id="coiff_base_employee" value="" >
-                {% for employee in employees %}
-                    <button type="button" data-value="{{employee.id}}" class="text-uppercase btn-outline-default btn_coiff_employee font-smaller p-2 btn btn-block">
-                        <i class="fa fa-hand-scissors"></i>&nbsp;{{employee.nom|upper}} {{employee.prenom|upper}}
-                    </button>
-                {% endfor %}
+            <div class="col-2 px-0 addedCoiffeur">
             </div>
         </div>
     </div>
 </div>
+<div class="d-none dataCoiffeur">
+    <option value="">-</option>
+    {% for employee in employees %}
+        <option value="{{employee.id}}">{{employee.nom|upper}} {{employee.prenom|upper}}</option>
+    {% endfor %}
+</div>
+
 <script>
     $(".chosen_select").chosen({
         no_results_text: "Aucun resultat trouvé : "

@@ -39,9 +39,13 @@ class CoiffEmployee
     #[ORM\OneToMany(mappedBy: 'employee', targetEntity: Facture::class)]
     private Collection $factures;
 
+    #[ORM\OneToMany(mappedBy: 'coiffEmployee', targetEntity: FactDetails::class)]
+    private Collection $factDetails;
+
     public function __construct()
     {
         $this->factures = new ArrayCollection();
+        $this->factDetails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -157,6 +161,36 @@ class CoiffEmployee
             // set the owning side to null (unless already changed)
             if ($facture->getEmployee() === $this) {
                 $facture->setEmployee(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FactDetails>
+     */
+    public function getFactDetails(): Collection
+    {
+        return $this->factDetails;
+    }
+
+    public function addFactDetail(FactDetails $factDetail): self
+    {
+        if (!$this->factDetails->contains($factDetail)) {
+            $this->factDetails->add($factDetail);
+            $factDetail->setCoiffEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactDetail(FactDetails $factDetail): self
+    {
+        if ($this->factDetails->removeElement($factDetail)) {
+            // set the owning side to null (unless already changed)
+            if ($factDetail->getCoiffEmployee() === $this) {
+                $factDetail->setCoiffEmployee(null);
             }
         }
 
