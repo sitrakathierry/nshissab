@@ -287,7 +287,7 @@ class CoiffureController extends AbstractController
             }
 
             $dataSuivis[] = [
-                "nom" => $employee->getNom(),
+                "nom" => $employee->getNom()." ".$employee->getPrenom(),
                 "montant" => $totalEmp
             ] ;
         }
