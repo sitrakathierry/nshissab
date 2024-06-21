@@ -954,11 +954,15 @@ class FactureController extends AbstractController
             $remise = $this->appService->getFactureRemise($factureDetail,$total) ; 
             
             $total = $total - $remise ;
-            
+            if(is_null($factureDetail->getHistoEntrepot()))
+                $idEntrepot = $factureDetail->getHistoEntrepot()->getEntrepot()->getId() ;
+            else
+                $idEntrepot = "-" ;
+
             $element = [] ;
             $element["id"] = $factureDetail->getId() ;
             $element["type"] = $factureDetail->getActivite() ;
-            $element["idEntrepot"] = $factureDetail->getHistoEntrepot()->getEntrepot()->getId() ;
+            $element["idEntrepot"] = $idEntrepot ;
             $element["designation"] = $factureDetail->getDesignation() ;
             $element["quantite"] = $factureDetail->getQuantite() ;
             $element["format"] = "-" ;
@@ -1078,8 +1082,7 @@ class FactureController extends AbstractController
                     "agcDevise" => $agcDevise,
                 ]) ;
             }
-
-            if($facture->getModele()->getReference() == "PBAT")
+            else if($facture->getModele()->getReference() == "PBAT")
             {
                 $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
                 if(!file_exists($filename))
@@ -1113,6 +1116,30 @@ class FactureController extends AbstractController
                     "devises" => $devises, 
                     "agcDevise" => $agcDevise,
                     "detailFactures" => $newTabFactureDetls
+                ]) ;
+            }
+            else if($facture->getModele()->getReference() == "COIFF")
+            {
+                $employees = $this->entityManager->getRepository(CoiffEmployee::class)->generateCoiffEmployee([
+                    "agence" => $this->agence,
+                    "filename" => "files/systeme/coiffure/employee(agence)/".$this->nameAgence 
+                ]) ;
+        
+                $cpPrixs = $this->entityManager->getRepository(CoiffCpPrix::class)->generatePrixCoupes([
+                    "agence" => $this->agence,
+                    "filename" => "files/systeme/coiffure/prixCoupes(agence)/".$this->nameAgence
+                ]) ;
+        
+                $search = [
+                    "genre" => "FEMME",
+                ] ;
+        
+                $cpPrixs = $this->appService->searchData($cpPrixs,$search) ;
+
+                $templateEditFacture = $this->renderView("sav/editFacture/templatePrestationCoiffure.html.twig",[
+                    "employees" => $employees,
+                    "cpPrixs" => $cpPrixs,
+                    "factureDetails" => $elements,
                 ]) ;
             }
         }

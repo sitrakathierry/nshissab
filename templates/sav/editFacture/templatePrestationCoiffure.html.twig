@@ -1,0 +1,104 @@
+<div class="barre_dashed p-3 mt-3">
+    <h5 class="title_form text-black text-uppercase">Ajout élément coiffure</h5>
+    <div class="limit_tbody">
+        <div class="row">
+            <div class="col-3 border-right">
+                <div class="d-flex flex-row flex-wrap align-items-center justify-content-between">
+                    <button type="button" data-value="HOMME" class="btn btn-sm search_coiff_genre btn-outline-primary mx-2"><i class="fa fa-male"></i>&nbsp;HOMME</button>
+                    <button type="button" data-value="FEMME" class="btn btn-sm search_coiff_genre btn-primary mx-2"><i class="fa fa-female"></i>&nbsp;FEMME</button>
+                </div>
+                <div class="mt-3">
+                    <select name="search_coiff_prix" class="custom-select chosen_select custom-select-sm" id="search_coiff_prix">
+                        <option value="">-</option>
+                        {% for cpPrix in cpPrixs %}
+                            <option value="{{cpPrix.id}}" >{{cpPrix.categorie|upper}} | {{cpPrix.nom|upper}} | Prix : {{cpPrix.prix|upper}}</option>
+                        {% endfor %} 
+                    </select>
+                </div>
+                <div class="d-flex flex-row mt-2 align-items-center justify-content-between toolTipParent flex-wrap">
+                    {% set index = 1 %}
+                    {% for cpPrix in cpPrixs %}
+                        <div data-value="{{cpPrix.id}}" data-prix="{{cpPrix.prix}}" class="d-flex flex-column mx-2 text-truncate item_coiff_coupes text-center content-soins" data-content="{{cpPrix.categorie|upper}} | {{cpPrix.nom|upper}} | Prix : {{cpPrix.prix|upper}}" id="toolTipChild_{{index}}">
+                            <img src="{{cpPrix.photo}}" class="mx-auto coiff-img mt-3 img img-fluid" alt="">
+                            <label class="font-smaller text-truncate mb-0 font-weight-bold mt-1" for="">{{cpPrix.nom|upper}}</label>
+                        </div>
+                        {% set index = index + 1 %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-7">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Coiffeur</th>
+                                <th>Désignation</th>
+                                <th>Quantité</th>
+                                <th>Prix</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="elemCoiffCoupes">
+                            {% for factureDetail in factureDetails %}
+                                <tr>
+                                    <td>{{"factureDetail."}}</td>
+                                    <td>{{"factureDetail."}}</td>
+                                    <td>{{"factureDetail."}}</td>
+                                    <td>{{"factureDetail."}}</td>
+                                    <td>{{"factureDetail."}}</td>
+                                    <td class="text-center align-middle">
+                                        <button type="button" class="btn btn-outline-danger delete_coiff_item font-smaller btn-sm" ><i class="fa fa-times"></i></button>
+                                        <input type="hidden" name="coiff_base_designation[]" id="coiff_base_designation" value="`+designation+`">
+                                        <input type="hidden" name="coiff_base_employee[]" id="coiff_base_employee" value="`+coiff_enr_employee+`">
+                                        <input type="hidden" name="coiff_base_employee_nom[]" id="coiff_base_employee_nom" value="`+optCoiffEmployee.text()+`">
+                                        <input type="hidden" name="coiff_base_quantite[]" id="coiff_base_quantite" value="`+coiff_enr_quantite+`">
+                                        <input type="hidden" name="coiff_base_prix[]" id="coiff_base_prix" value="`+coiff_enr_prix+`">
+                                        <input type="hidden" name="coiff_base_id[]" id="coiff_base_id" value="`+coiff_base_id+`">
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4">Total Ht</th>
+                                <th class="bg-primary text-white align-middle totalHtCoiff">0</th>
+                                <th class="bg-primary text-white"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="col-2 px-0 addedCoiffeur">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-none dataCoiffeur">
+    <option value="">-</option>
+    {% for employee in employees %}
+        <option value="{{employee.id}}">{{employee.nom|upper}} {{employee.prenom|upper}}</option>
+    {% endfor %}
+</div>
+
+<script>
+    $(".chosen_select").chosen({
+        no_results_text: "Aucun resultat trouvé : "
+    });
+
+    function toolTipSelector()
+    {
+        for (let i = 1; i <= $(".toolTipParent div").length ; i++) {
+            $("#toolTipChild_"+i).easyTooltip({
+              content: '<div class="text-white font-weight-bold text-uppercase text-center">'+$("#toolTipChild_"+i).data("content")+'</div>',
+              defaultRadius: "3px",
+              tooltipFtSize: "12px",
+              tooltipZindex: 1000,
+              tooltipPadding: "10px 15px",
+              tooltipBgColor: "rgba(0,0,0,0.85)",
+            })
+        }
+    }
+
+    toolTipSelector()
+</script>
