@@ -120,11 +120,13 @@ class ClientController extends AbstractController
         $clt_type = $request->request->get("clt_type") ;
         
         $clt_identity = $request->request->get("clt_identity") ;
+        
+
 
         $result = $this->appService->verificationElement([
-            $clt_type
+            $clt_type,
         ], [
-            "Statut"
+            "Statut",
             ]) ;
 
         if(!$result["allow"])
@@ -132,16 +134,26 @@ class ClientController extends AbstractController
 
         $type = $this->entityManager->getRepository(CltTypes::class)->find($clt_type) ;
 
+        if ($type->getReference() == "MORAL") {
+            $cltTelephone = $request->request->get("clt_soc_telephone") ;
+        }
+        else
+        {
+            $cltTelephone = $request->request->get("clt_client_telephone") ;
+        }
+
+        $result = $this->appService->verificationElement([
+            $cltTelephone,
+        ], [
+            "Téléphone",
+            ]) ;
+
+        if(!$result["allow"])
+            return new JsonResponse($result) ;
+
         if(!isset($clt_identity))
         {
-            if ($type->getReference() == "MORAL") {
-                $cltTelephone = $request->request->get("clt_soc_telephone") ;
-            }
-            else
-            {
-                $cltTelephone = $request->request->get("clt_client_telephone") ;
-            }
-    
+            
             $isPhoneExist = $this->entityManager->getRepository(CltHistoClient::class)->verifyPhoneClient([
                 "typeClient" => $type->getReference(),
                 "telephone" => $cltTelephone
