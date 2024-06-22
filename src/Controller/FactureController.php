@@ -954,7 +954,7 @@ class FactureController extends AbstractController
             $remise = $this->appService->getFactureRemise($factureDetail,$total) ; 
             
             $total = $total - $remise ;
-            if(is_null($factureDetail->getHistoEntrepot()))
+            if(!is_null($factureDetail->getHistoEntrepot()))
                 $idEntrepot = $factureDetail->getHistoEntrepot()->getEntrepot()->getId() ;
             else
                 $idEntrepot = "-" ;
