@@ -27,49 +27,84 @@
                 </div>
             </div>
             <div class="col-7">
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th>Coiffeur</th>
-                                <th>Désignation</th>
-                                <th>Quantité</th>
-                                <th>Prix</th>
-                                <th>Total</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody class="elemCoiffCoupes">
-                            {% for factureDetail in factureDetails %}
+                <form id="formSavModifFacture">
+                    <input type="hidden" name="fact_detail_modele" id="fact_detail_modele" value="{{facture.refModele}}">
+                    <input type="hidden" id="fact_id_facture" name="fact_id_facture" value="{{facture.id}}"> 
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-dark">
                                 <tr>
-                                    <td>{{"factureDetail."}}</td>
-                                    <td>{{"factureDetail."}}</td>
-                                    <td>{{"factureDetail."}}</td>
-                                    <td>{{"factureDetail."}}</td>
-                                    <td>{{"factureDetail."}}</td>
-                                    <td class="text-center align-middle">
-                                        <button type="button" class="btn btn-outline-danger delete_coiff_item font-smaller btn-sm" ><i class="fa fa-times"></i></button>
-                                        <input type="hidden" name="coiff_base_designation[]" id="coiff_base_designation" value="`+designation+`">
-                                        <input type="hidden" name="coiff_base_employee[]" id="coiff_base_employee" value="`+coiff_enr_employee+`">
-                                        <input type="hidden" name="coiff_base_employee_nom[]" id="coiff_base_employee_nom" value="`+optCoiffEmployee.text()+`">
-                                        <input type="hidden" name="coiff_base_quantite[]" id="coiff_base_quantite" value="`+coiff_enr_quantite+`">
-                                        <input type="hidden" name="coiff_base_prix[]" id="coiff_base_prix" value="`+coiff_enr_prix+`">
-                                        <input type="hidden" name="coiff_base_id[]" id="coiff_base_id" value="`+coiff_base_id+`">
-                                    </td>
+                                    <th>Coiffeur</th>
+                                    <th>Désignation</th>
+                                    <th>Quantité</th>
+                                    <th>Prix</th>
+                                    <th>Total</th>
+                                    <th></th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="4">Total Ht</th>
-                                <th class="bg-primary text-white align-middle totalHtCoiff">0</th>
-                                <th class="bg-primary text-white"></th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody class="elemCoiffCoupes">
+                                {% set totalHt = 0 %}
+                                {% for factureDetail in factureDetails %}
+                                    <tr>
+                                        <td>{{factureDetail.coiffeur}}</td>
+                                        <td>{{factureDetail.designation}}</td>
+                                        <td>{{factureDetail.quantite|format_number}}</td>
+                                        <td>{{factureDetail.prix|format_number}}</td>
+                                        <td>{{factureDetail.total|format_number}}</td>
+                                        <td class="text-center align-middle">
+                                            <button type="button" class="btn btn-outline-warning font-smaller btn-sm" ><i class="fa fa-edit"></i></button>
+                                            <input type="hidden" name="coiff_base_designation[]" id="coiff_base_designation" value="{{factureDetail.designation}}">
+                                            <input type="hidden" name="coiff_base_employee[]" id="coiff_base_employee" value="{{factureDetail.idCoiffeur}}">
+                                            <input type="hidden" name="coiff_base_employee_nom[]" id="coiff_base_employee_nom" value="{{factureDetail.coiffeur}}">
+                                            <input type="hidden" name="coiff_base_quantite[]" id="coiff_base_quantite" value="{{factureDetail.quantite}}">
+                                            <input type="hidden" name="coiff_base_prix[]" id="coiff_base_prix" value="{{factureDetail.prix}}">
+                                            <input type="hidden" name="coiff_base_id[]" id="coiff_base_id" value="">
+                                        </td>
+                                    </tr>
+                                    {% set totalHt = totalHt + factureDetail.total %}
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4">Total Ht</th>
+                                    <th class="bg-primary text-white align-middle totalHtCoiff">{{totalHt}}</th>
+                                    <th class="bg-primary text-white"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5"></div>
+                        <div class="col-md-7"> 
+                            <label for="nom" class="mt-1 font-weight-bold text-uppercase">à,</label>
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-location"></i></span>
+                                </div>
+                                <input type="text" class="form-control cmd_lieu" name="cmd_lieu" value="{{ facture.lieu }}" placeholder=". . ." aria-label="Lieu Facture" id="cmd_lieu">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5"></div>
+                        <div class="col-md-7"> 
+                            <label for="nom" class="mt-1 font-weight-bold">Le,</label>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
+                                </div>
+                                <input type="text" class="form-control cmd_date" name="cmd_date" value="{{ facture.date }}" placeholder=". . ." aria-label="Date Facture" id="cmd_date">
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="col-2 px-0 addedCoiffeur">
+                {% for listEmployee in listEmployees %}
+                    <button type="button" class="text-uppercase btn-outline-default btn_coiff_employee font-smaller p-2 btn btn-block">
+                      <i class="fa fa-hand-scissors"></i>&nbsp;{{listEmployee.nom}}&emsp;({{listEmployee.nombre}})
+                    </button>
+                {% endfor %}
             </div>
         </div>
     </div>

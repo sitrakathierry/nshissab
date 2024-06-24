@@ -58,19 +58,6 @@ class SAVController extends AbstractController
     #[Route('/sav', name: 'app_s_a_v')]
     public function index(): Response
     { 
-        // $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
-
-        // if(!file_exists($filename))
-        //     $this->appService->generateFacture($filename, $this->agence) ;
-
-        // $factures = json_decode(file_get_contents($filename)) ;
-        
-        // $search = [
-        //     "numFact" => "DF"
-        // ] ;
-            
-        // $factures = $this->appService->searchData($factures,$search) ;
-        
         $this->appService->synchronisationServiceApresVente(["CAISSE","FACTURE"]) ; 
         
         $types = $this->entityManager->getRepository(SavType::class)->findAll() ;
@@ -95,36 +82,6 @@ class SAVController extends AbstractController
             $this->appService->generateListeAvoir($filename) ;
     
         $avoirs = json_decode(file_get_contents($filename)) ;
-
-        // // Tableau regroupé par idC
-        // $tableauRegroupe = [];
-
-        // // Parcourir chaque élément du tableau initial
-        // foreach ($avoirs as $element) {
-        //     $idC = $element->idC;
-        //     // Vérifier si la clé idC existe déjà dans le tableau regroupé
-        //     if (array_key_exists($idC, $tableauRegroupe)) {
-        //         // Ajouter l'élément au tableau existant pour cette clé idC
-        //         $tableauRegroupe[$idC][] = $element;
-        //     } else {
-        //         // Créer un nouveau tableau pour cette clé idC
-        //         $tableauRegroupe[$idC] = [$element];
-        //     }
-        // }
-        
-        // $avoirs = [] ;
-        // foreach ($tableauRegroupe as $key => $value) {
-        //     $item = [] ;
-        //     $item["remboursee"] = 0 ;
-        //     foreach ($tableauRegroupe[$key] as $element) {
-        //         $item["client"] = $element->client ;
-        //         $item["remboursee"] += floatval($element->remboursee) ;
-        //     }
-
-        //     $item["idC"] = $key ;
-
-        //     array_push($avoirs,$item) ;
-        // } 
 
         $filename = "files/systeme/facture/facture(agence)/".$this->nameAgence ;
 
@@ -218,7 +175,7 @@ class SAVController extends AbstractController
         // FIN SAUVEGARDE HISTORIQUE
 
         return new JsonResponse([
-            "message" => "Suppression effectuée",
+            "message" => "Suppression effectuée", 
             "type" => "green"
         ]) ;
     }

@@ -1322,7 +1322,7 @@ $(document).ready(function(){
             if (dataEmployee.hasOwnProperty(key)) {
               var element = dataEmployee[key] ;
               itemEmp += `
-                  <button type="button" data-value="`+element+`" class="text-uppercase btn-outline-default btn_coiff_employee font-smaller p-2 btn btn-block">
+                  <button type="button" class="text-uppercase btn-outline-default btn_coiff_employee font-smaller p-2 btn btn-block">
                       <i class="fa fa-hand-scissors"></i>&nbsp;`+element.nom+`&emsp;(`+element.nombre+`)
                   </button>
               ` ;

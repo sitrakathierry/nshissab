@@ -941,7 +941,8 @@ class FactureController extends AbstractController
         $totalHt = 0 ;
         $totalTva = 0 ; 
         $elements = [] ;
-
+        $listEmployee = [] ;
+        
         foreach ($factureDetails as $factureDetail) {
             $tvaVal = (empty($factureDetail->getTvaVal()) || is_null($factureDetail->getTvaVal())) ? 0 : $factureDetail->getTvaVal() ;
             $tva = (($factureDetail->getPrix() * $tvaVal ) / 100) * $factureDetail->getQuantite();
@@ -959,6 +960,19 @@ class FactureController extends AbstractController
             else
                 $idEntrepot = "-" ;
 
+            if(!is_null($factureDetail->getCoiffEmployee()))
+            {
+                $coiffeur = $factureDetail->getCoiffEmployee()->getNom()." ".$factureDetail->getCoiffEmployee()->getPrenom() ;
+                $idCoiffeur = $factureDetail->getCoiffEmployee()->getId() ;
+            }
+            else
+            {
+                $coiffeur = "-" ;
+                $idCoiffeur = "-" ;
+            }
+
+            
+
             $element = [] ;
             $element["id"] = $factureDetail->getId() ;
             $element["type"] = $factureDetail->getActivite() ;
@@ -966,6 +980,8 @@ class FactureController extends AbstractController
             $element["designation"] = $factureDetail->getDesignation() ;
             $element["quantite"] = $factureDetail->getQuantite() ;
             $element["format"] = "-" ;
+            $element["coiffeur"] = $coiffeur ;
+            $element["idCoiffeur"] = $idCoiffeur ;
             $element["prix"] = $factureDetail->getPrix() ;
             $element["tva"] = $tva ;
             $element["percentTva"] = $factureDetail->getTvaVal() ;
@@ -980,6 +996,20 @@ class FactureController extends AbstractController
             $element["infoSup"] = is_null($infoSupDetail) ? "" : (is_null($infoSupDetail->getInfoSup()) ? "" : $infoSupDetail->getInfoSup()) ;
             
             array_push($elements,$element) ;
+
+            $keyEmp = "EMP".$idCoiffeur ;
+
+            if(isset($listEmployee[$keyEmp]))
+            {
+                $listEmployee[$keyEmp]["nombre"] += 1 ;
+            }
+            else
+            {
+                $listEmployee[$keyEmp] = [
+                    "nombre" => 1,
+                    "nom" => $coiffeur
+                ] ;
+            }
 
             $totalHt += $total ;
         } 
@@ -1140,6 +1170,8 @@ class FactureController extends AbstractController
                     "employees" => $employees,
                     "cpPrixs" => $cpPrixs,
                     "factureDetails" => $elements,
+                    "listEmployees" => $listEmployee,
+                    "facture" => $infoFacture,
                 ]) ;
             }
         }
@@ -2754,7 +2786,7 @@ class FactureController extends AbstractController
                 $this->entityManager->flush() ; 
             }
         } 
-        else if($fact_detail_modele == "PBAT" )
+        else if($fact_detail_modele == "PBAT")
         {
             $fact_enr_btp_enonce_id = (array)$request->request->get('fact_enr_btp_enonce_id') ;
             $fact_enr_btp_categorie_id = $request->request->get('fact_enr_btp_categorie_id') ;
@@ -2802,6 +2834,17 @@ class FactureController extends AbstractController
                 $this->entityManager->persist($factSupDetailsPbat) ;
                 $this->entityManager->flush() ; 
             }
+        }
+        else if($fact_detail_modele == "COIFF")
+        {
+            $this->entityManager->getRepository(Facture::class)->enregistreFactureCoiffure([
+                "idCoiff" =>  $request->request->get("coiff_base_id"),
+                "facture" =>  $facture,
+                "designation" => (array)$request->request->get("coiff_base_designation"),
+                "quantite" => $request->request->get("coiff_base_quantite"),
+                "prix" => $request->request->get("coiff_base_prix"),
+                "employee" => $request->request->get("coiff_base_employee"),
+            ]) ;
         }
 
         $facture->setSynchro(null) ;

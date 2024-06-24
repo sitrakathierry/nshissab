@@ -450,6 +450,9 @@ class FactureRepository extends ServiceEntityRepository
     public function enregistreFactureCoiffure($params = [])
     {
         foreach ($params["designation"] as $key => $value) {
+            if(empty($params["idCoiff"][$key]))
+                continue ;
+
             $factDetail = new FactDetails() ;
             $coiffPrix = $this->getEntityManager()->getRepository(CoiffCpPrix::class)->find($params["idCoiff"][$key]) ;
             $employee = $this->getEntityManager()->getRepository(CoiffEmployee::class)->find($params["employee"][$key]) ;

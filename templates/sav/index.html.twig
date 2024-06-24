@@ -5,6 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{asset('tools/personnal/systeme/' ~ filename ~ '/css/' ~ filename ~ '.css')}}">
+    <link rel="stylesheet" href="{{asset('tools/personnal/systeme/facture/css/facture.css')}}">
 {% endblock %}
 
 {% block javascripts %}
@@ -70,7 +71,7 @@
                                 <input type="hidden" id="sav_val_spec" name="sav_val_spec">
                             </div>
                         </div>
-                    </div>
+                    </div> 
                     <div class="row mt-3">
                         <div class="col-md-3">
                             <div id="contentType">
