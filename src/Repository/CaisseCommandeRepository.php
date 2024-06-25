@@ -76,7 +76,6 @@ class CaisseCommandeRepository extends ServiceEntityRepository
                     "refRecette" => "CAISSE",
                 ] ;
             }
-            
         }
 
         return $elements ;

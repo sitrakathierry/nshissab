@@ -304,7 +304,6 @@ class FactureRepository extends ServiceEntityRepository
         ]) ;
 
         foreach ($histoPaiements as $histoPaiement) {
-
             if($histoPaiement->getPaiement()->getReference() == "CR")
                 continue ;
 
@@ -435,8 +434,8 @@ class FactureRepository extends ServiceEntityRepository
                 "filename" => $params["fileContratLct"],
                 "nameAgence" => $params["nameAgence"],
                 "appService" => $params["appService"],
-            ]) ; 
-
+            ]) ;
+            
             $recetteGenerales = array_merge($recetteFactures,$recetteCaisses,$recetteLocations) ;
 
             usort($recetteGenerales, [self::class, 'comparaisonDates']);  ;
@@ -463,6 +462,7 @@ class FactureRepository extends ServiceEntityRepository
 
             $factDetail->setHistoEntrepot($histoEntrepot) ;
             $factDetail->setFacture($params["facture"]) ; 
+            $factDetail->setActivite("Coiffure") ;
             $factDetail->setCoiffEmployee($employee) ; 
             $factDetail->setCoiffPrix($coiffPrix) ; 
             $factDetail->setRemiseType($typeRemiseUnit) ;

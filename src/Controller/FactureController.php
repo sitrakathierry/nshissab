@@ -1632,7 +1632,7 @@ class FactureController extends AbstractController
 
         // $facture = $this->entityManager->getRepository(Facture::class)->find($id) ;
 
-        if ($nature == "ANL") 
+        if($nature == "ANL")
         {
             $annulation = $this->entityManager->getRepository(SavAnnulation::class)->find($id) ;
             $facture = $annulation->getFacture() ;
