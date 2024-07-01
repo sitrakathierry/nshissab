@@ -112,6 +112,25 @@ class FactDetailsRepository extends ServiceEntityRepository
         return $result ;
     }
 
+    public function findFactCoiffure($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('fd')
+            ->from(FactDetails::class, 'fd')
+            ->join(Facture::class, 'f', 'WITH', 'f.id = fd.facture')
+            ->where('f.agence = :agence')
+            ->andWhere('fd.statut = :statut')
+            ->andWhere('fd.coiffEmployee IS NOT NULL')
+            ->setParameter('agence', $params['agence'])
+            ->setParameter('statut', $params['statut'])
+            ->getQuery() ;
+
+        return $query->getResult() ;
+            
+    }
+
     public function findAllByVariation($params = [])
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();

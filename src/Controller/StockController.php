@@ -1942,6 +1942,7 @@ class StockController extends AbstractController
     public function stockGetProduitPrix(Request $request)
     {
         $idP = $request->request->get('idP') ;
+        $idE = $request->request->get('idE') ;
 
         $filename = $this->filename."variationProduit(agence)/vartPrd_".$idP."_".$this->nameAgence ;
         if(!file_exists($filename))
@@ -1949,11 +1950,25 @@ class StockController extends AbstractController
 
         $variationProduits = json_decode(file_get_contents($filename)) ;
         
+        // $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
+        //     "agence" => $this->agence,
+        //     "filename" => $this->filename."stock_entrepot(agence)/".$this->nameAgence,
+        // ]) ;
+
+        $dataVariations = [] ;
+
+        foreach ($variationProduits as $variationProduit) {
+            if(in_array($idE,$variationProduit->idEntrepot))
+            {
+                $dataVariations[] = $variationProduit ;
+            }
+        }
+
         $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
         $tva = $produit->getTvaType() ;
 
         return new JsonResponse([
-            "produitPrix" => $variationProduits,
+            "produitPrix" => $dataVariations,
             "tva" => is_null($tva) ? "" : $tva->getValeur() ,
             // "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
         ]) ;

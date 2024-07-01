@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var instance = new Loading(files.loading) ;
+    var appBase = new AppBase() ;
+
     $("#formSousCategorie").submit(function(){
         var self = $(this)
         $.confirm({
@@ -223,5 +225,128 @@ $(document).ready(function(){
         })
         return false ;
     }) ;
+
+    var elemSearch = [
+        {
+            name: "id",
+            action:"change",
+            selector : "#coiff_search_employee"
+        },
+        {
+            name: "currentDate",
+            action:"change",
+            selector : "#date_actuel"
+        },
+        {
+            name: "dateFacture",
+            action:"change",
+            selector : "#date_specifique"
+        },
+        {
+            name: "dateDebut",
+            action:"change",
+            selector : "#date_fourchette_debut"
+        },
+        {
+            name: "dateFin",
+            action:"change",
+            selector : "#date_fourchette_fin"
+        },
+        {
+            name: "annee",
+            action:"keyup",
+            selector : "#date_annee"
+        },
+        {
+            name: "annee",
+            action:"change",
+            selector : "#date_annee"
+        },
+        {
+            name: "mois",
+            action:"change",
+            selector : "#date_mois"
+        },
+    ] 
+
+    $("#coiff_search_date").change(function(){
+        var option = $(this).find("option:selected") ;
+        var critere = option.data("critere") ;
+        if(critere == "")
+        {
+            $(".elem_date").html("")
+            if(option.text() == "TOUS")
+            {
+                searchSuiviCoiffeur()
+            }
+            else
+            {
+                var currentDate = new Date();
+                var day = currentDate.getDate();
+                var month = currentDate.getMonth() + 1; // Les mois sont indexés à partir de zéro, donc nous ajoutons 1
+                var year = currentDate.getFullYear();
+                if (month < 10) {
+                    month = '0' + month;
+                  }
+                var formattedDate = day + '/' + month + '/' + year;
+
+                $(".elem_date").html(`
+                    <input type="hidden" id="date_actuel" name="date_actuel" value="`+formattedDate+`">
+                `)
+                $("#date_actuel").change();
+            }
+            return false;
+        }
+
+        if(critere.length == 2)
+        {
+            $(".elem_date").html(appBase.getItemsDate(critere))
+        }
+        else
+        {
+            var index = critere.split(",")
+            var elements = ''
+
+            index.forEach(elem => {
+                elements += appBase.getItemsDate(elem)
+            })
+
+            $(".elem_date").html(elements)
+            
+        }
+        searchSuiviCoiffeur() ;
+    })
+
+    function searchSuiviCoiffeur()
+    {
+        var instance = new Loading(files.search) ;
+        $(".elem_suivi_coiffeur").html(instance.search(9)) ;
+        var formData = new FormData() ;
+        for (let j = 0; j < elemSearch.length; j++) {
+            const search = elemSearch[j];
+            formData.append(search.name,$(search.selector).val());
+        }
+
+        $.ajax({
+            url: routes.coiffure_suivi_employee_search , 
+            type: 'post',
+            cache: false,
+            data:formData,
+            dataType: 'html',
+            processData: false, // important pour éviter la transformation automatique des données en chaîne
+            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
+            success: function(response){
+                $(".elem_suivi_coiffeur").html(response) ;
+            }
+        })
+    }
+
+    elemSearch.forEach(elem => {
+        $(document).on(elem.action,elem.selector,function(){
+            searchSuiviCoiffeur() ;
+        })
+    }) ; 
+
+    
 
 })

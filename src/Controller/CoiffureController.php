@@ -9,6 +9,7 @@ use App\Entity\CoiffCategorie;
 use App\Entity\CoiffCoupes;
 use App\Entity\CoiffCpPrix;
 use App\Entity\CoiffEmployee;
+use App\Entity\FactCritereDate;
 use App\Entity\FactDetails;
 use App\Entity\User;
 use App\Service\AppService;
@@ -265,38 +266,109 @@ class CoiffureController extends AbstractController
     #[Route('/coiffure/employee/suivi', name: 'coiffure_suivi_employee')]
     public function coiffureSuiviEmployee()
     {
-        $employees = $this->entityManager->getRepository(CoiffEmployee::class)->findBy([
+        $dataSuivis = $this->entityManager->getRepository(CoiffEmployee::class)->generateSuiviEmployee([
             "agence" => $this->agence,
-            "statut" => True
+            "filename" => $this->filename."suiviEmployee(agence)/".$this->nameAgence 
         ]) ;
 
-        $dataSuivis = [] ;
+        $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
 
-        foreach ($employees as $employee) {
-            $suiviEmployees = $this->entityManager->getRepository(FactDetails::class)->findBy([
-                "coiffEmployee" => $employee,
-                "statut" => True
-            ]) ;
-            $totalEmp = 0 ; 
-            foreach ($suiviEmployees as $suiviEmployee) {
-                $prix = $suiviEmployee->getPrix() ;
-                $qte = $suiviEmployee->getQuantite() ;
-                $total = $prix * $qte ;
-
-                $totalEmp += $total ;
-            }
-
-            $dataSuivis[] = [
-                "nom" => $employee->getNom()." ".$employee->getPrenom(),
-                "montant" => $totalEmp
-            ] ;
-        }
+        $employees = $this->entityManager->getRepository(CoiffEmployee::class)->generateCoiffEmployee([
+            "agence" => $this->agence,
+            "filename" => $this->filename."employee(agence)/".$this->nameAgence 
+        ]) ;
 
         return $this->render('coiffure/suiviEmployee.html.twig', [
             "filename" => "coiffure",
             "titlePage" => "Suivi Coiffeur",
             "with_foot" => false,
             "dataSuivis" => $dataSuivis,
+            "critereDates" => $critereDates,
+            "employees" => $employees,
         ]);
+    }
+
+    #[Route('/coiffure/employee/suivi/search', name: 'coiffure_suivi_employee_search')]
+    public function coiffureSearchSuiviEmployee(Request $request)
+    {
+        $id = $request->request->get("id") ;
+        $currentDate = $request->request->get("currentDate") ;
+        $dateFacture = $request->request->get("dateFacture") ;
+        $dateDebut = $request->request->get("dateDebut") ;
+        $dateFin = $request->request->get("dateFin") ;
+        $annee = $request->request->get("annee") ;
+        $mois = $request->request->get("mois") ;
+
+        $dataSuivis = $this->entityManager->getRepository(CoiffEmployee::class)->generateSuiviEmployee([
+            "agence" => $this->agence,
+            "filename" => $this->filename."suiviEmployee(agence)/".$this->nameAgence 
+        ]) ;
+
+        $dataToSearch = [] ;
+
+        foreach ($dataSuivis as $keyDate => $valueDate) {
+            foreach ($valueDate->employee as $keyEmp => $valueEmp) {
+                foreach ($valueEmp->details as $details ) {
+                    $dataToSearch[] = $details ;
+                }
+            }
+        }
+
+        $dataToSearch = json_decode(json_encode($dataToSearch), false);
+
+        $search = [
+            "id" => $id,
+            "currentDate" => $currentDate,
+            "dateFacture" => $dateFacture,
+            "dateDebut" => $dateDebut,
+            "dateFin" => $dateFin,
+            "annee" => $annee,
+            "mois" => $mois,
+        ] ;
+
+        foreach ($search as $key => $value) {
+            if($value == "undefined")
+            {
+                $search[$key] = "" ;
+            }
+        }
+
+        $dataToSearch = $this->appService->searchData($dataToSearch,$search) ;
+
+        $dataSuivis = [] ;
+
+        foreach ($dataToSearch as $dataUnion) {
+            $nomEmployee = $dataUnion->nomEmployee ;
+            $keyEmp = "EMP".$dataUnion->id ;
+            $date = $dataUnion->date ;
+            
+             if(!isset($dataSuivis[$date]))
+                $dataSuivis[$date]["nbLigne"] = 1 ;
+
+            if(isset($dataSuivis[$date]["employee"][$keyEmp]))
+            {
+                $dataSuivis[$date]["employee"][$keyEmp]["nbLigne"] += 1 ;
+            }
+            else
+            {
+                $dataSuivis[$date]["employee"][$keyEmp]["nbLigne"] = 3 ;
+                $dataSuivis[$date]["employee"][$keyEmp]["nom"] = $nomEmployee ;
+            }
+
+            $dataSuivis[$date]["employee"][$keyEmp]["details"][] = $dataUnion ;
+        }
+
+        foreach ($dataSuivis as $keyDate => $valueDate) {
+            foreach ($valueDate["employee"] as $keyEmp => $valueEmp) {
+                $dataSuivis[$keyDate]["nbLigne"] += $dataSuivis[$keyDate]["employee"][$keyEmp]["nbLigne"] ;
+            }
+        }
+
+        $response = $this->renderView("coiffure/searchSuiviCoiffeur.html.twig", [
+            "dataSuivis" => $dataSuivis
+        ]) ;
+
+        return new Response($response) ; 
+
     }
 }

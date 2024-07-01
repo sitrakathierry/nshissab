@@ -27,14 +27,28 @@ $(document).ready(function(){
 
         var maRoute = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? routes.stock_get_produit_prix : routes.prest_get_service_prix ;
         var typeData = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? 'json' : 'html' ;
-        if ($(this).is("select")) {
+        if ($(this).is("select")) { 
+            var optionSelected = $(this).find("option:selected") ;
+
+            // if(optionSelected.attr("idEntrepot") == undefined)
+            // {
+            //     $.alert({
+            //         title: 'Message',
+            //         content: "Veuiller effacer la cache",
+            //         type: 'orange',
+            //     });
+
+            //     return false;
+            // }
+
             $("#fact_text_designation").val($(this).find("option:selected").text())
             var realinstance = instance.loading()
             var data = new FormData() ;
             data.append('idP',self.val()) ;
+            data.append('idE',optionSelected.attr("idEntrepot")) ;
             $.ajax({
                 url: maRoute,
-                type:'post',
+                type:'post', 
                 cache: false,
                 data:data,
                 dataType: typeData ,
@@ -508,7 +522,7 @@ $(document).ready(function(){
                 var options = '<option value="">-</option>'
                 for (let i = 0; i < response.produitEntrepots.length; i++) {
                     const elementP = response.produitEntrepots[i];
-                    options += '<option value="'+elementP.idP+'" data-stock="'+elementP.stock+'" >'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
+                    options += '<option value="'+elementP.idP+'" idEntrepot="'+elementP.idE+'" data-stock="'+elementP.stock+'" >'+elementP.codeProduit+' | '+elementP.nomType+' | '+elementP.nom+' | stock : '+elementP.stock+'</option>'
                 }
 
                 $("#fact_mod_prod_designation").html(options) ;

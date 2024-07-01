@@ -769,7 +769,7 @@ class AppService extends AbstractController
                 {
                     $item[$cle]["stock"] += $histoEntrepot->getStock() ;
                     $item[$cle]["entrepot"] .= ", ".$histoEntrepot->getEntrepot()->getNom()  ;
-                    // $elements[$cle] = $item[$cle] ;
+                    $item[$cle]["idEntrepot"][] = $histoEntrepot->getEntrepot()->getId()  ;
                 }
                 else
                 {
@@ -796,6 +796,7 @@ class AppService extends AbstractController
                     $item[$cle] = [] ;
     
                     $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
+                    $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
                     $item[$cle]["prix"] = $variation->getPrixVente() ;
                     $item[$cle]["prixAchat"] = $prixAchat ;
                     $item[$cle]["charge"] = $charge ;

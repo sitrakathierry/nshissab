@@ -13,6 +13,7 @@ class AppExtension extends AbstractExtension
             new TwigFilter('is_decimal', [$this, 'isDecimal']),
             new TwigFilter('format_number', [$this, 'formatNumber']),
             new TwigFilter('html_decode', [$this, 'decodeStringHtml']),
+            new TwigFilter('cast_to_array', [$this, 'objectFilter']),
         ];
     }
 
@@ -40,6 +41,13 @@ class AppExtension extends AbstractExtension
     public function decodeStringHtml($string)
     {
         return html_entity_decode($string) ;
+    }
+
+    public function objectFilter($stdClassObject) {
+        // Just typecast it to an array
+        $response = (array)$stdClassObject;
+    
+        return $response;
     }
 }
 

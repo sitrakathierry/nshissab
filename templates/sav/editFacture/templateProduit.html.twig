@@ -61,7 +61,8 @@
                         <option value="">-</option>
                         {% for stockGeneral in stockGenerales %}
                             {% set idProduit = indiceEntrepot ? stockGeneral.idP : stockGeneral.id %}
-                            <option value="{{idProduit}}" data-stock="{{stockGeneral.stock}}" >{{stockGeneral.codeProduit}} | {{stockGeneral.nomType|upper}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
+                            {% set idEntrepot = indiceEntrepot ? stockGeneral.idE : "-" %}
+                            <option value="{{idProduit}}" idEntrepot="{{idEntrepot}}" data-stock="{{stockGeneral.stock}}" >{{stockGeneral.codeProduit}} | {{stockGeneral.nomType|upper}} | {{stockGeneral.nom}} | stock : {{stockGeneral.stock}}</option>
                         {% endfor %}
                     </select> 
                 </div>

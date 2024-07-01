@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CoiffEmployee;
+use App\Entity\FactDetails;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -62,6 +63,65 @@ class CoiffEmployeeRepository extends ServiceEntityRepository
             file_put_contents($params["filename"],json_encode($items)) ;
         }
 
+        return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function generateSuiviEmployee($params = [])
+    {
+        if (!file_exists($params["filename"])) {
+           $suiviEmployees = [] ;
+        
+            $factDetails = $this->getEntityManager()->getRepository(FactDetails::class)->findFactCoiffure([
+                "agence" => $params["agence"],
+                "statut" => True
+            ]) ;
+
+            foreach ($factDetails as $factDetail) {
+                $facture = $factDetail->getFacture() ;
+                $employee = $factDetail->getCoiffEmployee() ;
+                $nomEmployee = $employee->getNom()." ".$employee->getPrenom() ;
+                $keyEmp = "EMP".$employee->getId() ;
+                $date = $facture->getDate()->format("d/m/Y") ;
+                
+                 if(!isset($suiviEmployees[$date]))
+                    $suiviEmployees[$date]["nbLigne"] = 1 ;
+
+                if(isset($suiviEmployees[$date]["employee"][$keyEmp]))
+                {
+                    $suiviEmployees[$date]["employee"][$keyEmp]["nbLigne"] += 1 ;
+                }
+                else
+                {
+                    $suiviEmployees[$date]["employee"][$keyEmp]["nbLigne"] = 3 ;
+                    $suiviEmployees[$date]["employee"][$keyEmp]["nom"] = $nomEmployee ;
+                }
+
+                $suiviEmployees[$date]["employee"][$keyEmp]["details"][] = [
+                    "id" => $employee->getId(),
+                    "date" => $date ,
+                    "currentDate" => $facture->getDate()->format('d/m/Y') ,
+                    "dateFacture" => $facture->getDate()->format('d/m/Y')  ,
+                    "dateDebut" => $facture->getDate()->format('d/m/Y') ,
+                    "dateFin" => $facture->getDate()->format('d/m/Y') ,
+                    "annee" => $facture->getDate()->format('Y') ,
+                    "mois" => $facture->getDate()->format('m') ,
+                    "nomEmployee" =>  $nomEmployee ,
+                    "designation" =>  $factDetail->getDesignation()  ,
+                    "quantite" =>  $factDetail->getQuantite() ,
+                    "prix" =>  $factDetail->getPrix() ,
+                    "total" =>  $factDetail->getQuantite() * $factDetail->getPrix() ,
+                ] ;
+            } 
+
+            foreach ($suiviEmployees as $keyDate => $valueDate) {
+                foreach ($valueDate["employee"] as $keyEmp => $valueEmp) {
+                    $suiviEmployees[$keyDate]["nbLigne"] += $suiviEmployees[$keyDate]["employee"][$keyEmp]["nbLigne"] ;
+                }
+            }
+
+            file_put_contents($params["filename"],json_encode($suiviEmployees)) ;
+        }
+        
         return json_decode(file_get_contents($params["filename"])) ;
     }
 

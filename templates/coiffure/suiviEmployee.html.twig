@@ -19,33 +19,61 @@
     <div class="container-fluid px-3 pt-3">
         <div class="row">
             <div class="col-3">
-                <label for="coiff_search_employee" class="font-weight-bold">Nom</label>
+                <label for="coiff_search_employee" class="font-weight-bold">Coiffeur</label>
                 <select name="coiff_search_employee" class="custom-select chosen_select custom-select-sm" id="coiff_search_employee">
                     <option value="">-</option>
-                    {# {% for categorie in categories %}
-                        <option value="{{categorie.id}}" >{{categorie.nom|upper}}</option>
-                    {% endfor %}  #}
+                    {% for employee in employees %}
+                        <option value="{{employee.id}}" > {{employee.nom|upper}} | {{employee.prenom|upper}}</option>
+                    {% endfor %} 
+                </select>
+            </div>
+            <div class="col-3">
+                <label for="coiff_search_date" class="font-weight-bold">Date</label>
+                <select name="coiff_search_date" class="custom-select chosen_select custom-select-sm" id="coiff_search_date">
+                    <option value="" data-critere="">TOUS</option>
+                    {% for critereDate in critereDates %}
+                        <option value="{{critereDate.id}}" data-critere="{{critereDate.critere}}">{{critereDate.nom|upper}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
+        <div class="row mt-2 elem_date"></div>
         <div class="table-responsive mt-4 limit_tbody">
             <table class="table table-sm table-bordered">
                 <thead class="thead-dark">
                     <tr>
+                        <th>Date</th>
                         <th>Coiffeur</th>
-                        <th>Montant</th>
-                        <th></th>
+                        <th>Designation</th>
+                        <th>Quantité</th>
+                        <th>Prix</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for dataSuivi in dataSuivis %}
+                <tbody class="elem_suivi_coiffeur">
+                    {% for keyDate,valueDate in dataSuivis|cast_to_array %}
                         <tr>
-                            <td>{{dataSuivi.nom|upper}}</td>
-                            <td>{{dataSuivi.montant}}</td>
-                            <td class="text-center align-middle">
-                                <button type="button" class="btn btn-sm mx-1 font-smaller btn-outline-warning"><i class="fa fa-edit"></i></button>
-                            </td>
+                            <td class="align-middle"  rowspan="{{valueDate.nbLigne}}">{{keyDate}}</td>
                         </tr>
+                        {% for keyEmp,valueEmp in valueDate.employee|cast_to_array %}
+                            <tr>
+                                <td class="align-middle"  rowspan="{{valueEmp.nbLigne}}">{{valueEmp.nom}}</td>
+                            </tr>
+                            {% set totalEmp = 0 %}
+                            {% for detail in valueEmp.details|cast_to_array %}
+                                <tr>
+                                    <td class="align-middle" >{{detail.designation|upper}}</td>
+                                    <td class="align-middle" >{{detail.quantite}}</td>
+                                    <td class="align-middle" >{{detail.prix}}</td>
+                                    <td class="align-middle" >{{detail.total}}</td>
+                                </tr>
+                                {% set totalEmp = totalEmp + detail.total %}
+                            {% endfor %}
+                            <tr>
+                                <th class="align-middle" colspan="3" >Montant Total</th>
+                                <td class="text-white align-middle bg-primary">{{totalEmp}}</td>
+                            </tr>
+                        {% endfor %}
                     {% endfor %}
                 </tbody>
             </table>

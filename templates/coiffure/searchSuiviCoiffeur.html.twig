@@ -1,0 +1,24 @@
+{% for keyDate,valueDate in dataSuivis %}
+    <tr>
+        <td class="align-middle"  rowspan="{{valueDate.nbLigne}}">{{keyDate}}</td>
+    </tr>
+    {% for keyEmp,valueEmp in valueDate.employee %}
+        <tr>
+            <td class="align-middle"  rowspan="{{valueEmp.nbLigne}}">{{valueEmp.nom}}</td>
+        </tr>
+        {% set totalEmp = 0 %}
+        {% for detail in valueEmp.details %}
+            <tr>
+                <td class="align-middle" >{{detail.designation|upper}}</td>
+                <td class="align-middle" >{{detail.quantite}}</td>
+                <td class="align-middle" >{{detail.prix}}</td>
+                <td class="align-middle" >{{detail.total}}</td>
+            </tr>
+            {% set totalEmp = totalEmp + detail.total %}
+        {% endfor %}
+        <tr>
+            <th class="align-middle" colspan="3" >Montant Total</th>
+            <td class="text-white align-middle bg-primary">{{totalEmp}}</td>
+        </tr>
+    {% endfor %}
+{% endfor %}

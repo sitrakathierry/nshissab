@@ -1737,7 +1737,7 @@ class FactureController extends AbstractController
             
             $element = [] ;
             $element["id"] = $factureDetail->getId() ;
-            $element["type"] = $factureDetail->getActivite() ;
+            $element["type"] = is_null($factureDetail->getActivite()) || empty($factureDetail->getActivite()) ? "Coiffure" : $factureDetail->getActivite() ;
             $element["designation"] = $factureDetail->getDesignation() ;
             $element["isForfait"] = $factureDetail->isIsForfait() ;
             $element["quantite"] = $factureDetail->getQuantite() ;
@@ -2670,9 +2670,17 @@ class FactureController extends AbstractController
         }
         // gestion des fichiers 
 
-        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename);
+        $dataFilenames = [
+            "files/systeme/coiffure/suiviEmployee(agence)/".$this->nameAgence,
+            $this->filename."facture(agence)/".$this->nameAgence,
+        ] ;
+
+        foreach($dataFilenames as $dataFilename)
+        {
+            if(file_exists($dataFilename))
+                unlink($dataFilename);
+        }
+
 
         // if(!file_exists($filename))
         //     $this->appService->generateFacture($filename, $this->agence) ;
@@ -2850,17 +2858,18 @@ class FactureController extends AbstractController
         $facture->setSynchro(null) ;
         $this->entityManager->flush() ; 
 
-        $filename = $this->filename."facture(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename);
-        
-        $filename = "files/systeme/credit/acompte(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename);
+        $dataFilenames = [
+            "files/systeme/credit/acompte(agence)/".$this->nameAgence,
+            "files/systeme/credit/credit(agence)/".$this->nameAgence,
+            "files/systeme/coiffure/suiviEmployee(agence)/".$this->nameAgence,
+            $this->filename."facture(agence)/".$this->nameAgence,
+        ] ;
 
-        $filename = "files/systeme/credit/credit(agence)/".$this->nameAgence ;
-        if(file_exists($filename))
-            unlink($filename);
+        foreach($dataFilenames as $dataFilename)
+        {
+            if(file_exists($dataFilename))
+                unlink($dataFilename);
+        }
 
         $modeleFacture = $this->entityManager->getRepository(FactModele::class)->findOneBy([
             "reference" => $fact_detail_modele
