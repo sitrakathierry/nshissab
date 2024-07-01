@@ -55,6 +55,8 @@ class ProduitRepository extends ServiceEntityRepository
                 "agence" => $params["agence"],
                 "statut" => True,
             ]) ;
+
+
             
             $elements = [] ;
     
@@ -82,6 +84,18 @@ class ProduitRepository extends ServiceEntityRepository
         }
 
         return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function encodeChiffre($chiffre) {
+        $result = dechex($chiffre) ;
+        return base64_encode($result) ;
+        // return $this->chiffrementCesar($result,7) ; 
+    }
+
+    public function decoderChiffre($chiffrement) {
+        // $result = $this->dechiffrementCesar(strval($chiffrement),7) ;
+        $result = base64_decode($chiffrement) ;
+        return hexdec($result) ;
     }
 
     public function generateSuiviProduit($params = [])

@@ -337,7 +337,7 @@ class AppService extends AbstractController
         return $texte_chiffre;
     }
 
-    function dechiffrementCesar($texte_chiffre, $decalage) {
+    public function dechiffrementCesar($texte_chiffre, $decalage) {
         // Utilisez le décalage négatif pour déchiffrer le texte
         return $this->chiffrementCesar($texte_chiffre, -$decalage);
     }
