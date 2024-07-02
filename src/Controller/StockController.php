@@ -3378,12 +3378,37 @@ class StockController extends AbstractController
             "statut" => True,
         ]) ;
 
+        $prixAchat = $variationPrix->getPrixAchat();
+        $charge = $variationPrix->getCharge();
+        $marge = $variationPrix->getMargeValeur();
+        $prixRevient = $prixAchat + $charge;
+        $margeCalcul = $variationPrix->getMargeType()->getCalcul() ;
+        $prixVente = 0 ;
+
+        if($margeCalcul == 1)
+        {
+            $prixVente = $prixRevient + $marge ;
+        }
+        else if($margeCalcul == 100)
+        {
+            $prixVente = $prixRevient + (($prixRevient * $marge) / 100) ;
+        }
+        else if($margeCalcul == -1)
+        {
+            $prixVente = $prixRevient * $marge ;
+        }
+
         $variation = [
             "id" => $variationPrix->getId() ,
             "encodedId" => $this->appService->encodeChiffre($variationPrix->getProduit()->getId()),
             "code" => $variationPrix->getProduit()->getCodeProduit() ,
             "indice" => $variationPrix->getIndice() ,
-            "prix" => $variationPrix->getPrixVente() ,
+            "prixAchat" => $prixAchat ,
+            "charge" => $charge ,
+            "marge" => $marge ,
+            "idMarge" => $variationPrix->getMargeType()->getId() ,
+            "margeType" => $variationPrix->getMargeType()->getNotation() ,
+            "prix" => $prixVente,
             "isSolde" => !is_null($solde) ,
             "solde" => is_null($solde) ? "-" : $solde->getSolde() ,
             "soldeType" => is_null($solde) ? "-" : $solde->getType()->getId() ,
@@ -3408,7 +3433,10 @@ class StockController extends AbstractController
             array_push($variation["entrepots"],$item) ;
         }
 
+        $margeTypes = $this->entityManager->getRepository(PrdMargeType::class)->findAll() ;
+
         $response = $this->renderView("stock/general/detailsVariation.html.twig",[
+            "margeTypes" => $margeTypes,
             "variation" => $variation,
             "isInEntrepot" => True,
         ]) ;
