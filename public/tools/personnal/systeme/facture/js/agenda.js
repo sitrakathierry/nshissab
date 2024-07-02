@@ -132,4 +132,6 @@ $(document).ready(function(){
     $(document).on('change','#agd_ech_montant',function(){
         updateMontant($(this))
     })
+
+    return true ; 
 })

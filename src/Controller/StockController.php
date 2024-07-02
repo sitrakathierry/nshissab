@@ -1282,7 +1282,7 @@ class StockController extends AbstractController
         $result["expireeLe"] = is_null($approvisionnement->getExpireeLe()) ? "" : $approvisionnement->getExpireeLe()->format("d/m/Y") ; 
         $result["fournisseur"] = $fournisseur ; 
 
-        return new JsonResponse($result) ;
+        return new JsonResponse($result) ; 
     }
 
     #[Route('/stock/entrepot/produit/find', name: 'stock_find_produit_in_entrepot')]
@@ -1303,7 +1303,21 @@ class StockController extends AbstractController
 
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
         
-        $stockEntrepots = array_values($stockEntrepots) ;
+        $dataProduits = [] ;
+
+        foreach ($stockEntrepots as $stockEntrepot) {
+            $keyPrd = "PRD".$stockEntrepot->idP ;
+            if(!isset($dataProduits[$keyPrd]))
+            {
+                $dataProduits[$keyPrd] = $stockEntrepot ;
+            }
+            else
+            {
+                $dataProduits[$keyPrd]->stock += $stockEntrepot->stock ;
+            }
+        }
+
+        $stockEntrepots = array_values($dataProduits) ;
 
         $result = [] ;
         $result["vide"] = empty($stockEntrepots) ;
@@ -1944,31 +1958,39 @@ class StockController extends AbstractController
         $idP = $request->request->get('idP') ;
         $idE = $request->request->get('idE') ;
 
-        $filename = $this->filename."variationProduit(agence)/vartPrd_".$idP."_".$this->nameAgence ;
-        if(!file_exists($filename))
-            $this->appService->generatePrdVariationProduit($filename,$idP) ;
+        $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
+        $entrepot = $this->entityManager->getRepository(PrdEntrepot::class)->find($idE) ;
+        $tva = $produit->getTvaType() ;
 
-        $variationProduits = json_decode(file_get_contents($filename)) ;
-        
-        // $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
-        //     "agence" => $this->agence,
-        //     "filename" => $this->filename."stock_entrepot(agence)/".$this->nameAgence,
-        // ]) ;
+        $variations = $this->entityManager->getRepository(PrdVariationPrix::class)->findBy([
+            "produit" => $produit,
+            "statut" => True
+        ]) ;
 
-        $dataVariations = [] ;
+        $variationPrixs = [] ;
 
-        foreach ($variationProduits as $variationProduit) {
-            if(in_array($idE,$variationProduit->idEntrepot))
+        foreach ($variations as $variation) {
+            $histoEntrepot = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findOneBy([
+                "variationPrix" => $variation,
+                "entrepot" => $entrepot,
+                "statut" => True
+            ]) ;
+
+            if(!is_null($histoEntrepot))
             {
-                $dataVariations[] = $variationProduit ;
+                $indice = is_null($variation->getIndice()) ? "-" : $variation->getIndice() ;
+
+                $variationPrixs[] = [
+                    "id" => $variation->getId(),
+                    "prixVente" => $variation->getPrixVente(),
+                    "indice" => $indice,
+                    "stock" => $histoEntrepot->getStock(),
+                ] ;
             }
         }
 
-        $produit = $this->entityManager->getRepository(Produit::class)->find($idP) ;
-        $tva = $produit->getTvaType() ;
-
         return new JsonResponse([
-            "produitPrix" => $dataVariations,
+            "produitPrix" => $variationPrixs,
             "tva" => is_null($tva) ? "" : $tva->getValeur() ,
             // "images" => is_null($produit->getImages()) ? file_get_contents("data/images/default_image.txt") : $produit->getImages(),
         ]) ;

@@ -185,7 +185,7 @@ $(document).ready(function(){
     })
 
     
-
+    return true ; 
 })
 
 // maquettes

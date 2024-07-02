@@ -479,4 +479,6 @@ $(document).ready(function(){
     $(".btn_btp_modif_surface").click(function(){
         $.alert("modification surface") ;
     }) ;
+
+    return true ; 
 })

@@ -7,8 +7,28 @@ $(document).ready(function(){
     });
 
     $(document).on("change",".fact_mod_prod_designation",function(){
-        var self = $(this)
-        var stock = parseFloat($(".fact_mod_prod_designation").find("option:selected").data("stock"))
+        var result = appBase.verificationElement([
+            $("#fact_type").val(),
+        ],[
+            "Type de facture",
+        ]) ;
+
+        if(!result["allow"])
+        {
+            $.alert({
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            }) ;
+
+            $(this).val("") ;
+            $(this).trigger('chosen:updated') ; 
+
+            return result["allow"] ;
+        }
+
+        var self = $(this) ;
+        var stock = parseFloat($(this).find("option:selected").data("stock")) ;
         if($(".fact_btn_type.btn-primary").data("reference") == "DF")
         {
             if(stock <= 0)
@@ -17,10 +37,11 @@ $(document).ready(function(){
                     title: "Stock en alerte",
                     content: "Désolé, vous ne pouvez pas ajouter ce produit. Veuiller faire un approvisionnment",
                     type:'red',
-                })
+                }) ;
 
-                $(".fact_mod_prod_designation").val("")
+                $(".fact_mod_prod_designation").val("") ;
                 $(".fact_mod_prod_designation").trigger('chosen:updated') ; 
+
                 return false ;
             }
         }
@@ -29,60 +50,48 @@ $(document).ready(function(){
         var typeData = $(".fact_btn_modele.btn-warning").data("indice") == "PROD" ? 'json' : 'html' ;
         if ($(this).is("select")) { 
             var optionSelected = $(this).find("option:selected") ;
-
-            // if(optionSelected.attr("idEntrepot") == undefined)
-            // {
-            //     $.alert({
-            //         title: 'Message',
-            //         content: "Veuiller effacer la cache",
-            //         type: 'orange',
-            //     });
-
-            //     return false;
-            // }
-
-            $("#fact_text_designation").val($(this).find("option:selected").text())
-            var realinstance = instance.loading()
+            $("#fact_text_designation").val($(this).find("option:selected").text()) ;
+            var realinstance = instance.loading() ;
             var data = new FormData() ;
             data.append('idP',self.val()) ;
             data.append('idE',optionSelected.attr("idEntrepot")) ;
             $.ajax({
                 url: maRoute,
-                type:'post', 
+                type:'post',
                 cache: false,
                 data:data,
-                dataType: typeData ,
-                processData: false,
-                contentType: false,
+                dataType:typeData,
+                processData:false,
+                contentType:false,
                 success: function(resp){
-                    realinstance.close()
+                    realinstance.close() ;
                     if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
                     {
                         if(resp.produitPrix.length > 1)
                         {
-                            var optionsPrix = '<option value=""></option>' ;
+                            var optionsPrix = '<option value="">-</option>' ;
                             resp.produitPrix.forEach(elem => {
-                                optionsPrix += '<option value="'+elem.id+'">'+elem.prixVente+' | '+elem.indice+'</option>'
-                            });
+                                optionsPrix += '<option value="'+elem.id+'" data-stock="'+elem.stock+'">'+elem.prixVente+' | '+elem.indice+' | stock : '+elem.stock+'</option>'
+                            }) ;
                         }
                         else
                         {
-                            var optionsPrix = '<option value="'+resp.produitPrix[0].id+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+'</option>' ;
+                            var optionsPrix = '<option value="'+resp.produitPrix[0].id+'" data-stock="'+resp.produitPrix[0].stock+'">'+resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice+' | stock : '+resp.produitPrix[0].stock+'</option>' ;
                             $("#fact_text_prix").val(resp.produitPrix[0].prixVente+' | '+resp.produitPrix[0].indice) ;
                         }
                         
                         if(resp.tva != "")
                         {
-                            $("#fact_mod_prod_tva_val").attr("readonly",true)
-                            $("#fact_mod_prod_tva_val").val(resp.tva)
+                            $("#fact_mod_prod_tva_val").attr("readonly",true) ;
+                            $("#fact_mod_prod_tva_val").val(resp.tva) ;
                         }
                         else
                         {
-                            $("#fact_mod_prod_tva_val").removeAttr("readonly")
-                            $("#fact_mod_prod_tva_val").val("")
+                            $("#fact_mod_prod_tva_val").removeAttr("readonly") ;
+                            $("#fact_mod_prod_tva_val").val("") ;
                         }
                         
-                        $(".fact_mod_prod_prix").html(optionsPrix)
+                        $(".fact_mod_prod_prix").html(optionsPrix) ;
                     }
                     else
                     {
@@ -98,14 +107,25 @@ $(document).ready(function(){
         } 
     })
 
-
     $(document).on("change",".fact_mod_prod_prix",function(){
+        var stock = parseFloat($(this).find("option:selected").data("stock")) ;
+        if(stock <= 0)
+        {
+            $.alert({
+                title: "Stock en alerte",
+                content: "Désolé, vous ne pouvez pas ajouter ce produit. Veuiller faire un approvisionnment",
+                type:'red',
+            }) ;
+
+            $(this).val("") ;
+            $(this).trigger('chosen:updated') ; 
+
+            return false ;
+        }
         var selectedText = $(this).find("option:selected").text();
         $("#fact_text_prix").val(selectedText) ;
-    })
+    }) ;
 
-    
-    
     $(document).on("change","#fact_mod_prod_type",function(){
         var valType = $(this).val() ;
         var self = $(this)
@@ -126,8 +146,8 @@ $(document).ready(function(){
         }
     })
 
-    
     $(document).on("click",".ajout_fact_element",function(){
+        
         var fact_mod_prod_entrepot = $("#fact_mod_prod_entrepot").val()
         var fact_mod_prod_designation = $("#fact_mod_prod_designation").val()
         var fact_mod_prod_prix = $("#fact_mod_prod_prix").val()
@@ -135,6 +155,7 @@ $(document).ready(function(){
         var fact_mod_prod_type = $("#fact_mod_prod_type").val()
         
         var result = appBase.verificationElement([
+            fact_mod_prod_entrepot,
             fact_mod_prod_designation,
             fact_mod_prod_prix,
             fact_mod_prod_qte,
@@ -167,7 +188,7 @@ $(document).ready(function(){
                     title: "Stock insuffisant",
                     content: "Veuiller entrer une quantité inférieure au stock",
                     type:'red',
-                })
+                }) ;
                 return false ;
             }
         }
@@ -196,22 +217,6 @@ $(document).ready(function(){
             })
             return false ;
         }
-
-        // if(fact_mod_prod_type == "autre")
-        // {
-        //     var fact_mod_prod_prix = $("#fact_mod_prod_prix").val() ;
-        //     var result = appBase.verificationElement([fact_mod_prod_prix],["Prix"])
-        //     if(!result["allow"])
-        //     {
-        //         $.alert({
-        //             title: 'Message',
-        //             content: result["message"],
-        //             type: result["type"],
-        //         });
-    
-        //         return result["allow"] ;
-        //     }
-        // }
 
         if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
         {
@@ -476,20 +481,21 @@ $(document).ready(function(){
     })
 
     $(document).on("keyup","#fact_remise_prod_general",function(){
-        calculFacture()
-    })
+        calculFacture() ;
+    }) ;
 
     $(document).on("change","#fact_devise",function(){
         var option = $(this).find("option:selected") ;
         var montantbase = option.attr("base") ;
-        var totalBase = $(".fact_enr_total_general").val()
+        var totalBase = $(".fact_enr_total_general").val() ;
         var selectedText = option.text() ;  
 
         $("#fact_lettre_devise").text(selectedText.split(" | ")[1])
         var montantDevise = parseFloat(totalBase) / parseFloat(montantbase)
         montantDevise = montantDevise.toFixed(2)
         montantDevise = montantDevise.endsWith('.00') ? montantDevise.slice(0, -3) : montantDevise ;
-        $("#fact_montant_devise").text(montantDevise+" "+selectedText.split(" | ")[0])
+        $("#fact_montant_devise").text(montantDevise+" "+selectedText.split(" | ")[0]) ;
+
         if($(this).val() == "")
         {
             $(".fact_enr_val_devise").val("")
@@ -503,11 +509,31 @@ $(document).ready(function(){
     })
 
     $(document).on("change","#fact_type_remise_prod_general",function(){
-        calculFacture()
+        calculFacture() ;
     }) ;
 
 
     $(document).on("change","#fact_mod_prod_entrepot",function(){
+        var result = appBase.verificationElement([
+            $("#fact_type").val(),
+        ],[
+            "Type de facture",
+        ]) ;
+
+        if(!result["allow"])
+        {
+            $.alert({
+                title: 'Message',
+                content: result["message"],
+                type: result["type"],
+            }) ;
+
+            $(this).val("") ;
+            $(this).trigger('chosen:updated') ; 
+
+            return result["allow"] ;
+        }
+
         var realinstance = instance.loading() ;
         var self = $(this) ;
         $.ajax({
@@ -537,4 +563,6 @@ $(document).ready(function(){
             }
         })
     })
+
+    return true ; 
 })

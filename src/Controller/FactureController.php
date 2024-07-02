@@ -1989,7 +1989,7 @@ class FactureController extends AbstractController
     {
         $fact_modele = $request->request->get('fact_modele') ; 
         $fact_type = $request->request->get('fact_type') ; 
-        $fact_paiement = $request->request->get('fact_paiement') ; 
+        $fact_paiement = $request->request->get('fact_paiement') ;  
         $fact_client = $request->request->get('fact_client') ; 
         $facture_editor = $request->request->get('facture_editor') ; 
         $fact_lieu = $request->request->get('fact_lieu') ; 

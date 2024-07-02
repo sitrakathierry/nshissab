@@ -795,22 +795,22 @@ class AppService extends AbstractController
 
                     $item[$cle] = [] ;
     
+                    $item[$cle]["id"] = $variation->getId() ;
+                    $item[$cle]["solde"] = is_null($solde) ? "-" : $solde->getCalculee() ;
+                    $item[$cle]["marge"] = $montantMarge ;
+                    $item[$cle]["charge"] = $charge ;
+                    $item[$cle]["soldeType"] = is_null($solde) ? "-" : $solde->getType()->getCalcul() ;
+                    $item[$cle]["soldeQte"] = is_null($solde) ? "-" : $solde->getSolde() ;
+                    $item[$cle]["soldeDate"] = is_null($solde) ? "-" : $solde->getDateLimite()->format("d/m/Y") ;
                     $item[$cle]["entrepot"] = $histoEntrepot->getEntrepot()->getNom()  ;
                     $item[$cle]["idEntrepot"] = [$histoEntrepot->getEntrepot()->getId()]  ;
                     $item[$cle]["prix"] = $variation->getPrixVente() ;
                     $item[$cle]["prixAchat"] = $prixAchat ;
-                    $item[$cle]["charge"] = $charge ;
-                    $item[$cle]["marge"] = $montantMarge ;
                     $item[$cle]["prixVente"] = $variation->getPrixVente() ;
                     $item[$cle]["stock"] = $histoEntrepot->getStock() ;
                     $item[$cle]["code"] = $produit->getCodeProduit()."/".$indice ;
                     $item[$cle]["codeProduit"] = $produit->getCodeProduit() ;
                     $item[$cle]["indice"] = $indice ;
-                    $item[$cle]["id"] = $variation->getId() ;
-                    $item[$cle]["solde"] = is_null($solde) ? "-" : $solde->getCalculee() ;
-                    $item[$cle]["soldeType"] = is_null($solde) ? "-" : $solde->getType()->getCalcul() ;
-                    $item[$cle]["soldeQte"] = is_null($solde) ? "-" : $solde->getSolde() ;
-                    $item[$cle]["soldeDate"] = is_null($solde) ? "-" : $solde->getDateLimite()->format("d/m/Y") ;
                 }
 
                 $elements[$cle] = $item[$cle] ;

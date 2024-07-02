@@ -279,4 +279,6 @@ $(document).ready(function(){
             searchContrat()
         })
     }) ;
+
+    return true ; 
 })
