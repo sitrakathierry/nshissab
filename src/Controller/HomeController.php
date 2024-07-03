@@ -6,6 +6,7 @@ use App\Entity\Agence;
 use App\Entity\CaissePanier;
 use App\Entity\HistoHistorique;
 use App\Entity\ModModelePdf;
+use App\Entity\PrdApprovisionnement;
 use App\Entity\PrdHistoEntrepot;
 use App\Entity\PrdVariationPrix;
 use App\Entity\User;
@@ -66,6 +67,29 @@ class HomeController extends AbstractController
         return $this->render('home/index.html.twig', [
            "username" => $username 
         ]);
+    }
+
+    /**
+     * @Route("/home/stock/produit/update", name="home_update_stock_produit")
+     */
+    public function updateStockProduit()
+    {
+        $this->entityManager->getRepository(PrdApprovisionnement::class)->effacementStockNegatif([
+            "agence" => $this->agence,
+            "user" => $this->userObj,
+            "statut" => True,
+        ]) ;
+
+        if($this->user["role"] == "ADMIN")
+        {
+            $url = $this->generateUrl('app_admin');
+        }
+        else
+        {
+            $url = $this->generateUrl('app_home');
+        }
+        
+        return new RedirectResponse($url);
     }
 
     /**

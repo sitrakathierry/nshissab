@@ -599,6 +599,7 @@ class AdminController extends AbstractController
             if(!file_exists($pathListeMenu))
                 $this->appService->generateListeMenu() ;
         }
+        
         if($user["role"] == "ADMIN")
         {
             $url = $this->generateUrl('app_admin');

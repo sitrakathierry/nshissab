@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\PrdApprovisionnement;
+use App\Entity\PrdHistoEntrepot;
+use App\Entity\PrdMargeType;
 use App\Service\AppService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -208,6 +210,55 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
         }
 
         return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function effacementStockNegatif($params = [])
+    {
+        $repository = $this->getEntityManager()->getRepository(PrdHistoEntrepot::class);
+
+        $histoEntrepots = $repository->createQueryBuilder('phe')
+            ->select("phe")
+            ->where('phe.agence = :agence')
+            ->andWhere('phe.statut = :statut')
+            ->andWhere('phe.stock < 0')
+            ->setParameter('agence', $params['agence'])
+            ->setParameter('statut', $params['statut'])
+            ->getQuery()
+            ->getResult();
+
+        // dd($histoEntrepots) ;
+
+        foreach ($histoEntrepots as $histoEntrepot) {
+            $variationPrix = $histoEntrepot->getVariationPrix() ;
+
+            $approvisionnement = new PrdApprovisionnement() ;
+    
+            // $margeType = $this->getEntityManager()->getRepository(PrdMargeType::class)->find(1) ; // Par défaut Montant
+    
+            $approvisionnement->setAgence($params["agence"]) ;
+            $approvisionnement->setUser($params["user"]) ;
+            $approvisionnement->setHistoEntrepot($histoEntrepot) ;
+            $approvisionnement->setVariationPrix($variationPrix) ;
+            $approvisionnement->setMargeType($variationPrix->getMargeType()) ;
+            $approvisionnement->setQuantite(abs($histoEntrepot->getStock())) ;
+            $approvisionnement->setPrixAchat($variationPrix->getPrixAchat()) ;
+            $approvisionnement->setCharge($variationPrix->getCharge()) ;
+            $approvisionnement->setMargeValeur($variationPrix->getMargeValeur()) ;
+            $approvisionnement->setPrixRevient(NULL) ;
+            $approvisionnement->setPrixVente($variationPrix->getPrixVente()) ;
+            $approvisionnement->setExpireeLe(NULL) ;
+            $approvisionnement->setIsAuto(True) ;
+            $approvisionnement->setDateAppro(\DateTime::createFromFormat('j/m/Y', date("d/m/Y"))) ;
+            $approvisionnement->setDescription("Rééquilibrage de Produit Code : ".$variationPrix->getProduit()->getCodeProduit()) ;
+            $approvisionnement->setCreatedAt(new \DateTimeImmutable) ;
+            $approvisionnement->setUpdatedAt(new \DateTimeImmutable) ;
+    
+            $this->getEntityManager()->persist($approvisionnement) ;
+            $this->getEntityManager()->flush() ;
+            
+            $variationPrix->getProduit()->setToUpdate(True) ;
+            $this->getEntityManager()->flush() ;
+        }
     }
 
 //    /**
