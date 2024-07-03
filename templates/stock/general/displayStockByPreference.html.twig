@@ -11,7 +11,7 @@
             {% set total = 0 %}
             {% for key, item in stockParCategories %}
                 <tr>
-                    <td class="align-middle">{{key|upper}}</td>
+                    <td class="align-middle">{{item.nomCategorie|upper}}</td>
                     <td class="align-middle">{{ item.stock }}</td>
                     <td class="text-center align-middle">
                     {# <a href="{{path('stock_general_par_type',{'type': item.encodedId })}}" class="btn btn-sm btn-outline-warning font-smaller"><i class="fa fa-edit"></i></a> #}

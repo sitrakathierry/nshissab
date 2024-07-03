@@ -3367,7 +3367,7 @@ class StockController extends AbstractController
             $filename = $this->filename."stockParCategorie(agence)/".$this->nameAgence ;
             if(!file_exists($filename))  
                 $this->appService->generateProduitParategorie($filename, $this->agence,$this->userObj);
-    
+            
             $stockParCategories = json_decode(file_get_contents($filename)) ; 
             
             $filename = $this->filename."stockGEntrepot(agence)/".$this->nameAgence ;

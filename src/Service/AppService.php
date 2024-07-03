@@ -886,33 +886,30 @@ class AppService extends AbstractController
             "statut" => True,
         ]) ;
 
-        $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
-            "user" => $user,
-            "statut" => True
-        ]) ;
+        // $preferences = $this->entityManager->getRepository(PrdPreferences::class)->findBy([
+        //     "user" => $user,
+        //     "statut" => True
+        // ]) ;
 
         $stockCats = [] ;
-
-        foreach($preferences as $preference)
-        {
-            $nomPref = strtolower($preference->getCategorie()->getNom()) ;
-            $stockCats[$nomPref] = [] ;
-            $stockCats[$nomPref]["stock"] = 0 ;
-            $stockCats[$nomPref]["encodedId"] = $this->encodeChiffre($preference->getId()) ;
-        }
 
         foreach($stockGenerales as $stockGenerale)
         {
             $prefProd = $stockGenerale->getPreference() ;
-            if(!isset($stockCats[strtolower($prefProd->getCategorie()->getNom())]))
+            $keyCat = "CAT".$prefProd->getCategorie()->getId() ;
+
+            if(!isset($stockCats[$keyCat]))
             {
-                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"] = $stockGenerale->getStock() ;
-                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["encodedId"] = $this->encodeChiffre($prefProd->getId()) ;
+                $stockCats[$keyCat] =
+                [
+                    "stock" => $stockGenerale->getStock(),
+                    "nomCategorie" => $prefProd->getCategorie()->getNom(),
+                    "encodedId" => $this->encodeChiffre($prefProd->getId()),
+                ]  ;
             }
             else
             {
-                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["stock"]  += $stockGenerale->getStock() ;
-                $stockCats[strtolower($prefProd->getCategorie()->getNom())]["encodedId"] = $this->encodeChiffre($prefProd->getId()) ;
+                $stockCats[$keyCat]["stock"] += $stockGenerale->getStock() ;
             }
         }
         
@@ -1368,7 +1365,7 @@ class AppService extends AbstractController
         file_put_contents($filename,json_encode($elements)) ;
     }
 
-    public function generatePrdGenEntrepot($filename,$agence)
+    public function generatePrdGenEntrepot($filename,$agence) 
     {
         $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->findBy([
             "agence" => $agence,
