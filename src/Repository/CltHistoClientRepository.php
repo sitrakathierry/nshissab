@@ -78,7 +78,7 @@ class CltHistoClientRepository extends ServiceEntityRepository
         {
             $societe = new CltSociete() ;
 
-            $societe->setAgence($this->agence) ;
+            $societe->setAgence($params["agence"]) ;
             $societe->setNom($params["nom"]) ;
             $societe->setAdresse($params["adresse"]) ;
             $societe->setTelFixe($params["telephone"]) ;
@@ -91,7 +91,7 @@ class CltHistoClientRepository extends ServiceEntityRepository
         {
             $clientP = new Client() ;
 
-            $clientP->setAgence($this->agence) ;
+            $clientP->setAgence($params["agence"]) ;
             $clientP->setNom($params["nom"]) ;
             $clientP->setAdresse($params["adresse"]) ;
             $clientP->setTelephone($params["telephone"]) ;
@@ -103,7 +103,7 @@ class CltHistoClientRepository extends ServiceEntityRepository
 
         $client = new CltHistoClient() ;
 
-        $client->setAgence($this->agence) ;
+        $client->setAgence($params["agence"]) ;
         $client->setClient($clientP) ;
         $client->setSociete($societe) ;
         $client->setType($params["typeClient"]) ;

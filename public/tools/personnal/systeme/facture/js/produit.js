@@ -147,7 +147,6 @@ $(document).ready(function(){
     })
 
     $(document).on("click",".ajout_fact_element",function(){
-        
         var fact_mod_prod_entrepot = $("#fact_mod_prod_entrepot").val()
         var fact_mod_prod_designation = $("#fact_mod_prod_designation").val()
         var fact_mod_prod_prix = $("#fact_mod_prod_prix").val()
@@ -164,7 +163,7 @@ $(document).ready(function(){
             "Désignation",
             "Prix",
             "Quantité"
-        ])
+        ]) ;
 
         if(!result["allow"])
         {
@@ -194,7 +193,7 @@ $(document).ready(function(){
         }
 
         var existant = false ;
-        $(".elem_facture_produit tr").each(function(){
+        $(".elem_facture_produit tr").each(function() {
             if($(this).find(".fact_enr_prod_type").val() != "autre")
             {
                 var idPrix = $(this).find(".fact_enr_prod_prix").val() ;
@@ -265,7 +264,7 @@ $(document).ready(function(){
         {
             if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
             {
-                var stock = parseInt(fact_text_designation.split(" | ")[2].split(" : ")[1])
+                var stock = parseInt(fact_mod_prod_prix.split(" | ")[2].split(" : ")[1])
                 if(stock < parseInt(fact_mod_prod_qte))
                 {
                     $.alert({
@@ -299,7 +298,8 @@ $(document).ready(function(){
         {
             var result = appBase.verificationElement([
                 fact_mod_prod_remise,
-            ],[
+            ],
+            [
                 "Remise",
             ])
     
@@ -327,7 +327,6 @@ $(document).ready(function(){
                 remise = fact_mod_prod_remise
                 fact_total_partiel = fact_total_partiel - remise
             }
-           
         }
         else
         {
