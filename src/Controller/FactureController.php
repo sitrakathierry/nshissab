@@ -971,8 +971,6 @@ class FactureController extends AbstractController
                 $idCoiffeur = "-" ;
             }
 
-            
-
             $element = [] ;
             $element["id"] = $factureDetail->getId() ;
             $element["type"] = $factureDetail->getActivite() ;
@@ -1069,6 +1067,7 @@ class FactureController extends AbstractController
 
                 if(!$isGeneral)
                 {
+                    
                     $stockEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->generateStockInEntrepot([
                         "agence" => $this->agence,
                         "filename" => "files/systeme/stock/stock_entrepot(agence)/".$this->nameAgence,
@@ -1080,7 +1079,21 @@ class FactureController extends AbstractController
             
                     $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
     
-                    $stockEntrepots = array_values($stockEntrepots) ;
+                    $dataProduits = [] ;
+
+                    foreach ($stockEntrepots as $stockEntrepot) {
+                        $keyPrd = "PRD".$stockEntrepot->idP ;
+                        if(!isset($dataProduits[$keyPrd]))
+                        {
+                            $dataProduits[$keyPrd] = $stockEntrepot ;
+                        }
+                        else
+                        {
+                            $dataProduits[$keyPrd]->stock += $stockEntrepot->stock ;
+                        }
+                    }
+
+                    $stockEntrepots = array_values($dataProduits) ;
                 }
 
                 $templateEditFacture = $this->renderView("sav/editFacture/templateProduit.html.twig",[
@@ -1998,7 +2011,6 @@ class FactureController extends AbstractController
         $fact_libelle = $request->request->get('fact_libelle') ;
         $fact_ticket_caisse = $request->request->get("fact_ticket_caisse") ;
         $fact_mod_prod_entrepot = $request->request->get("fact_mod_prod_entrepot") ;
-        
         $fact_enr_total_general = $request->request->get('fact_enr_total_general') ;
 
         $data = [
@@ -2011,7 +2023,7 @@ class FactureController extends AbstractController
             "Modele",
             "Type",
             "Client"
-        ];
+        ] ;
 
         $result = $this->appService->verificationElement($data, $dataMessage) ;
 
@@ -2024,7 +2036,7 @@ class FactureController extends AbstractController
                 "type" => "orange",
                 "message" => "Date supérieur invalide"
             ]) ;
-        }
+        } ;
 
         $type = $this->entityManager->getRepository(FactType::class)->find($fact_type) ;
 
@@ -2143,46 +2155,13 @@ class FactureController extends AbstractController
                 ]) ;
             }
                 
-            if($typeClient->getReference() == "MORAL")
-            {
-                $societe = new CltSociete() ;
-
-                $societe->setAgence($this->agence) ;
-                $societe->setNom($fact_client) ;
-                $societe->setAdresse($fact_clt_adresse) ;
-                $societe->setTelFixe($fact_clt_telephone) ;
-
-                $this->entityManager->persist($societe) ;
-                $this->entityManager->flush() ;
-                $clientP = null ;
-            }
-            else
-            {
-                $clientP = new Client() ;
-
-                $clientP->setAgence($this->agence) ;
-                $clientP->setNom($fact_client) ;
-                $clientP->setAdresse($fact_clt_adresse) ;
-                $clientP->setTelephone($fact_clt_telephone) ;
-                
-                $this->entityManager->persist($clientP) ;
-                $this->entityManager->flush() ;
-                $societe = null ;
-            }
-
-            $client = new CltHistoClient() ;
-
-            $client->setAgence($this->agence) ;
-            $client->setClient($clientP) ;
-            $client->setSociete($societe) ;
-            $client->setType($typeClient) ;
-            $client->setUrgence(null) ;
-            $client->setStatut(True) ;
-            $client->setCreatedAt(new \DateTimeImmutable) ;
-            $client->setUpdatedAt(new \DateTimeImmutable) ;
-
-            $this->entityManager->persist($client) ;
-            $this->entityManager->flush() ;
+            $client = $this->entityManager->getRepository(CltHistoClient::class)->saveClient([
+                "agence" => $this->agence,
+                "nom" => $fact_client,
+                "adresse" => $fact_clt_adresse,
+                "telephone" => $fact_clt_telephone,
+                "typeClient" => $typeClient,
+            ]) ;
 
             $filename = "files/systeme/client/client(agence)/".$this->nameAgence ;
 
@@ -2239,6 +2218,8 @@ class FactureController extends AbstractController
         else
             $entrepot = null ;
         
+        
+
         $facture->setAgence($this->agence) ;
         $facture->setUser($this->userObj) ;
         $facture->setClient($client) ;

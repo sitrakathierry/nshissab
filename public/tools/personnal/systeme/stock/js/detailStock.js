@@ -244,6 +244,59 @@ $(document).ready(function(){
                 $.alert(JSON.stringify(resp)) ;
             }
         })
+    }) ;
+
+
+    $(".prod_delete_variation").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.stock_delete_variation_prix,
+                            type:'post',
+                            cache: false,
+                            data:{idVariation:self.data("value")},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
     })
 
     $(document).on('submit','#formModifVariation',function(){
@@ -550,4 +603,8 @@ $(document).ready(function(){
         
         $("#modif_inpt_prix").val(prixVente) ;
     }
+
+
+
+    return true ;
 })

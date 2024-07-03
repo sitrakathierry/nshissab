@@ -3329,6 +3329,33 @@ class StockController extends AbstractController
         return new Response($response) ;
     }
 
+    
+    #[Route('/stock/variation/prix/delete', name: 'stock_delete_variation_prix')]
+    public function stockGetDeleteVariationPrix(Request $request)
+    {
+        $idVariation = $request->request->get("idVariation") ;
+        
+        $variationPrix = $this->entityManager->getRepository(PrdVariationPrix::class)->find($idVariation) ;
+
+        $histoEntrepots = $this->entityManager->getRepository(PrdHistoEntrepot::class)->findBy([
+            "variationPrix" => $variationPrix,
+            "statut" => True,
+        ]) ;
+
+        foreach ($histoEntrepots as $histoEntrepot) {
+            $histoEntrepot->setStatut(False) ;
+            $this->entityManager->flush() ;
+        }
+
+        $variationPrix->getProduit()->setToUpdate(True) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Variation supprimé avec succès"
+        ]) ;
+    }
+
     #[Route('/stock/general/display', name: 'stock_display_content_stock')]
     public function stockDisplayContentStock(Request $request)
     { 

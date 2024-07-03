@@ -178,7 +178,7 @@
                                             <td class="prd_list_stock">{{variationProduit.stock}}</td>
                                             <td class="text-center align-middle">
                                                 <button class="btn btn-sm btn-outline-warning prod_edit_variation font-smaller"><i class="fa fa-edit"></i></button>
-                                                <button class="btn btn-sm btn-outline-danger ml-1 font-smaller"><i class="fa fa-trash"></i></button>
+                                                <button data-value="{{variationProduit.id}}" class="btn btn-sm btn-outline-danger ml-1 prod_delete_variation font-smaller"><i class="fa fa-trash"></i></button>
                                             </td>
                                         </tr>
                                         {% set totalVariation = totalVariation + variationProduit.stock %}

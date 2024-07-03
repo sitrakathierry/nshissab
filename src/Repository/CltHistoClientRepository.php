@@ -72,6 +72,52 @@ class CltHistoClientRepository extends ServiceEntityRepository
         return !is_null($query) ;
     }
 
+    public function saveClient($params = [])
+    {
+        if($params["typeClient"]->getReference() == "MORAL")
+        {
+            $societe = new CltSociete() ;
+
+            $societe->setAgence($this->agence) ;
+            $societe->setNom($params["nom"]) ;
+            $societe->setAdresse($params["adresse"]) ;
+            $societe->setTelFixe($params["telephone"]) ;
+
+            $this->getEntityManager()->persist($societe) ;
+            $this->getEntityManager()->flush() ;
+            $clientP = null ;
+        }
+        else
+        {
+            $clientP = new Client() ;
+
+            $clientP->setAgence($this->agence) ;
+            $clientP->setNom($params["nom"]) ;
+            $clientP->setAdresse($params["adresse"]) ;
+            $clientP->setTelephone($params["telephone"]) ;
+            
+            $this->getEntityManager()->persist($clientP) ;
+            $this->getEntityManager()->flush() ;
+            $societe = null ;
+        }
+
+        $client = new CltHistoClient() ;
+
+        $client->setAgence($this->agence) ;
+        $client->setClient($clientP) ;
+        $client->setSociete($societe) ;
+        $client->setType($params["typeClient"]) ;
+        $client->setUrgence(null) ;
+        $client->setStatut(True) ;
+        $client->setCreatedAt(new \DateTimeImmutable) ;
+        $client->setUpdatedAt(new \DateTimeImmutable) ;
+
+        $this->getEntityManager()->persist($client) ;
+        $this->getEntityManager()->flush() ;
+
+        return $client ;
+    }
+
 //    /**
 //     * @return CltHistoClient[] Returns an array of CltHistoClient objects
 //     */
