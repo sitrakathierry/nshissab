@@ -226,7 +226,7 @@ class PrdApprovisionnementRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
 
-        dd($histoEntrepots) ;
+        // dd($histoEntrepots) ;
 
         foreach ($histoEntrepots as $histoEntrepot) {
             $variationPrix = $histoEntrepot->getVariationPrix() ;
