@@ -256,6 +256,7 @@ $(document).ready(function(){
         
         var fact_mod_prod_designation = fact_mod_prod_type == "autre" ? fact_text_designation : $("#fact_mod_prod_designation").val()
         var fact_mod_prod_prix =  $("#fact_mod_prod_prix").val()
+        var factTextPrix = $("#fact_mod_prod_prix").find("option:selected").text()
         var fact_mod_prod_qte = $("#fact_mod_prod_qte").val()
         var fact_mod_prod_tva_val = $("#fact_mod_prod_tva_val").val()
         fact_mod_prod_tva_val = fact_mod_prod_tva_val == "" ? 0 : fact_mod_prod_tva_val
@@ -264,7 +265,7 @@ $(document).ready(function(){
         {
             if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
             {
-                var stock = parseInt(fact_mod_prod_prix.split(" | ")[2].split(" : ")[1])
+                var stock = parseInt(factTextPrix.split(" | ")[2].split(" : ")[1])
                 if(stock < parseInt(fact_mod_prod_qte))
                 {
                     $.alert({
