@@ -1899,16 +1899,54 @@ class StockController extends AbstractController
 
         $stockEntrepots = $this->appService->searchData($stockEntrepots,$search) ;
         
-        $stockEntrepots = array_values($stockEntrepots) ;
+        $dataEntrepots = [] ;
+
+        foreach ($stockEntrepots as $stockEntrepot) {
+            $keyPrd = "PRD".$stockEntrepot->idP ;
+            if(!isset($dataEntrepots[$keyPrd]))
+            {
+                $dataEntrepots[$keyPrd] = [
+                    "nbLigne" => 3,
+                    "details" => [$stockEntrepot],
+                    "code" => $stockEntrepot->code,
+                    "categorie" => $stockEntrepot->categorie,
+                    "nom" => $stockEntrepot->nom,
+                    "nomType" => $stockEntrepot->nomType,
+                ] ;
+            }
+            else
+            {
+                $dataEntrepots[$keyPrd]["nbLigne"] += 1 ;
+                $dataEntrepots[$keyPrd]["details"][] = $stockEntrepot ;
+            }
+        }
+
+        $dataProduits = [] ;
+
+        foreach ($stockEntrepots as $stockEntrepot) {
+            $keyPrd = "PRD".$stockEntrepot->idP ;
+            if(!isset($dataProduits[$keyPrd]))
+            {
+                $dataProduits[$keyPrd] = $stockEntrepot ;
+            }
+            else
+            {
+                $dataProduits[$keyPrd]->stock += $stockEntrepot->stock ;
+            }
+        }
+
+        $stockEntrepots = array_values($dataProduits) ;
+
+        // $stockEntrepots = array_values($stockEntrepots) ;
  
         return $this->render('stock/stockentrepot.html.twig', [
-            "filename" => "stock",
+            "filename" => "stock", 
             "titlePage" => "Stock d'entrepot",
             "with_foot" => false,
             "entrepots" => $entrepots,
             "categories" => $preferences,
             "stockGenerales" => $stockEntrepots,
-            "stockEntrepots" => $stockEntrepots, 
+            "stockEntrepots" => $dataEntrepots, 
             "idEntrepot" => $id,
             "currentEntrepot" => $currentEntrepot[0],
         ]);
@@ -1938,8 +1976,30 @@ class StockController extends AbstractController
 
         if($interface == "YES")
         {
+            $dataEntrepots = [] ;
+
+            foreach ($stockEntrepots as $stockEntrepot) {
+                $keyPrd = "PRD".$stockEntrepot->idP ;
+                if(!isset($dataEntrepots[$keyPrd]))
+                {
+                    $dataEntrepots[$keyPrd] = [
+                        "nbLigne" => 3,
+                        "details" => [$stockEntrepot],
+                        "code" => $stockEntrepot->code,
+                        "categorie" => $stockEntrepot->categorie,
+                        "nom" => $stockEntrepot->nom,
+                        "nomType" => $stockEntrepot->nomType,
+                    ] ;
+                }
+                else
+                {
+                    $dataEntrepots[$keyPrd]["nbLigne"] += 1 ;
+                    $dataEntrepots[$keyPrd]["details"][] = $stockEntrepot ;
+                }
+            }
+
             $response = $this->renderView("stock/entrepot/searchStockUniqueEntrepots.html.twig", [
-                "stockEntrepots" => $stockEntrepots
+                "stockEntrepots" => $dataEntrepots
             ]) ;
         }
         else

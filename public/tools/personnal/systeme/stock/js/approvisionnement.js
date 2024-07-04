@@ -465,7 +465,7 @@ $(document).ready(function(){
             var idP = $(this).val()
             $.ajax({
                 url: routes.stock_get_prix_produitE, 
-                type:'post',
+                type:'post', 
                 cache:false,
                 data:{idE:idE,idP:idP},
                 dataType:'json',

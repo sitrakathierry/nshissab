@@ -97,7 +97,7 @@ class PrdVariationPrixRepository extends ServiceEntityRepository
             WHERE phe.entrepot_id = ? AND p.id = ? AND pvp.statut = ? AND phe.statut = ?
         " ;
         $conn = $this->getEntityManager()->getConnection();
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare($sql); 
         $resultSet = $stmt->executeQuery([
             $params["entrepot"],
             $params["produit"],

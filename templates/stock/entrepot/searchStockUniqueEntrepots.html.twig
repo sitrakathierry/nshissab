@@ -1,19 +1,33 @@
 {% set total = 0 %}
-{% for stockEntrepot in stockEntrepots %}
+{% for keyPrd,valuePrd in stockEntrepots %}
+    {# <tr>
+        <td>{{valuePrd.details[0].entrepot|upper}}</td>
+    </tr> #}
     <tr>
-        <td>{{stockEntrepot.entrepot}}</td>
-        <td>{{stockEntrepot.code}}</td>
-        <td>{{stockEntrepot.categorie|upper}}</td>
-        <td>{{stockEntrepot.nom}}</td>
-        <td>{{stockEntrepot.indice}}</td>
-        <td>{{stockEntrepot.stock}}</td>
-        <td class="text-center align-middle">
-            <a href="{{path('stock_display_variation_produit',{'idVar':stockEntrepot.encodedIdVar})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
-        </td>
+        <td class="align-middle" rowspan="{{valuePrd.nbLigne}}">{{valuePrd.code}} | {{valuePrd.categorie|upper}} | {{valuePrd.nomType}} | {{valuePrd.nom}}</td>
     </tr>
-    {% set total = total + stockEntrepot.stock %}
+    {% set totalL = 0 %}
+    {% for detail in valuePrd.details %}
+        <tr>
+            <td>{{detail.indice}}</td>
+            <td>{{detail.prixVente}}</td>
+            <td>{{detail.stock}}</td>
+            <td class="text-center align-middle">
+                <a href="{{path('stock_display_variation_produit',{'idVar':detail.encodedIdVar})}}" class="btn btn-outline-warning btn-sm font-smaller"><i class="fa fa-edit"></i></a>
+            </td>
+        </tr>
+        {% set total = total + detail.stock %}
+        {% set totalL = totalL + detail.stock %}
+    {% endfor %}
+    <tr>
+        <th colspan="2">Total</th>
+        <th colspan="2" class="bg-success text-white">{{totalL}}</th>
+    </tr>
+    <tr class="bg-light border_dark">
+        <td colspan="10"></td>
+    </tr>
 {% endfor %}
 <tr>
-    <th colspan="5">Total</th>
+    <th colspan="3">Total</th>
     <th colspan="2" class="bg-purple text-white">{{total}}</th>
-</tr>  
+</tr>   
