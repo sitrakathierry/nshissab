@@ -60,7 +60,8 @@ class CaisseCommandeRepository extends ServiceEntityRepository
                 $entrepot = "-" ;
                 $refEntrepot = "-" ;
 
-                if(!is_null($caissePanier->getHistoEntrepot()))
+                
+                if(!is_null($caissePanier) && !is_null($caissePanier->getHistoEntrepot()))
                 {
                     $entrepot = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
                     $refEntrepot = $caissePanier->getHistoEntrepot()->getEntrepot()->getId() ;
