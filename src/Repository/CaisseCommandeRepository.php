@@ -57,6 +57,15 @@ class CaisseCommandeRepository extends ServiceEntityRepository
 
             if($commande->getMontantPayee() > 0)
             {
+                $entrepot = "-" ;
+                $refEntrepot = "-" ;
+
+                if(!is_null($caissePanier->getHistoEntrepot()))
+                {
+                    $entrepot = $caissePanier->getHistoEntrepot()->getEntrepot()->getNom() ;
+                    $refEntrepot = $caissePanier->getHistoEntrepot()->getEntrepot()->getId() ;
+                }
+
                 $elements[] = [
                     "id" => $commande->getId(),
                     "date" => $commande->getDate()->format('d/m/Y'),
@@ -67,8 +76,8 @@ class CaisseCommandeRepository extends ServiceEntityRepository
                     "annee" => $commande->getDate()->format('Y'),
                     "mois" => $commande->getDate()->format('m'),
                     "numero" => $commande->getNumCommande(),
-                    "entrepot" => $caissePanier->getHistoEntrepot()->getEntrepot()->getNom(),
-                    "refEntrepot" => $caissePanier->getHistoEntrepot()->getEntrepot()->getId(),
+                    "entrepot" => $entrepot,
+                    "refEntrepot" => $refEntrepot,
                     "montant" => $commande->getMontantPayee(),
                     "typePaiement" => "-",
                     "refTypePaiement" => "-",

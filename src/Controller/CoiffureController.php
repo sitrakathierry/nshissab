@@ -63,7 +63,7 @@ class CoiffureController extends AbstractController
 
         return $this->render('coiffure/categorieCoupes.html.twig', [
             "filename" => "coiffure",
-            "titlePage" => "Sous Catégorie",
+            "titlePage" => "Sous Catégorie", 
             "catCoupes" => $categories,
             "with_foot" => false,
         ]); 

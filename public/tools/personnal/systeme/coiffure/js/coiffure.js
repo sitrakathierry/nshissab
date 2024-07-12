@@ -347,6 +347,12 @@ $(document).ready(function(){
         })
     }) ; 
 
-    
+    $('#staticBackdrop').on('shown.bs.modal', function () {
+        $.alert("focus") ;
+    })
+
+    $(".btn_test").click(function(){
+        $('#staticBackdrop').modal('toggle')
+    })
 
 })
