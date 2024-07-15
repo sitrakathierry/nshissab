@@ -36,10 +36,6 @@
                     <label for="" class="mt-2 font-weight-bold">&nbsp;</label>
                     <button type="submit" class="btn btn-sm btn-block btn-perso-one"><i class="fa fa-save"></i>&nbsp;Enregistrer</button>
                 </div>
-                {# <div class="col-2">
-                    <label for="" class="mt-2 font-weight-bold">&nbsp;</label>
-                    <button type="button" class="btn btn-sm btn_test btn-block btn-success"><i class="fa fa-save"></i>&nbsp;Test</button>
-                </div> #}
             </div>  
         </form>
         <div class="barre_dashed mt-3 py-3">
@@ -67,8 +63,8 @@
                                 <td>{{catCoupe.genre}}</td>
                                 <td>{{catCoupe.nom}}</td>
                                 <td class="text-center align-middle">
-                                    <button type="button" data-value="{{catCoupe.id}}" class="btn btn-sm mx-1 font-smaller btn-outline-warning"><i class="fa fa-edit"></i></button>
-                                    <button type="button" data-value="{{catCoupe.id}}" class="btn btn-sm mx-1 font-smaller btn-outline-danger"><i class="fa fa-trash"></i></button>
+                                    <button type="button" data-value="{{catCoupe.id}}" class="btn btn-sm btn_modif_sous_cat mx-1 font-smaller btn-outline-warning"><i class="fa fa-edit"></i></button>
+                                    <button type="button" data-value="{{catCoupe.id}}" class="btn btn-sm btn_delete_sous_cat mx-1 font-smaller btn-outline-danger"><i class="fa fa-trash"></i></button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -89,17 +85,33 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Ajout Elément Restaurant</h5>
+        <h5 class="modal-title text-uppercase" id="staticBackdropLabel">Modification Sous catégorie</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        ...
+        <form id="formModifSousCategorie">
+            <input type="hidden" name="coiff_modif_id_scat" id="coiff_modif_id_scat">
+            <div class="w-100">
+                <div class="w-75 mx-auto">
+                    <label for="coiff_modif_categorie" class="mt-2 font-weight-bold">Categorie</label>
+                    <select name="coiff_modif_categorie" class="custom-select chosen_select custom-select-sm" id="coiff_modif_categorie">
+                        <option value="">-</option>
+                        <option value="HOMME">{{"Homme"|upper}}</option>
+                        <option value="FEMME">{{"Femme"|upper}}</option>
+                    </select>
+                </div>
+                <div class="w-75 mx-auto">
+                    <label for="coiff_modif_sous_categorie" class="mt-3 font-weight-bold">Sous Categorie</label>
+                    <input type="text" name="coiff_modif_sous_categorie" oninput="this.value = this.value.toUpperCase();" id="coiff_modif_sous_categorie" class="form-control" placeholder=". . .">
+                </div>
+            </div>  
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-sm text-uppercase btn-secondary" data-dismiss="modal">Fermer</button>
-        <button type="button" class="btn btn-sm text-uppercase btn-perso-one">Valider</button>
+        <button type="button" class="btn btn-sm btn_valider_modif_scat text-uppercase btn-perso-one">Mettre à jour</button>
       </div>
     </div>
   </div>

@@ -63,10 +63,42 @@ class CoiffureController extends AbstractController
 
         return $this->render('coiffure/categorieCoupes.html.twig', [
             "filename" => "coiffure",
-            "titlePage" => "Sous Catégorie", 
+            "titlePage" => "Sous Catégorie",  
             "catCoupes" => $categories,
             "with_foot" => false,
         ]); 
+    }
+
+    #[Route('/coiffure/categorie/coupes/get', name: 'coiffure_categorie_coupes_get')]
+    public function coiffureGetSousCategorie(Request $request)
+    {
+        $idSousCat = $request->request->get("idSousCat") ;
+
+        $categorie = $this->entityManager->getRepository(CoiffCategorie::class)->find($idSousCat) ;
+
+        $oneCat = [
+            "id" => $categorie->getId(),
+            "nom" => $categorie->getNom(),
+            "genre" => $categorie->getGenre(),
+        ] ;
+
+        return new JsonResponse($oneCat) ;
+    }
+
+    #[Route('/coiffure/categorie/coupes/delete', name: 'coiffure_categorie_coupes_delete')]
+    public function coiffureDeleteSousCategorie(Request $request)
+    {
+        $idCat = $request->request->get("idCat") ;
+
+        $categorie = $this->entityManager->getRepository(CoiffCategorie::class)->find($idCat) ;
+
+        $categorie->setStatut(False) ;
+        $this->entityManager->flush() ;
+
+        return new JsonResponse([
+            "type" => "green",
+            "message" => "Suppression effectuée"
+        ]) ;
     }
 
     #[Route('/coiffure/coupes/cheuveux', name: 'coiffure_coupes_cheuveux')]
@@ -213,8 +245,18 @@ class CoiffureController extends AbstractController
     #[Route('/coiffure/categorie/coupes/save', name: 'coiffure_categorie_coupes_save')]
     public function coiffureSaveCategorie(Request $request)
     {
-        $coiff_categorie = $request->request->get("coiff_categorie") ;
-        $coiff_sous_categorie = $request->request->get("coiff_sous_categorie") ;
+        $coiff_modif_id_scat = $request->request->get("coiff_modif_id_scat") ;
+        if(isset($coiff_modif_id_scat))
+        {
+            $coiff_categorie = $request->request->get("coiff_modif_categorie") ;
+            $coiff_sous_categorie = $request->request->get("coiff_modif_sous_categorie") ;
+        }
+        else
+        {
+            $coiff_categorie = $request->request->get("coiff_categorie") ;
+            $coiff_sous_categorie = $request->request->get("coiff_sous_categorie") ;
+        }
+        
 
         $result = $this->appService->verificationElement([
             $coiff_categorie,
@@ -227,12 +269,20 @@ class CoiffureController extends AbstractController
         if(!$result["allow"])
             return new JsonResponse($result) ;
 
-        $categorie = new CoiffCategorie() ;
+        if(isset($coiff_modif_id_scat))
+        {
+            $categorie = $this->entityManager->getRepository(CoiffCategorie::class)->find($coiff_modif_id_scat) ;
+            $result["message"] = "Modifiation effectuée" ;
+        }
+        else
+        {
+            $categorie = new CoiffCategorie() ;
+            $categorie->setAgence($this->agence) ;
+            $categorie->setStatut(True) ;
+        }
 
-        $categorie->setAgence($this->agence) ;
         $categorie->setNom($coiff_sous_categorie) ;
         $categorie->setGenre($coiff_categorie) ;
-        $categorie->setStatut(True) ;
         
         $this->entityManager->persist($categorie) ;
         $this->entityManager->flush() ;

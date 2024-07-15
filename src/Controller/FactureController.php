@@ -1334,7 +1334,7 @@ class FactureController extends AbstractController
             
             $element = [] ;
             $element["id"] = $detail->getId() ;
-            $element["type"] = $detail->getActivite() ;
+            $element["type"] = is_null($detail->getActivite()) || empty($detail->getActivite()) ? "Coiffure" : $detail->getActivite() ; ;
             $element["designation"] = $detail->getDesignation() ;
             $element["isForfait"] = $detail->isIsForfait() ;
             $element["quantite"] = $detail->getQuantite() ;
@@ -1422,7 +1422,7 @@ class FactureController extends AbstractController
                 "client" => $dataClient,
             ]) ;
         }
-        else if ($facture->getModele()->getReference() == "PROD" || $facture->getModele()->getReference() == "PSTD")
+        else if ($facture->getModele()->getReference() == "PROD" || $facture->getModele()->getReference() == "PSTD" || $facture->getModele()->getReference() == "COIFF")
         {
             $contentIMpression = $this->renderView("facture/impression/impressionFacture.html.twig",[
                 "contentEntete" => $contentEntete,
@@ -1917,7 +1917,6 @@ class FactureController extends AbstractController
 
             if($facture->getModele()->getReference() == "PBAT") 
             {
-
                 $filename = "files/systeme/prestations/batiment/enoncee(agence)/".$this->nameAgence ;
                 if(!file_exists($filename))
                     $this->appService->generateEnonceePrestBatiment($filename, $this->agence) ;

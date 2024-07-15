@@ -348,11 +348,142 @@ $(document).ready(function(){
     }) ; 
 
     $('#staticBackdrop').on('shown.bs.modal', function () {
-        $.alert("focus") ;
+        // $.alert("focus") ;
     })
 
-    $(".btn_test").click(function(){
-        $('#staticBackdrop').modal('toggle')
-    })
+    $(".btn_modif_sous_cat").click(function(){
+        var realinstance = instance.loading()
+        var self = $(this) ;
+        $.ajax({
+            url: routes.coiffure_categorie_coupes_get,
+            type:'post',
+            cache: false,
+            data: {
+                idSousCat:self.data('value'),
+            },
+            dataType: 'json',
+            success: function(response){
+                realinstance.close() ;
+                $("#coiff_modif_id_scat").val(response.id) ;
+                $("#coiff_modif_categorie").val(response.genre) ;
+                $("#coiff_modif_sous_categorie").val(response.nom.toUpperCase()) ;
+                $(".chosen_select").trigger("chosen:updated") ;
+                $('#staticBackdrop').modal('show')
+            },
+            error: function(resp){
+                realinstance.close()
+                $.alert(JSON.stringify(resp)) ;
+            }
+        }) ;
+    }) ;
+
+    $(document).on("click",".btn_valider_modif_scat",function(){
+        $("#formModifSousCategorie").submit() ;
+    }) ;
+
+    $("#formModifSousCategorie").submit(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Modification",
+            content:"Êtes-vous sûre ?",
+            type:"orange",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-orange',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        var data = self.serialize() ;
+                        $.ajax({
+                            url: routes.coiffure_categorie_coupes_save,
+                            type:'post',
+                            cache: false,
+                            data:data,
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
+
+    $(".btn_delete_sous_cat").click(function(){
+        var self = $(this)
+        $.confirm({
+            title: "Suppression",
+            content:"Êtes-vous sûre ?",
+            type:"red",
+            theme:"modern",
+            buttons:{
+                btn1:{
+                    text: 'Non',
+                    action: function(){}
+                },
+                btn2:{
+                    text: 'Oui',
+                    btnClass: 'btn-red',
+                    keys: ['enter'],
+                    action: function(){
+                        var realinstance = instance.loading()
+                        $.ajax({
+                            url: routes.coiffure_categorie_coupes_delete,
+                            type:'post',
+                            cache: false,
+                            data:{idCat:self.data("value")},
+                            dataType: 'json',
+                            success: function(json){
+                                realinstance.close()
+                                $.alert({
+                                    title: 'Message',
+                                    content: json.message,
+                                    type: json.type,
+                                    buttons: {
+                                        OK: function(){
+                                            if(json.type == "green")
+                                            {
+                                                location.reload()
+                                            }
+                                        }
+                                    }
+                                });
+                            },
+                            error: function(resp){
+                                realinstance.close()
+                                $.alert(JSON.stringify(resp)) ;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+        return false ;
+    }) ;
 
 })
