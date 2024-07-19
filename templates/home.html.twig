@@ -39,7 +39,7 @@
 		<script src="{{asset('tools/personnal/js/AppBase.js')}}"></script>
 		
 	</head>
-	<body version="1.0">
+	<body version="1.0"> 
 		<div class="contentResponse" ></div>
 		{% block menu %}
 			{# Voir dans le fichier templates/menu/index.html.twig #}
@@ -418,13 +418,33 @@
 					stock_delete_variation_prix:"{{path('stock_delete_variation_prix')}}",
 					coiffure_categorie_coupes_get:"{{path('coiffure_categorie_coupes_get')}}",
 					coiffure_categorie_coupes_delete:"{{path('coiffure_categorie_coupes_delete')}}",
+					restaurant_ingredient_appro:"{{path('restaurant_ingredient_appro')}}",
+					restaurant_ingredient_unite:"{{path('restaurant_ingredient_unite')}}",
+					restaurant_ingredient_consultation:"{{path('restaurant_ingredient_consultation')}}",
+					restaurant_ingredient_mouvement:"{{path('restaurant_ingredient_mouvement')}}",
+					restaurant_ingredient_sortir:"{{path('restaurant_ingredient_sortir')}}",
+					restaurant_table_creation:"{{path('restaurant_table_creation')}}",
+					restaurant_table_suivi:"{{path('restaurant_table_suivi')}}",
+					restaurant_table_reservation:"{{path('restaurant_table_reservation')}}",
+					restaurant_repas_categorie:"{{path('restaurant_repas_categorie')}}",
+					restaurant_repas_creation:"{{path('restaurant_repas_creation')}}",
+					restaurant_repas_consultation:"{{path('restaurant_repas_consultation')}}",
+					restaurant_boissons_categorie:"{{path('restaurant_boissons_categorie')}}",
+					restaurant_boissons_creation:"{{path('restaurant_boissons_creation')}}",
+					restaurant_boissons_consultation:"{{path('restaurant_boissons_consultation')}}",
+					restaurant_menus_creation:"{{path('restaurant_menus_creation')}}",
+					restaurant_menus_consultation:"{{path('restaurant_menus_consultation')}}",
+					restaurant_caisse:"{{path('restaurant_caisse')}}",
+					restaurant_commandes_sur_place:"{{path('restaurant_commandes_sur_place')}}",
+					restaurant_commandes_emporter:"{{path('restaurant_commandes_emporter')}}",
+					restaurant_commandes_livrer:"{{path('restaurant_commandes_livrer')}}",
 				}; 
 
 				const files = { 
 					loading : "{{asset('data/images/loading.svg')}}",
 					search : "{{asset('data/images/search.svg')}}",
 					imageDefault: "{{asset('data/images/default.jpg')}}",
-				}	
+				}
 
 				// Récupérer l'heure actuelle
 				var dateActuelle = new Date();

@@ -36,7 +36,7 @@ class AchatController extends AbstractController
 
     public function __construct(EntityManagerInterface $entityManager,SessionInterface $session, AppService $appService)
     {
-        $this->session = $session;
+        $this->session = $session; 
         $this->entityManager = $entityManager;
         $this->appService = $appService ;
         $this->appService->checkUrl() ;
