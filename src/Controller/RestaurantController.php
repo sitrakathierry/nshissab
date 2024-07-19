@@ -71,6 +71,16 @@ class RestaurantController extends AbstractController
         ]);
     }
 
+    #[Route('/restaurant/ingredient/correspondance', name: 'restaurant_ingredient_correspondance')]
+    public function restoCorrespondanceIngredient(): Response
+    {
+        return $this->render('restaurant/ingredients/correspondanceIngPlats.html.twig', [
+            "filename" => "restaurant",
+            "titlePage" => "Relation Plats - Ingrédient", 
+            "with_foot" => true,
+        ]);
+    }
+
     #[Route('/restaurant/ingredient/mouvement', name: 'restaurant_ingredient_mouvement')]
     public function restoMouvementIngredient(): Response
     {
