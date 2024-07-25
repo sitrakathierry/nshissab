@@ -73,7 +73,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
             foreach ($finances as $finance) {
                 $facture = $finance->getFacture() ;
 
-                if(!$facture->isStatut()) 
+                if(!$facture->isStatut() or $facture->getType()->getReference() != 'DF') 
                     continue ;
 
                 $refModele = $facture->getModele()->getReference() ; 
@@ -293,6 +293,27 @@ class CrdFinanceRepository extends ServiceEntityRepository
         }
         
         return json_decode(file_get_contents($params["filename"])) ;
+    }
+
+    public function findCreditDef($params = [])
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('cd')
+            ->from(CrdDetails::class, 'cd')
+            ->join(CrdFinance::class, 'cf', 'WITH', 'cf.id = cd.finance')
+            ->join(Facture::class, 'f', 'WITH', 'f.id = cf.facture')
+            ->join(FactPaiement::class, 'fp', 'WITH', 'fp.id = cf.paiement')
+            ->where('cf.agence = :agence')
+            ->andWhere('f.statut = :statut')
+            ->andWhere('fp.reference = :paiement')
+            ->setParameter('agence', $params['agence']->getId())
+            ->setParameter('statut', $params['statut'])
+            ->setParameter('paiement', $params['paiement'])
+            ->getQuery() ;
+        
+        return $query->getResult();
     }
 
     public function findActive($params = [])
