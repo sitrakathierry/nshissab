@@ -1885,7 +1885,7 @@ class AppService extends AbstractController
     {
         $paiement = $this->entityManager->getRepository(FactPaiement::class)->findOneBy([
             "reference" => $refPaiement
-            ]) ;
+        ]) ;
 
         $finances = $this->entityManager->getRepository(CrdFinance::class)->findBy([
                 "agence" => $agence,
@@ -1894,8 +1894,12 @@ class AppService extends AbstractController
 
         $elements = [] ;
         foreach ($finances as $finance) {
-            $client = $this->getFactureClient($finance->getFacture())["client"] ;
             $facture = $finance->getFacture() ;
+
+            if(!$facture->isStatut() or $facture->getType()->getReference() != 'DF')
+                continue ;
+
+            $client = $this->getFactureClient($finance->getFacture())["client"] ;
             $totalPayee = $this->entityManager->getRepository(CrdDetails::class)->getFinanceTotalPayee($finance->getId()) ;
 
             $refModele = $facture->getModele()->getReference() ; 
@@ -1906,7 +1910,6 @@ class AppService extends AbstractController
             if($refModele == "PROD")
             {
                 // DEBUT VRAI
-
                 $entrepotObj = $this->entityManager->getRepository(PrdEntrepot::class)->findOneBy([
                     "nom" => strtoupper($facture->getLieu()),
                     "agence" => $agence,
