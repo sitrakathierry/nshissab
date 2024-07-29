@@ -109,6 +109,8 @@ $(document).ready(function(){
 
     function searchRecette()
     {
+        
+
         var instance = new Loading(files.search) ;
         $(".contentElemRecette").html(instance.otherSearch()) ;
         var formData = new FormData() ;
@@ -116,18 +118,14 @@ $(document).ready(function(){
             const search = elemSearch[j];
             formData.append(search.name,$(search.selector).val());
         }
-        if($(".btn_rct_caisse_jour").hasClass("btn-outline-success"))
-        {
-            formData.append("refTypePaiement",$(".search_recette_type_paiement.btn-info").data("value")) ;
-        }
-        else
-        {
-            formData.append("refTypePaiement","") ;
+
+        formData.append("refTypePaiement",$(".search_recette_type_paiement.btn-info").data("value")) ;
+        
+        if($(".btn_rct_caisse_jour").hasClass("btn-success"))
             formData.append("caisseJournalier","OK") ;
-            formData.append("date_caisse_specifique",$("#date_caisse_specifique").val()) ;
-        }
+        
         $.ajax({
-            url: routes.compta_recette_search ,
+            url: routes.compta_recette_search,
             type: 'post',
             cache: false,
             data:formData,
@@ -165,67 +163,28 @@ $(document).ready(function(){
     }) ;
 
     $(".btn_rct_caisse_jour").click(function(){
-        if($(this).hasClass("btn-outline-success"))
-        {
-            $(".content_caisse_journalier").before(`
-                <div class="col-md-3 content_date_caisse">
-                    <label for="date_caisse_specifique" class="font-weight-bold text-uppercase">Date Spécifique</label>
-                    <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar"></i></span>
-                    </div>
-                        <input type="text" class="form-control" placeholder=". . ." id="date_caisse_specifique" name="date_caisse_specifique">
-                    </div>
-                </div>
-                <script>
-                    $("#date_caisse_specifique").datepicker()
-                </script>
-            `) ;
-            $(this).removeClass("btn-outline-success") ;
-            $(this).addClass("btn-success") ;
-            $(this).html('<i class="fa fa-check"></i>&nbsp;Caisse Journalière') ;
+        toggleBtnCaisseJournalier(this) ;
+    }) ;
 
-            searchCaisseJournaliere() ;
+    function toggleBtnCaisseJournalier(object) {
+        if($(object).hasClass("btn-outline-success"))
+        {
+            $(object).removeClass("btn-outline-success") ;
+            $(object).addClass("btn-success") ;
+            $(object).html('<i class="fa fa-check"></i>&nbsp;Caisse Journalière') ;
         }
         else
         {
-            $(".content_date_caisse").remove() ;
-
-            $(this).removeClass("btn-success") ;
-            $(this).addClass("btn-outline-success") ;
-            $(this).html('Caisse Journalière'.toUpperCase()) ;
+            $(object).removeClass("btn-success") ;
+            $(object).addClass("btn-outline-success") ;
+            $(object).html('Caisse Journalière'.toUpperCase()) ;
         }
-    }) ;
-
-    function searchCaisseJournaliere()
-    {
-        var instance = new Loading(files.search) ;
-        $(".contentElemRecette").html(instance.otherSearch()) ;
-        var formData = new FormData() ;
-        for (let j = 0; j < elemSearch.length; j++) {
-            const search = elemSearch[j];
-            formData.append(search.name,$(search.selector).val());
-        }
-        formData.append("refTypePaiement","") ;
-        formData.append("caisseJournalier","OK") ;
-        formData.append("date_caisse_specifique",$("#date_caisse_specifique").val()) ;
-        $.ajax({
-            url: routes.compta_recette_search ,
-            type: 'post',
-            cache: false,
-            data:formData,
-            dataType: 'html',
-            processData: false, // important pour éviter la transformation automatique des données en chaîne
-            contentType: false, // important pour envoyer des données binaires (comme les fichiers)
-            success: function(response){
-                $(".contentElemRecette").empty().html(response) ;
-            }
-        })
+        searchRecette() ;
     }
 
-    $(document).on("change","#date_caisse_specifique",function(){
-        searchCaisseJournaliere() ;
-    }) ; 
+    // $(document).on("change","#date_caisse_specifique",function(){
+    //     searchCaisseJournaliere() ;
+    // }) ; 
 
     $(".btn_rct_caisse_pdf").click(function(){
         var self = $(this)

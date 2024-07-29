@@ -866,7 +866,7 @@ class ComptabiliteController extends AbstractController
 
     #[Route('/comptabilite/recette/general', name: 'compta_recette_general')]
     public function comptaRecetteGeneral()
-    {
+    { 
         if($this->userObj->getRoles()[0] == "MANAGER")
         {
             $entrepots = $this->entityManager->getRepository(PrdEntrepot::class)->generateStockEntrepot([
@@ -2482,7 +2482,6 @@ class ComptabiliteController extends AbstractController
         $refRecette = $request->request->get('refRecette') ;
         $refTypePaiement = $request->request->get('refTypePaiement') ;
         $caisseJournalier = $request->request->get('caisseJournalier') ;
-        $date_caisse_specifique = $request->request->get('date_caisse_specifique') ;
 
         $annee = (empty($annee) || $annee == 'undefined') ? 2024 : $annee ;
 
@@ -2513,12 +2512,6 @@ class ComptabiliteController extends AbstractController
             {
                 $search[$key] = "" ;
             }
-        }
-
-        if(isset($caisseJournalier))
-        {
-            $date_caisse_specifique = empty($date_caisse_specifique) ? date("d/m/Y") : $date_caisse_specifique ;
-            $search["dateFacture"] = $date_caisse_specifique ; 
         }
 
         $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
