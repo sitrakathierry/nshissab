@@ -2514,6 +2514,12 @@ class ComptabiliteController extends AbstractController
             }
         }
 
+        if(isset($caisseJournalier))
+        {
+            if(empty($search["dateFacture"]))
+                $search["dateFacture"] = date("d/m/Y") ;
+        }
+
         $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
 
         if(!empty($recetteGenerales))
