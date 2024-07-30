@@ -918,6 +918,9 @@ class ComptabiliteController extends AbstractController
             $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
         } 
 
+        if($this->agence->getId() == 28)
+            dd($recetteGenerales) ;
+
         $numFacts = [] ;
         $typeRecettes = [] ;
 
