@@ -2531,7 +2531,7 @@ class ComptabiliteController extends AbstractController
 
                 foreach ($recetteGenerales as $recetteGenerale) {
                     $recetteJournlaiers[$recetteGenerale->refTypePaiement][] = $recetteGenerale ;
-                    if(!isset($recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]))
+                    if(!isset($recapitulatifs[$recetteGenerale->refTypePaiement]))
                     {
                         $recapitulatifs[$recetteGenerale->refTypePaiement]["montant"] = $recetteGenerale->montant ; 
                         $recapitulatifs[$recetteGenerale->refTypePaiement]["paiement"] = $recetteGenerale->typePaiement ;
