@@ -266,14 +266,17 @@ $(document).ready(function(){
             if($(".fact_btn_modele.btn-warning").data("indice") == "PROD")
             {
                 var stock = parseInt(factTextPrix.split(" | ")[2].split(" : ")[1])
-                if(stock < parseInt(fact_mod_prod_qte))
+                if($(".fact_btn_type.btn-primary").data("reference") == "DF")
                 {
-                    $.alert({
-                        title: "Stock insuffisant",
-                        content: "Veuiller entrer une quantité inférieure au stock",
-                        type:'red',
-                    })
-                    return false;
+                    if(stock < parseInt(fact_mod_prod_qte))
+                    {
+                        $.alert({
+                            title: "Stock insuffisant",
+                            content: "Veuiller entrer une quantité inférieure au stock",
+                            type:'red',
+                        })
+                        return false;
+                    }
                 }
     
                 fact_text_designation = fact_text_designation.split(" | ")[0]+" | "+fact_text_designation.split(" | ")[1] ;
