@@ -164,7 +164,7 @@ class FactDetailsRepository extends ServiceEntityRepository
             ->select('SUM(fd.quantite) as totalFactureEntrepot')
             ->from(FactDetails::class, 'fd')
             ->join(Facture::class, 'f', 'WITH', 'fd.facture = f.id')
-            ->join(FactType::class, 'ft', 'WITH', 'f.fact_type_id = ft.id')
+            ->join(FactType::class, 'ft', 'WITH', 'f.type_id = ft.id')
             ->where('fd.activite = :activite')
             // ->andWhere('fd.agence = :histoEntrepot')
             ->andWhere('fd.statut = :statut')
