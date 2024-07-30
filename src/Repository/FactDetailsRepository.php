@@ -158,22 +158,24 @@ class FactDetailsRepository extends ServiceEntityRepository
 
     public function stockTotalFactureInEntrepot($params = [])
     {
-       
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 
         $query = $queryBuilder
             ->select('SUM(fd.quantite) as totalFactureEntrepot')
             ->from(FactDetails::class, 'fd')
-            // ->join(Facture::class, 'f', 'WITH', 'a.someField = b.someField')
+            ->join(Facture::class, 'f', 'WITH', 'fd.facture = f.id')
+            ->join(FactType::class, 'ft', 'WITH', 'f.factType = ft.id')
             ->where('fd.activite = :activite')
             // ->andWhere('fd.agence = :histoEntrepot')
             ->andWhere('fd.statut = :statut')
             ->andWhere('fd.entite IS NOT NULL')
             ->andWhere('fd.histoEntrepot = :histoEntrepot')
+            ->andWhere('ft.reference != :referenceType')
             ->orderBy('fd.id', 'ASC')
             ->setParameter('activite', 'Produit')
             ->setParameter('histoEntrepot', $params["histoEntrepot"] )
             ->setParameter('statut', True)
+            ->setParameter('referenceType', 'DF')
             ->getQuery() ;
 
         // $result = $query->getSingleScalarResult();
