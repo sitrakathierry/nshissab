@@ -896,7 +896,7 @@ class ComptabiliteController extends AbstractController
                     ] ;
                 }
             }
-        } 
+        }
 
         $recetteGenerales = $this->entityManager->getRepository(Facture::class)->generateRecetteGeneral([
             "agence" => $this->agence,
@@ -2522,6 +2522,35 @@ class ComptabiliteController extends AbstractController
             if(empty($search["dateFacture"]))
                 $search["dateFacture"] = date("d/m/Y") ;
         }
+
+        if($this->userObj->getRoles()[0] != "MANAGER")
+        {
+            $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
+                "agent" => $this->userObj,
+                "statut" => True
+            ]) ;
+            
+            $entrepots = [] ;
+            foreach ($affectEntrepots as $affectEntrepot) 
+            {
+                $entrepot = $affectEntrepot->getEntrepot() ;
+                if($entrepot->isStatut())
+                {
+                    $entrepots[] = 
+                    [
+                        "id" => $entrepot->getId(),
+                        "nom" => $entrepot->getNom(),
+                        "adresse" => $entrepot->getAdresse(),
+                        "telephone" => $entrepot->getTelephone(),
+                    ] ;
+                }
+            }
+        }
+
+        if(count($entrepots) == 1)
+        {
+            $search["refEntrepot"] = $entrepots[0]["id"] ;
+        } 
 
         $recetteGenerales = $this->appService->searchData($recetteGenerales,$search) ;
 
