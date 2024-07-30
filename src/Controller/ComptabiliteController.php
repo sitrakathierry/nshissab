@@ -2530,15 +2530,15 @@ class ComptabiliteController extends AbstractController
                 $recapitulatifs = [] ;
 
                 foreach ($recetteGenerales as $recetteGenerale) {
-                    $recetteJournlaiers[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement][] = $recetteGenerale ;
+                    $recetteJournlaiers[$recetteGenerale->refTypePaiement][] = $recetteGenerale ;
                     if(!isset($recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]))
                     {
-                        $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] = $recetteGenerale->montant ; 
-                        $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["paiement"] = $recetteGenerale->typePaiement ;
+                        $recapitulatifs[$recetteGenerale->refTypePaiement]["montant"] = $recetteGenerale->montant ; 
+                        $recapitulatifs[$recetteGenerale->refTypePaiement]["paiement"] = $recetteGenerale->typePaiement ;
                     }
                     else
                     {
-                        $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] += $recetteGenerale->montant ; 
+                        $recapitulatifs[$recetteGenerale->refTypePaiement]["montant"] += $recetteGenerale->montant ; 
                     }
                 } 
 
