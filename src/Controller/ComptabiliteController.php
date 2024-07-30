@@ -2540,7 +2540,7 @@ class ComptabiliteController extends AbstractController
                     {
                         $recapitulatifs[$recetteGenerale->refTypePaiement."|".$recetteGenerale->typePaiement]["montant"] += $recetteGenerale->montant ; 
                     }
-                }
+                } 
 
                 $response = $this->renderView("comptabilite/recettes/searchCaisseJournalier.html.twig", [
                     "recetteJournlaiers" => $recetteJournlaiers,

@@ -316,7 +316,7 @@ class FactureRepository extends ServiceEntityRepository
             {
                 $entrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getNom() ;
                 $refEntrepot = is_null($facture->getEntrepot()) ? "-" : $facture->getEntrepot()->getId() ;
-            }
+            } 
 
             $recette = $facture->getModele()->getNom() ;
             $refRecette = $facture->getModele()->getId() ;

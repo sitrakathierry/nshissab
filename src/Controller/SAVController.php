@@ -684,6 +684,7 @@ class SAVController extends AbstractController
             $dataFilenames = [
                 $this->filename."annulation(agence)/".$this->nameAgence,
                 "files/systeme/facture/facture(agence)/".$this->nameAgence,
+                $this->filename."avoirs(agence)/".$this->nameAgence 
             ] ;
 
             $refFacture = $facture->getModele()->getReference() ;
@@ -700,6 +701,7 @@ class SAVController extends AbstractController
             $dataFilenames = [
                 $this->filename."annulation(agence)/".$this->nameAgence,
                 "files/systeme/caisse/panierCommande(agence)/".$this->nameAgence,
+                $this->filename."avoirs(agence)/".$this->nameAgence 
             ] ;
 
             $isProd = True ;

@@ -184,7 +184,7 @@ $(document).ready(function(){
 
     // $(document).on("change","#date_caisse_specifique",function(){
     //     searchCaisseJournaliere() ;
-    // }) ; 
+    // }) ;  
 
     $(".btn_rct_caisse_pdf").click(function(){
         var self = $(this)
