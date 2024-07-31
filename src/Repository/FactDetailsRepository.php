@@ -139,18 +139,21 @@ class FactDetailsRepository extends ServiceEntityRepository
             ->select('fd')
             ->from(FactDetails::class, 'fd')
             ->join(Facture::class, 'f', 'WITH', 'f.id = fd.facture')
+            ->join(FactType::class, 'ft', 'WITH', 'f.type = ft.id')
             ->leftJoin(PrdHistoEntrepot::class, 'phe', 'WITH', 'phe.id = fd.histoEntrepot')
             ->where('f.agence = :agence')
             ->andWhere('fd.activite = :activite')
             ->andWhere('fd.statut = :statut')
             // ->andWhere('fd.entite IS NOT NULL')
             ->andWhere('fd.entite = :entite')
+            ->andWhere('ft.reference != :referenceType')
             ->andWhere('phe.statut = :statutEnt')
             ->setParameter('agence', $params['agence']->getId())
             ->setParameter('activite', 'Produit')
             ->setParameter('statutEnt', True)
             ->setParameter('entite', $params['variationPrix']->getId())
             ->setParameter('statut', $params['statut'])
+            ->setParameter('referenceType', 'DF')
             ->getQuery() ;
         
         return $query->getResult();
