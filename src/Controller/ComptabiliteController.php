@@ -2523,6 +2523,8 @@ class ComptabiliteController extends AbstractController
                 $search["dateFacture"] = date("d/m/Y") ;
         }
 
+        $entrepots = [] ;
+        
         if($this->userObj->getRoles()[0] != "MANAGER")
         {
             $affectEntrepots = $this->entityManager->getRepository(PrdEntrpAffectation::class)->findBy([
@@ -2530,7 +2532,6 @@ class ComptabiliteController extends AbstractController
                 "statut" => True
             ]) ;
             
-            $entrepots = [] ;
             foreach ($affectEntrepots as $affectEntrepot) 
             {
                 $entrepot = $affectEntrepot->getEntrepot() ;

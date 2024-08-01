@@ -122,7 +122,7 @@ class CreditController extends AbstractController
         if(!file_exists($filename)) 
             $this->appService->generateCltClient($filename, $this->agence) ;
 
-        $clients = json_decode(file_get_contents($filename)) ;
+        $clients = json_decode(file_get_contents($filename)) ; 
 
         $critereDates = $this->entityManager->getRepository(FactCritereDate::class)->findAll() ;
             
