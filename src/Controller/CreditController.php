@@ -267,7 +267,7 @@ class CreditController extends AbstractController
         }
         else
         {
-            $finances = [] ;
+            $finances = [] ; 
         }
 
         $response = $this->renderView("credit/searchSuiviCredit.html.twig", [
