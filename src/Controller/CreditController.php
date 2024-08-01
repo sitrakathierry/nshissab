@@ -195,42 +195,74 @@ class CreditController extends AbstractController
             // $details = [] ;
             $finances = [] ;
             foreach ($financeDetails as $financeDetail) {
-                $details[$financeDetail->idF][] = [
-                    "id" => $financeDetail->id ,
-                    "idF" => $financeDetail->idF,
-                    "description" => $financeDetail->description,
-                    "date" => $financeDetail->date ,
-                    "currentDate" => $financeDetail->currentDate ,
-                    "dateSuivi" => $financeDetail->dateSuivi ,
-                    "dateDebut" => $financeDetail->dateDebut ,
-                    "dateFin" => $financeDetail->dateFin ,
-                    "annee" => $financeDetail->annee ,
-                    "mois" => $financeDetail->mois ,
-                    "montant" => $financeDetail->montant,
-                    "num_credit" => $financeDetail->num_credit,
-                    "client" => $financeDetail->client,
-                    "idClient" => $financeDetail->idClient,
-                    "entrepot" => $financeDetail->entrepot,
-                    "idEntrepot" => $financeDetail->idEntrepot,
-                    "paiement" => $financeDetail->paiement,
-                    "idPaiement" => $financeDetail->idPaiement,
-                    "type" => $financeDetail->type,
-                    "refType" => $financeDetail->refType,
-                    "statut" => $financeDetail->statut,
-                    "totalTtc" => $financeDetail->totalTtc,
-                ] ;
 
-                $finances[$financeDetail->idF] = [
-                    "id" => $financeDetail->idF,
-                    "num_credit" => $financeDetail->num_credit,
-                    "client" => $financeDetail->client,
-                    "idClient" => $financeDetail->idClient,
-                    "entrepot" => $financeDetail->entrepot,
-                    "idEntrepot" => $financeDetail->idEntrepot,
-                    "nbRow" => count($details[$financeDetail->idF]) + 2,
-                    "details" => $details[$financeDetail->idF],
-                    "totalTtc" => $financeDetail->totalTtc
-                ] ;
+                if(!isset($finances[$financeDetail->idF]))
+                {
+                    $oneDetail = [
+                        "id" => $financeDetail->id ,
+                        "idF" => $financeDetail->idF,
+                        "description" => $financeDetail->description,
+                        "date" => $financeDetail->date ,
+                        "currentDate" => $financeDetail->currentDate ,
+                        "dateSuivi" => $financeDetail->dateSuivi ,
+                        "dateDebut" => $financeDetail->dateDebut ,
+                        "dateFin" => $financeDetail->dateFin ,
+                        "annee" => $financeDetail->annee ,
+                        "mois" => $financeDetail->mois ,
+                        "montant" => $financeDetail->montant,
+                        "num_credit" => $financeDetail->num_credit,
+                        "client" => $financeDetail->client,
+                        "idClient" => $financeDetail->idClient,
+                        "entrepot" => $financeDetail->entrepot,
+                        "idEntrepot" => $financeDetail->idEntrepot,
+                        "paiement" => $financeDetail->paiement,
+                        "idPaiement" => $financeDetail->idPaiement,
+                        "type" => $financeDetail->type,
+                        "refType" => $financeDetail->refType,
+                        "statut" => $financeDetail->statut,
+                        "totalTtc" => $financeDetail->totalTtc,
+                    ] ;
+
+                    $finances[$financeDetail->idF] = [
+                        "id" => $financeDetail->idF,
+                        "num_credit" => $financeDetail->num_credit,
+                        "client" => $financeDetail->client,
+                        "idClient" => $financeDetail->idClient,
+                        "entrepot" => $financeDetail->entrepot,
+                        "idEntrepot" => $financeDetail->idEntrepot,
+                        "nbRow" => 3,
+                        "details" => [$oneDetail],
+                        "totalTtc" => $financeDetail->totalTtc
+                    ] ;
+                }
+                else
+                {
+                    $finances[$financeDetail->idF]["details"][] = [
+                        "id" => $financeDetail->id ,
+                        "idF" => $financeDetail->idF,
+                        "description" => $financeDetail->description,
+                        "date" => $financeDetail->date ,
+                        "currentDate" => $financeDetail->currentDate ,
+                        "dateSuivi" => $financeDetail->dateSuivi ,
+                        "dateDebut" => $financeDetail->dateDebut ,
+                        "dateFin" => $financeDetail->dateFin ,
+                        "annee" => $financeDetail->annee ,
+                        "mois" => $financeDetail->mois ,
+                        "montant" => $financeDetail->montant,
+                        "num_credit" => $financeDetail->num_credit,
+                        "client" => $financeDetail->client,
+                        "idClient" => $financeDetail->idClient,
+                        "entrepot" => $financeDetail->entrepot,
+                        "idEntrepot" => $financeDetail->idEntrepot,
+                        "paiement" => $financeDetail->paiement,
+                        "idPaiement" => $financeDetail->idPaiement,
+                        "type" => $financeDetail->type,
+                        "refType" => $financeDetail->refType,
+                        "statut" => $financeDetail->statut,
+                        "totalTtc" => $financeDetail->totalTtc,
+                    ] ;
+                    $finances[$financeDetail->idF]["nbRow"] += 1 ;
+                }
             }   
         }
         else

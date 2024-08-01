@@ -74,7 +74,7 @@ class CrdFinanceRepository extends ServiceEntityRepository
                 $facture = $finance->getFacture() ;
 
                 if(!$facture->isStatut() or $facture->getType()->getReference() != 'DF') 
-                    continue ;
+                    continue ; 
 
                 $refModele = $facture->getModele()->getReference() ; 
 
