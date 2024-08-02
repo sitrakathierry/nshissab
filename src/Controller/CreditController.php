@@ -152,7 +152,10 @@ class CreditController extends AbstractController
 
         foreach ($finances as $finance) 
         {
-            $financeDetails = array_merge($financeDetails,$finance->details) ;
+            foreach($finance->details as $detail)
+            {
+                $financeDetails[] = $detail ;
+            }
         }
 
         $idClient = $request->request->get('idClient') ;
